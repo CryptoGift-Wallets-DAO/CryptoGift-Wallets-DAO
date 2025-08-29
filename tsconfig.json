@@ -2,10 +2,11 @@
   "compilerOptions": {
     /* Language and Environment */
     "target": "ES2022",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "module": "commonjs",
     "moduleResolution": "node",
-    
     /* Strict Type-Checking Options */
     "strict": true,
     "noImplicitAny": true,
@@ -15,7 +16,6 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    
     /* Additional Checks */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -23,22 +23,18 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noPropertyAccessFromIndexSignature": false,
-    
     /* Module Resolution Options */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    
     /* Source Map Options */
     "sourceMap": true,
     "inlineSources": true,
     "inlineSourceMap": false,
-    
     /* Experimental Options */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    
     /* Advanced Options */
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -46,29 +42,45 @@
     "declarationMap": true,
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
-    
     /* Output */
     "outDir": "./dist",
     "rootDir": "./",
-    
     /* Type Roots */
     "typeRoots": [
       "./node_modules/@types",
       "./types"
     ],
-    
     /* Path Mappings */
     "baseUrl": ".",
     "paths": {
-      "@contracts/*": ["./contracts/*"],
-      "@scripts/*": ["./scripts/*"],
-      "@tests/*": ["./tests/*"],
-      "@utils/*": ["./utils/*"],
-      "@types/*": ["./types/*"],
-      "@config/*": ["./config/*"]
-    }
+      "@contracts/*": [
+        "./contracts/*"
+      ],
+      "@scripts/*": [
+        "./scripts/*"
+      ],
+      "@tests/*": [
+        "./tests/*"
+      ],
+      "@utils/*": [
+        "./utils/*"
+      ],
+      "@types/*": [
+        "./types/*"
+      ],
+      "@config/*": [
+        "./config/*"
+      ]
+    },
+    "allowJs": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  
   "include": [
     "./scripts/**/*",
     "./tests/**/*",
@@ -76,9 +88,9 @@
     "./config/**/*",
     "./types/**/*",
     "./typechain-types/**/*",
-    "./hardhat.config.ts"
+    "./hardhat.config.ts",
+    ".next/types/**/*.ts"
   ],
-  
   "exclude": [
     "node_modules",
     "dist",
@@ -90,13 +102,13 @@
     "cache",
     "typechain-types/**/*.d.ts"
   ],
-  
   "files": [
     "./hardhat.config.ts"
   ],
-  
   "ts-node": {
-    "require": ["tsconfig-paths/register"],
+    "require": [
+      "tsconfig-paths/register"
+    ],
     "transpileOnly": true,
     "files": true,
     "compilerOptions": {

@@ -132,3 +132,10 @@ Desktop.ini
 *.rar
 *.tar
 *.zip
+# Sentry Config File
+.env.sentry-build-plugin
+
+# Environment files
+.env.dao
+.env.local
+.env.sentry-build-plugin
