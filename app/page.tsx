@@ -131,7 +131,11 @@ export default function DAODashboard() {
           <div className="space-y-4">
             <ActionButton
               label="Safe Multisig"
-              onClick={() => window.open('https://app.safe.global', '_blank')}
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  window.open('https://app.safe.global', '_blank');
+                }
+              }}
             />
             <ActionButton
               label="Contract Admin"
