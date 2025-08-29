@@ -48,19 +48,16 @@ jobs:
         
     - name: 🧪 Run Test Suite
       run: |
-        cd frontend
         pnpm run test:ci || echo "⚠️ Test failures found but continuing (warning mode)"
       continue-on-error: true
         
     - name: 📊 Coverage Threshold Check (70% minimum)
       run: |
-        cd frontend
         pnpm run test:coverage || echo "⚠️ Coverage below threshold but continuing (warning mode)"
       continue-on-error: true
         
     - name: 🔒 Security Pattern Validation (Non-blocking)
       run: |
-        cd frontend
         
         # Initialize counters
         WARNINGS=0
@@ -134,7 +131,6 @@ jobs:
         
     - name: 🏗️ Production Build Test
       run: |
-        cd frontend
         pnpm run build || echo "⚠️ Build issues found but continuing (warning mode)"
       continue-on-error: true
         
@@ -182,7 +178,6 @@ jobs:
         
     - name: 📊 Generate Security Metrics
       run: |
-        cd frontend
         
         # Get test results and coverage
         COVERAGE=$(pnpm run test:coverage 2>/dev/null | grep -oP 'All files.*?(\d+\.?\d*)%' | tail -1 | grep -oP '\d+\.?\d*' || echo "0")
