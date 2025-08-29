@@ -100,7 +100,11 @@
     ".nyc_output",
     "artifacts",
     "cache",
-    "typechain-types/**/*.d.ts"
+    "typechain-types/**/*.d.ts",
+    "hardhat.config.ts",
+    "contracts/**/*",
+    "scripts/**/*",
+    "test/**/*"
   ],
   "files": [
     "./hardhat.config.ts"

@@ -38,13 +38,11 @@ jobs:
         
     - name: 🔍 TypeScript Compilation Check
       run: |
-        cd frontend
         pnpm run type-check || echo "⚠️ TypeScript errors found but continuing (warning mode)"
       continue-on-error: true
         
     - name: 🧹 ESLint Security Rules
       run: |
-        cd frontend
         pnpm run lint || echo "⚠️ ESLint issues found but continuing (warning mode)"
       continue-on-error: true
         
