@@ -100,7 +100,9 @@
     "hardhat.config.ts",
     "contracts/**/*",
     "scripts/**/*",
-    "test/**/*"
+    "test/**/*",
+    "bots/**/*",
+    "docs/**/*"
   ],
   "ts-node": {
     "require": [
