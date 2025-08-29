@@ -82,14 +82,10 @@
     ]
   },
   "include": [
-    "./scripts/**/*",
-    "./tests/**/*",
-    "./utils/**/*",
-    "./config/**/*",
-    "./types/**/*",
-    "./typechain-types/**/*",
-    "./hardhat.config.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
   ],
   "exclude": [
     "node_modules",
@@ -105,9 +101,6 @@
     "contracts/**/*",
     "scripts/**/*",
     "test/**/*"
-  ],
-  "files": [
-    "./hardhat.config.ts"
   ],
   "ts-node": {
     "require": [
