@@ -223,7 +223,8 @@ jobs:
         
     - name: 🔄 Auto-Escalate Security Enforcement
       run: |
-        node scripts/auto-escalate-security.js
+        echo "⚠️ Auto-escalation script not configured for DAO project"
+        # node scripts/auto-escalate-security.js
         
     - name: 📋 Final Status
       run: |
