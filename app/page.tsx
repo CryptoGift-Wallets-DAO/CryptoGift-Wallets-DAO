@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 export default function DAODashboard() {
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     totalSupply: '1,000,000 CGC',
     circulatingSupply: '0 CGC',
     treasuryBalance: '250,000 CGC',
