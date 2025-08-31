@@ -15,14 +15,17 @@ artifacts/
 cache/
 typechain-types/
 
-# Environment files
+# Environment files - CRITICAL SECURITY
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.deployment
+.env.deployment.*
 .env.*
 !.env.example
+!.env.deployment.example
 
 # Logs
 logs/
@@ -82,11 +85,18 @@ docs/.docusaurus/
 tmp/
 temp/
 
-# Private keys and secrets
+# Private keys and secrets - NEVER COMMIT
 *.pem
 *.key
 *.cert
 *.pfx
+*private-key*
+*private_key*
+*-key.json
+*key.json
+deployment-*.json
+verification-report-*.json
+test-report-*.json
 
 # Database
 *.db

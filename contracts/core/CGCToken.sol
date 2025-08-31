@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
  * @dev Enhanced ERC20 token with voting capabilities for Aragon DAO
  * 
  * Features:
- * - Fixed supply of 1,000,000 tokens
+ * - Fixed supply of 2,000,000 tokens
  * - 18 decimals standard
  * - EIP-2612 permit for gasless approvals
  * - ERC20Votes for on-chain governance
@@ -26,11 +26,11 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 contract CGCToken is ERC20, ERC20Permit, ERC20Votes, Ownable, Pausable {
     // ============ Constants ============
     
-    /// @notice Total supply of CGC tokens (1 million with 18 decimals)
-    uint256 public constant TOTAL_SUPPLY = 1_000_000 * 10**18;
+    /// @notice Total supply of CGC tokens (2 million with 18 decimals)
+    uint256 public constant TOTAL_SUPPLY = 2_000_000 * 10**18;
     
     /// @notice Token logo URI for dApps
-    string public constant logoURI = "https://dao.cryptogift.com/assets/cgc-logo.png";
+    string public constant logoURI = "https://raw.githubusercontent.com/cryptogift-dao/cryptogift-wallets-DAO/main/frontend/public/CGC-logo.png";
     
     /// @notice Contract version
     string public constant version = "2.0.0";
