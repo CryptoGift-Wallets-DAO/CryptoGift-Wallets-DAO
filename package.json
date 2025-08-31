@@ -1,6 +1,7 @@
 {
-  "name": "cryptogift-dao-dashboard",
-  "version": "0.1.0",
+  "name": "cryptogift-dao",
+  "version": "1.0.0",
+  "description": "CryptoGift Wallets DAO - Smart Contracts and Dashboard",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,15 +9,30 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "test": "echo 'No tests configured' && exit 0",
-    "test:ci": "echo 'No tests configured' && exit 0",
-    "test:coverage": "echo 'Coverage: 0%' && exit 0"
+    "test": "hardhat test",
+    "test:ci": "hardhat test",
+    "test:coverage": "hardhat coverage",
+    "compile": "hardhat compile",
+    "clean": "hardhat clean",
+    "size": "hardhat size-contracts",
+    "deploy:precheck": "hardhat run scripts/deploy/pre-deployment-check.ts",
+    "deploy:base": "hardhat run scripts/deploy/deploy-all-with-verification.ts --network base",
+    "deploy:sepolia": "hardhat run scripts/deploy/deploy-all-with-verification.ts --network baseSepolia",
+    "deploy:master": "bash scripts/DEPLOY_MASTER.sh",
+    "eas:register": "hardhat run scripts/deploy/register-eas-schema.ts",
+    "aragon:setup": "hardhat run scripts/deploy/setup-aragon-permissions.ts",
+    "verify": "hardhat verify"
   },
   "dependencies": {
+    "@aragon/osx-ethers": "^1.4.0",
+    "@aragon/sdk-client": "^1.20.0",
+    "@ethereum-attestation-service/eas-sdk": "^2.0.0",
+    "@openzeppelin/contracts": "^5.0.1",
     "@sentry/nextjs": "^10.7.0",
     "@tanstack/react-query": "^5.62.0",
     "@upstash/redis": "^1.35.0",
     "axios": "^1.7.9",
+    "dotenv": "^16.4.1",
     "ethers": "^6.13.4",
     "next": "14.2.18",
     "react": "^18.3.1",
@@ -25,14 +41,25 @@
     "wagmi": "^2.13.2"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.3",
+    "@nomiclabs/hardhat-solhint": "^3.0.1",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
     "@types/node": "^20.17.10",
     "@types/react": "^18.3.13",
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.18",
+    "hardhat": "^2.19.4",
+    "hardhat-contract-sizer": "^2.10.0",
+    "hardhat-gas-reporter": "^1.0.9",
     "postcss": "^8.4.49",
+    "solidity-coverage": "^0.8.5",
     "tailwindcss": "^3.4.17",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
-  }
+  },
+  "type": "commonjs"
 }

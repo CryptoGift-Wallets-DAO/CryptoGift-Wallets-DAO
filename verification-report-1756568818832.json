@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-08-30T15:46:58.831Z",
+  "chainId": 8453,
+  "rpcUrl": "https://mainnet.base.org",
+  "results": {
+    "CGCToken": {
+      "deployed": true,
+      "error": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x8da5cb5b\", \"to\": \"0xe8AF8cF18DA5c540daffe76Ae5fEE31C80c74899\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.15.0)"
+    },
+    "GovTokenVault": {
+      "deployed": true
+    },
+    "AllowedSignersCondition": {
+      "deployed": true
+    },
+    "MerklePayouts": {
+      "deployed": true
+    }
+  },
+  "summary": {
+    "deployed": 4,
+    "total": 4,
+    "allDeployed": true
+  }
+}
