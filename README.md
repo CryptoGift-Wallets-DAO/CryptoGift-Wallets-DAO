@@ -2,6 +2,24 @@
 
 > From zero to Web3—together. Learn. Earn. Co-govern.
 
+## 🤖 INICIO RÁPIDO PARA CLAUDE SESSIONS
+
+**🚨 IMPORTANTE**: Si vienes de un crash de Claude CLI, lee **PRIMERO** el archivo [`CLAUDE.md`](./CLAUDE.md) para recuperar el contexto completo.
+
+### 📚 Archivos Críticos para Iniciar
+1. **[`CLAUDE.md`](./CLAUDE.md)** - Información de sesión y comandos esenciales
+2. **[`CLAUDE_CRASH_PREVENTION.md`](./CLAUDE_CRASH_PREVENTION.md)** - Anti-crash protocol
+3. **[`SESION_CONTINUIDAD_30AGO2025.md`](./SESION_CONTINUIDAD_30AGO2025.md)** - Contexto de última sesión
+
+### ⚡ Verificación Inmediata
+```bash
+# Estado de contratos desplegados
+node scripts/verify-contracts-external.js
+
+# Estado completo del proyecto
+node scripts/emergency-toolkit.js status
+```
+
 ## 📋 Estado del Proyecto
 
 **Fase**: Implementación Inicial  
@@ -25,28 +43,40 @@
 git clone https://github.com/cryptogift-wallets/dao.git
 cd cryptogift-wallets-DAO
 
-# Instalar dependencias
-npm install
+# 🟢 IMPORTANTE: Este proyecto usa PNPM
+pnpm install
 
 # Configurar ambiente
-cp .env.example .env
-# Editar .env con tus valores
+cp .env.example .env.dao
+# Editar .env.dao con tus valores
 ```
 
-### Deployment
+### 🚨 Package Manager Policy
+
+**🟢 PNPM** (todo el proyecto):
+```bash
+pnpm install              # Dependencias
+pnpm run compile          # Compilar contratos  
+pnpm exec hardhat test    # Tests
+pnpm exec hardhat run scripts/deploy-production-final.js --network base
+```
+
+**🟡 NPM** (solo Claude CLI):
+```bash
+npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
+```
+
+### Deployment (YA COMPLETADO ✅)
 
 ```bash
-# 1. Deploy CGC Token
-npx hardhat run scripts/deploy/00-deploy-token.ts --network base
+# ✅ Estado actual: Todos los contratos desplegados
+# CGC Token: 0xe8AF8cF18DA5c540daffe76Ae5fEE31C80c74899
+# GovTokenVault: 0xF5606020e772308cc66F2fC3D0832bf9E17E68e0
+# AllowedSignersCondition: 0x6101CAAAD91A848d911171B82369CF90B8B00597
+# MerklePayouts: 0xC75Be1A1fCb412078102b7C286d12E8ACc75b922
 
-# 2. Deploy Vault y contratos
-npx hardhat run scripts/deploy/01-deploy-vault.ts --network base
-
-# 3. Configurar permisos en Aragon
-npx hardhat run scripts/deploy/02-setup-aragon.ts --network base
-
-# 4. Registrar schema EAS
-npx hardhat run scripts/deploy/03-register-eas.ts --network base
+# Para re-deployment (si necesario):
+pnpm exec hardhat run scripts/deploy-production-final.js --network base
 ```
 
 ## 🏗️ Arquitectura
