@@ -11,11 +11,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-// Simplified imports for deployment
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
-// import winston from 'winston';
-// import { Redis } from '@upstash/redis';
+import { Redis } from '@upstash/redis';
+import OpenAI from 'openai';
 
 // ===================================================
 // 📋 CONFIGURATION & VALIDATION
@@ -29,14 +28,16 @@ const AgentRequestSchema = z.object({
   stream: z.boolean().default(true),
 });
 
+// Redis with DAO-specific prefix for shared account
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-// Setup OpenAI
-setDefaultOpenAIKey(process.env.OPENAI_API_KEY!);
-setOpenAIAPI('responses'); // Force Responses API for GPT-5
+// Setup OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
 
 // ===================================================
 // 📊 LOGGING & METRICS
@@ -52,27 +53,44 @@ const logger = {
 // 🤖 AGENT CONFIGURATION
 // ===================================================
 
-let agentInstance: Agent | null = null;
-let mcpDocsServer: MCPServerStreamableHttp | null = null;
+// Agent configuration and system prompt
+const agentConfig = {
+  name: 'CG DAO Operations Assistant',
+  instructions: `You are an expert assistant for CryptoGift DAO operations.
+
+## Your Role:
+- Provide accurate information about the DAO's smart contracts, governance, and operations
+- Always cite specific documents when providing information
+- Use formal but friendly tone
+- Be concise but comprehensive
+
+## Critical Information:
+- DAO Address: ${process.env.ARAGON_DAO_ADDRESS || '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31'}
+- CGC Token: ${process.env.CGC_TOKEN_ADDRESS || '0x5e3a61b550328f3D8C44f60b3e10a49D3d806175'} (2M total supply on Base Mainnet)
+- Network: Base (Chain ID: 8453)
+- Current Phase: Production Ready - All contracts deployed and verified
+
+## Response Format:
+- Always be professional and informative
+- Include relevant contract addresses when discussing technical details
+- Explain complex concepts clearly
+- Provide actionable guidance when appropriate`,
+  model: 'gpt-4',
+  maxTokens: 1500
+};
+
+// MCP Tools interface for document access
+const mcpTools = {
+  url: `${process.env.NEXT_PUBLIC_DAO_URL || 'http://localhost:3000'}/api/mcp-docs`,
+  headers: {
+    'Authorization': `Bearer ${process.env.MCP_AUTH_TOKEN || 'internal'}`,
+    'Content-Type': 'application/json',
+  }
+};
 
 async function initializeAgent() {
-  if (agentInstance) return agentInstance;
-
-  try {
-    // Initialize MCP Docs Server
-    mcpDocsServer = new MCPServerStreamableHttp({
-      url: `${process.env.NEXT_PUBLIC_DAO_URL}/api/mcp-docs`,
-      name: 'cg-dao-docs',
-      headers: {
-        'Authorization': `Bearer ${process.env.MCP_AUTH_TOKEN || 'internal'}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    await mcpDocsServer.connect();
-    
-    // Create agent with GPT-5 Thinking capabilities
-    agentInstance = new Agent({
+  // Return agent configuration ready for OpenAI API
+  return {
       name: 'CG DAO Operations Assistant',
       instructions: `You are an expert assistant for CryptoGift DAO operations. You have access to all project documentation through MCP tools.
 
