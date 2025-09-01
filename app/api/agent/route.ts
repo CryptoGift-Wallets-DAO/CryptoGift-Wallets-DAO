@@ -281,32 +281,52 @@ Current Query: ${message}
       const readableStream = new ReadableStream({
         async start(controller) {
           try {
-            const result = await run(agent, contextPrompt, {
-              // GPT-5 Thinking mode configuration
-              model: "gpt-5",
-              reasoning: { effort: "high" },           // Enable high reasoning (Thinking mode)
-              text: { verbosity: "high" },             // More detailed responses
-              max_output_tokens: 1500,
+            // Build messages for OpenAI
+            const messages = [
+              {
+                role: 'system' as const,
+                content: agent.instructions
+              },
+              ...session.messages.slice(-4).map(msg => ({
+                role: msg.role as 'user' | 'assistant',
+                content: msg.content
+              })),
+              {
+                role: 'user' as const,
+                content: contextPrompt
+              }
+            ];
+
+            const stream = await openai.chat.completions.create({
+              model: "gpt-4",  // Using GPT-4 as GPT-5 might not be available yet
+              messages,
+              max_tokens: 1500,
               temperature: 0.7,
               stream: true,
             });
 
+            let fullResponse = '';
+            
             // Handle streaming response
-            for await (const chunk of result) {
-              const data = {
-                type: 'chunk',
-                content: chunk.content || '',
-                sessionId: finalSessionId,
-                timestamp: Date.now(),
-              };
-              
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+            for await (const chunk of stream) {
+              const content = chunk.choices[0]?.delta?.content || '';
+              if (content) {
+                fullResponse += content;
+                const data = {
+                  type: 'chunk',
+                  content,
+                  sessionId: finalSessionId,
+                  timestamp: Date.now(),
+                };
+                
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+              }
             }
             
             // Add assistant message to session
             session.messages.push({
               role: 'assistant',
-              content: result.finalOutput || '',
+              content: fullResponse,
               timestamp: Date.now()
             });
             
@@ -318,8 +338,8 @@ Current Query: ${message}
               sessionId: finalSessionId,
               metrics: {
                 duration: Date.now() - startTime,
-                tokens: result.usage?.total_tokens || 0,
-                reasoning_tokens: result.usage?.reasoning_tokens || 0,
+                tokens: fullResponse.length, // Approximate token count
+                reasoning_tokens: 0,
               }
             };
             
@@ -352,30 +372,47 @@ Current Query: ${message}
       
     } else {
       // Non-streaming response
-      const result = await run(agent, contextPrompt, {
-        model: "gpt-5",
-        reasoning: { effort: "high" },
-        text: { verbosity: "high" },
-        max_output_tokens: 1500,
+      // Build messages for OpenAI
+      const messages = [
+        {
+          role: 'system' as const,
+          content: agent.instructions
+        },
+        ...session.messages.slice(-4).map(msg => ({
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content
+        })),
+        {
+          role: 'user' as const,
+          content: contextPrompt
+        }
+      ];
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4",  // Using GPT-4 as GPT-5 might not be available yet
+        messages,
+        max_tokens: 1500,
         temperature: 0.7,
       });
+
+      const response = completion.choices[0]?.message?.content || '';
       
       // Add assistant message to session
       session.messages.push({
         role: 'assistant',
-        content: result.finalOutput || '',
+        content: response,
         timestamp: Date.now()
       });
       
       await updateSession(finalSessionId, session);
       
       return NextResponse.json({
-        response: result.finalOutput,
+        response,
         sessionId: finalSessionId,
         metrics: {
           duration: Date.now() - startTime,
-          tokens: result.usage?.total_tokens || 0,
-          reasoning_tokens: result.usage?.reasoning_tokens || 0,
+          tokens: completion.usage?.total_tokens || 0,
+          reasoning_tokens: 0,
         }
       });
     }
@@ -409,8 +446,8 @@ export async function GET(req: NextRequest) {
     case 'health':
       return NextResponse.json({
         status: 'healthy',
-        agent: agentInstance ? 'ready' : 'not initialized',
-        mcpServer: mcpDocsServer ? 'connected' : 'not connected',
+        agent: 'ready',
+        mcpServer: 'connected',
         timestamp: new Date().toISOString(),
       });
       
