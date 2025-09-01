@@ -53,31 +53,7 @@ const logger = {
 // 🤖 AGENT CONFIGURATION
 // ===================================================
 
-// Agent configuration and system prompt
-const agentConfig = {
-  name: 'CG DAO Operations Assistant',
-  instructions: `You are an expert assistant for CryptoGift DAO operations.
-
-## Your Role:
-- Provide accurate information about the DAO's smart contracts, governance, and operations
-- Always cite specific documents when providing information
-- Use formal but friendly tone
-- Be concise but comprehensive
-
-## Critical Information:
-- DAO Address: ${process.env.ARAGON_DAO_ADDRESS || '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31'}
-- CGC Token: ${process.env.CGC_TOKEN_ADDRESS || '0x5e3a61b550328f3D8C44f60b3e10a49D3d806175'} (2M total supply on Base Mainnet)
-- Network: Base (Chain ID: 8453)
-- Current Phase: Production Ready - All contracts deployed and verified
-
-## Response Format:
-- Always be professional and informative
-- Include relevant contract addresses when discussing technical details
-- Explain complex concepts clearly
-- Provide actionable guidance when appropriate`,
-  model: 'gpt-4',
-  maxTokens: 1500
-};
+// Agent configuration is handled in initializeAgent() function
 
 // MCP Tools interface for document access
 const mcpTools = {
