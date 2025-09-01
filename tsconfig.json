@@ -53,6 +53,9 @@
     /* Path Mappings */
     "baseUrl": ".",
     "paths": {
+      "@/*": [
+        "./*"
+      ],
       "@contracts/*": [
         "./contracts/*"
       ],
