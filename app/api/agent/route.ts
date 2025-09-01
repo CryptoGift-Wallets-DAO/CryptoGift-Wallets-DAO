@@ -387,23 +387,7 @@ Current Query: ${message}
 // 🔍 GET HANDLER (HEALTH CHECK & METRICS)
 // ===================================================
 
-export async function GET() {
-  return NextResponse.json({
-    service: 'CG DAO Agent API',
-    version: '1.0.0',
-    status: 'placeholder',
-    message: 'Simplified for deployment - Full GPT-5 integration coming soon',
-    capabilities: [
-      'GPT-5 Thinking Mode (planned)',
-      'MCP Document Access (planned)', 
-      'Session Management (planned)',
-      'Rate Limiting (planned)',
-      'Streaming Responses (planned)'
-    ]
-  });
-}
-
-export async function GET_FULL(req: NextRequest) {
+export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const action = url.searchParams.get('action');
   
