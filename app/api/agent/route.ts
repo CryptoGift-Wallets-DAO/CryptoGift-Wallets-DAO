@@ -11,11 +11,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { Agent, run, MCPServerStreamableHttp, setDefaultOpenAIKey, setOpenAIAPI } from '@openai/agents';
+// Simplified imports for deployment
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
-import winston from 'winston';
-import { Redis } from '@upstash/redis';
+// import winston from 'winston';
+// import { Redis } from '@upstash/redis';
 
 // ===================================================
 // 📋 CONFIGURATION & VALIDATION
@@ -208,7 +208,15 @@ async function updateSession(sessionId: string, session: SessionContext) {
 // 🚀 MAIN API HANDLER
 // ===================================================
 
-export async function POST(req: NextRequest) {
+export async function POST() {
+  return NextResponse.json({ 
+    message: "Agent API - simplified for deployment. Full GPT-5 integration coming soon.",
+    status: 'placeholder',
+    features: ['GPT-5 Thinking Mode', 'MCP Document Access', 'SSE Streaming']
+  });
+}
+
+export async function POST_FULL(req: NextRequest) {
   const startTime = Date.now();
   const sessionId = nanoid();
   
@@ -394,7 +402,23 @@ Current Query: ${message}
 // 🔍 GET HANDLER (HEALTH CHECK & METRICS)
 // ===================================================
 
-export async function GET(req: NextRequest) {
+export async function GET() {
+  return NextResponse.json({
+    service: 'CG DAO Agent API',
+    version: '1.0.0',
+    status: 'placeholder',
+    message: 'Simplified for deployment - Full GPT-5 integration coming soon',
+    capabilities: [
+      'GPT-5 Thinking Mode (planned)',
+      'MCP Document Access (planned)', 
+      'Session Management (planned)',
+      'Rate Limiting (planned)',
+      'Streaming Responses (planned)'
+    ]
+  });
+}
+
+export async function GET_FULL(req: NextRequest) {
   const url = new URL(req.url);
   const action = url.searchParams.get('action');
   
