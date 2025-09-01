@@ -201,15 +201,7 @@ async function updateSession(sessionId: string, session: SessionContext) {
 // 🚀 MAIN API HANDLER
 // ===================================================
 
-export async function POST() {
-  return NextResponse.json({ 
-    message: "Agent API - simplified for deployment. Full GPT-5 integration coming soon.",
-    status: 'placeholder',
-    features: ['GPT-5 Thinking Mode', 'MCP Document Access', 'SSE Streaming']
-  });
-}
-
-export async function POST_FULL(req: NextRequest) {
+export async function POST(req: NextRequest) {
   const startTime = Date.now();
   const sessionId = nanoid();
   
