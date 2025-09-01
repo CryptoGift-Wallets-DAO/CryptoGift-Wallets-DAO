@@ -42,18 +42,11 @@ setOpenAIAPI('responses'); // Force Responses API for GPT-5
 // 📊 LOGGING & METRICS
 // ===================================================
 
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.simple()
-    })
-  ]
-});
+const logger = {
+  info: (msg: string, data?: any) => console.log(`[INFO] ${msg}`, data || ''),
+  error: (msg: string, error?: any) => console.error(`[ERROR] ${msg}`, error || ''),
+  warn: (msg: string, data?: any) => console.warn(`[WARN] ${msg}`, data || '')
+};
 
 // ===================================================
 // 🤖 AGENT CONFIGURATION

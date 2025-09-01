@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import { join, resolve, extname, basename } from 'path';
 import { z } from 'zod';
-import winston from 'winston';
+// Simplified for deployment - removed winston dependency
 
 // ===================================================
 // 📋 TYPES & VALIDATION
@@ -66,18 +66,11 @@ const BLOCKED_PATHS = [
   'secrets'
 ];
 
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.simple()
-    })
-  ]
-});
+const logger = {
+  info: (msg: string, data?: any) => console.log(`[MCP-INFO] ${msg}`, data || ''),
+  error: (msg: string, error?: any) => console.error(`[MCP-ERROR] ${msg}`, error || ''),
+  warn: (msg: string, data?: any) => console.warn(`[MCP-WARN] ${msg}`, data || '')
+};
 
 // ===================================================
 // 🛡️ SECURITY HELPERS
