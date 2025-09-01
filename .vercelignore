@@ -1,9 +1,2 @@
-# Ignore agent components temporarily for deployment
-components/agent/
-lib/agent/
-app/api/agent/
-app/api/mcp-docs/
-
-# Keep core functionality
-!components/agent/AgentSidebar.tsx
-!components/agent/FloatingAgentButton.tsx
+# Allow all agent components for deployment
+# Agent system is now production ready
