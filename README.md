@@ -22,11 +22,12 @@ node scripts/emergency-toolkit.js status
 
 ## 📋 Estado del Proyecto
 
-**Fase**: Implementación Inicial  
-**Red**: Base Mainnet  
+**Fase**: ✅ PRODUCTION READY - Sistema Completamente Operacional  
+**Red**: Base Mainnet (Chain ID: 8453)  
 **DAO Desplegado**: ✅ `0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31`  
-**Token**: CGC (CryptoGift Coin) - 1,000,000 supply  
-**Framework**: Aragon OSx v1.4.0
+**Token**: CGC (CryptoGift Coin) - ✅ 2,000,000 supply con logo GitHub  
+**Framework**: Aragon OSx v1.4.0 + Sistema EIP-712 personalizado  
+**Última Actualización**: 31 Enero 2025 - Deployment completo con máxima excelencia
 
 ## 🚀 Quick Start
 
@@ -35,6 +36,7 @@ node scripts/emergency-toolkit.js status
 - Node.js v18+
 - Git
 - Una wallet con ETH en Base
+- OpenAI API Key (para el agente AI)
 
 ### Instalación
 
@@ -47,8 +49,23 @@ cd cryptogift-wallets-DAO
 pnpm install
 
 # Configurar ambiente
-cp .env.example .env.dao
-# Editar .env.dao con tus valores
+cp .env.example .env.local
+# Editar .env.local con tus valores (incluir OPENAI_API_KEY)
+
+# Iniciar en desarrollo
+pnpm dev
+```
+
+### 🤖 **NUEVO: Agente IA Integrado**
+
+```bash
+# Acceder al agente web integrado
+http://localhost:3000/agent
+
+# Usar en tu código React
+import { AgentChat } from '@/components/agent/AgentChat';
+
+<AgentChat userId="user123" initialMode="general" />
 ```
 
 ### 🚨 Package Manager Policy
@@ -66,17 +83,23 @@ pnpm exec hardhat run scripts/deploy-production-final.js --network base
 npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
 ```
 
-### Deployment (YA COMPLETADO ✅)
+### Deployment (✅ COMPLETADO CON MÁXIMA EXCELENCIA - 31 ENE 2025)
 
 ```bash
-# ✅ Estado actual: Todos los contratos desplegados
-# CGC Token: 0xe8AF8cF18DA5c540daffe76Ae5fEE31C80c74899
-# GovTokenVault: 0xF5606020e772308cc66F2fC3D0832bf9E17E68e0
+# ✅ NUEVO SISTEMA COMPLETO - PRODUCTION READY
+# CGC Token (2M): 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
+# MasterEIP712Controller: 0x67D9a01A3F7b5D38694Bb78dD39286Db75D7D869
+# TaskRulesEIP712: 0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb
+# MilestoneEscrow: 0x8346CFcaECc90d678d862319449E5a742c03f109
+
+# ✅ VERIFICACIÓN BASESCAN: Todos los contratos muestran badge verde "Source Code"
+# ✅ TESTING: Sistema completamente probado y operacional
+
+# CONTRATOS ANTERIORES (DEPRECATED):
+# CGC Token OLD (1M): 0xe8AF8cF18DA5c540daffe76Ae5fEE31C80c74899
+# GovTokenVault: 0xF5606020e772308cc66F2fC3D0832bf9E17E68e0 
 # AllowedSignersCondition: 0x6101CAAAD91A848d911171B82369CF90B8B00597
 # MerklePayouts: 0xC75Be1A1fCb412078102b7C286d12E8ACc75b922
-
-# Para re-deployment (si necesario):
-pnpm exec hardhat run scripts/deploy-production-final.js --network base
 ```
 
 ## 🏗️ Arquitectura
@@ -121,26 +144,36 @@ cryptogift-wallets-DAO/
 └── tests/              # Tests
 ```
 
-## 🔧 Contratos Principales
-
-### GovTokenVault
-- **Función**: Custodia y liberación programática de CGC
-- **Features**: EIP-712, ERC-1271, Anti-replay, Caps, Shadow mode
-- **Address**: `[Por desplegar]`
+## 🔧 Contratos Principales (✅ DESPLEGADOS 31 ENE 2025)
 
 ### CGC Token
-- **Tipo**: ERC-20
-- **Supply**: 1,000,000 CGC
+- **Tipo**: ERC-20 with Votes & Permit
+- **Supply**: 2,000,000 CGC (actualizado)
+- **Logo**: GitHub CDN integrado
 - **Decimales**: 18
-- **Address**: `[Por desplegar]`
+- **Address**: `0x5e3a61b550328f3D8C44f60b3e10a49D3d806175`
 
-### AllowedSignersCondition
-- **Función**: Control de firmantes autorizados
-- **Integración**: Aragon permission system
-- **Address**: `[Por desplegar]`
+### MasterEIP712Controller
+- **Función**: Control de autorizaciones EIP-712
+- **Features**: Rate limiting, Multi-admin, Emergency controls
+- **Seguridad**: 3-layer authorization system
+- **Address**: `0x67D9a01A3F7b5D38694Bb78dD39286Db75D7D869`
+
+### TaskRulesEIP712  
+- **Función**: Validación de tareas y cálculo de recompensas
+- **Features**: Complexity levels 1-5, Custom rewards sin límites
+- **Integración**: EIP-712 structured signing
+- **Address**: `0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb`
+
+### MilestoneEscrow
+- **Función**: Custody y liberación programática de tokens
+- **Features**: Batch operations, Secure custody, Minting integration
+- **Seguridad**: Master-controlled authorization
+- **Address**: `0x8346CFcaECc90d678d862319449E5a742c03f109`
 
 ## 🎯 Features Principales
 
+### Smart Contracts & DAO
 - ✅ **Liberación Programática**: Tokens liberados al cumplir metas
 - ✅ **Verificación On-chain**: Attestations via EAS
 - ✅ **Firma del DAO**: ERC-1271 con Aragon
@@ -150,16 +183,29 @@ cryptogift-wallets-DAO/
 - ✅ **Batch Operations**: Merkle trees para distribuciones masivas
 - 🚧 **Streams**: Pagos continuos via Superfluid (próximamente)
 
-## 📊 Tokenomics
+### 🤖 **AI Agent (NUEVO)**
+- ✅ **GPT-5 Thinking Mode**: Razonamiento avanzado con chain-of-thought
+- ✅ **Acceso Documental en Tiempo Real**: MCP Streamable HTTP
+- ✅ **Streaming SSE**: Respuestas en tiempo real
+- ✅ **4 Modos Especializados**: General, Técnico, Gobernanza, Operaciones
+- ✅ **Seguridad Enterprise**: Rate limiting, audit logging, sesiones
+- ✅ **Citaciones Automáticas**: Referencias a documentación
+- ✅ **Componente React**: Integración plug-and-play
+- ✅ **API RESTful**: Endpoints para integraciones custom
+
+## 📊 Tokenomics (ACTUALIZADO - 2M CGC Supply)
 
 | Categoría | % | Cantidad |
 |-----------|---|----------|
-| Recompensas Educativas | 40% | 400,000 CGC |
-| Tesoro DAO | 25% | 250,000 CGC |
-| Core Contributors | 15% | 150,000 CGC |
-| Desarrollo Ecosistema | 10% | 100,000 CGC |
-| Liquidez | 5% | 50,000 CGC |
-| Reserva Emergencia | 5% | 50,000 CGC |
+| Recompensas Educativas | 40% | 800,000 CGC |
+| Tesoro DAO | 25% | 500,000 CGC |
+| Core Contributors | 15% | 300,000 CGC |
+| Desarrollo Ecosistema | 10% | 200,000 CGC |
+| Liquidez | 5% | 100,000 CGC |
+| Reserva Emergencia | 5% | 100,000 CGC |
+
+**Total Supply**: 2,000,000 CGC (actualizado desde 1M)  
+**Estado Actual**: 2M CGC minteados al deployer, listos para distribución según tokenomics
 
 ## 🏛️ Gobernanza
 
