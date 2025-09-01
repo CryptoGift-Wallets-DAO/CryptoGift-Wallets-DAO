@@ -90,7 +90,8 @@ const mcpTools = {
 
 async function initializeAgent() {
   // Return agent configuration ready for OpenAI API
-  return {
+  try {
+    return {
       name: 'CG DAO Operations Assistant',
       instructions: `You are an expert assistant for CryptoGift DAO operations. You have access to all project documentation through MCP tools.
 
@@ -122,18 +123,13 @@ async function initializeAgent() {
 - Never provide private keys or sensitive information
 - Only reference publicly deployed contract addresses
 - Always recommend best practices for DAO operations`,
-      
-      mcpServers: [mcpDocsServer],
-    });
-
-    logger.info('Agent initialized successfully', {
-      mcpServers: agentInstance.mcpServers?.length || 0,
-    });
-
-    return agentInstance;
+      model: 'gpt-4',
+      maxTokens: 1500,
+      mcpTools: mcpTools
+    };
   } catch (error) {
     logger.error('Failed to initialize agent:', error);
-    throw new Error('Agent initialization failed');
+    throw new Error('Failed to initialize agent system');
   }
 }
 
