@@ -207,13 +207,17 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
  * Formatea un mensaje para display
  */
 export function formatMessage(message: Message): string {
+  const content = typeof message.content === 'string' 
+    ? message.content 
+    : JSON.stringify(message.content);
+    
   if (message.role === 'user') {
-    return `👤 ${message.content}`;
+    return `👤 ${content}`;
   }
   if (message.role === 'assistant') {
-    return `🤖 ${message.content}`;
+    return `🤖 ${content}`;
   }
-  return message.content;
+  return content;
 }
 
 /**
