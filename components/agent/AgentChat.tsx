@@ -322,7 +322,7 @@ export function AgentChat({
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={`Ask about ${AGENT_MODES[selectedMode].name.toLowerCase()}...`}
+              placeholder={`Ask about ${AGENT_MODES[selectedMode]?.name?.toLowerCase() || 'general topics'}...`}
               disabled={isLoading || !isConnected}
               className="flex-1"
               maxLength={4000}
