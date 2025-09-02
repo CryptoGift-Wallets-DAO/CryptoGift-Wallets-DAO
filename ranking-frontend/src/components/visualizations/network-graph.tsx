@@ -34,16 +34,11 @@ export function NetworkGraph({ data, height = 384, className }: NetworkGraphProp
   const [selectedNode, setSelectedNode] = React.useState<string | null>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
   
-  if (!data || data.length === 0) {
-    return (
-      <div className={cn("flex items-center justify-center bg-muted/20 rounded-lg", className)} style={{ height }}>
-        <p className="text-muted-foreground">No network data available</p>
-      </div>
-    )
-  }
-
-  // Generate network data
+  // Generate network data - moved before early return
   const generateNetworkData = React.useMemo(() => {
+    if (!data || data.length === 0) {
+      return { nodes: [], edges: [] };
+    }
     const width = 600
     const graphHeight = height - 40
 
@@ -126,6 +121,15 @@ export function NetworkGraph({ data, height = 384, className }: NetworkGraphProp
   }, [data, height])
 
   const { nodes, edges, width, height: graphHeight } = generateNetworkData
+
+  // Early return after hooks
+  if (!data || data.length === 0) {
+    return (
+      <div className={cn("flex items-center justify-center bg-muted/20 rounded-lg", className)} style={{ height }}>
+        <p className="text-muted-foreground">No network data available</p>
+      </div>
+    )
+  }
 
   return (
     <div 

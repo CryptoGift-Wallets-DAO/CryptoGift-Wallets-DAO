@@ -137,7 +137,7 @@ export function RankingsTable({
         {filters.searchQuery && (
           <div className="flex items-center space-x-2">
             <Badge variant="outline" className="text-xs">
-              Search: "{filters.searchQuery}"
+              Search: &quot;{filters.searchQuery}&quot;
             </Badge>
             <Button
               variant="ghost"

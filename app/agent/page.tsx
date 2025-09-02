@@ -231,7 +231,7 @@ export default function AgentPage() {
               <div>
                 <h4 className="font-medium mb-2">3. Use React Component</h4>
                 <div className="bg-gray-100 p-3 rounded text-sm">
-                  <code>&lt;AgentChat userId="user123" /&gt;</code>
+                  <code>&lt;AgentChat userId=&quot;user123&quot; /&gt;</code>
                 </div>
               </div>
             </div>

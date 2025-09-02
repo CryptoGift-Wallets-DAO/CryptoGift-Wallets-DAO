@@ -278,7 +278,7 @@ export function AgentChat({
             {messages.length === 0 && (
               <div className="text-center text-gray-500 py-8">
                 <Bot className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p className="mb-2">Hello! I'm your CG DAO Assistant.</p>
+                <p className="mb-2">Hello! I&apos;m your CG DAO Assistant.</p>
                 <p className="text-sm">Ask me anything about the DAO, contracts, or governance!</p>
               </div>
             )}
