@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 
@@ -145,7 +145,7 @@ contract MasterEIP712Controller is Ownable, Pausable, ReentrancyGuard, EIP712 {
     constructor(
         address _emergencyAdmin,
         address _technicalAdmin
-    ) EIP712("MasterEIP712Controller", "1") {
+    ) Ownable(_emergencyAdmin) EIP712("MasterEIP712Controller", "1") {
         require(_emergencyAdmin != address(0), "Invalid emergency admin");
         require(_technicalAdmin != address(0), "Invalid technical admin");
         
@@ -286,10 +286,10 @@ contract MasterEIP712Controller is Ownable, Pausable, ReentrancyGuard, EIP712 {
         if (!authorizedEscrows[escrow]) return false;
         
         // Check if globally authorized or specifically authorized
-        bool isAuthorized = globallyAuthorizedEIP712[eip712Contract] || 
+        bool contractAuthorized = globallyAuthorizedEIP712[eip712Contract] || 
                            escrowToEIP712Authorization[escrow][eip712Contract];
         
-        if (!isAuthorized) return false;
+        if (!contractAuthorized) return false;
         
         // Check deadline
         if (block.timestamp > deadline) return false;

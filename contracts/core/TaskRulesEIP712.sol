@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 
@@ -146,9 +146,9 @@ contract TaskRulesEIP712 is AccessControl, Pausable, ReentrancyGuard, EIP712 {
     // ============ Constructor ============
     
     constructor() EIP712("TaskRulesEIP712", "1") {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(MANAGER_ROLE, msg.sender);
-        _setupRole(VALIDATOR_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(MANAGER_ROLE, msg.sender);
+        _grantRole(VALIDATOR_ROLE, msg.sender);
         
         // Initialize default base rewards (can be changed later)
         baseRewards[1] = 100 * 10**18;  // 100 CGC

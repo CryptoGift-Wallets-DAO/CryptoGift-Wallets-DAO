@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title CGCToken (CryptoGift Coin)
@@ -292,21 +292,21 @@ contract CGCToken is ERC20, ERC20Permit, ERC20Votes, Ownable, Pausable {
     
     /**
      * @notice Returns token metadata for external integrations
-     * @return name Token name
-     * @return symbol Token symbol
-     * @return decimals Token decimals
-     * @return totalSupply Total token supply
-     * @return version Contract version
+     * @return tokenName Token name
+     * @return tokenSymbol Token symbol
+     * @return tokenDecimals Token decimals
+     * @return tokenTotalSupply Total token supply
+     * @return tokenVersion Contract version
      */
     function getTokenInfo() 
         external 
         view 
         returns (
-            string memory name,
-            string memory symbol,
-            uint8 decimals,
-            uint256 totalSupply,
-            string memory version
+            string memory tokenName,
+            string memory tokenSymbol,
+            uint8 tokenDecimals,
+            uint256 tokenTotalSupply,
+            string memory tokenVersion
         ) 
     {
         return (
@@ -350,20 +350,20 @@ contract CGCToken is ERC20, ERC20Permit, ERC20Votes, Ownable, Pausable {
     /**
      * @notice Get holder statistics
      * @return total Total number of holders
-     * @return dao DAO address
+     * @return daoAddress DAO address
      * @return daoBalance DAO's current balance
      * @return daoPercentage DAO's percentage of total supply
      */
     function getHolderStats() external view returns (
         uint256 total,
-        address dao,
+        address daoAddress,
         uint256 daoBalance,
         uint256 daoPercentage
     ) {
         uint256 daoTokens = balanceOf(dao);
         return (
             totalHolders,
-            dao,
+            daoAddress,
             daoTokens,
             totalSupply() > 0 ? (daoTokens * 1000000) / totalSupply() : 0
         );
