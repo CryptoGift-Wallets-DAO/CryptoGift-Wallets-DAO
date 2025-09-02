@@ -252,9 +252,9 @@ export function AgentChat({
             </div>
             
             {/* Quick Actions */}
-            {AGENT_MODES[selectedMode].quickActions.length > 0 && (
+            {(AGENT_MODES[selectedMode]?.quickActions?.length ?? 0) > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
-                {AGENT_MODES[selectedMode].quickActions.map((action) => (
+                {AGENT_MODES[selectedMode]?.quickActions?.map((action) => (
                   <Button
                     key={action.id}
                     variant="ghost"
