@@ -38,7 +38,14 @@ jobs:
         
     - name: 🔍 TypeScript Compilation Check
       run: |
-        pnpm run type-check || echo "⚠️ TypeScript errors found but continuing (warning mode)"
+        echo "Running TypeScript check..."
+        if pnpm run type-check 2>&1 | tee typescript-errors.txt; then
+          echo "✅ TypeScript compilation successful"
+        else
+          echo "⚠️ TypeScript errors found but continuing (warning mode)"
+          echo "Errors summary:"
+          grep "error TS" typescript-errors.txt | head -10 || true
+        fi
       continue-on-error: true
         
     - name: 🧹 ESLint Security Rules
