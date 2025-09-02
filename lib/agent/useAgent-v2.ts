@@ -9,7 +9,9 @@
 
 import { useChat } from '@ai-sdk/react';
 import { useCallback, useMemo } from 'react';
-import type { Message } from 'ai';
+import type { CoreMessage } from 'ai';
+
+type Message = CoreMessage;
 
 // ===================================================
 // 📋 TYPES
@@ -90,7 +92,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
       console.log('[useAgent] Message completed:', message);
       onFinish?.(message);
     },
-    onResponse: (response) => {
+    onResponse: (response: Response) => {
       // Podemos acceder a headers custom aquí
       const requestId = response.headers.get('X-Request-Id');
       const sessionId = response.headers.get('X-Session-Id');
@@ -167,7 +169,12 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
     messageCount: messages.length,
     userMessages: messages.filter(m => m.role === 'user').length,
     assistantMessages: messages.filter(m => m.role === 'assistant').length,
-    totalTokens: messages.reduce((acc, m) => acc + (m.content?.length || 0), 0) / 4, // Aproximación
+    totalTokens: messages.reduce((acc, m) => {
+      const content = typeof m.content === 'string' ? m.content : 
+        Array.isArray(m.content) ? m.content.map(part => typeof part === 'string' ? part : part.text || '').join('') : 
+        '';
+      return acc + (content.length || 0);
+    }, 0) / 4, // Aproximación
   }), [messages]);
   
   // ===================================================
@@ -226,9 +233,10 @@ export function extractContractMentions(messages: Message[]): string[] {
   const mentions = new Set<string>();
   
   messages.forEach(message => {
-    const matches = message.content.match(contractRegex);
+    const content = typeof message.content === 'string' ? message.content : '';
+    const matches = content.match(contractRegex);
     if (matches) {
-      matches.forEach(match => mentions.add(match));
+      matches.forEach((match: string) => mentions.add(match));
     }
   });
   

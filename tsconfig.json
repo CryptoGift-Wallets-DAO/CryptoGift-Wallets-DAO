@@ -103,11 +103,16 @@
     "cache",
     "typechain-types/**/*.d.ts",
     "hardhat.config.ts",
+    "hardhat.config.simple.ts",
     "contracts/**/*",
     "scripts/**/*",
     "test/**/*",
     "bots/**/*",
-    "docs/**/*"
+    "docs/**/*",
+    "ranking-backend/**/*",
+    "ranking-frontend/**/*",
+    "lib/agent/useAgent-v2.ts",
+    "app/agent-demo/page.tsx"
   ],
   "ts-node": {
     "require": [

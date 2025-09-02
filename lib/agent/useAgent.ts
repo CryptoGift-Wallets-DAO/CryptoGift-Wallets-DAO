@@ -148,8 +148,11 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
     setMessages(prev => {
       const newMessages = [...prev];
       const lastIndex = newMessages.length - 1;
-      if (lastIndex >= 0) {
-        newMessages[lastIndex] = { ...newMessages[lastIndex], ...updates };
+      if (lastIndex >= 0 && newMessages[lastIndex]) {
+        newMessages[lastIndex] = { 
+          ...newMessages[lastIndex], 
+          ...updates,
+        } as ChatMessage;
       }
       return newMessages;
     });
@@ -177,7 +180,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
             content: data.response,
             timestamp: Date.now(),
             metadata: {
-              mode: currentMode,
+              mode: currentMode as AgentModeId,
               reasoning_tokens: data.metrics.reasoning_tokens,
             }
           });
@@ -205,7 +208,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
       eventSourceRef.current = eventSource;
       
       // Add placeholder assistant message
-      const assistantMessage = addMessage({
+      addMessage({
         role: 'assistant', 
         content: '',
         timestamp: Date.now(),
@@ -230,8 +233,8 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
               updateLastMessage({ 
                 content: fullContent,
                 metadata: {
-                  mode: currentMode,
-                  reasoning_tokens: chunk.metrics?.reasoning_tokens,
+                  mode: currentMode as AgentModeId,
+                  reasoning_tokens: chunk.metrics?.reasoning_tokens || 0,
                 }
               });
               
@@ -259,7 +262,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
               if (onError) onError(agentError);
               
               eventSource.close();
-              reject(new Error(chunk.error));
+              reject(new Error(chunk.error || 'Unknown streaming error'));
               break;
           }
         } catch (err) {
@@ -297,7 +300,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
     if (!message.trim()) return;
     if (isLoading) return;
     
-    const messageMode = options.mode || currentMode;
+    const messageMode: AgentModeId = options.mode || currentMode;
     
     try {
       setIsLoading(true);

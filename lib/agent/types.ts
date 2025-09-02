@@ -124,7 +124,7 @@ export interface QuickAction {
   category: string;
 }
 
-export const AGENT_MODES: Record<string, AgentMode> = {
+export const AGENT_MODES = {
   general: {
     id: 'general',
     name: 'Asesor Principal',
