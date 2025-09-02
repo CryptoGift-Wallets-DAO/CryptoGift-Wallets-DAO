@@ -79,7 +79,9 @@ export default function AgentDemoPage() {
                     {message.role === 'user' ? '👤 Usuario' : '🤖 Agente'}
                   </div>
                   <div className="text-sm whitespace-pre-wrap">
-                    {message.content}
+                    {typeof message.content === 'string' 
+                      ? message.content 
+                      : JSON.stringify(message.content)}
                   </div>
                 </div>
               ))
