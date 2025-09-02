@@ -6,7 +6,7 @@ const nextConfig = {
   swcMinify: true,
   output: 'standalone',
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   
   // Environment variables

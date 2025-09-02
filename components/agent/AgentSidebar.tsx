@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { AgentChat } from '@/components/agent/AgentChat';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
+import { Badge as UIBadge } from '@/components/ui/badge';
 import { 
   Bot, 
   ChevronLeft, 
@@ -114,18 +114,18 @@ export function AgentSidebar({
 
         {/* Status badges */}
         <div className="flex items-center space-x-2 flex-wrap gap-1">
-          <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">
+          <UIBadge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">
             <Activity className="h-2 w-2 mr-1" />
             Online
-          </Badge>
-          <Badge variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
+          </UIBadge>
+          <UIBadge variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
             <Database className="h-2 w-2 mr-1" />
             DAO OK
-          </Badge>
-          <Badge variant="outline" className="text-xs bg-purple-50 border-purple-200 text-purple-700">
+          </UIBadge>
+          <UIBadge variant="outline" className="text-xs bg-purple-50 border-purple-200 text-purple-700">
             <Shield className="h-2 w-2 mr-1" />
             Seguro
-          </Badge>
+          </UIBadge>
         </div>
       </div>
 
@@ -214,8 +214,8 @@ export function AgentSidebar({
   );
 }
 
-// Badge component simplificado si no existe
-function Badge({ children, variant = 'default', className }: { 
+// LocalBadge component simplificado - renombrado para evitar conflicto
+function LocalBadge({ children, variant = 'default', className }: { 
   children: React.ReactNode; 
   variant?: 'default' | 'outline'; 
   className?: string; 
