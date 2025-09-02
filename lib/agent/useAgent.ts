@@ -80,7 +80,6 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
   const [currentMode, setCurrentMode] = useState<AgentModeId>(mode);
 
   // Refs
-  const eventSourceRef = useRef<EventSource | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastMessageRef = useRef<string>('');
 
@@ -164,7 +163,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
 
   const handleStreamResponse = useCallback(async (request: AgentRequest) => {
     return new Promise<void>((resolve, reject) => {
-      // Use fetch for non-streaming or EventSource for streaming
+      // Use fetch for both streaming and non-streaming (AI SDK compatible)
       if (!stream) {
         fetch('/api/agent', {
           method: 'POST',
@@ -196,99 +195,147 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
         return;
       }
 
-      // Streaming with Server-Sent Events
-      const eventSource = new EventSource('/api/agent?' + new URLSearchParams({
-        message: request.message,
-        sessionId: request.sessionId || sessionId,
-        userId: request.userId || userId || '',
-        mode: request.mode || currentMode,
-        stream: 'true',
-      }));
-
-      eventSourceRef.current = eventSource;
+      // Streaming with POST fetch (compatible with AI SDK)
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
       
-      // Add placeholder assistant message
-      addMessage({
-        role: 'assistant', 
-        content: '',
-        timestamp: Date.now(),
-        metadata: { mode: currentMode }
-      });
-      
-      let fullContent = '';
+      fetch('/api/agent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: request.message,
+          sessionId: request.sessionId || sessionId,
+          userId: request.userId || userId || '',
+          mode: request.mode || currentMode,
+          stream: true,
+        }),
+        signal: abortController.signal,
+      })
+      .then(async response => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
 
-      eventSource.onmessage = (event) => {
+        if (!response.body) {
+          throw new Error('No response body for streaming');
+        }
+
+        // Add placeholder assistant message
+        addMessage({
+          role: 'assistant', 
+          content: '',
+          timestamp: Date.now(),
+          metadata: { mode: currentMode }
+        });
+        
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullContent = '';
+
         try {
-          const chunk: AgentStreamChunk = JSON.parse(event.data);
-          
-          switch (chunk.type) {
-            case 'chunk':
-              if (chunk.content) {
-                fullContent += chunk.content;
-                updateLastMessage({ content: fullContent });
-              }
-              break;
-              
-            case 'done':
-              updateLastMessage({ 
-                content: fullContent,
-                metadata: {
-                  mode: currentMode as AgentModeId,
-                  reasoning_tokens: chunk.metrics?.reasoning_tokens || 0,
-                }
-              });
-              
-              if (onMetrics && chunk.metrics) {
-                onMetrics(chunk.metrics);
-              }
-              
-              eventSource.close();
+          while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) {
               resolve();
               break;
-              
-            case 'error':
-              updateLastMessage({ 
-                content: chunk.error || 'An error occurred',
-                metadata: { error: true }
-              });
-              
-              const agentError: AgentError = {
-                code: 'STREAM_ERROR',
-                message: chunk.error || 'Streaming error',
-                timestamp: Date.now()
-              };
-              
-              setError(agentError);
-              if (onError) onError(agentError);
-              
-              eventSource.close();
-              reject(new Error(chunk.error || 'Unknown streaming error'));
-              break;
-          }
-        } catch (err) {
-          console.error('Failed to parse SSE event:', err);
-        }
-      };
+            }
 
-      eventSource.onerror = (event) => {
+            // Decode the chunk and split by lines
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const data = line.slice(6).trim();
+                  if (data === '[DONE]') {
+                    resolve();
+                    return;
+                  }
+
+                  const parsed: AgentStreamChunk = JSON.parse(data);
+                  
+                  switch (parsed.type) {
+                    case 'chunk':
+                      if (parsed.content) {
+                        fullContent += parsed.content;
+                        updateLastMessage({ content: fullContent });
+                      }
+                      break;
+                      
+                    case 'done':
+                      updateLastMessage({ 
+                        content: fullContent,
+                        metadata: {
+                          mode: currentMode as AgentModeId,
+                          reasoning_tokens: parsed.metrics?.reasoning_tokens || 0,
+                        }
+                      });
+                      
+                      if (onMetrics && parsed.metrics) {
+                        onMetrics(parsed.metrics);
+                      }
+                      
+                      resolve();
+                      return;
+                      
+                    case 'error':
+                      const agentError: AgentError = {
+                        code: 'STREAM_ERROR',
+                        message: parsed.error || 'Streaming error',
+                        timestamp: Date.now()
+                      };
+                      
+                      updateLastMessage({ 
+                        content: parsed.error || 'An error occurred',
+                        metadata: { error: true }
+                      });
+                      
+                      setError(agentError);
+                      if (onError) onError(agentError);
+                      
+                      reject(new Error(parsed.error || 'Unknown streaming error'));
+                      return;
+                  }
+                } catch (parseErr) {
+                  console.warn('Failed to parse streaming chunk:', parseErr, line);
+                }
+              }
+            }
+          }
+        } catch (streamErr) {
+          console.error('Streaming error:', streamErr);
+          const agentError: AgentError = {
+            code: 'STREAM_ERROR',
+            message: 'Streaming interrupted',
+            timestamp: Date.now(),
+            details: streamErr
+          };
+          
+          setError(agentError);
+          if (onError) onError(agentError);
+          reject(streamErr);
+        } finally {
+          reader.releaseLock();
+        }
+      })
+      .catch(error => {
+        console.error('Fetch error:', error);
         const agentError: AgentError = {
           code: 'CONNECTION_ERROR',
           message: 'Connection to agent failed',
           timestamp: Date.now(),
-          details: event
+          details: error
         };
         
         setError(agentError);
         if (onError) onError(agentError);
         
-        eventSource.close();
         reject(new Error('Connection failed'));
-      };
-
-      eventSource.onopen = () => {
-        setIsConnected(true);
-        setError(null);
-      };
+      });
     });
   }, [stream, sessionId, userId, currentMode, addMessage, updateLastMessage, onMetrics, onError]);
 
@@ -400,9 +447,6 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
 
   useEffect(() => {
     return () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }

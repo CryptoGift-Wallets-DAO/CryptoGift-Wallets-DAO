@@ -1,86 +1,38 @@
 {
   "compilerOptions": {
-    /* Language and Environment */
-    "target": "ES2022",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    /* Language and Environment - Optimized for Next.js 14 */
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
+    
+    /* Next.js App Router Requirements */
+    "allowJs": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "incremental": true,
+    
     /* Strict Type-Checking Options */
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    /* Additional Checks */
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "noPropertyAccessFromIndexSignature": false,
+    "forceConsistentCasingInFileNames": true,
+    
     /* Module Resolution Options */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    /* Source Map Options */
-    "sourceMap": true,
-    "inlineSources": true,
-    "inlineSourceMap": false,
-    /* Experimental Options */
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    /* Advanced Options */
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "incremental": true,
-    "tsBuildInfoFile": ".tsbuildinfo",
-    /* Output */
-    "outDir": "./dist",
-    "rootDir": "./",
-    /* Type Roots */
-    "typeRoots": [
-      "./node_modules/@types",
-      "./types"
-    ],
-    "types": ["node"],
+    
     /* Path Mappings */
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@contracts/*": [
-        "./contracts/*"
-      ],
-      "@scripts/*": [
-        "./scripts/*"
-      ],
-      "@tests/*": [
-        "./tests/*"
-      ],
-      "@utils/*": [
-        "./utils/*"
-      ],
-      "@types/*": [
-        "./types/*"
-      ],
-      "@config/*": [
-        "./config/*"
-      ]
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/app/*": ["./app/*"]
     },
-    "allowJs": true,
-    "noEmit": true,
-    "jsx": "preserve",
+    
+    /* Next.js Plugin */
     "plugins": [
       {
         "name": "next"
@@ -88,44 +40,28 @@
     ]
   },
   "include": [
-    ".next/types/**/*.ts",
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
+    "**/*.ts", 
+    "**/*.tsx",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
+    ".next",
     "dist",
-    "build",
+    "build", 
     "coverage",
-    "coverage.json",
-    ".nyc_output",
     "artifacts",
     "cache",
-    "typechain-types/**/*.d.ts",
-    "hardhat.config.ts",
-    "hardhat.config.simple.ts",
-    "contracts/**/*",
-    "scripts/**/*",
-    "test/**/*",
-    "bots/**/*",
-    "docs/**/*",
-    "ranking-backend/**/*",
-    "ranking-frontend/**/*",
-    "lib/agent/useAgent-v2.ts",
-    "app/agent-demo/page.tsx"
-  ],
-  "ts-node": {
-    "require": [
-      "tsconfig-paths/register"
-    ],
-    "transpileOnly": true,
-    "files": true,
-    "compilerOptions": {
-      "module": "commonjs",
-      "target": "ES2022",
-      "esModuleInterop": true,
-      "resolveJsonModule": true
-    }
-  }
+    "typechain-types",
+    "contracts",
+    "scripts",
+    "test",
+    "tests",
+    "hardhat.config.*",
+    "bots",
+    "docs",
+    "ranking-backend",
+    "ranking-frontend"
+  ]
 }
