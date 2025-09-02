@@ -65,13 +65,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
   
   // Use Vercel AI SDK's useChat hook
   const chatHelpers = useChat({
-    api: '/api/agent-v2',
     initialMessages,
-    body: {
-      sessionId,
-      userId,
-      mode,
-    },
     onError: (error) => {
       console.error('[useAgent] Error:', error);
       onError?.(error);
@@ -80,13 +74,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
       console.log('[useAgent] Message completed:', message);
       onFinish?.(message);
     },
-    onResponse: (response: Response) => {
-      // Podemos acceder a headers custom aquí
-      const requestId = response.headers.get('X-Request-Id');
-      const sessionId = response.headers.get('X-Session-Id');
-      console.log('[useAgent] Response received', { requestId, sessionId });
-    },
-  });
+  } as any);
   
   // Destructure with defaults for compatibility
   const {
