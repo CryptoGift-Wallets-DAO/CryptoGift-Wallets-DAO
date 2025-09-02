@@ -224,7 +224,7 @@ export async function POST(req: NextRequest) {
     });
     
     // Return streaming response
-    return result.toDataStreamResponse({
+    return result.toTextStreamResponse({
       headers: {
         'X-Request-Id': requestId,
         'X-Session-Id': sessionId || '',
