@@ -415,16 +415,21 @@ function MessageBubble({ message, onCopy, isCopied }: MessageBubbleProps) {
                     <a {...props} className="text-blue-600 hover:underline" />
                   ),
                   // Custom code block styling
-                  code: ({ node, inline, ...props }) => (
-                    <code
-                      className={cn(
-                        inline 
-                          ? 'bg-gray-200 px-1 rounded text-sm'
-                          : 'block bg-gray-800 text-gray-100 p-3 rounded mt-2'
-                      )}
-                      {...props}
-                    />
-                  ),
+                  code: ({ node, className, ...props }) => {
+                    // Detect if code is inline by checking if it has a language class or parent
+                    const isInline = !className && node?.position?.start.line === node?.position?.end.line;
+                    return (
+                      <code
+                        className={cn(
+                          className,
+                          isInline
+                            ? 'bg-gray-200 px-1 rounded text-sm'
+                            : 'block bg-gray-800 text-gray-100 p-3 rounded mt-2'
+                        )}
+                        {...props}
+                      />
+                    );
+                  },
                 }}
               >
                 {message.content}
