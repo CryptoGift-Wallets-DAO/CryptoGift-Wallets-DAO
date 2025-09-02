@@ -6,7 +6,6 @@
  */
 
 require("@nomicfoundation/hardhat-toolbox");
-require("@openzeppelin/hardhat-upgrades");
 require("dotenv").config({ path: ".env.deployment" });
 
 // ============ ENVIRONMENT VALIDATION ============

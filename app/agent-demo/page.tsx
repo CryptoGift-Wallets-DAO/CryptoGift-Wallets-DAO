@@ -32,9 +32,9 @@ export default function AgentDemoPage() {
           <CardTitle className="flex items-center justify-between">
             <span>🤖 CG DAO Agent V2 - Demo</span>
             <div className="flex gap-2">
-              <Badge variant="secondary">Vercel AI SDK</Badge>
+              <Badge variant="secondary">GPT-5 Thinking</Badge>
+              <Badge variant="secondary">Reasoning</Badge>
               <Badge variant="secondary">Streaming</Badge>
-              <Badge variant="secondary">Rate Limited</Badge>
             </div>
           </CardTitle>
         </CardHeader>
@@ -109,7 +109,7 @@ export default function AgentDemoPage() {
           {/* Status */}
           <div className="text-xs text-gray-500 flex justify-between">
             <span>API: /api/agent-v2</span>
-            <span>Modelo: o3-mini (reasoning)</span>
+            <span>Modelo: GPT-5 (reasoning: high)</span>
             <span>{messages.length} mensajes</span>
           </div>
         </CardContent>
@@ -121,21 +121,27 @@ export default function AgentDemoPage() {
           <CardTitle>📚 Instrucciones de Uso</CardTitle>
         </CardHeader>
         <CardContent className="prose prose-sm max-w-none">
-          <h4>Sistema Migrado - Características:</h4>
+          <h4>GPT-5 Thinking Mode - Características Avanzadas:</h4>
           <ul>
-            <li>✅ <strong>Streaming optimizado</strong> con Vercel AI SDK</li>
-            <li>✅ <strong>POST-only</strong> - No más conflictos GET/POST</li>
-            <li>✅ <strong>Rate limiting</strong> con Upstash</li>
-            <li>✅ <strong>Type-safe</strong> con TypeScript</li>
-            <li>✅ <strong>Sin secretos hardcodeados</strong></li>
+            <li>🧠 <strong>GPT-5 Full Model</strong> - Máximas capacidades de razonamiento</li>
+            <li>⚡ <strong>Reasoning Effort: HIGH</strong> - Pensamiento profundo step-by-step</li>
+            <li>📝 <strong>Verbosity Adaptiva</strong> - Detalle según contexto (technical=high)</li>
+            <li>🎯 <strong>272K Context Window</strong> - Conversaciones largas y complejas</li>
+            <li>🔄 <strong>Streaming Inteligente</strong> - Ver el proceso de thinking en tiempo real</li>
+            <li>🛠️ <strong>Tool Calling Avanzado</strong> - Integración con MCP preparada</li>
           </ul>
           
           <h4>Variables de Entorno Requeridas:</h4>
           <pre className="bg-gray-100 p-2 rounded text-xs">
-{`UPSTASH_REDIS_REST_URL=https://...
-UPSTASH_REDIS_REST_TOKEN=...
-AI_MODEL=gpt-4o
-OPENAI_API_KEY=sk-...`}
+{`# GPT-5 Configuration
+OPENAI_API_KEY=sk-...
+AI_MODEL=gpt-5                    # or gpt-5-mini for cost optimization
+MAX_TOKENS=4000                   # GPT-5 supports up to 128k output
+AI_TEMPERATURE=0.7
+
+# Redis for rate limiting
+UPSTASH_REDIS_REST_URL=https://...
+UPSTASH_REDIS_REST_TOKEN=...`}
           </pre>
           
           <h4>Próximos Pasos:</h4>
