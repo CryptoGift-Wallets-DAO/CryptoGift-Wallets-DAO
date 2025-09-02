@@ -29,15 +29,28 @@ const AgentRequestSchema = z.object({
 });
 
 // Redis with DAO-specific prefix for shared account
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+// Initialize lazily to avoid build errors
+let redis: Redis | null = null;
+const getRedis = () => {
+  if (!redis && process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+  }
+  return redis;
+};
 
-// Setup OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+// Setup OpenAI client - initialize lazily to avoid build errors
+let openai: OpenAI | null = null;
+const getOpenAI = () => {
+  if (!openai && process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openai;
+};
 
 // ===================================================
 // 📊 LOGGING & METRICS
@@ -123,11 +136,13 @@ async function checkRateLimit(userId: string): Promise<boolean> {
   const windowMs = 60 * 1000; // 1 minute
   const maxRequests = 10;
   
-  const current = await redis.get<RateLimitInfo>(key);
+  const redisClient = getRedis();
+  if (!redisClient) return true; // Allow if Redis not configured
+  const current = await redisClient.get<RateLimitInfo>(key);
   const now = Date.now();
   
   if (!current || now > current.resetTime) {
-    await redis.set(key, { count: 1, resetTime: now + windowMs }, { ex: 60 });
+    await redisClient.set(key, { count: 1, resetTime: now + windowMs }, { ex: 60 });
     return true;
   }
   
@@ -135,7 +150,7 @@ async function checkRateLimit(userId: string): Promise<boolean> {
     return false;
   }
   
-  await redis.set(key, { count: current.count + 1, resetTime: current.resetTime }, { ex: 60 });
+  await redisClient.set(key, { count: current.count + 1, resetTime: current.resetTime }, { ex: 60 });
   return true;
 }
 
@@ -147,7 +162,10 @@ async function logRequest(data: {
   timestamp: number;
   ip?: string;
 }) {
-  await redis.zadd('agent:requests', { score: data.timestamp, member: JSON.stringify(data) });
+  const redisClient = getRedis();
+  if (redisClient) {
+    await redisClient.zadd('agent:requests', { score: data.timestamp, member: JSON.stringify(data) });
+  }
   logger.info('Agent request logged', data);
 }
 
@@ -165,7 +183,17 @@ interface SessionContext {
 
 async function getSession(sessionId: string): Promise<SessionContext> {
   const key = `session:agent:${sessionId}`;
-  const session = await redis.get<SessionContext>(key);
+  const redisClient = getRedis();
+  if (!redisClient) {
+    // Return empty session if Redis not configured
+    return {
+      messages: [],
+      mode: 'general',
+      created: Date.now(),
+      lastAccessed: Date.now(),
+    };
+  }
+  const session = await redisClient.get<SessionContext>(key);
   
   if (!session) {
     const newSession: SessionContext = {
@@ -174,7 +202,7 @@ async function getSession(sessionId: string): Promise<SessionContext> {
       created: Date.now(),
       lastAccessed: Date.now(),
     };
-    await redis.set(key, newSession, { ex: 3600 }); // 1 hour TTL
+    await redisClient.set(key, newSession, { ex: 3600 }); // 1 hour TTL
     return newSession;
   }
   
@@ -184,7 +212,10 @@ async function getSession(sessionId: string): Promise<SessionContext> {
 async function updateSession(sessionId: string, session: SessionContext) {
   const key = `session:agent:${sessionId}`;
   session.lastAccessed = Date.now();
-  await redis.set(key, session, { ex: 3600 });
+  const redisClient = getRedis();
+  if (redisClient) {
+    await redisClient.set(key, session, { ex: 3600 });
+  }
 }
 
 // ===================================================
@@ -272,7 +303,11 @@ Current Query: ${message}
               }
             ];
 
-            const stream = await openai.chat.completions.create({
+            const openaiClient = getOpenAI();
+            if (!openaiClient) {
+              throw new Error('OpenAI API key not configured');
+            }
+            const stream = await openaiClient.chat.completions.create({
               model: "gpt-4",  // Using GPT-4 as GPT-5 might not be available yet
               messages,
               max_tokens: 1500,
@@ -363,7 +398,14 @@ Current Query: ${message}
         }
       ];
 
-      const completion = await openai.chat.completions.create({
+      const openaiClient = getOpenAI();
+      if (!openaiClient) {
+        return NextResponse.json(
+          { error: 'OpenAI API key not configured' },
+          { status: 503 }
+        );
+      }
+      const completion = await openaiClient.chat.completions.create({
         model: "gpt-4",  // Using GPT-4 as GPT-5 might not be available yet
         messages,
         max_tokens: 1500,
@@ -428,7 +470,11 @@ export async function GET(req: NextRequest) {
       
     case 'metrics':
       try {
-        const recentRequests = await redis.zrange('agent:requests', -100, -1);
+        const redisClient = getRedis();
+        if (!redisClient) {
+          return NextResponse.json({ error: 'Redis not configured' }, { status: 503 });
+        }
+        const recentRequests = await redisClient.zrange('agent:requests', -100, -1);
         return NextResponse.json({
           totalRequests: recentRequests.length,
           period: 'last 100 requests',
