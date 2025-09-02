@@ -39,12 +39,20 @@ jobs:
     - name: 🔍 TypeScript Compilation Check
       run: |
         echo "Running TypeScript check..."
-        if pnpm run type-check 2>&1 | tee typescript-errors.txt; then
+        set +e  # Don't exit on error
+        pnpm run type-check 2>&1 | tee typescript-errors.txt
+        exit_code=$?
+        
+        if [ $exit_code -eq 0 ]; then
           echo "✅ TypeScript compilation successful"
         else
-          echo "⚠️ TypeScript errors found but continuing (warning mode)"
-          echo "Errors summary:"
-          grep "error TS" typescript-errors.txt | head -10 || true
+          echo "❌ TypeScript errors found - showing details:"
+          echo "Exit code: $exit_code"
+          echo "Error count:"
+          grep -c "error TS" typescript-errors.txt || echo "0"
+          echo "First 20 errors:"
+          grep "error TS" typescript-errors.txt | head -20 || true
+          echo "⚠️ Continuing in warning mode - errors logged above"
         fi
       continue-on-error: true
         
