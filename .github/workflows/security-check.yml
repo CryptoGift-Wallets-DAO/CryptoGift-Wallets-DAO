@@ -36,40 +36,90 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
         
-    - name: 🔍 TypeScript Compilation Check
+    - name: 🔍 TypeScript Compilation Check  
       run: |
         echo "Running TypeScript check..."
-        set +e  # Don't exit on error
-        pnpm run type-check 2>&1 | tee typescript-errors.txt
-        exit_code=$?
+        echo "## 🔍 TypeScript Build Status" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
         
-        if [ $exit_code -eq 0 ]; then
+        # Run TypeScript check and capture output
+        if pnpm run type-check > typescript-output.txt 2>&1; then
+          echo "✅ TypeScript compilation successful - No errors found" >> $GITHUB_STEP_SUMMARY
           echo "✅ TypeScript compilation successful"
         else
-          echo "❌ TypeScript errors found - showing details:"
-          echo "Exit code: $exit_code"
-          echo "Error count:"
-          grep -c "error TS" typescript-errors.txt || echo "0"
-          echo "First 20 errors:"
-          grep "error TS" typescript-errors.txt | head -20 || true
-          echo "⚠️ Continuing in warning mode - errors logged above"
+          # Count total errors
+          TOTAL_ERRORS=$(grep -c "error TS" typescript-output.txt || echo "0")
+          echo "❌ **TypeScript Build: FAILED** ($TOTAL_ERRORS errors found)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Compilation Errors:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          head -30 typescript-output.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "❌ TypeScript build failed with $TOTAL_ERRORS errors"
+          echo "🚨 **THIS IS A REAL FAILURE** - Build cannot proceed with TypeScript errors"
+          exit 1
         fi
-      continue-on-error: true
         
     - name: 🧹 ESLint Security Rules
       run: |
-        pnpm run lint || echo "⚠️ ESLint issues found but continuing (warning mode)"
-      continue-on-error: true
+        echo "## 🧹 ESLint Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if pnpm run lint > eslint-output.txt 2>&1; then
+          echo "✅ **ESLint: PASSED** - No linting issues found" >> $GITHUB_STEP_SUMMARY
+          echo "✅ ESLint validation successful"
+        else
+          echo "❌ **ESLint: FAILED** - Linting issues found" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ESLint Issues:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          tail -30 eslint-output.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "❌ ESLint found linting issues"
+          echo "🚨 **THIS IS A REAL FAILURE** - Code quality issues must be fixed"
+          exit 1
+        fi
         
     - name: 🧪 Run Test Suite
       run: |
-        pnpm run test:ci || echo "⚠️ Test failures found but continuing (warning mode)"
-      continue-on-error: true
+        echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if pnpm run test:ci > test-output.txt 2>&1; then
+          echo "✅ **Tests: PASSED** - All tests successful" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Test suite passed"
+        else
+          echo "❌ **Tests: FAILED** - Test failures detected" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Failures:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          tail -20 test-output.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "❌ Test suite failed"
+          echo "🚨 **THIS IS A REAL FAILURE** - Tests must pass before deployment"
+          exit 1
+        fi
         
     - name: 📊 Coverage Threshold Check (70% minimum)
       run: |
-        pnpm run test:coverage || echo "⚠️ Coverage below threshold but continuing (warning mode)"
-      continue-on-error: true
+        echo "## 📊 Coverage Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if pnpm run test:coverage > coverage-output.txt 2>&1; then
+          # Extract coverage percentage if available
+          COVERAGE=$(grep -oP 'All files.*?(\d+\.?\d*)%' coverage-output.txt | tail -1 | grep -oP '\d+\.?\d*' || echo "0")
+          if [ $(echo "$COVERAGE > 70" | bc -l 2>/dev/null || echo 0) -eq 1 ]; then
+            echo "✅ **Coverage: PASSED** ($COVERAGE% > 70% threshold)" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Coverage threshold met: $COVERAGE%"
+          else
+            echo "⚠️ **Coverage: BELOW THRESHOLD** ($COVERAGE% < 70% required)" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Coverage below 70%: $COVERAGE%"
+          fi
+        else
+          echo "❌ **Coverage: FAILED** - Could not generate coverage report" >> $GITHUB_STEP_SUMMARY
+          echo "❌ Coverage generation failed"
+        fi
         
     - name: 🔒 Security Pattern Validation (Non-blocking)
       run: |
@@ -146,8 +196,23 @@ jobs:
         
     - name: 🏗️ Production Build Test
       run: |
-        pnpm run build || echo "⚠️ Build issues found but continuing (warning mode)"
-      continue-on-error: true
+        echo "## 🏗️ Production Build Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if timeout 300 pnpm run build > build-output.txt 2>&1; then
+          echo "✅ **Production Build: SUCCESS** - Build completed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Production build successful"
+        else
+          echo "❌ **Production Build: FAILED** - Build errors detected" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Errors:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          tail -30 build-output.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "❌ Production build failed"
+          echo "🚨 **THIS IS A REAL FAILURE** - Build must succeed before deployment"
+          exit 1
+        fi
         
     - name: ✅ Security Gate Passed
       run: |
