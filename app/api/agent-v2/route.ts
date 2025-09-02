@@ -178,14 +178,8 @@ export async function POST(req: NextRequest) {
     const result = await streamText({
       model: openai(modelToUse),
       messages: allMessages,
-      maxTokens: parseInt(process.env.MAX_TOKENS || '3000'),
+      maxCompletionTokens: parseInt(process.env.MAX_TOKENS || '3000'),
       temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
-      // Configuración para reasoning (si el modelo lo soporta)
-      experimental_providerMetadata: {
-        openai: {
-          reasoningEffort: 'high', // Máximo reasoning para modelos o3
-        }
-      },
       // Tool calling preparado para futura integración MCP
       tools: {
         // searchDocumentation: {

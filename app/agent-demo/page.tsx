@@ -109,7 +109,7 @@ export default function AgentDemoPage() {
           {/* Status */}
           <div className="text-xs text-gray-500 flex justify-between">
             <span>API: /api/agent-v2</span>
-            <span>Modelo: {process.env.NEXT_PUBLIC_AI_MODEL || 'gpt-4o'}</span>
+            <span>Modelo: o3-mini (reasoning)</span>
             <span>{messages.length} mensajes</span>
           </div>
         </CardContent>
