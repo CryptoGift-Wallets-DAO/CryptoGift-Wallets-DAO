@@ -98,7 +98,7 @@ export function VoiceAgent({ userId, onTranscript, onToolCall }: VoiceAgentProps
         // Send audio to WebSocket
         wsRef.current.send(JSON.stringify({
           type: 'input_audio_buffer.append',
-          audio: btoa(String.fromCharCode(...new Uint8Array(pcm16.buffer))),
+          audio: btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(pcm16.buffer)) as any)),
         }));
       };
       
