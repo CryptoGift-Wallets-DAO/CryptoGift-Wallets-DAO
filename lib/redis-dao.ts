@@ -10,22 +10,21 @@ import { Redis } from '@upstash/redis';
 // Prefijo único para todas las keys del DAO
 const DAO_PREFIX = 'dao:';
 
-// Credenciales temporales de la instancia compartida
-// TODO: Migrar a instancia dedicada cuando se configure
-const TEMP_REDIS_CONFIG = {
-  url: 'https://fit-mole-59344.upstash.io',
-  token: 'AefQAAIjcDE4ZjY1NjEwYWZjZDY0MTgzOWFkZjY2ZTA4MjJlNzg0OHAxMA'
-};
-
 // Cliente Redis con wrapper de seguridad
 class DAORedisClient {
   private redis: Redis;
   
   constructor() {
-    this.redis = new Redis({
-      url: process.env.UPSTASH_DAO_REDIS_URL || TEMP_REDIS_CONFIG.url,
-      token: process.env.UPSTASH_DAO_REDIS_TOKEN || TEMP_REDIS_CONFIG.token,
-    });
+    const url = process.env.UPSTASH_REDIS_REST_URL;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+    
+    if (!url || !token) {
+      throw new Error(
+        'Redis configuration missing. Please set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables.'
+      );
+    }
+    
+    this.redis = new Redis({ url, token });
   }
 
   /**

@@ -202,7 +202,6 @@ export async function POST(req: NextRequest) {
     
     const finalSessionId = clientSessionId || sessionId;
     const clientIP = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
-    const userAgent = req.headers.get('user-agent') || 'unknown';
     
     // Rate limiting
     const rateLimitKey = userId || clientIP;

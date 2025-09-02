@@ -161,8 +161,6 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
 
   const handleStreamResponse = useCallback(async (request: AgentRequest) => {
     return new Promise<void>((resolve, reject) => {
-      const url = new URL('/api/agent', window.location.origin);
-      
       // Use fetch for non-streaming or EventSource for streaming
       if (!stream) {
         fetch('/api/agent', {
