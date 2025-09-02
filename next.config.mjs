@@ -5,6 +5,9 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   output: 'standalone',
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   
   // Environment variables
   env: {

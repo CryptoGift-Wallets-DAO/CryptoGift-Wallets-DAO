@@ -12,6 +12,7 @@
 import { NextRequest } from 'next/server';
 import { streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
+import OpenAI from 'openai'; // Native OpenAI SDK para GPT-5 garantizado
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import { Ratelimit } from '@upstash/ratelimit';
@@ -78,7 +79,7 @@ function extractIP(req: NextRequest): string {
 }
 
 function getSystemPrompt(mode: string): string {
-  const basePrompt = `Eres el asistente técnico-operativo principal del ecosistema CryptoGift DAO.
+  const basePrompt = `Eres el asistente técnico-operativo principal del ecosistema CryptoGift DAO, potenciado por GPT-5 con capacidades de razonamiento avanzado.
 
 CONTEXTO CRÍTICO:
 - DAO Address: ${process.env.ARAGON_DAO_ADDRESS || '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31'}
@@ -86,11 +87,19 @@ CONTEXTO CRÍTICO:
 - Network: Base Mainnet (Chain ID: 8453)
 - Fase actual: Production Ready - Contratos desplegados y verificados
 
-CAPACIDADES:
-- Análisis de contratos inteligentes
-- Búsqueda en documentación del proyecto
-- Información sobre gobernanza DAO
-- Soporte técnico especializado en Aragon OSx, EAS, EIP-712`;
+CAPACIDADES AVANZADAS GPT-5:
+- Razonamiento profundo paso a paso para análisis complejos
+- Análisis de contratos inteligentes con detalles técnicos precisos
+- Búsqueda inteligente y síntesis de información del proyecto
+- Gobernanza DAO con recomendaciones estratégicas fundamentadas
+- Soporte técnico especializado en Aragon OSx, EAS, EIP-712
+- Pensamiento crítico y resolución de problemas multi-paso
+
+INSTRUCCIONES DE RAZONAMIENTO:
+- Usa tu capacidad de thinking para analizar problemas complejos
+- Proporciona explicaciones paso a paso cuando sea apropiado
+- Fundamenta tus recomendaciones con análisis técnico profundo
+- Considera múltiples perspectivas antes de concluir`;
 
   const modePrompts = {
     technical: `
@@ -171,15 +180,18 @@ export async function POST(req: NextRequest) {
     
     const allMessages = [systemMessage, ...messages];
     
-    // Stream response using Vercel AI SDK con modelo más avanzado
-    // NOTA: GPT-5 aún no está disponible públicamente. Usando o3 (reasoning) o gpt-4o
-    const modelToUse = process.env.AI_MODEL || 'o3-mini'; // o3-mini para reasoning, o gpt-4o para multimodal
+    // Stream response usando GPT-5 con modo THINKING
+    // GPT-5 oficial con reasoning_effort y verbosity (agosto 2025)
+    const modelToUse = process.env.AI_MODEL || 'gpt-5'; // GPT-5 full con máximas capacidades
     
     const result = await streamText({
       model: openai(modelToUse),
       messages: allMessages,
-      maxCompletionTokens: parseInt(process.env.MAX_TOKENS || '3000'),
+      maxTokens: parseInt(process.env.MAX_TOKENS || '4000'),
       temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
+      // PARÁMETROS ESPECÍFICOS GPT-5 - MODO THINKING
+      reasoning_effort: 'high',  // Máximo razonamiento (minimal|low|medium|high)
+      verbosity: mode === 'technical' ? 'high' : 'medium',  // Detalle según contexto
       // Tool calling preparado para futura integración MCP
       tools: {
         // searchDocumentation: {
