@@ -187,7 +187,7 @@ export async function POST(req: NextRequest) {
     const result = await streamText({
       model: openai(modelToUse),
       messages: allMessages,
-      maxTokens: parseInt(process.env.MAX_TOKENS || '4000'),
+      maxOutputTokens: parseInt(process.env.MAX_TOKENS || '4000'),
       temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
       // PARÁMETROS ESPECÍFICOS GPT-5 - MODO THINKING
       reasoning_effort: 'high',  // Máximo razonamiento (minimal|low|medium|high)
