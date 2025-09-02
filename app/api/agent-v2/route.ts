@@ -71,7 +71,8 @@ function extractIP(req: NextRequest): string {
   const forwardedFor = req.headers.get('x-forwarded-for');
   if (forwardedFor) {
     // Take first IP from comma-separated list
-    return forwardedFor.split(',')[0].trim();
+    const firstIP = forwardedFor.split(',')[0];
+    return firstIP ? firstIP.trim() : 'unknown';
   }
   return req.ip || 'unknown';
 }
@@ -170,12 +171,21 @@ export async function POST(req: NextRequest) {
     
     const allMessages = [systemMessage, ...messages];
     
-    // Stream response using Vercel AI SDK
+    // Stream response using Vercel AI SDK con modelo más avanzado
+    // NOTA: GPT-5 aún no está disponible públicamente. Usando o3 (reasoning) o gpt-4o
+    const modelToUse = process.env.AI_MODEL || 'o3-mini'; // o3-mini para reasoning, o gpt-4o para multimodal
+    
     const result = await streamText({
-      model: openai(process.env.AI_MODEL || 'gpt-4o'),
+      model: openai(modelToUse),
       messages: allMessages,
-      maxTokens: parseInt(process.env.MAX_TOKENS || '2000'),
+      maxTokens: parseInt(process.env.MAX_TOKENS || '3000'),
       temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
+      // Configuración para reasoning (si el modelo lo soporta)
+      experimental_providerMetadata: {
+        openai: {
+          reasoningEffort: 'high', // Máximo reasoning para modelos o3
+        }
+      },
       // Tool calling preparado para futura integración MCP
       tools: {
         // searchDocumentation: {
