@@ -167,7 +167,7 @@ export function AgentChat({
                       <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
                     </div>
                     <Separator orientation="vertical" className="h-3" />
-                    <span>{AGENT_MODES[selectedMode].name}</span>
+                    <span>{AGENT_MODES[selectedMode]?.name || 'General'}</span>
                   </div>
                 </div>
               </div>
