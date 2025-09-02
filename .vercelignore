@@ -1,2 +1,60 @@
-# Allow all agent components for deployment
-# Agent system is now production ready
+# Vercel Ignore - Prevent large files from being included in serverless functions
+
+# Package manager stores (CRITICAL - these are huge!)
+.pnpm-store
+node_modules/.pnpm
+node_modules/.cache
+
+# Development directories
+.git
+.github
+scripts
+test
+tests
+hardhat.config.js
+hardhat.config.production.js
+
+# Build artifacts
+artifacts
+cache
+coverage
+typechain-types
+dist
+build
+
+# Documentation (heavy images)
+*.PNG
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+!app/icon.png
+!public/favicon.ico
+
+# Contracts (not needed for runtime)
+contracts
+deployments
+
+# Frontend/Backend folders (if not needed)
+frontend
+ranking-frontend
+ranking-backend
+bots
+
+# Config files
+*.config.js
+*.config.ts
+!next.config.js
+!tailwind.config.js
+!postcss.config.js
+
+# Misc
+*.log
+*.lock
+!pnpm-lock.yaml
+.env*
+!.env.production
+README.md
+*.md
+!CLAUDE.md

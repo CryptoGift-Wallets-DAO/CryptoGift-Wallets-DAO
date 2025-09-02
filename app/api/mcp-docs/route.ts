@@ -54,6 +54,7 @@ const ALLOWED_EXTENSIONS = ['.md', '.sol', '.js', '.ts', '.jsx', '.tsx', '.json'
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const BLOCKED_PATHS = [
   'node_modules',
+  '.pnpm-store',
   '.git',
   '.next',
   'dist',
@@ -63,7 +64,15 @@ const BLOCKED_PATHS = [
   '.env.production',
   'private_key',
   'keys',
-  'secrets'
+  'secrets',
+  'frontend',
+  'ranking-frontend',
+  'ranking-backend',
+  'bots',
+  'artifacts',
+  'cache',
+  'coverage',
+  'typechain-types'
 ];
 
 const logger = {
