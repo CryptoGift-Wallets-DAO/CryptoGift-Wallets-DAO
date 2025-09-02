@@ -190,8 +190,12 @@ export async function POST(req: NextRequest) {
       maxOutputTokens: parseInt(process.env.MAX_TOKENS || '4000'),
       temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
       // PARÁMETROS ESPECÍFICOS GPT-5 - MODO THINKING
-      reasoning_effort: 'high',  // Máximo razonamiento (minimal|low|medium|high)
-      verbosity: mode === 'technical' ? 'high' : 'medium',  // Detalle según contexto
+      providerOptions: {
+        openai: {
+          reasoningEffort: 'high',  // Máximo razonamiento (minimal|low|medium|high)
+          textVerbosity: mode === 'technical' ? 'high' : 'medium',  // Detalle según contexto
+        }
+      },
       // Tool calling preparado para futura integración MCP
       tools: {
         // searchDocumentation: {
