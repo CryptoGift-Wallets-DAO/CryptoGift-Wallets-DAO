@@ -64,19 +64,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
   } = options;
   
   // Use Vercel AI SDK's useChat hook
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit: originalHandleSubmit,
-    append,
-    reload,
-    stop,
-    setMessages,
-    setInput,
-    isLoading,
-    error,
-  } = useChat({
+  const chatHelpers = useChat({
     api: '/api/agent-v2',
     initialMessages,
     body: {
@@ -99,6 +87,21 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
       console.log('[useAgent] Response received', { requestId, sessionId });
     },
   });
+  
+  // Destructure with defaults for compatibility
+  const {
+    messages = [],
+    input = '',
+    handleInputChange = () => {},
+    handleSubmit: originalHandleSubmit = () => {},
+    append = async () => null,
+    reload = () => {},
+    stop = () => {},
+    setMessages = () => {},
+    setInput = () => {},
+    isLoading = false,
+    error,
+  } = chatHelpers as any;
   
   // ===================================================
   // 🎯 CUSTOM METHODS
@@ -166,9 +169,9 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
   
   // Estadísticas del chat
   const stats = useMemo(() => ({
-    messageCount: messages.length,
-    userMessages: messages.filter(m => m.role === 'user').length,
-    assistantMessages: messages.filter(m => m.role === 'assistant').length,
+    messageCount: messages?.length || 0,
+    userMessages: messages?.filter(m => m.role === 'user').length || 0,
+    assistantMessages: messages?.filter(m => m.role === 'assistant').length || 0,
     totalTokens: messages.reduce((acc, m) => {
       const content = typeof m.content === 'string' ? m.content : 
         Array.isArray(m.content) ? m.content.map(part => typeof part === 'string' ? part : part.text || '').join('') : 
