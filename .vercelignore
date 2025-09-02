@@ -48,6 +48,8 @@ bots
 !next.config.js
 !tailwind.config.js
 !postcss.config.js
+!sentry.server.config.js
+!sentry.edge.config.js
 
 # Misc
 *.log
