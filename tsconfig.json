@@ -16,12 +16,14 @@
     /* Strict Type-Checking Options */
     "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "skipDefaultLibCheck": true,
     
     /* Module Resolution Options */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "typeRoots": ["./node_modules/@types"],
     
     /* Path Mappings */
     "baseUrl": ".",
