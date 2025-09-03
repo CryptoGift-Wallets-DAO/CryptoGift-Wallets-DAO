@@ -15,6 +15,10 @@ import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import { Redis } from '@upstash/redis';
 import OpenAI from 'openai';
+import { getCorsHeaders, getCorsHeadersJson, handleCorsPreflight, validateCors } from '@/lib/security/cors';
+import { SafeJSON } from '@/lib/utils/safe-json';
+import { ErrorHandler } from '@/lib/monitoring/error-taxonomy';
+import { observabilityUtils, trackRequest } from '@/lib/monitoring/observability';
 
 // ===================================================
 // 📋 CONFIGURATION & VALIDATION
@@ -164,7 +168,13 @@ async function logRequest(data: {
 }) {
   const redisClient = getRedis();
   if (redisClient) {
-    await redisClient.zadd('agent:requests', { score: data.timestamp, member: JSON.stringify(data) });
+    try {
+      // Use SafeJSON for consistent serialization
+      const serializedData = SafeJSON.stringify(data);
+      await redisClient.zadd('agent:requests', { score: data.timestamp, member: serializedData });
+    } catch (error) {
+      ErrorHandler.handle(error as Error, { operation: 'logRequest', data });
+    }
   }
   logger.info('Agent request logged', data);
 }
@@ -225,8 +235,13 @@ async function updateSession(sessionId: string, session: SessionContext) {
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
   const sessionId = nanoid();
+  const origin = req.headers.get('origin');
+  const requestTracker = trackRequest('POST', '/api/agent');
   
   try {
+    // Validate CORS first
+    validateCors(origin);
+    
     // Parse and validate request
     const body = await req.json();
     const { message, sessionId: clientSessionId, userId, mode, stream } = AgentRequestSchema.parse(body);
@@ -239,10 +254,12 @@ export async function POST(req: NextRequest) {
     const rateLimitPassed = await checkRateLimit(rateLimitKey);
     
     if (!rateLimitPassed) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded. Please wait before making another request.' },
-        { status: 429 }
-      );
+      requestTracker.finish(429);
+      const errorResponse = ErrorHandler.handleApiError('Rate limit exceeded');
+      return NextResponse.json(errorResponse, { 
+        status: 429,
+        headers: getCorsHeadersJson(origin)
+      });
     }
     
     // Initialize agent
@@ -286,6 +303,43 @@ Current Query: ${message}
       
       const readableStream = new ReadableStream({
         async start(controller) {
+          let isStreamClosed = false;
+          let streamTimeout: NodeJS.Timeout | undefined;
+          
+          const closeStream = (data?: any) => {
+            if (isStreamClosed) return;
+            isStreamClosed = true;
+            
+            if (streamTimeout) clearTimeout(streamTimeout);
+            
+            if (data) {
+              try {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+              } catch (enqueueError) {
+                logger.error('Error enqueueing final data:', enqueueError);
+              }
+            }
+            
+            try {
+              controller.close();
+            } catch (closeError) {
+              logger.error('Error closing controller:', closeError);
+            }
+          };
+          
+          // Set a timeout aligned with Vercel function limits
+          // Vercel Hobby: 10s, Pro: 60s, we use 50s for safety margin
+          const timeoutMs = process.env.VERCEL_ENV === 'production' ? 50000 : 120000;
+          streamTimeout = setTimeout(() => {
+            logger.warn(`Stream timeout for session ${finalSessionId} after ${timeoutMs}ms`);
+            closeStream({
+              type: 'error',
+              error: 'Request timeout. Please try a shorter message.',
+              sessionId: finalSessionId,
+              timeout: timeoutMs,
+            });
+          }, timeoutMs);
+          
           try {
             // Build messages for OpenAI
             const messages = [
@@ -307,6 +361,7 @@ Current Query: ${message}
             if (!openaiClient) {
               throw new Error('OpenAI API key not configured');
             }
+            
             const stream = await openaiClient.chat.completions.create({
               model: "gpt-4",  // Using GPT-4 as GPT-5 might not be available yet
               messages,
@@ -316,31 +371,50 @@ Current Query: ${message}
             });
 
             let fullResponse = '';
+            let lastChunkTime = Date.now();
             
-            // Handle streaming response
+            // Handle streaming response with individual chunk error handling
             for await (const chunk of stream) {
-              const content = chunk.choices[0]?.delta?.content || '';
-              if (content) {
-                fullResponse += content;
-                const data = {
-                  type: 'chunk',
-                  content,
-                  sessionId: finalSessionId,
-                  timestamp: Date.now(),
-                };
-                
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+              if (isStreamClosed) break;
+              
+              lastChunkTime = Date.now();
+              
+              try {
+                const content = chunk.choices[0]?.delta?.content || '';
+                if (content) {
+                  fullResponse += content;
+                  const data = {
+                    type: 'chunk',
+                    content,
+                    sessionId: finalSessionId,
+                    timestamp: Date.now(),
+                  };
+                  
+                  // Use SafeJSON for SSE serialization with round-trip verification
+                  const sseData = SafeJSON.sseSerialize(data, 'chunk');
+                  controller.enqueue(encoder.encode(sseData));
+                }
+              } catch (chunkError) {
+                logger.error('Error processing chunk:', chunkError);
+                // Continue processing other chunks
               }
             }
             
-            // Add assistant message to session
-            session.messages.push({
-              role: 'assistant',
-              content: fullResponse,
-              timestamp: Date.now()
-            });
+            if (isStreamClosed) return;
             
-            await updateSession(finalSessionId, session);
+            // Save session with error handling
+            try {
+              session.messages.push({
+                role: 'assistant',
+                content: fullResponse,
+                timestamp: Date.now()
+              });
+              
+              await updateSession(finalSessionId, session);
+            } catch (sessionError) {
+              logger.error('Error updating session:', sessionError);
+              // Continue with response even if session save fails
+            }
             
             // Send final message
             const finalData = {
@@ -353,31 +427,33 @@ Current Query: ${message}
               }
             };
             
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify(finalData)}\n\n`));
-            controller.close();
+            closeStream(finalData);
             
           } catch (error) {
+            // Use enhanced error handling
+            const errorResult = ErrorHandler.handle(error as Error, { 
+              operation: 'streaming',
+              sessionId: finalSessionId 
+            });
+            
             logger.error('Streaming error:', error);
+            
             const errorData = {
               type: 'error',
-              error: 'An error occurred while processing your request.',
+              error: errorResult.userMessage,
               sessionId: finalSessionId,
+              timestamp: Date.now(),
+              retryable: errorResult.shouldRetry,
+              retryDelay: errorResult.retryDelay
             };
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify(errorData)}\n\n`));
-            controller.close();
+            
+            closeStream(errorData);
           }
         },
       });
       
       return new Response(readableStream, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
+        headers: getCorsHeaders(origin),
       });
       
     } else {
@@ -423,6 +499,10 @@ Current Query: ${message}
       
       await updateSession(finalSessionId, session);
       
+      // Track successful response
+      requestTracker.finish(200);
+      observabilityUtils.track('agent.response.success', 1, 'count');
+      
       return NextResponse.json({
         response,
         sessionId: finalSessionId,
@@ -431,23 +511,39 @@ Current Query: ${message}
           tokens: completion.usage?.total_tokens || 0,
           reasoning_tokens: 0,
         }
+      }, {
+        headers: getCorsHeadersJson(origin)
       });
     }
     
   } catch (error) {
     logger.error('Agent API error:', error);
     
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Invalid request format', details: error.errors },
-        { status: 400 }
-      );
+    // Use enhanced error handling
+    const errorResult = ErrorHandler.handleApiError(error as Error, { 
+      operation: 'agent_api',
+      origin,
+      path: '/api/agent'
+    });
+    
+    // Determine status code based on error type
+    let statusCode = 500;
+    if (error instanceof Error) {
+      if (error.message.includes('CORS: Origin not allowed')) {
+        statusCode = 403;
+      } else if (error instanceof z.ZodError) {
+        statusCode = 400;
+        errorResult.error = 'Invalid request format';
+      }
     }
     
-    return NextResponse.json(
-      { error: 'Internal server error. Please try again later.' },
-      { status: 500 }
-    );
+    requestTracker.finish(statusCode);
+    observabilityUtils.track('agent.response.error', 1, 'count');
+    
+    return NextResponse.json(errorResult, { 
+      status: statusCode, 
+      headers: getCorsHeadersJson(origin) 
+    });
   }
 }
 
@@ -456,45 +552,100 @@ Current Query: ${message}
 // ===================================================
 
 export async function GET(req: NextRequest) {
+  const origin = req.headers.get('origin');
   const url = new URL(req.url);
   const action = url.searchParams.get('action');
+  const requestTracker = trackRequest('GET', '/api/agent');
   
-  switch (action) {
-    case 'health':
-      return NextResponse.json({
-        status: 'healthy',
-        agent: 'ready',
-        mcpServer: 'connected',
-        timestamp: new Date().toISOString(),
-      });
-      
-    case 'metrics':
-      try {
-        const redisClient = getRedis();
-        if (!redisClient) {
-          return NextResponse.json({ error: 'Redis not configured' }, { status: 503 });
-        }
-        const recentRequests = await redisClient.zrange('agent:requests', -100, -1);
+  try {
+    validateCors(origin);
+    
+    switch (action) {
+      case 'health':
+        const healthData = await observabilityUtils.getHealth();
+        requestTracker.finish(200);
         return NextResponse.json({
-          totalRequests: recentRequests.length,
-          period: 'last 100 requests',
+          ...healthData,
+          agent: 'ready',
+          mcpServer: 'connected',
           timestamp: new Date().toISOString(),
+        }, {
+          headers: getCorsHeadersJson(origin)
         });
-      } catch (error) {
-        return NextResponse.json({ error: 'Metrics unavailable' }, { status: 500 });
-      }
-      
-    default:
-      return NextResponse.json({
-        service: 'CG DAO Agent API',
-        version: '1.0.0',
-        capabilities: [
-          'GPT-5 Thinking Mode',
-          'MCP Document Access',
-          'Session Management',
-          'Rate Limiting',
-          'Streaming Responses'
-        ]
-      });
+        
+      case 'metrics':
+        try {
+          const performanceSummary = observabilityUtils.getSummary();
+          const recentAlerts = observabilityUtils.getAlerts(10);
+          
+          const redisClient = getRedis();
+          let requestHistory = 0;
+          if (redisClient) {
+            const recentRequests = await redisClient.zrange('agent:requests', -100, -1);
+            requestHistory = recentRequests.length;
+          }
+          
+          requestTracker.finish(200);
+          return NextResponse.json({
+            performance: performanceSummary,
+            alerts: recentAlerts,
+            requestHistory,
+            timestamp: new Date().toISOString(),
+          }, {
+            headers: getCorsHeadersJson(origin)
+          });
+        } catch (error) {
+          requestTracker.finish(500);
+          const errorResult = ErrorHandler.handleApiError(error as Error);
+          return NextResponse.json(errorResult, { 
+            status: 500, 
+            headers: getCorsHeadersJson(origin) 
+          });
+        }
+        
+      default:
+        requestTracker.finish(200);
+        return NextResponse.json({
+          service: 'CG DAO Agent API',
+          version: '1.0.0',
+          capabilities: [
+            'GPT-4 with Enhanced Context',
+            'MCP Document Access',
+            'Session Management',
+            'Advanced Rate Limiting',
+            'SSE Streaming with Round-trip Verification',
+            'Comprehensive Error Taxonomy',
+            'Production Observability'
+          ]
+        }, {
+          headers: getCorsHeadersJson(origin)
+        });
+    }
+  } catch (error) {
+    const errorResult = ErrorHandler.handleApiError(error as Error, { 
+      operation: 'agent_get',
+      origin,
+      path: '/api/agent'
+    });
+    
+    let statusCode = 500;
+    if (error instanceof Error && error.message.includes('CORS: Origin not allowed')) {
+      statusCode = 403;
+    }
+    
+    requestTracker.finish(statusCode);
+    return NextResponse.json(errorResult, { 
+      status: statusCode, 
+      headers: getCorsHeadersJson(origin) 
+    });
   }
+}
+
+// ===================================================
+// 🔄 OPTIONS HANDLER (CORS PREFLIGHT)
+// ===================================================
+
+export async function OPTIONS(req: NextRequest) {
+  const origin = req.headers.get('origin');
+  return handleCorsPreflight(origin);
 }

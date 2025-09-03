@@ -2,6 +2,7 @@ import Redis from 'ioredis'
 import { appConfig } from '@/config'
 import { CacheData, Ranking, SystemStats } from '@/types'
 import logger from '@/utils/logger'
+import { SafeJSON } from '../../../lib/utils/safe-json'
 
 export class RedisService {
   private redis: Redis
@@ -50,7 +51,7 @@ export class RedisService {
         ttl: ttl || 300
       }
 
-      const serialized = JSON.stringify(cacheData)
+      const serialized = SafeJSON.stringify(cacheData)
       
       if (ttl) {
         await this.redis.setex(key, ttl, serialized)
@@ -68,7 +69,7 @@ export class RedisService {
       const cached = await this.redis.get(key)
       if (!cached) return null
 
-      const cacheData: CacheData<T> = JSON.parse(cached)
+      const cacheData: CacheData<T> = SafeJSON.parse(cached)
       
       const now = new Date()
       const cacheAge = now.getTime() - new Date(cacheData.timestamp).getTime()
@@ -154,7 +155,7 @@ export class RedisService {
 
   async publish(channel: string, message: any): Promise<void> {
     try {
-      await this.redis.publish(channel, JSON.stringify(message))
+      await this.redis.publish(channel, SafeJSON.stringify(message))
     } catch (error) {
       logger.error(`Redis publish error for channel ${channel}:`, error)
       throw error

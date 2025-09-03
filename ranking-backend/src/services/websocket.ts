@@ -5,6 +5,8 @@ import { WebSocketMessage, RankingUpdate, SystemStats } from '@/types'
 import { redis } from './redis'
 import { database } from './database'
 import logger from '@/utils/logger'
+import { SafeJSON } from '../../../lib/utils/safe-json'
+import { validateBroadcastData, WebSocketMessageSchema, RankingsArraySchema, SystemStatsSchema, CollaboratorSchema } from '@/validation/schemas'
 
 export class WebSocketService {
   private io: SocketIOServer
@@ -63,7 +65,13 @@ export class WebSocketService {
       socket.on('get-rankings', async (params: { limit?: number } = {}) => {
         try {
           const rankings = await this.getRankings(params.limit)
-          socket.emit('rankings-data', rankings)
+          try {
+            const validatedRankings = RankingsArraySchema.parse(rankings)
+            socket.emit('rankings-data', validatedRankings)
+          } catch (validationError) {
+            logger.error('Rankings validation failed:', validationError)
+            socket.emit('error', { message: 'Invalid rankings data' })
+          }
         } catch (error) {
           logger.error(`Rankings request error for ${socket.id}:`, error)
           socket.emit('error', { message: 'Failed to get rankings' })
@@ -73,7 +81,13 @@ export class WebSocketService {
       socket.on('get-stats', async () => {
         try {
           const stats = await this.getSystemStats()
-          socket.emit('stats-data', stats)
+          try {
+            const validatedStats = SystemStatsSchema.parse(stats)
+            socket.emit('stats-data', validatedStats)
+          } catch (validationError) {
+            logger.error('Stats validation failed:', validationError)
+            socket.emit('error', { message: 'Invalid stats data' })
+          }
         } catch (error) {
           logger.error(`Stats request error for ${socket.id}:`, error)
           socket.emit('error', { message: 'Failed to get stats' })
@@ -83,7 +97,13 @@ export class WebSocketService {
       socket.on('get-collaborator', async (address: string) => {
         try {
           const collaborator = await database.getCollaborator(address as `0x${string}`)
-          socket.emit('collaborator-data', collaborator)
+          try {
+            const validatedCollaborator = CollaboratorSchema.parse(collaborator)
+            socket.emit('collaborator-data', validatedCollaborator)
+          } catch (validationError) {
+            logger.error('Collaborator validation failed:', validationError)
+            socket.emit('error', { message: 'Invalid collaborator data' })
+          }
         } catch (error) {
           logger.error(`Collaborator request error for ${socket.id}:`, error)
           socket.emit('error', { message: 'Failed to get collaborator data' })
@@ -125,12 +145,24 @@ export class WebSocketService {
       switch (channel) {
         case 'rankings':
           const rankings = await this.getRankings(50)
-          socket.emit('rankings-data', rankings)
+          try {
+            const validatedRankings = RankingsArraySchema.parse(rankings)
+            socket.emit('rankings-data', validatedRankings)
+          } catch (validationError) {
+            logger.error('Rankings validation failed:', validationError)
+            socket.emit('error', { message: 'Invalid rankings data' })
+          }
           break
 
         case 'stats':
           const stats = await this.getSystemStats()
-          socket.emit('stats-data', stats)
+          try {
+            const validatedStats = SystemStatsSchema.parse(stats)
+            socket.emit('stats-data', validatedStats)
+          } catch (validationError) {
+            logger.error('Stats validation failed:', validationError)
+            socket.emit('error', { message: 'Invalid stats data' })
+          }
           break
 
         case 'live-updates':
@@ -161,13 +193,24 @@ export class WebSocketService {
 
   private broadcastToClients(message: WebSocketMessage): void {
     try {
-      const { type, payload, timestamp } = message
+      // Validate the entire WebSocket message first
+      const validatedMessage = WebSocketMessageSchema.parse(message);
+      const { type, payload, timestamp } = validatedMessage;
+
+      // Additional validation for payload based on type
+      let validatedPayload: any;
+      try {
+        validatedPayload = validateBroadcastData(type, payload);
+      } catch (validationError) {
+        logger.error(`Payload validation failed for ${type}:`, validationError);
+        return; // Don't broadcast invalid data
+      }
 
       switch (type) {
         case 'RANKING_UPDATE':
           this.io.to('rankings').emit('ranking-update', {
             type: 'ranking-update',
-            data: payload,
+            data: validatedPayload,
             timestamp
           })
           break
@@ -175,7 +218,7 @@ export class WebSocketService {
         case 'TASK_UPDATE':
           this.io.to('tasks').emit('task-update', {
             type: 'task-update',
-            data: payload,
+            data: validatedPayload,
             timestamp
           })
           break
@@ -183,7 +226,7 @@ export class WebSocketService {
         case 'TRANSACTION_UPDATE':
           this.io.to('transactions').emit('transaction-update', {
             type: 'transaction-update',
-            data: payload,
+            data: validatedPayload,
             timestamp
           })
           break
@@ -191,7 +234,7 @@ export class WebSocketService {
         case 'SYSTEM_STATS':
           this.io.to('stats').emit('stats-update', {
             type: 'stats-update',
-            data: payload,
+            data: validatedPayload,
             timestamp
           })
           break
@@ -200,29 +243,29 @@ export class WebSocketService {
         case 'TOKEN_UPDATE':
           this.io.to('live-updates').emit('live-update', {
             type: 'live-update',
-            data: payload,
+            data: validatedPayload,
             timestamp
           })
           
           this.addToRecentActivity({
             type: type.replace('_UPDATE', ''),
-            data: payload,
+            data: validatedPayload,
             timestamp
           })
           break
       }
 
-      logger.debug(`Broadcasted ${type} to clients`, { 
+      logger.debug(`Broadcasted validated ${type} to clients`, { 
         connectedClients: this.connectedClients.size 
       })
     } catch (error) {
-      logger.error('Broadcast error:', error)
+      logger.error('Broadcast validation/send error:', error)
     }
   }
 
   private async addToRecentActivity(activity: any): Promise<void> {
     try {
-      const activityString = JSON.stringify(activity)
+      const activityString = SafeJSON.stringify(activity)
       await redis.addToList('recent-activity', activityString, 100)
     } catch (error) {
       logger.error('Recent activity add error:', error)

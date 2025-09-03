@@ -1,13 +1,16 @@
-import * as Sentry from '@sentry/nextjs';
+import { initializeSentry, sentryUtils } from './lib/monitoring/sentry';
 
 export async function register() {
-  if (process.env.NEXT_RUNTIME === 'nodejs') {
-    await import('./sentry.server.config.js');
-  }
-
-  if (process.env.NEXT_RUNTIME === 'edge') {
-    await import('./sentry.edge.config.js');
-  }
+  // Single centralized initialization
+  initializeSentry();
 }
 
-export const onRequestError = Sentry.captureRequestError;
+export const onRequestError = (error: any, request: any) => {
+  sentryUtils.captureError(error, { 
+    request: {
+      url: request?.url,
+      method: request?.method,
+      headers: request?.headers,
+    }
+  });
+};

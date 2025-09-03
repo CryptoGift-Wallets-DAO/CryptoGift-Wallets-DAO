@@ -13,6 +13,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import { join, resolve, extname, basename } from 'path';
 import { z } from 'zod';
+import { validateBearerToken } from '@/lib/security/timing-safe';
+import { getCorsHeadersJson } from '@/lib/security/cors';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 // Simplified for deployment - removed winston dependency
 
 // ===================================================
@@ -79,6 +83,82 @@ const logger = {
   info: (msg: string, data?: any) => console.log(`[MCP-INFO] ${msg}`, data || ''),
   error: (msg: string, error?: any) => console.error(`[MCP-ERROR] ${msg}`, error || ''),
   warn: (msg: string, data?: any) => console.warn(`[MCP-WARN] ${msg}`, data || '')
+};
+
+// ===================================================
+// 🛡️ RATE LIMITING & ALLOWLIST
+// ===================================================
+
+// Initialize Redis client for rate limiting (use same as agent if available)
+let redis: Redis | null = null;
+let ratelimit: Ratelimit | null = null;
+
+const initializeRateLimit = () => {
+  if (!redis && process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+    
+    // MCP docs gets stricter rate limiting (5 requests per minute)
+    ratelimit = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, '1 m'),
+      analytics: true,
+    });
+  }
+};
+
+// IP allowlist for MCP docs access
+const getAllowedIPs = (): string[] => {
+  const allowedIPs = process.env.MCP_ALLOWED_IPS;
+  if (!allowedIPs) {
+    // Development defaults
+    if (process.env.NODE_ENV === 'development') {
+      return ['127.0.0.1', '::1', 'localhost'];
+    }
+    return []; // Production requires explicit allowlist
+  }
+  return allowedIPs.split(',').map(ip => ip.trim()).filter(Boolean);
+};
+
+const isIPAllowed = (clientIP: string | null): boolean => {
+  if (!clientIP) return false;
+  
+  const allowedIPs = getAllowedIPs();
+  if (allowedIPs.length === 0 && process.env.NODE_ENV === 'production') {
+    logger.warn('No MCP IP allowlist configured for production');
+    return false;
+  }
+  
+  // Check exact IP match
+  if (allowedIPs.includes(clientIP)) {
+    return true;
+  }
+  
+  // Check if it's localhost variations
+  if (clientIP === '::1' || clientIP === '127.0.0.1' || clientIP.startsWith('::ffff:127.0.0.1')) {
+    return allowedIPs.includes('localhost') || allowedIPs.includes('127.0.0.1');
+  }
+  
+  return false;
+};
+
+const checkRateLimit = async (identifier: string): Promise<boolean> => {
+  initializeRateLimit();
+  
+  if (!ratelimit) {
+    logger.warn('Rate limiting not configured for MCP docs');
+    return true; // Allow if rate limiting not configured
+  }
+  
+  try {
+    const { success } = await ratelimit.limit(identifier);
+    return success;
+  } catch (error) {
+    logger.error('Rate limit check error:', error);
+    return true; // Allow on error to avoid blocking service
+  }
 };
 
 // ===================================================
@@ -431,20 +511,68 @@ async function getProjectStructure(): Promise<string> {
 // ===================================================
 
 export async function POST(req: NextRequest) {
+  const origin = req.headers.get('origin');
+  
   try {
+    // IP allowlist check
+    const clientIP = req.ip || req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    if (!isIPAllowed(clientIP)) {
+      logger.warn('MCP IP not allowed', { 
+        ip: clientIP,
+        userAgent: req.headers.get('user-agent')
+      });
+      
+      return NextResponse.json({
+        error: {
+          code: -32002,
+          message: 'IP not allowed'
+        }
+      } as MCPResponse, { 
+        status: 403,
+        headers: getCorsHeadersJson(origin)
+      });
+    }
+    
+    // Rate limiting check
+    const rateLimitPassed = await checkRateLimit(clientIP);
+    if (!rateLimitPassed) {
+      logger.warn('MCP rate limit exceeded', { ip: clientIP });
+      
+      return NextResponse.json({
+        error: {
+          code: -32003,
+          message: 'Rate limit exceeded'
+        }
+      } as MCPResponse, { 
+        status: 429,
+        headers: getCorsHeadersJson(origin)
+      });
+    }
+    
     const body = await req.json();
     const { method, params, id } = MCPRequestSchema.parse(body);
     
-    // Basic auth check
+    // Timing-safe auth check
     const authHeader = req.headers.get('authorization');
-    if (!authHeader || authHeader !== `Bearer ${process.env.MCP_AUTH_TOKEN || 'internal'}`) {
+    const expectedToken = process.env.MCP_AUTH_TOKEN || 'internal';
+    
+    if (!validateBearerToken(authHeader, expectedToken)) {
+      logger.warn('MCP unauthorized access attempt', {
+        hasAuthHeader: !!authHeader,
+        ip: clientIP,
+        userAgent: req.headers.get('user-agent')
+      });
+      
       return NextResponse.json({
         error: {
           code: -32001,
           message: 'Unauthorized'
         },
         id
-      } as MCPResponse, { status: 401 });
+      } as MCPResponse, { 
+        status: 401,
+        headers: getCorsHeadersJson(origin)
+      });
     }
     
     let result: any;
@@ -468,7 +596,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       result,
       id
-    } as MCPResponse);
+    } as MCPResponse, {
+      headers: getCorsHeadersJson(origin)
+    });
     
   } catch (error) {
     logger.error('MCP Server error:', error);
@@ -481,11 +611,16 @@ export async function POST(req: NextRequest) {
       id: (error as any).id
     };
     
-    return NextResponse.json(errorResponse, { status: 500 });
+    return NextResponse.json(errorResponse, { 
+      status: 500,
+      headers: getCorsHeadersJson(origin)
+    });
   }
 }
 
 export async function GET(req: NextRequest) {
+  const origin = req.headers.get('origin');
+  
   return NextResponse.json({
     name: 'CG DAO Documentation Server',
     version: '1.0.0',
@@ -496,6 +631,23 @@ export async function GET(req: NextRequest) {
       'list_directory', 
       'search_files',
       'get_project_structure'
+    ],
+    security: [
+      'IP allowlist',
+      'Rate limiting (5 req/min)',
+      'Bearer token auth',
+      'Timing-safe comparison'
     ]
+  }, {
+    headers: getCorsHeadersJson(origin)
+  });
+}
+
+// OPTIONS handler for CORS preflight
+export async function OPTIONS(req: NextRequest) {
+  const origin = req.headers.get('origin');
+  return new Response(null, {
+    status: 204,
+    headers: getCorsHeadersJson(origin)
   });
 }
