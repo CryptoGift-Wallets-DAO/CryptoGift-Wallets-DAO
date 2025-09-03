@@ -75,7 +75,7 @@ class ObservabilityManager {
         ErrorHandler.handle(error as Error, { operation: name, tags });
         throw error;
       }
-    });
+    }) as Promise<T>;
   }
   
   // Synchronous performance wrapper

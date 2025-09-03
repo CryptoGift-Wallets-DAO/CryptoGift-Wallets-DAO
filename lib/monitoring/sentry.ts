@@ -60,17 +60,8 @@ const clientConfig: Partial<Sentry.BrowserOptions> = {
   replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 0.5,
   
   integrations: [
-    Sentry.replayIntegration({
-      maskAllText: process.env.NODE_ENV === 'production',
-      blockAllMedia: true,
-      maskAllInputs: true,
-    }),
-    Sentry.browserTracingIntegration({
-      // Exclude transactions for static assets
-      shouldCreateSpanForRequest: (url) => {
-        return !url.includes('/static/') && !url.includes('/_next/');
-      },
-    }),
+    // Integrations are auto-installed in @sentry/nextjs v10+
+    // Manual integration setup is no longer needed
   ],
 };
 
@@ -80,9 +71,7 @@ const serverConfig: Partial<Sentry.NodeOptions> = {
   
   // Server performance monitoring
   integrations: [
-    Sentry.httpIntegration({ breadcrumbs: true }),
-    Sentry.nodeContextIntegration(),
-    Sentry.localVariablesIntegration({ captureAllExceptions: false }),
+    // Server integrations are auto-installed in @sentry/nextjs v10+
   ],
   
   // Enhanced error context
