@@ -23,7 +23,6 @@ const connectors = [
   coinbaseWallet({
     appName,
     appLogoUrl: appIcon,
-    darkMode: false,
     headlessMode: false,
   }),
   
