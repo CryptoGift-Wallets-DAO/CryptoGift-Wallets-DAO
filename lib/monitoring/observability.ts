@@ -108,7 +108,7 @@ class ObservabilityManager {
     const metrics: Record<string, number> = {};
     
     // Run health checks
-    for (const [name, checkFn] of this.healthChecks.entries()) {
+    for (const [name, checkFn] of Array.from(this.healthChecks.entries())) {
       try {
         checks[name] = await this.measureAsync(`health.${name}`, checkFn);
       } catch (error) {
