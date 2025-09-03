@@ -1,0 +1,37 @@
+{
+  "enforcement": {
+    "level": "warning",
+    "description": "Security enforcement level: 'warning' for CI/CD learning mode, 'error' for strict blocking mode"
+  },
+  "patterns": {
+    "unprotected_api_endpoints": {
+      "enabled": true,
+      "severity": "medium",
+      "required_patterns": ["checkRateLimit", "verifyJWT", "ADMIN_API_TOKEN"],
+      "directories": ["app/api"]
+    },
+    "sensitive_data_logs": {
+      "enabled": true,
+      "severity": "critical",
+      "patterns": ["console.log.*private", "console.log.*secret", "console.log.*token"],
+      "directories": ["app/", "lib/", "components/"]
+    },
+    "missing_test_coverage": {
+      "enabled": true,
+      "severity": "low",
+      "test_directories": ["__tests__/", "test/"],
+      "source_directories": ["lib/"],
+      "excluded_files": ["types", "index", "config"]
+    }
+  },
+  "metrics": {
+    "coverage_threshold": 70,
+    "bypass_limit_per_week": 2,
+    "compliance_score_minimum": 70
+  },
+  "audit": {
+    "log_file": ".security-audit.log",
+    "retention_days": 30,
+    "auto_escalate": false
+  }
+}
