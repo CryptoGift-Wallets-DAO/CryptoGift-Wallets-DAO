@@ -469,3 +469,5 @@ function MessageBubble({ message, onCopy, isCopied }: MessageBubbleProps) {
     </div>
   );
 }
+
+export default AgentChat;

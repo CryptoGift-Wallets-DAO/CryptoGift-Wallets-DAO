@@ -142,9 +142,9 @@ export const sentryUtils = {
     Sentry.addBreadcrumb(breadcrumb);
   },
   
-  // Create transaction for performance monitoring
-  startTransaction: (context: Sentry.TransactionContext) => {
-    return Sentry.startTransaction(context);
+  // Create span for performance monitoring (v10+ API)
+  startSpan: (options: any, callback?: any) => {
+    return Sentry.startSpan(options, callback);
   },
 };
 
@@ -152,34 +152,28 @@ export const sentryUtils = {
 export const performance = {
   // Measure function execution time
   measureAsync: async <T>(name: string, fn: () => Promise<T>): Promise<T> => {
-    const transaction = Sentry.startTransaction({ name, op: 'function' });
-    try {
-      const result = await fn();
-      transaction.setStatus('ok');
-      return result;
-    } catch (error) {
-      transaction.setStatus('internal_error');
-      sentryUtils.captureError(error as Error, { function: name });
-      throw error;
-    } finally {
-      transaction.finish();
-    }
+    return await Sentry.startSpan({ name, op: 'function' }, async () => {
+      try {
+        const result = await fn();
+        return result;
+      } catch (error) {
+        sentryUtils.captureError(error as Error, { function: name });
+        throw error;
+      }
+    });
   },
   
   // Measure synchronous function execution
   measure: <T>(name: string, fn: () => T): T => {
-    const transaction = Sentry.startTransaction({ name, op: 'function' });
-    try {
-      const result = fn();
-      transaction.setStatus('ok');
-      return result;
-    } catch (error) {
-      transaction.setStatus('internal_error');
-      sentryUtils.captureError(error as Error, { function: name });
-      throw error;
-    } finally {
-      transaction.finish();
-    }
+    return Sentry.startSpan({ name, op: 'function' }, () => {
+      try {
+        const result = fn();
+        return result;
+      } catch (error) {
+        sentryUtils.captureError(error as Error, { function: name });
+        throw error;
+      }
+    });
   },
 };
 

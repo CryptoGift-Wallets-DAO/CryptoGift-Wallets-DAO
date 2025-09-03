@@ -60,26 +60,22 @@ class ObservabilityManager {
   // Async performance wrapper
   async measureAsync<T>(name: string, fn: () => Promise<T>, tags?: Record<string, string>): Promise<T> {
     const startTime = Date.now();
-    const transaction = sentryUtils.startTransaction({ name, op: 'measure' });
     
-    try {
-      const result = await fn();
-      const duration = Date.now() - startTime;
-      
-      this.trackPerformance(name, duration, 'ms', tags);
-      transaction.setStatus('ok');
-      
-      return result;
-    } catch (error) {
-      const duration = Date.now() - startTime;
-      this.trackPerformance(`${name}.error`, duration, 'ms', tags);
-      
-      transaction.setStatus('internal_error');
-      ErrorHandler.handle(error as Error, { operation: name, tags });
-      throw error;
-    } finally {
-      transaction.finish();
-    }
+    return await sentryUtils.startSpan({ name, op: 'measure' }, async () => {
+      try {
+        const result = await fn();
+        const duration = Date.now() - startTime;
+        
+        this.trackPerformance(name, duration, 'ms', tags);
+        return result;
+      } catch (error) {
+        const duration = Date.now() - startTime;
+        this.trackPerformance(`${name}.error`, duration, 'ms', tags);
+        
+        ErrorHandler.handle(error as Error, { operation: name, tags });
+        throw error;
+      }
+    });
   }
   
   // Synchronous performance wrapper

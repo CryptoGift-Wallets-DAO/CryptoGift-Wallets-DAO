@@ -427,3 +427,5 @@ export function VoiceAgent({ userId, onTranscript, onToolCall }: VoiceAgentProps
     </Card>
   );
 }
+
+export default VoiceAgent;
