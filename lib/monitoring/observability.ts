@@ -108,7 +108,7 @@ class ObservabilityManager {
     const metrics: Record<string, number> = {};
     
     // Run health checks
-    for (const [name, checkFn] of Array.from(this.healthChecks.entries())) {
+    for (const [name, checkFn] of this.healthChecks.entries()) {
       try {
         checks[name] = await this.measureAsync(`health.${name}`, checkFn);
       } catch (error) {
@@ -199,7 +199,7 @@ class ObservabilityManager {
   getPerformanceSummary() {
     const summary: Record<string, any> = {};
     
-    for (const [name, metricHistory] of Array.from(this.metrics.entries())) {
+    for (const [name, metricHistory] of this.metrics.entries()) {
       if (metricHistory.length === 0) continue;
       
       const values = metricHistory.map(m => m.value);
@@ -247,7 +247,7 @@ class ObservabilityManager {
   cleanup() {
     const cutoff = Date.now() - (24 * 60 * 60 * 1000); // 24 hours ago
     
-    for (const [name, metricHistory] of Array.from(this.metrics.entries())) {
+    for (const [name, metricHistory] of this.metrics.entries()) {
       const filtered = metricHistory.filter(metric => metric.timestamp > cutoff);
       this.metrics.set(name, filtered);
     }
