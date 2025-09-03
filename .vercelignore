@@ -36,6 +36,12 @@ build
 contracts
 deployments
 
+# Backup files (prevent bundling in serverless functions)
+backups
+*.backup
+*.bak
+app/api/*/route.full.ts.backup
+
 # Frontend/Backend folders (if not needed)
 frontend
 ranking-frontend

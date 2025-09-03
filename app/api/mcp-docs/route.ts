@@ -69,6 +69,13 @@ const checkAuth = (authHeader: string | null): boolean => {
 // IP allowlist from environment
 const getAllowedIPs = (): string[] => {
   const v = process.env.MCP_ALLOWED_IPS;
+  
+  // FAIL-CLOSED: En producción, IP allowlist es obligatoria
+  if (process.env.NODE_ENV === 'production' && !v) {
+    logger.error('CRITICAL: MCP_ALLOWED_IPS missing in production - failing closed');
+    throw new Error('IP allowlist configuration required in production');
+  }
+  
   if (!v) return process.env.NODE_ENV === 'development' ? ['127.0.0.1','::1','localhost'] : [];
   return v.split(',').map(s => s.trim()).filter(Boolean);
 };
@@ -87,10 +94,17 @@ const isIPAllowed = (clientIP: string | null): boolean => {
 const RATE_MAX = Number(process.env.MCP_RL_MAX ?? 5);
 const RATE_WINDOW_SEC = Number(process.env.MCP_RL_WIN ?? 60);
 
-async function checkRateLimitREST(identifier: string): Promise<boolean> {
+async function checkRateLimitREST(identifier: string): Promise<{allowed: boolean, count?: number, remaining?: number}> {
   const base = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!base || !token) return true; // soft-allow if not configured
+  
+  // FAIL-CLOSED: En producción, ENV críticas son obligatorias
+  if (process.env.NODE_ENV === 'production' && (!base || !token)) {
+    logger.error('CRITICAL: UPSTASH_REDIS_REST_URL/TOKEN missing in production - failing closed');
+    throw new Error('Rate limiting configuration required in production');
+  }
+  
+  if (!base || !token) return {allowed: true}; // soft-allow en development
 
   const key = `mcp-docs:${identifier}:${Math.floor(Date.now() / (RATE_WINDOW_SEC * 1000))}`;
 
@@ -104,12 +118,30 @@ async function checkRateLimitREST(identifier: string): Promise<boolean> {
       ])
     });
 
-    if (!res.ok) return true; // soft-allow on error
+    if (!res.ok) {
+      if (process.env.NODE_ENV === 'production') {
+        logger.error('Rate limit service failed in production - failing closed', res.status);
+        throw new Error('Rate limiting service unavailable');
+      }
+      return {allowed: true}; // soft-allow en development
+    }
+    
     const json = await res.json(); // [[null,count],[null,1]]
     const [[, count]] = json || [[, 0]];
-    return Number(count) <= RATE_MAX;
-  } catch {
-    return true; // soft-allow on network error
+    const currentCount = Number(count);
+    const remaining = Math.max(0, RATE_MAX - currentCount);
+    
+    return {
+      allowed: currentCount <= RATE_MAX,
+      count: currentCount,
+      remaining
+    };
+  } catch (error) {
+    if (process.env.NODE_ENV === 'production') {
+      logger.error('Rate limit error in production - failing closed', error);
+      throw error;
+    }
+    return {allowed: true}; // soft-allow en development solo
   }
 }
 
@@ -296,19 +328,42 @@ export async function POST(req: NextRequest) {
   const clientIP = req.ip || req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
   
   try {
-    // 1) IP Allowlist check (RESTORED)
-    if (!isIPAllowed(clientIP)) {
+    // 1) IP Allowlist check (FAIL-CLOSED in production)
+    try {
+      if (!isIPAllowed(clientIP)) {
+        return NextResponse.json({
+          error: { code: -32002, message: 'IP not allowed' }
+        }, { status: 403, headers: getCorsHeaders(origin) });
+      }
+    } catch (configError) {
+      // Configuración crítica faltante en producción
+      logger.error('IP allowlist configuration error:', configError);
       return NextResponse.json({
-        error: { code: -32002, message: 'IP not allowed' }
-      }, { status: 403, headers: getCorsHeaders(origin) });
+        error: { code: -32500, message: 'Service configuration error' }
+      }, { status: 503, headers: getCorsHeaders(origin) });
     }
 
-    // 2) Rate limiting via REST (RESTORED)
-    const rateLimitPass = await checkRateLimitREST(clientIP);
-    if (!rateLimitPass) {
+    // 2) Rate limiting via REST (FAIL-CLOSED in production, enhanced with headers)
+    try {
+      const rateLimitResult = await checkRateLimitREST(clientIP);
+      if (!rateLimitResult.allowed) {
+        const headers = {
+          ...getCorsHeaders(origin),
+          'X-RateLimit-Limit': String(RATE_MAX),
+          'X-RateLimit-Remaining': String(rateLimitResult.remaining || 0),
+          'X-RateLimit-Reset': String(Math.floor(Date.now() / 1000) + RATE_WINDOW_SEC),
+          'Retry-After': String(RATE_WINDOW_SEC)
+        };
+        return NextResponse.json({
+          error: { code: -32003, message: 'Rate limit exceeded' }
+        }, { status: 429, headers });
+      }
+    } catch (rateLimitError) {
+      // Rate limiting crítico faltante en producción
+      logger.error('Rate limiting configuration error:', rateLimitError);
       return NextResponse.json({
-        error: { code: -32003, message: 'Rate limit exceeded' }
-      }, { status: 429, headers: getCorsHeaders(origin) });
+        error: { code: -32501, message: 'Rate limiting service unavailable' }
+      }, { status: 503, headers: getCorsHeaders(origin) });
     }
     
     const body = await req.json();
