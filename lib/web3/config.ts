@@ -17,8 +17,8 @@ const appIcon = process.env.NEXT_PUBLIC_APP_ICON || `${appUrl}/logo.png`
 const chains = [base, baseSepolia] as const
 type SupportedChains = typeof chains[number]
 
-// Configure connectors
-const connectors = [
+// Configure connectors (only on client-side)
+const connectors = typeof window !== 'undefined' ? [
   // Coinbase Wallet (recommended for Base)
   coinbaseWallet({
     appName,
@@ -34,7 +34,7 @@ const connectors = [
     },
   }),
   
-  // WalletConnect v2
+  // WalletConnect v2 (only on client-side to avoid SSR issues)
   walletConnect({
     projectId,
     metadata: {
@@ -43,6 +43,13 @@ const connectors = [
       url: appUrl,
       icons: [appIcon],
     },
+  }),
+] : [
+  // Basic connectors for SSR
+  coinbaseWallet({
+    appName,
+    appLogoUrl: appIcon,
+    headlessMode: true,
   }),
 ]
 

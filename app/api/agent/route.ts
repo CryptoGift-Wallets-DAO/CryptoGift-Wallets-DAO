@@ -48,7 +48,9 @@ const getRedis = () => {
 // Setup OpenAI client - initialize lazily to avoid build errors
 let openai: OpenAI | null = null;
 const getOpenAI = () => {
-  if (!openai && process.env.OPENAI_API_KEY) {
+  if (!openai && process.env.OPENAI_API_KEY && 
+      process.env.OPENAI_API_KEY !== 'your-openai-key-here' &&
+      process.env.OPENAI_API_KEY !== 'your-ope********here') {
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });

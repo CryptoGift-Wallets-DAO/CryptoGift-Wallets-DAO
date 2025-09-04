@@ -24,6 +24,13 @@ const nextConfig = {
       net: false,
       tls: false,
     };
+    
+    // Fix pino-pretty warning by excluding it from bundle
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'pino-pretty': false,
+    };
+    
     return config;
   },
 
