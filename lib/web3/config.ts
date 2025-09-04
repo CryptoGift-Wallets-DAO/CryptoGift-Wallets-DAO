@@ -4,7 +4,8 @@
 
 import { http, createConfig } from 'wagmi'
 import { base, baseSepolia, mainnet } from 'wagmi/chains'
-import { coinbaseWallet, metaMask, walletConnect } from 'wagmi/connectors'
+import { coinbaseWallet, metaMask } from 'wagmi/connectors'
+// walletConnect temporarily removed due to TypeScript compatibility issues
 
 // Get environment variables with consistent fallbacks
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'demo-project-id'
@@ -46,8 +47,8 @@ const createConnectors = () => {
     return [baseConnector]
   }
 
-  // Full connectors for client-side - MetaMask first for better UX
-  const connectors = [
+  // Basic connectors that always work
+  const baseConnectors = [
     metaMask({
       dappMetadata: {
         name: appName,
@@ -57,22 +58,11 @@ const createConnectors = () => {
     baseConnector,
   ]
 
-  // Only add WalletConnect if we have a valid project ID
-  if (projectId && projectId !== 'demo-project-id') {
-    connectors.push(
-      walletConnect({
-        projectId,
-        metadata: {
-          name: appName,
-          description: appDescription,
-          url: appUrl,
-          icons: [appIcon],
-        },
-      })
-    )
-  }
+  // WalletConnect temporarily disabled due to TypeScript compatibility issues
+  // Will be re-enabled once compatible with Wagmi v2
+  // MetaMask + Coinbase Wallet provide excellent coverage for now
 
-  return connectors
+  return baseConnectors
 }
 
 const connectors = createConnectors()
