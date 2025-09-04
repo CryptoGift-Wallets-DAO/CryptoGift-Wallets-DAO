@@ -6,52 +6,63 @@ import { http, createConfig } from 'wagmi'
 import { base, baseSepolia, mainnet } from 'wagmi/chains'
 import { coinbaseWallet, metaMask, walletConnect } from 'wagmi/connectors'
 
-// Get environment variables with fallbacks
+// Get environment variables with consistent fallbacks
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'demo-project-id'
 const appName = process.env.NEXT_PUBLIC_APP_NAME || 'CryptoGift DAO'
 const appDescription = process.env.NEXT_PUBLIC_APP_DESCRIPTION || 'Decentralized governance for CryptoGift ecosystem'
-const appUrl = process.env.NEXT_PUBLIC_DAO_URL || 'https://dao.cryptogift.com'
+
+// Ensure consistent URL across environments
+const appUrl = (() => {
+  if (typeof window !== 'undefined') {
+    // Client-side: use current origin
+    return window.location.origin
+  }
+  // Server-side: use environment variable or fallback
+  return process.env.NEXT_PUBLIC_DAO_URL || 'https://crypto-gift-wallets-dao.vercel.app'
+})()
+
 const appIcon = process.env.NEXT_PUBLIC_APP_ICON || `${appUrl}/logo.png`
 
 // Configure supported chains
 const chains = [base, baseSepolia] as const
 type SupportedChains = typeof chains[number]
 
-// Configure connectors (only on client-side)
-const connectors = typeof window !== 'undefined' ? [
-  // Coinbase Wallet (recommended for Base)
-  coinbaseWallet({
+// Configure connectors with consistent SSR behavior
+const createConnectors = () => {
+  // Base connector that works in both SSR and CSR
+  const baseConnector = coinbaseWallet({
     appName,
     appLogoUrl: appIcon,
     headlessMode: false,
-  }),
-  
-  // MetaMask
-  metaMask({
-    dappMetadata: {
-      name: appName,
-      url: appUrl,
-    },
-  }),
-  
-  // WalletConnect v2 (only on client-side to avoid SSR issues)
-  walletConnect({
-    projectId,
-    metadata: {
-      name: appName,
-      description: appDescription,
-      url: appUrl,
-      icons: [appIcon],
-    },
-  }),
-] : [
-  // Basic connectors for SSR
-  coinbaseWallet({
-    appName,
-    appLogoUrl: appIcon,
-    headlessMode: true,
-  }),
-]
+  })
+
+  // For SSR compatibility, return minimal set
+  if (typeof window === 'undefined') {
+    return [baseConnector]
+  }
+
+  // Full connectors for client-side
+  return [
+    baseConnector,
+    metaMask({
+      dappMetadata: {
+        name: appName,
+        url: appUrl,
+      },
+    }),
+    walletConnect({
+      projectId,
+      metadata: {
+        name: appName,
+        description: appDescription,
+        url: appUrl,
+        icons: [appIcon],
+      },
+    }),
+  ]
+}
+
+const connectors = createConnectors()
 
 // Create Wagmi config
 export const wagmiConfig = createConfig({
