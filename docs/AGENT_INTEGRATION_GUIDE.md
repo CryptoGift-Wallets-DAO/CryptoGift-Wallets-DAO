@@ -1,19 +1,21 @@
 # 🤖 CG DAO AGENT - INTEGRATION GUIDE
 
-> **Agente web completo con GPT-5 Thinking + MCP + SSE Streaming**  
-> Sistema de máxima excelencia integrado directamente en tu web DAO
+> **🚀 ACTUALIZADO 4 SEP 2025**: apeX Agent con GPT-5 + Maximum Reasoning  
+> **Sistema de máxima excelencia con upgrade completo a GPT-5 + UX mejorada**
 
-## 🎯 **IMPLEMENTACIÓN COMPLETADA**
+## 🎯 **UPGRADE COMPLETADO - GPT-5 + UI ENHANCEMENTS**
 
-### ✅ **SISTEMA DESPLEGADO**
+### ✅ **SISTEMA ACTUALIZADO v2.0**
 
 ```
-✅ Endpoint API /api/agent (GPT-5 + Thinking Mode)
-✅ Servidor MCP HTTP /api/mcp-docs (Documentos en tiempo real)
-✅ Widget React <AgentChat /> (SSE Streaming)
+✅ Endpoint API /api/agent v2.0 (GPT-5 + reasoning_effort: "high")
+✅ Servidor MCP HTTP /api/mcp-docs (OpenAI Functions integration)
+✅ Widget React <AgentChat /> (Auto-scroll fix + input continuo)
+✅ Burbuja Flotante <ApexAgent /> (apeX22.PNG custom image)
+✅ Header Integration (apeX.png icon al 100% del espacio)
 ✅ Seguridad y Rate Limiting (Redis + Audit)
 ✅ Sistema de Memoria por Usuario (Sesiones persistentes)
-✅ Citaciones Obligatorias (Links a documentación)
+✅ Real Document Access (MCP tools con OpenAI Functions)
 ✅ Página de Demo /agent (Interfaz completa)
 ```
 
@@ -29,24 +31,51 @@ pnpm install
 pnpm list @openai/agents @modelcontextprotocol/server-filesystem
 ```
 
-### 2. **Configurar Variables de Entorno**
+### 2. **Configurar Variables de Entorno** 
 
-Añadir a tu `.env.local`:
+⚠️ **IMPORTANTE**: Usa tu propia OPENAI_API_KEY con acceso a GPT-5
+
+Verificar en tu `.env.local`:
 
 ```env
-# OpenAI API (OBLIGATORIO)
-OPENAI_API_KEY=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
+# OpenAI API (OBLIGATORIO - GPT-5 ACCESS REQUIRED)
+OPENAI_API_KEY=tu-api-key-con-acceso-gpt5
 
 # MCP Auth Token (para seguridad interna)
-MCP_AUTH_TOKEN=cg-dao-internal-2025
+MCP_AUTH_TOKEN=internal-dev-token-change-in-production
 
-# Redis (YA CONFIGURADO)
-UPSTASH_REDIS_REST_URL=https://fit-mole-59344.upstash.io
-UPSTASH_REDIS_REST_TOKEN=ATRHAAIncDE4Y2IyNzI0MmExMzY0Zjc2YTc1ZThkYjhkZDQ0ZjAzZXAxMTMzODM
-
-# Contratos (YA CONFIGURADO)
-CGC_TOKEN_ADDRESS=0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
+# URLs para MCP
+NEXT_PUBLIC_DAO_URL=http://localhost:3000
 ARAGON_DAO_ADDRESS=0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
+CGC_TOKEN_ADDRESS=0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
+
+# Redis (ACTUALIZADO 4 SEP 2025)
+UPSTASH_REDIS_REST_URL=https://quick-bass-50079.upstash.io
+UPSTASH_REDIS_REST_TOKEN=AcOfAAIncDFhZmRlNDQxNzUwZWU0M2IzYjIyMGY0ZDIzMGZiMTIyZHAxNTAwNzk
+```
+
+### 🧠 **CONFIGURACIÓN GPT-5 CRÍTICA**
+
+```typescript
+// app/api/agent/route.ts - Configuración GPT-5
+const stream = await openaiClient.chat.completions.create({
+  model: "gpt-5",                    // GPT-5 más reciente
+  messages,                         // Historial de conversación
+  max_completion_tokens: 3000,      // GPT-5 usa este parámetro
+  reasoning_effort: "high",         // Máximo juice disponible
+  stream: true,                     // SSE streaming
+  tools: [                          // MCP integration
+    {
+      type: "function",
+      function: {
+        name: "read_project_file",
+        description: "Read any file from the project using MCP"
+      }
+    },
+    // ... más tools
+  ],
+  tool_choice: "auto"              // Auto-call tools cuando necesario
+});
 ```
 
 ### 3. **Iniciar el Servidor**

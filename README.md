@@ -27,7 +27,7 @@ node scripts/emergency-toolkit.js status
 **DAO Desplegado**: ✅ `0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31`  
 **Token**: CGC (CryptoGift Coin) - ✅ 2,000,000 supply con logo GitHub  
 **Framework**: Aragon OSx v1.4.0 + Sistema EIP-712 personalizado  
-**Última Actualización**: 31 Enero 2025 - Deployment completo con máxima excelencia
+**Última Actualización**: 4 Septiembre 2025 - apeX Agent GPT-5 upgrade + UX improvements
 
 ## 🚀 Quick Start
 
@@ -56,17 +56,32 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-### 🤖 **NUEVO: Agente IA Integrado**
+### 🤖 **apeX Agent - GPT-5 con Máximo Reasoning**
+
+**🚀 UPGRADE 4 SEP 2025**: apeX ahora utiliza GPT-5 con capacidades de reasoning avanzadas + acceso real a toda la documentación del proyecto.
 
 ```bash
 # Acceder al agente web integrado
 http://localhost:3000/agent
 
+# Acceder desde burbuja flotante en cualquier página
+# → Burbuja con imagen apeX22.PNG en esquina inferior derecha
+
 # Usar en tu código React
 import { AgentChat } from '@/components/agent/AgentChat';
+import { ApexAgent } from '@/components/agent/ApexAgent';
 
-<AgentChat userId="user123" initialMode="general" />
+<AgentChat userId="user123" initialMode="technical" />
+<ApexAgent /> // Burbuja flotante global
 ```
+
+**Características apeX Agent v2.0:**
+- ✅ **GPT-5** con `reasoning_effort: "high"` (máximo juice)
+- ✅ **MCP Integration** - Acceso real a TODOS los archivos del proyecto
+- ✅ **Smart UI** - Auto-scroll mejorado, input continuo
+- ✅ **Custom Images** - apeX22.PNG bubble + apeX.png header icon
+- ✅ **3000 tokens** - Mayor capacidad de respuesta
+- ✅ **Tool Calling** - Puede leer documentación, buscar archivos, obtener estructura
 
 ### 🚨 Package Manager Policy
 

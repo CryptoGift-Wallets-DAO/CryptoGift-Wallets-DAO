@@ -25,13 +25,48 @@ NOTA: Los contratos siguientes fueron reemplazados por el nuevo sistema:
 - MerklePayouts: 0xC75Be1A1fCb412078102b7C286d12E8ACc75b922 (funcionalidad en Escrow)
 ```
 
-### DATOS CRÍTICOS (ACTUALIZADOS 31 ENE 2025)
+### DATOS CRÍTICOS (ACTUALIZADOS 4 SEP 2025)
 - **Deployer**: 0xc655BF2Bd9AfA997c757Bef290A9Bb6ca41c5dE6
 - **Balance**: ~0.003 ETH (post-deployment, suficiente para operaciones)
 - **DAO Aragon**: 0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
 - **Token Supply**: 2M CGC (owner balance: 2M - LISTOS para distribución)
 - **Sistema Status**: ✅ PRODUCTION READY - Completamente operacional
 - **Verificación**: ✅ Todos los contratos verificados en BaseScan con badge verde
+- **🤖 apeX Agent**: ✅ GPT-5 con máximo reasoning + MCP tools + UI mejorada
+
+---
+
+## 🆕 ÚLTIMOS CAMBIOS CRÍTICOS (4 SEP 2025)
+
+### 🤖 apeX AGENT UPGRADE COMPLETO
+**Commits Recientes:**
+- `032e2b3` - feat: upgrade to GPT-5 with maximum reasoning capabilities
+- `c347496` - feat: comprehensive apeX agent improvements and UI enhancements
+- `c3f9967` - fix: resolve apeX agent configuration issues for production deployment
+
+### 🎯 CAMBIOS IMPLEMENTADOS:
+1. **GPT-5 Integration**: Upgrade completo a GPT-5 con `reasoning_effort: "high"`
+2. **MCP Tools**: Acceso real a documentación del proyecto via OpenAI Functions
+3. **UI Mejoras**: Auto-scroll arreglado, input continuo, imágenes apeX custom
+4. **Parámetros GPT-5**: `max_completion_tokens: 3000`, sin `temperature`
+5. **API Version**: Actualizada a 2.0.0 con nuevas capabilities
+
+### 📁 ARCHIVOS MODIFICADOS:
+- `app/api/agent/route.ts` - Core agent con GPT-5 + MCP integration
+- `components/agent/AgentChat.tsx` - UI improvements + scroll fixes
+- `components/agent/ApexAgent.tsx` - Custom apeX22.PNG bubble
+- `app/page.tsx` - Header con apeX.png icon
+- `public/apeX22.PNG` - Floating bubble image (100% space)
+- `public/apeX.png` - Header logo image (100% space)
+
+### 🔧 CONFIGURACIÓN CRÍTICA apeX:
+```javascript
+// GPT-5 Configuration
+model: "gpt-5"
+max_completion_tokens: 3000
+reasoning_effort: "high"  // Maximum available reasoning
+tools: [MCP functions] // Real document access
+```
 
 ---
 
