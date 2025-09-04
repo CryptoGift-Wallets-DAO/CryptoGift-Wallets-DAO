@@ -91,12 +91,17 @@ export function AgentChat({
     stream: true,
   });
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom only when not actively reading
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (scrollRef.current && !isLoading) {
+      // Only auto-scroll when agent finishes responding
+      const timer = setTimeout(() => {
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 500); // Small delay to allow user to read
+      
+      return () => clearTimeout(timer);
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
@@ -323,7 +328,7 @@ export function AgentChat({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={`Ask about ${AGENT_MODES[selectedMode]?.name?.toLowerCase() || 'general topics'}...`}
-              disabled={isLoading || !isConnected}
+              disabled={!isConnected}
               className="flex-1"
               maxLength={4000}
             />

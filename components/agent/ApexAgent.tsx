@@ -115,21 +115,28 @@ export function ApexAgent() {
     >
       {/* Main apeX Bubble */}
       <div
-        className={`glass-bubble w-16 h-16 flex items-center justify-center cursor-pointer float relative transition-all duration-300 hover:scale-110 active:scale-105 ${
+        className={`w-16 h-16 cursor-pointer relative transition-all duration-300 hover:scale-110 active:scale-105 ${
           isMenuOpen ? 'scale-105 -rotate-1' : 'scale-100'
         }`}
         onClick={handleBubbleClick}
       >
-        {/* apeX Icon/Avatar */}
-        <div
-          className={`w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-white font-bold text-sm transition-transform duration-400 ${
-            isMenuOpen ? 'rotate-180' : 'rotate-0'
-          }`}
-        >
-          {isMenuOpen ? (
-            <X className="w-4 h-4" />
-          ) : (
-            <span>aX</span> // apeX abbreviated
+        {/* apeX22.PNG Image - ocupando 100% del espacio */}
+        <div className="w-full h-full relative overflow-hidden rounded-full">
+          <img 
+            src="/apeX22.PNG"
+            alt="apeX Assistant"
+            className="w-full h-full object-cover rounded-full"
+            style={{ 
+              objectFit: 'cover',
+              objectPosition: 'center'
+            }}
+          />
+          
+          {/* Overlay when menu is open */}
+          {isMenuOpen && (
+            <div className="absolute inset-0 bg-black bg-opacity-20 rounded-full flex items-center justify-center transition-opacity duration-300">
+              <X className="w-6 h-6 text-white drop-shadow-lg" />
+            </div>
           )}
         </div>
 
@@ -137,6 +144,13 @@ export function ApexAgent() {
         <div
           className={`absolute inset-0 rounded-full border-2 border-blue-400/30 transition-opacity duration-300 ${
             isMenuOpen ? 'animate-ping opacity-50' : 'opacity-0'
+          }`}
+        />
+        
+        {/* Glow effect */}
+        <div
+          className={`absolute inset-0 rounded-full transition-opacity duration-300 ${
+            isMenuOpen ? 'shadow-lg shadow-blue-400/50' : 'shadow-sm'
           }`}
         />
       </div>

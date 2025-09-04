@@ -88,18 +88,69 @@ const mcpTools = {
   }
 };
 
+// MCP Tool execution functions
+async function callMCPTool(method: string, params: any) {
+  try {
+    const response = await fetch(mcpTools.url, {
+      method: 'POST',
+      headers: mcpTools.headers,
+      body: JSON.stringify({
+        method: 'tools/call',
+        params: {
+          name: method,
+          arguments: params
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`MCP call failed: ${response.status}`);
+    }
+
+    const result = await response.json();
+    if (result.error) {
+      throw new Error(`MCP error: ${result.error.message}`);
+    }
+
+    return result.result?.content?.[0]?.text || 'No content returned';
+  } catch (error) {
+    logger.error('MCP tool call failed:', error);
+    return `Error accessing documentation: ${error instanceof Error ? error.message : 'Unknown error'}`;
+  }
+}
+
+// Tool handlers for OpenAI function calls
+async function handleFunctionCall(name: string, arguments_str: string) {
+  const args = JSON.parse(arguments_str);
+  
+  switch (name) {
+    case 'read_project_file':
+      return await callMCPTool('read_file', { path: args.path });
+      
+    case 'search_project_files': 
+      return await callMCPTool('search_files', { query: args.query });
+      
+    case 'get_project_overview':
+      return await callMCPTool('get_project_structure', {});
+      
+    default:
+      return `Unknown function: ${name}`;
+  }
+}
+
 async function initializeAgent() {
-  // Return agent configuration ready for OpenAI API
+  // Return agent configuration ready for OpenAI API with MCP tools
   try {
     return {
       name: 'CG DAO Operations Assistant',
-      instructions: `You are an expert assistant for CryptoGift DAO operations. You have access to all project documentation through MCP tools.
+      instructions: `You are apeX, the expert AI assistant for CryptoGift DAO operations. You have access to all project documentation through MCP tools and can read any file in the project.
 
 ## Your Role:
 - Provide accurate information about the DAO's smart contracts, governance, and operations
-- Always cite specific documents when providing information
-- Use formal but friendly tone
-- Be concise but comprehensive
+- ALWAYS access documentation using MCP tools before answering questions
+- Cite specific files and sections when providing information
+- Use friendly but professional tone
+- Be comprehensive yet concise
 
 ## Critical Information:
 - DAO Address: ${process.env.ARAGON_DAO_ADDRESS}
@@ -107,15 +158,22 @@ async function initializeAgent() {
 - Network: Base (Chain ID: 8453)
 - Current Phase: Production Ready - All contracts deployed and verified
 
-## MCP Tools Usage:
-- ALWAYS use MCP tools to read documentation before answering
-- When citing information, include file name and relevant section
-- If unsure about current state, read CLAUDE.md and DEVELOPMENT.md
-- For contract details, check contracts/ directory
+## MANDATORY MCP Tools Usage:
+Before answering ANY question:
+1. Use get_project_structure to understand the current project state
+2. Use read_file to access CLAUDE.md for latest information
+3. Use search_files to find relevant documentation
+4. Use list_directory to explore relevant folders
+
+When users ask about:
+- Contracts → read files in contracts/ directory
+- Development status → read CLAUDE.md and docs/
+- Configuration → check relevant config files
+- Specific features → search for related files
 
 ## Response Format:
 - Start with brief summary
-- Provide detailed answer with citations
+- Provide detailed answer with specific file citations
 - Include relevant contract addresses when applicable
 - End with actionable next steps if appropriate
 
@@ -123,8 +181,8 @@ async function initializeAgent() {
 - Never provide private keys or sensitive information
 - Only reference publicly deployed contract addresses
 - Always recommend best practices for DAO operations`,
-      model: 'gpt-4',
-      maxTokens: 1500,
+      model: 'gpt-4o',
+      maxTokens: 2000,
       mcpTools: mcpTools
     };
   } catch (error) {
@@ -391,11 +449,60 @@ Current Query: ${message}
             }
             
             const stream = await openaiClient.chat.completions.create({
-              model: "gpt-4",  // Using GPT-4 as GPT-5 might not be available yet
+              model: "gpt-4o",  // Using GPT-4o with thinking capabilities
               messages,
-              max_tokens: 1500,
+              max_tokens: 2000,
               temperature: 0.7,
+              reasoning_effort: "high",  // Enable thinking mode at 70%+
               stream: true,
+              tools: [
+                {
+                  type: "function",
+                  function: {
+                    name: "read_project_file",
+                    description: "Read any file from the CryptoGift DAO project using MCP",
+                    parameters: {
+                      type: "object",
+                      properties: {
+                        path: {
+                          type: "string",
+                          description: "Path to the file to read (e.g., 'CLAUDE.md', 'contracts/CGCToken.sol')"
+                        }
+                      },
+                      required: ["path"]
+                    }
+                  }
+                },
+                {
+                  type: "function", 
+                  function: {
+                    name: "search_project_files",
+                    description: "Search for specific text across all project files using MCP",
+                    parameters: {
+                      type: "object",
+                      properties: {
+                        query: {
+                          type: "string",
+                          description: "Text to search for in project files"
+                        }
+                      },
+                      required: ["query"]
+                    }
+                  }
+                },
+                {
+                  type: "function",
+                  function: {
+                    name: "get_project_overview",
+                    description: "Get an overview of the project structure and key files",
+                    parameters: {
+                      type: "object",
+                      properties: {}
+                    }
+                  }
+                }
+              ],
+              tool_choice: "auto"
             });
 
             let fullResponse = '';
@@ -510,10 +617,11 @@ Current Query: ${message}
         );
       }
       const completion = await openaiClient.chat.completions.create({
-        model: "gpt-4",  // Using GPT-4 as GPT-5 might not be available yet
+        model: "gpt-4o",  // Using GPT-4o with thinking capabilities
         messages,
-        max_tokens: 1500,
+        max_tokens: 2000,
         temperature: 0.7,
+        reasoning_effort: "high",  // Enable thinking mode at 70%+
       });
 
       const response = completion.choices[0]?.message?.content || '';

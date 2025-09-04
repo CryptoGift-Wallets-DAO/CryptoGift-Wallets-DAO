@@ -161,8 +161,16 @@ export default function CryptoGiftDAODashboard() {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-                  CG
+                <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg">
+                  <img 
+                    src="/apeX.png" 
+                    alt="apeX Assistant"
+                    className="w-full h-full object-cover"
+                    style={{ 
+                      objectFit: 'cover',
+                      objectPosition: 'center'
+                    }}
+                  />
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-glass bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
