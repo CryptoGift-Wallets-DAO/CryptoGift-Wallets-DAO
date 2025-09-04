@@ -179,7 +179,7 @@ export function ApexAgent() {
         <div
           className="absolute -top-12 -left-8 glass-card px-3 py-1 text-sm text-glass whitespace-nowrap pointer-events-none transition-all duration-300 spring-in"
         >
-          Hi! I'm apeX 👋
+          Hi! I&apos;m apeX 👋
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-glass" />
         </div>
       )}
