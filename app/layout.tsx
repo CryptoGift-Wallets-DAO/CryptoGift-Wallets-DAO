@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '@/components/ui/toast';
+import { Web3Provider } from '@/lib/web3/provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,11 +31,13 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>
       <body className={inter.className}>
-        <ToastProvider>
-          <main className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-gray-900 to-gray-800">
-            {children}
-          </main>
-        </ToastProvider>
+        <Web3Provider>
+          <ToastProvider>
+            <main className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-gray-900 to-gray-800">
+              {children}
+            </main>
+          </ToastProvider>
+        </Web3Provider>
       </body>
     </html>
   );
