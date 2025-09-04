@@ -449,10 +449,9 @@ Current Query: ${message}
             }
             
             const stream = await openaiClient.chat.completions.create({
-              model: "gpt-5",  // Using GPT-5 with full reasoning capabilities
+              model: "gpt-4o",  // Temporary fallback to GPT-4o until organization verification
               messages,
-              max_completion_tokens: 3000,  // GPT-5 uses max_completion_tokens instead of max_tokens
-              reasoning_effort: "high",  // Maximum available reasoning effort for GPT-5
+              max_tokens: 3000,  // GPT-4o uses max_tokens
               stream: true,
               tools: [
                 {
@@ -616,10 +615,9 @@ Current Query: ${message}
         );
       }
       const completion = await openaiClient.chat.completions.create({
-        model: "gpt-5",  // Using GPT-5 with full reasoning capabilities
+        model: "gpt-4o",  // Temporary fallback to GPT-4o until organization verification
         messages,
-        max_completion_tokens: 3000,  // GPT-5 uses max_completion_tokens instead of max_tokens
-        reasoning_effort: "high",  // Maximum available reasoning effort for GPT-5
+        max_tokens: 3000,  // GPT-4o uses max_tokens
       });
 
       const response = completion.choices[0]?.message?.content || '';

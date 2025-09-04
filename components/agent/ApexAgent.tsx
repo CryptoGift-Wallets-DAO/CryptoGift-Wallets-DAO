@@ -79,12 +79,14 @@ export function ApexAgent() {
     }
   ];
 
-  // Handle bubble click
+  // Handle bubble click - Direct navigation to agent chat
   const handleBubbleClick = () => {
     if (isAnimating) return;
     
     setIsAnimating(true);
-    setIsMenuOpen(!isMenuOpen);
+    
+    // Direct navigation to agent chat instead of orbital menu
+    router.push('/agent');
     
     // Reset animation state
     setTimeout(() => setIsAnimating(false), 400);
@@ -155,48 +157,14 @@ export function ApexAgent() {
         />
       </div>
 
-      {/* Orbital Menu Items */}
-      {isMenuOpen && (
-        <>
-          {menuItems.map((item, index) => (
-            <div
-              key={item.id}
-              className="orbital-item absolute w-12 h-12 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-120 active:scale-95 orbital-appear"
-              style={{
-                left: `calc(50% + ${item.position.x}px - 24px)`,
-                top: `calc(50% + ${item.position.y}px - 24px)`,
-                animationDelay: `${index * 100}ms`
-              }}
-              onClick={item.action}
-              title={item.label}
-            >
-              <div className="text-glass">
-                {item.icon}
-              </div>
-            </div>
-          ))}
 
-          {/* Background overlay for better visibility */}
-          <div
-            className="absolute inset-0 -m-20 rounded-full transition-opacity duration-300"
-            style={{
-              background: 'radial-gradient(circle, rgba(0,0,0,0.1) 0%, transparent 70%)',
-              backdropFilter: 'blur(2px)',
-              opacity: 1
-            }}
-          />
-        </>
-      )}
-
-      {/* Tooltip when menu is closed */}
-      {!isMenuOpen && (
-        <div
-          className="absolute -top-12 -left-8 glass-card px-3 py-1 text-sm text-glass whitespace-nowrap pointer-events-none transition-all duration-300 spring-in"
-        >
-          Hi! I&apos;m apeX 👋
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-glass" />
-        </div>
-      )}
+      {/* Tooltip */}
+      <div
+        className="absolute -top-12 -left-8 glass-card px-3 py-1 text-sm text-glass whitespace-nowrap pointer-events-none transition-all duration-300 spring-in"
+      >
+        Click me! I&apos;m apeX 🤖
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-glass" />
+      </div>
     </div>
   );
 }
