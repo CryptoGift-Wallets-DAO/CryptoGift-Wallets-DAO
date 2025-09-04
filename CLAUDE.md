@@ -257,3 +257,19 @@ cast gas-price --rpc-url https://mainnet.base.org
 ---
 
 **🔑 RECORDATORIO CLAVE**: Este archivo es tu punto de partida SIEMPRE. Si Claude crashea, vuelve aquí primero.
+
+---
+
+## 🚨 REGLAS ABSOLUTAS E INVIOLABLES
+
+### ❌ PROHIBIDO TERMINANTEMENTE:
+1. **NUNCA ESCRIBIR EN .env.local** - Contiene 200+ líneas críticas, SOLO lectura permitida
+2. **NUNCA ESCRIBIR SIN LEER COMPLETAMENTE** - Usar Read tool antes de Edit/Write SIEMPRE
+3. **NUNCA CREAR ARCHIVOS SIN VERIFICAR** - Usar Glob/Grep para verificar existencia primero
+
+### ⚠️ CONTEXTO DEL ERROR CRÍTICO (2025-01-09):
+- Sobrescribí `.env.local` (200+ líneas) con solo 36 líneas
+- Pérdida de configuración crítica (recuperada por backup del usuario)
+- **ESTAS REGLAS SON ABSOLUTAS - NO HAY EXCEPCIONES**
+
+Ver `CLAUDE_ABSOLUTE_RULES.md` para protocolo completo.
