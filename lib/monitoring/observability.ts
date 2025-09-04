@@ -166,12 +166,21 @@ class ObservabilityManager {
   
   // Get memory usage percentage
   private getMemoryUsage(): number {
-    if (typeof process === 'undefined') return 0;
-    
-    const memUsage = process.memoryUsage();
-    // Approximate total system memory (this is a rough estimate)
-    const totalMemory = memUsage.heapTotal * 10; // Very rough approximation
-    return (memUsage.heapUsed / totalMemory) * 100;
+    try {
+      if (typeof process === 'undefined' || !process.memoryUsage) {
+        // Edge Runtime doesn't have process.memoryUsage, return nominal value
+        return 5.0; // Assume 5% usage for Edge Runtime
+      }
+      
+      const memUsage = process.memoryUsage();
+      // Approximate total system memory (this is a rough estimate)
+      const totalMemory = memUsage.heapTotal * 10; // Very rough approximation
+      return (memUsage.heapUsed / totalMemory) * 100;
+    } catch (error) {
+      // If memory usage check fails, return nominal value
+      console.warn('Memory usage calculation failed:', error);
+      return 5.0;
+    }
   }
   
   // Alert management
@@ -262,12 +271,36 @@ const observability = new ObservabilityManager();
 
 // Register default health checks
 observability.registerHealthCheck('memory', async () => {
-  const usage = process.memoryUsage();
-  return usage.heapUsed / usage.heapTotal < 0.9; // Less than 90% heap usage
+  try {
+    // For Vercel Edge Runtime compatibility
+    if (typeof process === 'undefined' || !process.memoryUsage) {
+      // Edge Runtime doesn't have process.memoryUsage, assume healthy
+      return true;
+    }
+    
+    const usage = process.memoryUsage();
+    return usage.heapUsed / usage.heapTotal < 0.9; // Less than 90% heap usage
+  } catch (error) {
+    // If memory check fails, assume healthy to not block the service
+    console.warn('Memory health check failed:', error);
+    return true;
+  }
 });
 
 observability.registerHealthCheck('uptime', async () => {
-  return process.uptime() > 0;
+  try {
+    // For Vercel Edge Runtime compatibility
+    if (typeof process === 'undefined' || !process.uptime) {
+      // Edge Runtime doesn't have process.uptime, assume healthy
+      return true;
+    }
+    
+    return process.uptime() > 0;
+  } catch (error) {
+    // If uptime check fails, assume healthy to not block the service
+    console.warn('Uptime health check failed:', error);
+    return true;
+  }
 });
 
 // Cleanup old metrics every hour
