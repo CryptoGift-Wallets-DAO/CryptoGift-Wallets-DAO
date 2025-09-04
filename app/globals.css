@@ -2,39 +2,364 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ====================================================
+   🎨 CRYPTOGIFT DAO - GLASS MORPHISM DESIGN SYSTEM
+   ==================================================== */
+
+/* CSS Variables for Theme-Aware Design */
 :root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 17, 24, 39;
-  --background-end-rgb: 31, 41, 55;
+  /* Light Theme - Professional & Clean */
+  --bg-primary: 255 255 255;          /* Pure white */
+  --bg-secondary: 249 250 251;        /* Very light gray */
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --accent-gold: 251 191 36;          /* Elegant gold */
+  --text-primary: 17 24 39;           /* Soft black */
+  --text-secondary: 107 114 128;      /* Medium gray */
+  --border-glass: rgba(226, 232, 240, 0.4);
+  --shadow-glass: rgba(0, 0, 0, 0.1);
+  
+  /* Glass Effects - Light */
+  --blur-subtle: blur(8px) saturate(120%);
+  --blur-medium: blur(16px) saturate(150%) contrast(110%);
+  --blur-strong: blur(24px) saturate(180%) contrast(120%) brightness(110%);
+  --blur-ultra: blur(32px) saturate(200%) contrast(130%) brightness(115%);
+}
+
+[data-theme="dark"] {
+  /* Dark Theme - NFT-Grade Professional */
+  --bg-primary: 10 14 21;             /* NFT marketplace dark */
+  --bg-secondary: 17 20 29;           /* Slightly lighter */
+  --bg-glass: rgba(15, 23, 42, 0.8);
+  --bg-card: rgba(26, 29, 41, 0.9);
+  --accent-silver: 148 163 184;       /* Elegant silver */
+  --text-primary: 255 255 255;        /* Pure white */
+  --text-secondary: 148 163 184;      /* Silver gray */
+  --border-glass: rgba(148, 163, 184, 0.15);
+  --shadow-glass: rgba(0, 0, 0, 0.3);
+  
+  /* Glass Effects - Dark */
+  --blur-subtle: blur(8px) saturate(120%);
+  --blur-medium: blur(16px) saturate(150%) contrast(110%);
+  --blur-strong: blur(24px) saturate(180%) contrast(120%) brightness(110%);
+  --blur-ultra: blur(32px) saturate(200%) contrast(130%) brightness(115%);
+}
+
+/* ====================================================
+   🔮 GLASS MORPHISM BASE COMPONENTS
+   ==================================================== */
+
+/* Glass Panel - Main container */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: var(--blur-medium);
+  -webkit-backdrop-filter: var(--blur-medium);
+  border: 1px solid var(--border-glass);
+  border-radius: 1rem;
+  box-shadow: 
+    0 8px 32px var(--shadow-glass),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+  backdrop-filter: var(--blur-strong);
+  -webkit-backdrop-filter: var(--blur-strong);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 40px var(--shadow-glass),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Glass Card - Enhanced version */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: var(--blur-medium);
+  -webkit-backdrop-filter: var(--blur-medium);
+  border: 1px solid var(--border-glass);
+  border-radius: 0.75rem;
+  box-shadow: 
+    0 4px 24px var(--shadow-glass),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  backdrop-filter: var(--blur-strong);
+  -webkit-backdrop-filter: var(--blur-strong);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 8px 32px var(--shadow-glass),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Glass Button */
+.glass-button {
+  background: var(--bg-glass);
+  backdrop-filter: var(--blur-medium);
+  -webkit-backdrop-filter: var(--blur-medium);
+  border: 1px solid var(--border-glass);
+  border-radius: 0.5rem;
+  color: rgb(var(--text-primary));
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s;
+}
+
+.glass-button:hover {
+  backdrop-filter: var(--blur-strong);
+  -webkit-backdrop-filter: var(--blur-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px var(--shadow-glass);
+}
+
+.glass-button:hover::before {
+  left: 100%;
+}
+
+.glass-button:active {
+  transform: translateY(0);
+}
+
+/* Glass Input */
+.glass-input {
+  background: var(--bg-glass);
+  backdrop-filter: var(--blur-medium);
+  -webkit-backdrop-filter: var(--blur-medium);
+  border: 1px solid var(--border-glass);
+  border-radius: 0.5rem;
+  color: rgb(var(--text-primary));
+  padding: 0.75rem 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-input:focus {
+  outline: none;
+  backdrop-filter: var(--blur-strong);
+  -webkit-backdrop-filter: var(--blur-strong);
+  border-color: rgb(var(--accent-gold)) / 0.5;
+  box-shadow: 0 0 0 3px rgb(var(--accent-gold)) / 0.1;
+}
+
+.glass-input::placeholder {
+  color: rgb(var(--text-secondary)) / 0.7;
+}
+
+/* ====================================================
+   🌟 ADVANCED GLASS EFFECTS
+   ==================================================== */
+
+/* Floating Glass Bubble (for apeX agent) */
+.glass-bubble {
+  background: var(--bg-glass);
+  backdrop-filter: var(--blur-strong);
+  -webkit-backdrop-filter: var(--blur-strong);
+  border: 1px solid var(--border-glass);
+  border-radius: 50%;
+  box-shadow: 
+    0 8px 32px var(--shadow-glass),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-bubble::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 30%;
+  height: 30%;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  filter: blur(8px);
+}
+
+.glass-bubble:hover {
+  backdrop-filter: var(--blur-ultra);
+  -webkit-backdrop-filter: var(--blur-ultra);
+  transform: scale(1.1);
+  box-shadow: 
+    0 12px 48px var(--shadow-glass),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Orbital Menu Items */
+.orbital-item {
+  background: var(--bg-glass);
+  backdrop-filter: var(--blur-strong);
+  -webkit-backdrop-filter: var(--blur-strong);
+  border: 1px solid var(--border-glass);
+  border-radius: 50%;
+  box-shadow: 
+    0 4px 16px var(--shadow-glass),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.orbital-item:hover {
+  backdrop-filter: var(--blur-ultra);
+  -webkit-backdrop-filter: var(--blur-ultra);
+  transform: scale(1.2);
+  box-shadow: 
+    0 8px 24px var(--shadow-glass),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ====================================================
+   🎭 ANIMATIONS & TRANSITIONS
+   ==================================================== */
+
+/* Spring Animation Classes */
+@keyframes spring-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.spring-in {
+  animation: spring-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes orbital-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-180deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.orbital-appear {
+  animation: orbital-appear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse effect for important elements */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 
+      0 8px 32px var(--shadow-glass),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 12px 48px rgb(var(--accent-gold)) / 0.3,
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ====================================================
+   📱 RESPONSIVE DESIGN
+   ==================================================== */
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .glass-panel,
+  .glass-card {
+    backdrop-filter: var(--blur-subtle);
+    -webkit-backdrop-filter: var(--blur-subtle);
+  }
+  
+  .glass-bubble {
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .glass-panel,
+  .glass-card,
+  .glass-button,
+  .glass-bubble,
+  .orbital-item {
+    transition: none;
+  }
+  
+  .spring-in,
+  .orbital-appear,
+  .float,
+  .pulse-glow {
+    animation: none;
+  }
+}
+
+/* ====================================================
+   🎨 UTILITY CLASSES
+   ==================================================== */
+
+/* Background utilities */
+.bg-glass { background: var(--bg-glass); }
+.bg-glass-card { background: var(--bg-card); }
+.text-glass { color: rgb(var(--text-primary)); }
+.text-glass-secondary { color: rgb(var(--text-secondary)); }
+.border-glass { border-color: var(--border-glass); }
+
+/* Blur utilities */
+.backdrop-blur-subtle { backdrop-filter: var(--blur-subtle); -webkit-backdrop-filter: var(--blur-subtle); }
+.backdrop-blur-medium { backdrop-filter: var(--blur-medium); -webkit-backdrop-filter: var(--blur-medium); }
+.backdrop-blur-strong { backdrop-filter: var(--blur-strong); -webkit-backdrop-filter: var(--blur-strong); }
+.backdrop-blur-ultra { backdrop-filter: var(--blur-ultra); -webkit-backdrop-filter: var(--blur-ultra); }
+
+/* Additional utility classes */
+.scale-120 { transform: scale(1.2); }
+.hover\:scale-120:hover { transform: scale(1.2); }
+
+/* Typography */
+html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  @keyframes slide-in {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  .animate-slide-in {
-    animation: slide-in 0.3s ease-out;
-  }
+  background: rgb(var(--bg-primary));
+  color: rgb(var(--text-primary));
+  line-height: 1.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
