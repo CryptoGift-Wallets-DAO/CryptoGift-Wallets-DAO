@@ -186,7 +186,7 @@ export default function CryptoGiftDAODashboard() {
                   Treasury
                 </a>
                 <a href="/agent" className="glass-button text-sm flex items-center gap-1">
-                  <span>apeX AI</span>
+                  <span>apeX Assistant</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </nav>

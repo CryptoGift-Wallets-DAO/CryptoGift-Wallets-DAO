@@ -20,8 +20,11 @@ export function getAllowedOrigins(): string[] {
         'http://127.0.0.1:3000',
       ];
     }
-    // Production should have explicit origins
-    return [];
+    // Production fallback - allow Vercel domains
+    return [
+      'https://crypto-gift-wallets-dao.vercel.app',
+      '*.vercel.app'
+    ];
   }
   
   // Parse comma-separated list
@@ -153,7 +156,15 @@ export function handleCorsPreflight(origin: string | null): Response {
  * @throws Error if origin is not allowed
  */
 export function validateCors(origin: string | null): void {
-  if (process.env.NODE_ENV === 'production' && !isOriginAllowed(origin)) {
-    throw new Error('CORS: Origin not allowed');
+  // In production, validate CORS but allow null origin for direct API access
+  if (process.env.NODE_ENV === 'production') {
+    // Allow direct API access (null origin) for server-to-server calls
+    if (origin === null) {
+      return; // Allow null origin
+    }
+    
+    if (!isOriginAllowed(origin)) {
+      throw new Error('CORS: Origin not allowed');
+    }
   }
 }

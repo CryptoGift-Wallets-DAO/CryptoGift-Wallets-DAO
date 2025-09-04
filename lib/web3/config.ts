@@ -8,6 +8,11 @@ import { coinbaseWallet, metaMask, walletConnect } from 'wagmi/connectors'
 
 // Get environment variables with consistent fallbacks
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'demo-project-id'
+
+// Log warning if using demo project ID
+if (projectId === 'demo-project-id' && typeof window !== 'undefined') {
+  console.warn('⚠️ WalletConnect using demo Project ID. Get a real one from https://cloud.walletconnect.com/');
+}
 const appName = process.env.NEXT_PUBLIC_APP_NAME || 'CryptoGift DAO'
 const appDescription = process.env.NEXT_PUBLIC_APP_DESCRIPTION || 'Decentralized governance for CryptoGift ecosystem'
 
@@ -41,25 +46,33 @@ const createConnectors = () => {
     return [baseConnector]
   }
 
-  // Full connectors for client-side
-  return [
-    baseConnector,
+  // Full connectors for client-side - MetaMask first for better UX
+  const connectors = [
     metaMask({
       dappMetadata: {
         name: appName,
         url: appUrl,
       },
     }),
-    walletConnect({
-      projectId,
-      metadata: {
-        name: appName,
-        description: appDescription,
-        url: appUrl,
-        icons: [appIcon],
-      },
-    }),
+    baseConnector,
   ]
+
+  // Only add WalletConnect if we have a valid project ID
+  if (projectId && projectId !== 'demo-project-id') {
+    connectors.push(
+      walletConnect({
+        projectId,
+        metadata: {
+          name: appName,
+          description: appDescription,
+          url: appUrl,
+          icons: [appIcon],
+        },
+      })
+    )
+  }
+
+  return connectors
 }
 
 const connectors = createConnectors()
