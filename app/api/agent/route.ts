@@ -216,20 +216,31 @@ async function getSession(sessionId: string): Promise<SessionContext> {
       lastAccessed: Date.now(),
     };
   }
-  const session = await redisClient.get<SessionContext>(key);
   
-  if (!session) {
-    const newSession: SessionContext = {
+  try {
+    const session = await redisClient.get<SessionContext>(key);
+    
+    if (!session) {
+      const newSession: SessionContext = {
+        messages: [],
+        mode: 'general',
+        created: Date.now(),
+        lastAccessed: Date.now(),
+      };
+      await redisClient.set(key, newSession, { ex: 3600 }); // 1 hour TTL
+      return newSession;
+    }
+    
+    return session;
+  } catch (error) {
+    logger.warn('Redis session retrieval failed, using empty session:', error);
+    return {
       messages: [],
       mode: 'general',
       created: Date.now(),
       lastAccessed: Date.now(),
     };
-    await redisClient.set(key, newSession, { ex: 3600 }); // 1 hour TTL
-    return newSession;
   }
-  
-  return session;
 }
 
 async function updateSession(sessionId: string, session: SessionContext) {
@@ -237,7 +248,11 @@ async function updateSession(sessionId: string, session: SessionContext) {
   session.lastAccessed = Date.now();
   const redisClient = getRedis();
   if (redisClient) {
-    await redisClient.set(key, session, { ex: 3600 });
+    try {
+      await redisClient.set(key, session, { ex: 3600 });
+    } catch (error) {
+      logger.warn('Redis session update failed, continuing without persistence:', error);
+    }
   }
 }
 
