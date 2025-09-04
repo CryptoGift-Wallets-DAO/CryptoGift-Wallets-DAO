@@ -46,12 +46,22 @@ export function isOriginAllowed(origin: string | null): boolean {
     return true;
   }
   
-  // Check wildcard subdomain patterns (e.g., "*.vercel.app")
+  // Check wildcard subdomain patterns (e.g., "*.vercel.app" or "https://*.vercel.app")
   for (const allowed of allowedOrigins) {
-    if (allowed.startsWith('*.')) {
-      const domain = allowed.slice(2);
-      if (origin.endsWith(domain) || origin.endsWith(`:${domain}`)) {
-        return true;
+    if (allowed.includes('*.')) {
+      // Handle patterns like "https://*.vercel.app"
+      if (allowed.startsWith('https://*.')) {
+        const domain = allowed.slice(9); // Remove "https://*."
+        if (origin.startsWith('https://') && origin.slice(8).endsWith(domain)) {
+          return true;
+        }
+      }
+      // Handle patterns like "*.vercel.app"
+      else if (allowed.startsWith('*.')) {
+        const domain = allowed.slice(2); // Remove "*."
+        if (origin.endsWith(domain) || origin.endsWith(`:${domain}`)) {
+          return true;
+        }
       }
     }
   }

@@ -65,6 +65,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
   
   // Use Vercel AI SDK's useChat hook
   const chatHelpers = useChat({
+    api: '/api/agent', // Point to our agent endpoint
     initialMessages,
     onError: (error: Error) => {
       console.error('[useAgent] Error:', error);

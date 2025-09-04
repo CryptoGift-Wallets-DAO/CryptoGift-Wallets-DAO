@@ -37,10 +37,15 @@ const AgentRequestSchema = z.object({
 let redis: Redis | null = null;
 const getRedis = () => {
   if (!redis && process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-    redis = new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
-    });
+    try {
+      redis = new Redis({
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      });
+    } catch (error) {
+      logger.warn('Redis initialization failed, continuing without caching:', error);
+      return null;
+    }
   }
   return redis;
 };
@@ -144,20 +149,26 @@ async function checkRateLimit(userId: string): Promise<boolean> {
   
   const redisClient = getRedis();
   if (!redisClient) return true; // Allow if Redis not configured
-  const current = await redisClient.get<RateLimitInfo>(key);
-  const now = Date.now();
   
-  if (!current || now > current.resetTime) {
-    await redisClient.set(key, { count: 1, resetTime: now + windowMs }, { ex: 60 });
+  try {
+    const current = await redisClient.get<RateLimitInfo>(key);
+    const now = Date.now();
+    
+    if (!current || now > current.resetTime) {
+      await redisClient.set(key, { count: 1, resetTime: now + windowMs }, { ex: 60 });
+      return true;
+    }
+    
+    if (current.count >= maxRequests) {
+      return false;
+    }
+    
+    await redisClient.set(key, { count: current.count + 1, resetTime: current.resetTime }, { ex: 60 });
     return true;
+  } catch (error) {
+    logger.warn('Redis rate limiting failed, allowing request:', error);
+    return true; // Graceful fallback - allow request if Redis fails
   }
-  
-  if (current.count >= maxRequests) {
-    return false;
-  }
-  
-  await redisClient.set(key, { count: current.count + 1, resetTime: current.resetTime }, { ex: 60 });
-  return true;
 }
 
 async function logRequest(data: {
