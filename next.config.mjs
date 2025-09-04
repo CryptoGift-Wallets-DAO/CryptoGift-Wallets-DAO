@@ -4,16 +4,16 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: 'standalone',
+  // output: 'standalone', // Removed for Vercel compatibility
   typescript: {
     ignoreBuildErrors: false,
   },
   
-  // Environment variables
+  // Environment variables - Use consistent NEXT_PUBLIC_ prefixes
   env: {
     NEXT_PUBLIC_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID || '8453', // Base mainnet
-    NEXT_PUBLIC_ARAGON_DAO_ADDRESS: process.env.ARAGON_DAO_ADDRESS,
-    NEXT_PUBLIC_VAULT_ADDRESS: process.env.VAULT_ADDRESS,
+    NEXT_PUBLIC_ARAGON_DAO_ADDRESS: process.env.NEXT_PUBLIC_ARAGON_DAO_ADDRESS || process.env.ARAGON_DAO_ADDRESS,
+    NEXT_PUBLIC_VAULT_ADDRESS: process.env.NEXT_PUBLIC_VAULT_ADDRESS || process.env.VAULT_ADDRESS,
   },
 
   // Webpack configuration for Web3

@@ -52,7 +52,9 @@ bots
 *.config.js
 *.config.ts
 !next.config.js
+!next.config.mjs
 !tailwind.config.js
+!tailwind.config.ts
 !postcss.config.js
 !sentry.server.config.js
 !sentry.edge.config.js
