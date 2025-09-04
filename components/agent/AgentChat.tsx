@@ -219,7 +219,7 @@ export function AgentChat({
                     <div className="space-y-4">
                       <div>
                         <h4 className="font-medium mb-2">Model</h4>
-                        <p className="text-sm text-gray-600">GPT-5 with Thinking Mode (High Reasoning)</p>
+                        <p className="text-sm text-gray-600">GPT-5 with Maximum Reasoning (100% Juice)</p>
                       </div>
                       <div>
                         <h4 className="font-medium mb-2">Features</h4>

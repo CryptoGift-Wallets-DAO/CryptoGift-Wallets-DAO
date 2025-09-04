@@ -449,11 +449,10 @@ Current Query: ${message}
             }
             
             const stream = await openaiClient.chat.completions.create({
-              model: "gpt-4o",  // Using GPT-4o with thinking capabilities
+              model: "gpt-5",  // Using GPT-5 with full reasoning capabilities
               messages,
-              max_tokens: 2000,
-              temperature: 0.7,
-              reasoning_effort: "high",  // Enable thinking mode at 70%+
+              max_completion_tokens: 3000,  // GPT-5 uses max_completion_tokens instead of max_tokens
+              reasoning_effort: "high",  // Maximum available reasoning effort for GPT-5
               stream: true,
               tools: [
                 {
@@ -617,11 +616,10 @@ Current Query: ${message}
         );
       }
       const completion = await openaiClient.chat.completions.create({
-        model: "gpt-4o",  // Using GPT-4o with thinking capabilities
+        model: "gpt-5",  // Using GPT-5 with full reasoning capabilities
         messages,
-        max_tokens: 2000,
-        temperature: 0.7,
-        reasoning_effort: "high",  // Enable thinking mode at 70%+
+        max_completion_tokens: 3000,  // GPT-5 uses max_completion_tokens instead of max_tokens
+        reasoning_effort: "high",  // Maximum available reasoning effort for GPT-5
       });
 
       const response = completion.choices[0]?.message?.content || '';
@@ -743,11 +741,12 @@ export async function GET(req: NextRequest) {
         requestTracker.finish(200);
         return NextResponse.json({
           service: 'CG DAO Agent API',
-          version: '1.0.0',
+          version: '2.0.0',
           capabilities: [
-            'GPT-4 with Enhanced Context',
-            'MCP Document Access',
-            'Session Management',
+            'GPT-5 with Maximum Reasoning (100% Juice)',
+            'MCP Document Access with OpenAI Functions',
+            'Real-time Project Documentation Access',
+            'Session Management with Persistence',
             'Advanced Rate Limiting',
             'SSE Streaming with Round-trip Verification',
             'Comprehensive Error Taxonomy',
