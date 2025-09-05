@@ -104,8 +104,9 @@ export class ToolExecutor {
                 description: 'Path to the file to read (e.g., "CLAUDE.md", "contracts/CGCToken.sol")'
               }
             },
-            required: ['path']
-          },
+            required: ['path'],
+            additionalProperties: false
+          } as any,
           strict: true, // 2025 structured outputs
         }
       },
@@ -127,8 +128,9 @@ export class ToolExecutor {
                 description: 'Filter by file type (optional)'
               }
             },
-            required: ['query']
-          },
+            required: ['query'],
+            additionalProperties: false
+          } as any,
           strict: true,
         }
       },
@@ -140,8 +142,9 @@ export class ToolExecutor {
           parameters: {
             type: 'object',
             properties: {},
-            required: []
-          },
+            required: [],
+            additionalProperties: false
+          } as any,
           strict: true,
         }
       },
@@ -159,8 +162,9 @@ export class ToolExecutor {
                 default: ''
               }
             },
-            required: []
-          },
+            required: [],
+            additionalProperties: false
+          } as any,
           strict: true,
         }
       }
