@@ -36,6 +36,21 @@ NOTA: Los contratos siguientes fueron reemplazados por el nuevo sistema:
 
 ---
 
+## 🆕 ÚLTIMOS CAMBIOS CRÍTICOS (5 SEP 2025) - GPT-5 OFICIAL
+
+### 📚 **REFERENCIAS OFICIALES SEPTEMBER 2025**
+
+**⚠️ CRITICAL**: GPT-5 fue oficialmente lanzado el **7 de Agosto 2025** por OpenAI. Cualquier implementación que use GPT-4o está **OBSOLETA** desde septiembre 2025.
+
+**DOCUMENTACIÓN OFICIAL OpenAI:**
+- **GPT-5 Launch**: https://openai.com/index/introducing-gpt-5/ (August 7, 2025)
+- **Developer Guide**: https://openai.com/index/introducing-gpt-5-for-developers/
+- **API Docs**: https://platform.openai.com/docs/models/gpt-5
+- **Pricing**: $1.25/1M input, $10/1M output (September 2025)
+
+**MICROSOFT INTEGRATION:**
+- **Azure GPT-5**: https://azure.microsoft.com/en-us/blog/gpt-5-in-azure-ai-foundry-the-future-of-ai-apps-and-agents-starts-here/
+
 ## 🆕 ÚLTIMOS CAMBIOS CRÍTICOS (4 SEP 2025)
 
 ### 🤖 apeX AGENT UPGRADE COMPLETO
@@ -59,13 +74,20 @@ NOTA: Los contratos siguientes fueron reemplazados por el nuevo sistema:
 - `public/apeX22.PNG` - Floating bubble image (100% space)
 - `public/apeX.png` - Header logo image (100% space)
 
-### 🔧 CONFIGURACIÓN CRÍTICA apeX:
+### 🔧 CONFIGURACIÓN CRÍTICA apeX (SEPTEMBER 2025 OFFICIAL):
 ```javascript
-// GPT-5 Configuration
-model: "gpt-5"
-max_completion_tokens: 3000
-reasoning_effort: "high"  // Maximum available reasoning
-tools: [MCP functions] // Real document access
+// GPT-5 Configuration (OFFICIAL September 2025 Release)
+model: "gpt-5"                    // ✅ GPT-5 (Aug 7, 2025 release)
+max_completion_tokens: 3000      // ✅ REQUIRED for GPT-5 (NOT max_tokens)
+reasoning_effort: "high"         // ✅ "minimal" | "high" (Sept 2025)
+verbosity: "medium"              // ✅ "low" | "medium" | "high" (Sept 2025)
+tools: [MCP functions]          // ✅ Real document access
+
+// ❌ DEPRECATED in GPT-5: temperature (causes API errors)
+// ❌ DEPRECATED in GPT-5: max_tokens (use max_completion_tokens)
+// ❌ NEVER USE GPT-4o: Outdated since August 2025
+
+// Reference: https://platform.openai.com/docs/models/gpt-5
 ```
 
 ---

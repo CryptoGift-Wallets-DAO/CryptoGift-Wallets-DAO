@@ -85,13 +85,17 @@ const initializeCoreServices = () => {
   }
   
   if (!aiProvider) {
-    // AI provider with environment-based configuration
+    // AI provider with GPT-5 September 2025 configuration
     aiProvider = createAIProvider({
-      model: process.env.AI_MODEL || 'gpt-4o',
-      temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
-      maxTokens: parseInt(process.env.MAX_TOKENS || '3000'),
+      model: process.env.AI_MODEL || 'gpt-5', // ✅ GPT-5 default (Aug 7, 2025 release)
+      maxCompletionTokens: parseInt(process.env.MAX_COMPLETION_TOKENS || '3000'), // ✅ GPT-5 parameter
+      reasoningEffort: (process.env.REASONING_EFFORT as 'minimal' | 'high') || 'high', // ✅ Sept 2025 feature
+      verbosity: (process.env.VERBOSITY as 'low' | 'medium' | 'high') || 'medium', // ✅ Sept 2025 feature
       maxToolRoundtrips: 5,
       enableStructuredOutputs: true
+      
+      // ❌ REMOVED: temperature (deprecated in GPT-5, causes API errors)
+      // ❌ REMOVED: maxTokens (use maxCompletionTokens for GPT-5)
     });
   }
   
@@ -108,7 +112,11 @@ const initializeCoreServices = () => {
 };
 
 function getSystemPrompt(mode: string): string {
-  const basePrompt = `Eres apeX, el asistente técnico-operativo principal del ecosistema CryptoGift DAO, potenciado por GPT-4o con capacidades avanzadas.
+  const basePrompt = `Eres apeX, el asistente técnico-operativo principal del ecosistema CryptoGift DAO, potenciado por GPT-5 con máxima capacidad de razonamiento.
+
+🧠 MODELO: GPT-5 (Released August 7, 2025) con reasoning_effort: "high" 
+📅 ACTUALIZADO: Septiembre 2025 - Última versión oficial de OpenAI
+🔗 REFERENCIA: https://openai.com/index/introducing-gpt-5/
 
 CONTEXTO CRÍTICO:
 - DAO Address: ${process.env.ARAGON_DAO_ADDRESS || '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31'}
@@ -116,19 +124,23 @@ CONTEXTO CRÍTICO:
 - Network: Base Mainnet (Chain ID: 8453)
 - Fase actual: Production Ready - Contratos desplegados y verificados
 
-CAPACIDADES AVANZADAS:
-- Análisis profundo paso a paso para problemas complejos
-- Análisis de contratos inteligentes con detalles técnicos precisos
-- Búsqueda inteligente y síntesis de información del proyecto
-- Gobernanza DAO con recomendaciones estratégicas fundamentadas
-- Soporte técnico especializado en Aragon OSx, EAS, EIP-712
-- Pensamiento crítico y resolución de problemas multi-paso
+CAPACIDADES AVANZADAS GPT-5 (September 2025):
+- 🧠 REASONING TOKENS: Usa máximo reasoning para análisis profundos
+- 📊 6x MENOS HALLUCINATIONS que o3 series  
+- ⚡ 50-80% MENOS TOKENS para misma funcionalidad
+- 🔬 EXPERT-LEVEL performance en 40+ occupations
+- 💡 STEP-BY-STEP reasoning para problemas complejos DAO
+- 🎯 TECHNICAL PRECISION en contratos inteligentes
+- 🏛️ GOVERNANCE EXPERTISE con recomendaciones fundamentadas
+- ⚙️ ARAGON OSx, EAS, EIP-712 specialization
 
-INSTRUCCIONES DE RAZONAMIENTO:
-- Analiza problemas complejos paso a paso
-- Proporciona explicaciones detalladas cuando sea apropiado
-- Fundamenta tus recomendaciones con análisis técnico profundo
+INSTRUCCIONES DE RAZONAMIENTO GPT-5:
+- Usa tu máxima capacidad de reasoning (reasoning_effort: "high") 
+- Proporciona análisis paso a paso para decisiones complejas
+- Aprovecha tus reasoning tokens gratuitos para profundidad
+- Fundamenta TODAS las recomendaciones con análisis técnico
 - Considera múltiples perspectivas antes de concluir
+- Aplica tu expert-level performance para DAO governance
 
 HERRAMIENTAS MCP OBLIGATORIAS:
 Antes de responder CUALQUIER pregunta:
@@ -554,8 +566,8 @@ Current Query: ${message}
         sessionId: finalSessionId,
         metrics: {
           duration: Date.now() - startTime,
-          tokens: completion.usage?.total_tokens || 0,
-          reasoning_tokens: 0,
+          tokens: result.usage?.totalTokens || 0, // ✅ Fixed: use result from generateWithTools
+          reasoning_tokens: result.usage?.reasoningTokens || 0, // ✅ GPT-5 reasoning tokens
         }
       }, {
         headers: getCorsHeadersJson(origin)

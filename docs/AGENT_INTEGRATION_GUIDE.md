@@ -1,7 +1,21 @@
 # 🤖 CG DAO AGENT - INTEGRATION GUIDE
 
-> **🚀 ACTUALIZADO 4 SEP 2025**: apeX Agent con GPT-5 + Maximum Reasoning  
-> **Sistema de máxima excelencia con upgrade completo a GPT-5 + UX mejorada**
+> **🚀 ACTUALIZADO 5 SEP 2025**: apeX Agent COMPLETAMENTE actualizado con GPT-5 September 2025 Release  
+> **Sistema de máxima excelencia con GENUINE GPT-5 implementation + OpenAI oficial Sept 2025 API**  
+
+## 🚨 **REFERENCIAS OFICIALES - SEPTIEMBRE 2025**
+
+**DOCUMENTACIÓN OFICIAL OpenAI (SEPTEMBER 2025):**
+- **GPT-5 Launch**: https://openai.com/index/introducing-gpt-5/ (August 7, 2025)
+- **GPT-5 Developer Guide**: https://openai.com/index/introducing-gpt-5-for-developers/
+- **API Documentation**: https://platform.openai.com/docs/models/gpt-5
+- **Pricing**: $1.25/1M input tokens, $10/1M output tokens (Sept 2025)
+
+**MICROSOFT INTEGRATION (SEPTEMBER 2025):**
+- **Azure Integration**: https://azure.microsoft.com/en-us/blog/gpt-5-in-azure-ai-foundry-the-future-of-ai-apps-and-agents-starts-here/
+- **Microsoft Announcement**: https://news.microsoft.com/source/features/ai/openai-gpt-5/
+
+⚠️ **CRITICAL**: GPT-5 was officially released on **August 7, 2025**. Any implementation using GPT-4o is OUTDATED as of September 2025.
 
 ## 🎯 **UPGRADE COMPLETADO - GPT-5 + UI ENHANCEMENTS**
 
@@ -54,29 +68,35 @@ UPSTASH_REDIS_REST_URL=https://quick-bass-50079.upstash.io
 UPSTASH_REDIS_REST_TOKEN=AcOfAAIncDFhZmRlNDQxNzUwZWU0M2IzYjIyMGY0ZDIzMGZiMTIyZHAxNTAwNzk
 ```
 
-### 🧠 **CONFIGURACIÓN GPT-5 CRÍTICA**
+### 🧠 **CONFIGURACIÓN GPT-5 CRÍTICA (SEPTEMBER 2025 OFFICIAL)**
+
+⚠️ **MANDATORY GPT-5 PARAMETERS (September 2025 Release):**
 
 ```typescript
-// app/api/agent/route.ts - Configuración GPT-5
-const stream = await openaiClient.chat.completions.create({
-  model: "gpt-5",                    // GPT-5 más reciente
-  messages,                         // Historial de conversación
-  max_completion_tokens: 3000,      // GPT-5 usa este parámetro
-  reasoning_effort: "high",         // Máximo juice disponible
-  stream: true,                     // SSE streaming
-  tools: [                          // MCP integration
-    {
-      type: "function",
-      function: {
-        name: "read_project_file",
-        description: "Read any file from the project using MCP"
-      }
-    },
-    // ... más tools
-  ],
-  tool_choice: "auto"              // Auto-call tools cuando necesario
+// app/api/agent/route.ts - OFFICIAL GPT-5 Configuration
+const completion = await openaiClient.chat.completions.create({
+  model: "gpt-5",                    // ✅ GPT-5 (Aug 7, 2025 release)
+  messages,                         // ✅ Historial de conversación
+  max_completion_tokens: 3000,      // ✅ REQUIRED for GPT-5 (NOT max_tokens)
+  reasoning_effort: "high",         // ✅ "minimal" | "high" (Sept 2025 feature)
+  verbosity: "medium",              // ✅ "low" | "medium" | "high" (Sept 2025)
+  stream: true,                     // ✅ SSE streaming compatible
+  tools: tools.length > 0 ? tools : undefined, // ✅ Tool integration
+  tool_choice: tools.length > 0 ? "auto" : undefined,
+  
+  // ❌ DEPRECATED in GPT-5: temperature (causes API errors)
+  // ❌ DEPRECATED in GPT-5: max_tokens (use max_completion_tokens)
+  // ❌ DEPRECATED in GPT-5: top_p (not compatible with reasoning)
 });
 ```
+
+**🔗 REFERENCE**: [GPT-5 API Documentation](https://platform.openai.com/docs/models/gpt-5) (September 2025)
+
+**💡 GPT-5 BENEFITS** (vs GPT-4o):
+- **6x fewer hallucinations** than o3 series
+- **50-80% fewer output tokens** for same functionality  
+- **Reasoning tokens included** in standard pricing
+- **Expert-level performance** in 40+ occupations
 
 ### 3. **Iniciar el Servidor**
 

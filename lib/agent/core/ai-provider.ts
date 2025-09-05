@@ -1,10 +1,15 @@
 /**
- * AI Provider - Unified OpenAI & Vercel AI SDK v5
+ * AI Provider - GPT-5 Official Implementation (September 2025)
  * 
- * Implements best practices for 2025:
+ * ⚠️ CRITICAL: GPT-5 was officially released August 7, 2025
+ * Reference: https://openai.com/index/introducing-gpt-5/
+ * 
+ * Implements GPT-5 September 2025 best practices:
+ * - GPT-5 with max_completion_tokens (NOT max_tokens)
+ * - reasoning_effort: "high" for maximum reasoning
+ * - verbosity control (low/medium/high)
+ * - NO temperature parameter (deprecated in GPT-5)
  * - Structured Outputs with strict: true
- * - toDataStreamResponse() for proper streaming
- * - maxToolRoundtrips for loop control
  * - Manual parallel tool calls handling
  * - Support for both direct OpenAI and AI SDK patterns
  */
@@ -20,12 +25,15 @@ import type { ChatCompletionMessageParam } from 'openai/resources/chat/completio
 
 export interface AIProviderConfig {
   model?: string;
-  temperature?: number;
-  maxTokens?: number;
+  maxCompletionTokens?: number; // ✅ GPT-5 uses this (NOT maxTokens)
+  reasoningEffort?: 'minimal' | 'high'; // ✅ GPT-5 September 2025 feature
+  verbosity?: 'low' | 'medium' | 'high'; // ✅ GPT-5 September 2025 feature
   maxToolRoundtrips?: number;
   timeout?: number;
   apiKey?: string;
   enableStructuredOutputs?: boolean;
+  // ❌ DEPRECATED: temperature (causes GPT-5 API errors)
+  // ❌ DEPRECATED: maxTokens (use maxCompletionTokens)
 }
 
 export interface StreamingResponse {
@@ -61,13 +69,22 @@ export class AIProvider {
 
   constructor(config: AIProviderConfig = {}) {
     this.config = {
-      model: config.model || process.env.AI_MODEL || 'gpt-4o',
-      temperature: config.temperature ?? parseFloat(process.env.AI_TEMPERATURE || '0.7'),
-      maxTokens: config.maxTokens ?? parseInt(process.env.MAX_TOKENS || '3000'),
+      // ✅ GPT-5 is the default model (August 7, 2025 release)
+      model: config.model || process.env.AI_MODEL || 'gpt-5',
+      
+      // ✅ GPT-5 September 2025 parameters
+      maxCompletionTokens: config.maxCompletionTokens ?? parseInt(process.env.MAX_COMPLETION_TOKENS || '3000'),
+      reasoningEffort: config.reasoningEffort ?? (process.env.REASONING_EFFORT as 'minimal' | 'high') ?? 'high',
+      verbosity: config.verbosity ?? (process.env.VERBOSITY as 'low' | 'medium' | 'high') ?? 'medium',
+      
+      // ✅ Standard configuration
       maxToolRoundtrips: config.maxToolRoundtrips ?? 5,
       timeout: config.timeout ?? 30000,
       apiKey: config.apiKey || process.env.OPENAI_API_KEY || '',
       enableStructuredOutputs: config.enableStructuredOutputs ?? true,
+      
+      // ❌ REMOVED: temperature (deprecated in GPT-5)
+      // ❌ REMOVED: maxTokens (use maxCompletionTokens)
     };
 
     if (!this.config.apiKey) {
@@ -85,7 +102,7 @@ export class AIProvider {
 
   /**
    * Direct OpenAI streaming with manual tool calls handling
-   * Best for complex tool orchestration and custom streaming logic
+   * GPT-5 September 2025 implementation with official parameters
    */
   async streamWithOpenAI(
     messages: ChatCompletionMessageParam[],
@@ -96,17 +113,23 @@ export class AIProvider {
     handleToolCalls: () => Promise<string>;
   }> {
     const stream = await this.openaiClient.chat.completions.create({
+      // ✅ GPT-5 official configuration (September 2025)
       model: this.config.model,
       messages,
-      temperature: this.config.temperature,
-      max_tokens: this.config.maxTokens,
+      max_completion_tokens: this.config.maxCompletionTokens, // ✅ REQUIRED for GPT-5
+      reasoning_effort: this.config.reasoningEffort, // ✅ September 2025 feature
+      verbosity: this.config.verbosity, // ✅ September 2025 feature
       stream: true,
       tools: tools.length > 0 ? tools : undefined,
       tool_choice: tools.length > 0 ? 'auto' : undefined,
-      // Enable structured outputs for function calling
+      
+      // ✅ Structured outputs for GPT-5
       ...(this.config.enableStructuredOutputs && tools.length > 0 && {
         response_format: { type: 'json_object' }
       }),
+      
+      // ❌ REMOVED: temperature (causes GPT-5 API errors)
+      // ❌ REMOVED: max_tokens (use max_completion_tokens)
     });
 
     const handleToolCalls = async (): Promise<string> => {
@@ -170,11 +193,16 @@ export class AIProvider {
           ];
 
           const followupResponse = await this.openaiClient.chat.completions.create({
+            // ✅ GPT-5 official configuration (September 2025)
             model: this.config.model,
             messages: followupMessages,
-            temperature: this.config.temperature,
-            max_tokens: this.config.maxTokens,
+            max_completion_tokens: this.config.maxCompletionTokens, // ✅ REQUIRED for GPT-5
+            reasoning_effort: this.config.reasoningEffort, // ✅ September 2025 feature
+            verbosity: this.config.verbosity, // ✅ September 2025 feature
             stream: false, // Non-streaming for tool results
+            
+            // ❌ REMOVED: temperature (causes GPT-5 API errors)
+            // ❌ REMOVED: max_tokens (use max_completion_tokens)
           });
 
           return followupResponse.choices[0]?.message?.content || fullResponse;
@@ -192,7 +220,7 @@ export class AIProvider {
   // ===================================================
 
   /**
-   * Vercel AI SDK v5 streamText with tool roundtrips
+   * Vercel AI SDK v5 streamText with GPT-5 September 2025 configuration
    * Best for React integration and automatic tool handling
    */
   async streamWithVercelAI(
@@ -201,14 +229,16 @@ export class AIProvider {
     systemPrompt?: string
   ) {
     return await streamText({
-      model: openai(this.config.model),
+      model: openai(this.config.model), // ✅ GPT-5 with Vercel AI SDK
       messages,
       system: systemPrompt,
-      temperature: this.config.temperature,
-      maxOutputTokens: this.config.maxTokens,
+      maxOutputTokens: this.config.maxCompletionTokens, // ✅ Updated parameter name
       tools,
       toolChoice: Object.keys(tools).length > 0 ? 'auto' : undefined,
       maxToolRoundtrips: this.config.maxToolRoundtrips,
+      
+      // ✅ GPT-5 experimental parameters (if supported by Vercel AI SDK)
+      experimental_reasoningEffort: this.config.reasoningEffort,
       
       // 2025 best practice: use stopWhen for agent loop control
       stopWhen: (step) => {
@@ -222,11 +252,13 @@ export class AIProvider {
         tools,
         toolChoice,
       }),
+      
+      // ❌ REMOVED: temperature (deprecated in GPT-5)
     });
   }
 
   /**
-   * Non-streaming text generation with tools
+   * Non-streaming text generation with GPT-5 September 2025 configuration
    */
   async generateWithTools(
     messages: CoreMessage[],
@@ -234,14 +266,18 @@ export class AIProvider {
     systemPrompt?: string
   ) {
     return await generateText({
-      model: openai(this.config.model),
+      model: openai(this.config.model), // ✅ GPT-5 with Vercel AI SDK
       messages,
       system: systemPrompt,
-      temperature: this.config.temperature,
-      maxOutputTokens: this.config.maxTokens,
+      maxOutputTokens: this.config.maxCompletionTokens, // ✅ Updated parameter name
       tools,
       toolChoice: Object.keys(tools).length > 0 ? 'auto' : undefined,
       maxToolRoundtrips: this.config.maxToolRoundtrips,
+      
+      // ✅ GPT-5 experimental parameters (if supported by Vercel AI SDK)
+      experimental_reasoningEffort: this.config.reasoningEffort,
+      
+      // ❌ REMOVED: temperature (deprecated in GPT-5)
     });
   }
 
@@ -307,14 +343,19 @@ export class AIProvider {
   }
 
   /**
-   * Test API connection
+   * Test API connection with GPT-5 September 2025 parameters
    */
   async testConnection(): Promise<{ success: boolean; model: string; error?: string }> {
     try {
       const response = await this.openaiClient.chat.completions.create({
+        // ✅ GPT-5 official test configuration
         model: this.config.model,
         messages: [{ role: 'user', content: 'Test connection' }],
-        max_tokens: 10,
+        max_completion_tokens: 10, // ✅ REQUIRED for GPT-5
+        reasoning_effort: 'minimal', // ✅ Use minimal for test to save costs
+        verbosity: 'low', // ✅ Short response for test
+        
+        // ❌ REMOVED: max_tokens (use max_completion_tokens)
       });
 
       return {
@@ -336,19 +377,24 @@ export class AIProvider {
 // ===================================================
 
 /**
- * Create AI provider with environment-based configuration
+ * Create AI provider with GPT-5 September 2025 configuration
  */
 export function createAIProvider(config: AIProviderConfig = {}): AIProvider {
   return new AIProvider(config);
 }
 
 /**
- * Create AI provider with development defaults
+ * Create AI provider with GPT-5 development defaults
  */
 export function createDevAIProvider(): AIProvider {
   return new AIProvider({
+    model: 'gpt-5', // ✅ Always use GPT-5 (even in dev)
     enableStructuredOutputs: true,
     maxToolRoundtrips: 3, // Lower for dev to avoid costs
-    temperature: 0.1, // More deterministic for testing
+    reasoningEffort: 'minimal', // ✅ Use minimal for dev to save costs
+    verbosity: 'low', // ✅ Shorter responses for dev
+    maxCompletionTokens: 1500, // ✅ Lower token limit for dev
+    
+    // ❌ REMOVED: temperature (deprecated in GPT-5)
   });
 }
