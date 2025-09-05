@@ -128,7 +128,7 @@ export class ToolExecutor {
                 description: 'Filter by file type (optional)'
               }
             },
-            required: ['query'],
+            required: ['query', 'type'],
             additionalProperties: false
           } as any,
           strict: true,
@@ -162,7 +162,7 @@ export class ToolExecutor {
                 default: ''
               }
             },
-            required: [],
+            required: ['path'],
             additionalProperties: false
           } as any,
           strict: true,
