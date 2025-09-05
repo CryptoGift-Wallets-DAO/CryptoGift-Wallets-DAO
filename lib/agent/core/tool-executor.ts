@@ -139,8 +139,7 @@ export class ToolExecutor {
           description: 'Get an overview of the project structure and key files',
           parameters: {
             type: 'object',
-            properties: {},
-            additionalProperties: false
+            properties: {}
           },
           strict: true,
         }
