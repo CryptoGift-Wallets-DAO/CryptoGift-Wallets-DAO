@@ -328,8 +328,30 @@ export async function POST(req: NextRequest) {
     // Validate CORS first
     validateCors(origin);
     
-    // Parse and validate request
-    const body = await req.json();
+    // Parse and validate request with enhanced error logging
+    let body: any;
+    try {
+      body = await req.json();
+    } catch (jsonError) {
+      // Log the exact request body that's causing the JSON parse error
+      const bodyText = await req.clone().text();
+      logger.error('JSON parsing failed:', { 
+        error: jsonError, 
+        bodyText: bodyText.substring(0, 200), // First 200 chars for debugging
+        bodyLength: bodyText.length,
+        position18: bodyText.charAt(17), // Character at position 18 (0-indexed 17)
+        context: bodyText.substring(15, 25), // Context around position 18
+      });
+      
+      return NextResponse.json({
+        error: 'Invalid JSON in request body',
+        details: jsonError instanceof Error ? jsonError.message : 'Unknown JSON error'
+      }, { 
+        status: 400, 
+        headers: getCorsHeadersJson(origin) 
+      });
+    }
+    
     const { message, sessionId: clientSessionId, userId, mode, stream } = AgentRequestSchema.parse(body);
     
     const finalSessionId = clientSessionId || sessionId;

@@ -79,7 +79,7 @@ function extractIP(req: NextRequest): string {
 }
 
 function getSystemPrompt(mode: string): string {
-  const basePrompt = `Eres el asistente técnico-operativo principal del ecosistema CryptoGift DAO, potenciado por GPT-5 con capacidades de razonamiento avanzado.
+  const basePrompt = `Eres apeX, el asistente técnico-operativo principal del ecosistema CryptoGift DAO, potenciado por GPT-4o con capacidades avanzadas.
 
 CONTEXTO CRÍTICO:
 - DAO Address: ${process.env.ARAGON_DAO_ADDRESS || '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31'}
@@ -87,8 +87,8 @@ CONTEXTO CRÍTICO:
 - Network: Base Mainnet (Chain ID: 8453)
 - Fase actual: Production Ready - Contratos desplegados y verificados
 
-CAPACIDADES AVANZADAS GPT-5:
-- Razonamiento profundo paso a paso para análisis complejos
+CAPACIDADES AVANZADAS:
+- Análisis profundo paso a paso para problemas complejos
 - Análisis de contratos inteligentes con detalles técnicos precisos
 - Búsqueda inteligente y síntesis de información del proyecto
 - Gobernanza DAO con recomendaciones estratégicas fundamentadas
@@ -96,8 +96,8 @@ CAPACIDADES AVANZADAS GPT-5:
 - Pensamiento crítico y resolución de problemas multi-paso
 
 INSTRUCCIONES DE RAZONAMIENTO:
-- Usa tu capacidad de thinking para analizar problemas complejos
-- Proporciona explicaciones paso a paso cuando sea apropiado
+- Analiza problemas complejos paso a paso
+- Proporciona explicaciones detalladas cuando sea apropiado
 - Fundamenta tus recomendaciones con análisis técnico profundo
 - Considera múltiples perspectivas antes de concluir`;
 
@@ -138,8 +138,30 @@ export async function POST(req: NextRequest) {
   const startTime = Date.now();
   
   try {
-    // Parse and validate request
-    const body = await req.json();
+    // Parse and validate request with enhanced error logging
+    let body: any;
+    try {
+      body = await req.json();
+    } catch (jsonError) {
+      // Log the exact request body that's causing the JSON parse error
+      const bodyText = await req.clone().text();
+      logger.error('JSON parsing failed:', { 
+        error: jsonError, 
+        bodyText: bodyText.substring(0, 200), // First 200 chars for debugging
+        bodyLength: bodyText.length,
+        requestId,
+      });
+      
+      return new Response(JSON.stringify({
+        error: 'Invalid JSON in request body',
+        details: jsonError instanceof Error ? jsonError.message : 'Unknown JSON error',
+        requestId,
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    
     const { messages, sessionId, userId, mode } = AgentRequestSchema.parse(body);
     
     const clientIP = extractIP(req);
@@ -180,22 +202,17 @@ export async function POST(req: NextRequest) {
     
     const allMessages = [systemMessage, ...messages];
     
-    // Stream response usando GPT-5 con modo THINKING
-    // GPT-5 oficial con reasoning_effort y verbosity (agosto 2025)
-    const modelToUse = process.env.AI_MODEL || 'gpt-5'; // GPT-5 full con máximas capacidades
+    // Stream response usando GPT-4o (Fallback estable hasta verificación GPT-5)
+    // Configuración compatible con Vercel AI SDK actual
+    const modelToUse = process.env.AI_MODEL || 'gpt-4o'; // GPT-4o para máxima estabilidad
     
     const result = await streamText({
       model: openai(modelToUse),
       messages: allMessages,
-      maxOutputTokens: parseInt(process.env.MAX_TOKENS || '4000'),
+      maxTokens: parseInt(process.env.MAX_TOKENS || '3000'), // Usar maxTokens para GPT-4o
       temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
-      // PARÁMETROS ESPECÍFICOS GPT-5 - MODO THINKING
-      providerOptions: {
-        openai: {
-          reasoningEffort: 'high',  // Máximo razonamiento (minimal|low|medium|high)
-          textVerbosity: mode === 'technical' ? 'high' : 'medium',  // Detalle según contexto
-        }
-      },
+      // Configuración estable compatible con AI SDK actual
+      // (GPT-5 reasoning parameters requieren organización verificada)
       // Tool calling preparado para futura integración MCP
       tools: {
         // searchDocumentation: {
@@ -263,7 +280,7 @@ export async function GET(req: NextRequest) {
     service: 'CG DAO Agent API V2',
     version: '2.0.0',
     status: 'healthy',
-    model: process.env.AI_MODEL || 'gpt-4o',
+    model: process.env.AI_MODEL || 'gpt-4o', // Fallback estable hasta verificación GPT-5
     capabilities: [
       'Streaming with Vercel AI SDK',
       'Rate limiting',

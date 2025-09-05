@@ -59,8 +59,17 @@ export function isOriginAllowed(origin: string | null): boolean {
       // Handle patterns like "*.vercel.app"
       else if (allowed.startsWith('*.')) {
         const domain = allowed.slice(2); // Remove "*."
+        // Check exact domain match (e.g., https://crypto-gift-wallets-dao.vercel.app)
         if (origin.endsWith(domain) || origin.endsWith(`:${domain}`)) {
           return true;
+        }
+        // Check subdomain match for https URLs (e.g., https://xyz.vercel.app matches *.vercel.app)
+        const httpsPrefix = 'https://';
+        if (origin.startsWith(httpsPrefix)) {
+          const originDomain = origin.slice(httpsPrefix.length);
+          if (originDomain.includes('.') && originDomain.endsWith(domain)) {
+            return true;
+          }
         }
       }
     }
