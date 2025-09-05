@@ -209,7 +209,7 @@ export async function POST(req: NextRequest) {
     const result = await streamText({
       model: openai(modelToUse),
       messages: allMessages,
-      maxTokens: parseInt(process.env.MAX_TOKENS || '3000'), // Usar maxTokens para GPT-4o
+      maxOutputTokens: parseInt(process.env.MAX_TOKENS || '3000'), // Usar maxOutputTokens para AI SDK
       temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
       // Configuración estable compatible con AI SDK actual
       // (GPT-5 reasoning parameters requieren organización verificada)
