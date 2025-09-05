@@ -169,7 +169,7 @@ jobs:
             
             while IFS= read -r file; do
               total_api_files=$((total_api_files + 1))
-              if grep -q "checkRateLimit\|verifyJWT\|ADMIN_API_TOKEN\|authMiddleware\|requireAuth" "$file" 2>/dev/null; then
+              if grep -q "checkRateLimit\|verifyJWT\|ADMIN_API_TOKEN\|authMiddleware\|requireAuth\|allowedDomains\|isValidOrigin\|admin-token\|Unauthorized origin" "$file" 2>/dev/null; then
                 protected_api_files=$((protected_api_files + 1))
                 dir_protected=$((dir_protected + 1))
               else

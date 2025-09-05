@@ -126,10 +126,8 @@ export class AIProvider {
         tools: tools.length > 0 ? tools : undefined,
         tool_choice: tools.length > 0 ? 'auto' : undefined,
         
-        // ✅ Structured outputs for GPT-5 (only when streaming is disabled for unverified orgs)
-        ...(this.config.enableStructuredOutputs && tools.length > 0 && !shouldStream && {
-          response_format: { type: 'json_object' }
-        }),
+        // ❌ REMOVED: response_format json_object (requires 'json' in messages, causes API errors)
+        // OpenAI requirement: messages must contain 'json' to use json_object format
         
         // 🚧 TEMPORARILY DISABLED - SDK Compatibility Issue:
         // reasoning_effort: this.config.reasoningEffort, // ⏳ Not available in openai@4.104.0
