@@ -241,23 +241,22 @@ export class AIProvider {
       maxOutputTokens: this.config.maxCompletionTokens, // ✅ Updated parameter name
       tools,
       toolChoice: Object.keys(tools).length > 0 ? 'auto' : undefined,
-      maxToolRoundtrips: this.config.maxToolRoundtrips,
-      
       // 🚧 TEMPORARILY DISABLED - SDK Compatibility Issue:
+      // maxToolRoundtrips: this.config.maxToolRoundtrips, // ⏳ Not available in Vercel AI SDK v5.0.29
       // experimental_reasoningEffort: this.config.reasoningEffort, // ⏳ Not available in Vercel AI SDK yet
+      // TODO: Re-enable when Vercel AI SDK supports these parameters
       
-      // 2025 best practice: use stopWhen for agent loop control
-      stopWhen: (step) => {
-        // Stop if no tool calls in current step (conversation complete)
-        return step.toolCalls.length === 0 && step.text.length > 0;
-      },
+      // 🚧 ADVANCED FEATURES - May need SDK compatibility verification:
+      // stopWhen: (step) => {
+      //   // Stop if no tool calls in current step (conversation complete)
+      //   return step.toolCalls.length === 0 && step.text.length > 0;
+      // },
 
-      // Advanced step preparation for context management
-      prepareStep: ({ messages, tools, toolChoice }) => ({
-        messages: messages.slice(-10), // Keep last 10 messages for context
-        tools,
-        toolChoice,
-      }),
+      // prepareStep: ({ messages, tools, toolChoice }) => ({
+      //   messages: messages.slice(-10), // Keep last 10 messages for context
+      //   tools,
+      //   toolChoice,
+      // }),
       
       // ❌ REMOVED: temperature (deprecated in GPT-5)
     });
@@ -278,10 +277,10 @@ export class AIProvider {
       maxOutputTokens: this.config.maxCompletionTokens, // ✅ Updated parameter name
       tools,
       toolChoice: Object.keys(tools).length > 0 ? 'auto' : undefined,
-      maxToolRoundtrips: this.config.maxToolRoundtrips,
-      
       // 🚧 TEMPORARILY DISABLED - SDK Compatibility Issue:
+      // maxToolRoundtrips: this.config.maxToolRoundtrips, // ⏳ Not available in Vercel AI SDK v5.0.29
       // experimental_reasoningEffort: this.config.reasoningEffort, // ⏳ Not available in Vercel AI SDK yet
+      // TODO: Re-enable when Vercel AI SDK supports these parameters
       
       // ❌ REMOVED: temperature (deprecated in GPT-5)
     });
