@@ -16,7 +16,7 @@
 
 import OpenAI from 'openai';
 import { openai } from '@ai-sdk/openai';
-import { streamText, generateText, CoreMessage, ToolInvocation } from 'ai';
+import { streamText, generateText, CoreMessage } from 'ai';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 // ===================================================
