@@ -243,7 +243,14 @@ export class MCPClient {
       // Extract text content from MCP response
       if (result?.content) {
         if (Array.isArray(result.content)) {
-          return result.content.map((item: any) => item.text || item.content || '').join('\n');
+          return result.content.map((item: any) => {
+            // Type-safe MCP content handling
+            if (typeof item === 'string') return item;
+            if (item && typeof item === 'object') {
+              return item.text || item.content || '[MCP Content]';
+            }
+            return '';
+          }).join('\n');
         } else if (typeof result.content === 'string') {
           return result.content;
         } else if (result.content.text) {

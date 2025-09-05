@@ -163,7 +163,14 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
     assistantMessages: messages?.filter((m: Message) => m.role === 'assistant').length || 0,
     totalTokens: messages?.reduce((acc: number, m: Message) => {
       const content = typeof m.content === 'string' ? m.content : 
-        Array.isArray(m.content) ? m.content.map((part: any) => typeof part === 'string' ? part : part.text || '').join('') : 
+        Array.isArray(m.content) ? m.content.map((part: any) => {
+          if (typeof part === 'string') return part;
+          // Type-safe handling of multi-modal content parts
+          if ('text' in part) return part.text || '';
+          if ('image' in part) return '[Image]';
+          if ('file' in part) return '[File]';
+          return '[Content]';
+        }).join('') : 
         '';
       return acc + (content.length || 0);
     }, 0) / 4 || 0, // Aproximación

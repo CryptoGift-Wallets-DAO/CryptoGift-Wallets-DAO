@@ -315,7 +315,14 @@ export class AIProvider {
       const content = typeof msg.content === 'string' 
         ? msg.content 
         : Array.isArray(msg.content) 
-          ? msg.content.map(part => typeof part === 'string' ? part : part.text || '').join('') 
+          ? msg.content.map(part => {
+              if (typeof part === 'string') return part;
+              // Type-safe handling of multi-modal content parts
+              if ('text' in part) return part.text || '';
+              if ('image' in part) return '[Image]'; // ImagePart
+              if ('file' in part) return '[File]'; // FilePart
+              return '[Content]'; // Other part types
+            }).join('') 
           : '';
 
       return {
