@@ -123,7 +123,7 @@ class ZealyAutomation {
       
       const webhook = response.data;
       console.log(`✅ Webhook created: ${webhook.id}`);
-      console.log(`   Secret: ${webhook.secret}`);
+      console.log(`   Secret: ${webhook.secret ? '***' + webhook.secret.slice(-4) : 'Not provided'}`);
       console.log(`   Events: ${webhook.events.join(", ")}`);
       
       // Save webhook configuration
@@ -208,7 +208,7 @@ class ZealyAutomation {
       console.log(`  Name: ${user.name}`);
       console.log(`  XP: ${user.xp}`);
       console.log(`  Level: ${user.level}`);
-      console.log(`  Wallet: ${user.walletAddress || "Not connected"}`);
+      console.log(`  Wallet: ${user.walletAddress ? user.walletAddress.slice(0, 6) + '...' + user.walletAddress.slice(-4) : "Not connected"}`);
       
       return user;
     } catch (error: any) {
@@ -221,7 +221,7 @@ class ZealyAutomation {
    * Search users by wallet address
    */
   async getUserByWallet(walletAddress: string): Promise<ZealyUser | null> {
-    console.log(`\n🔍 Searching user by wallet: ${walletAddress}`);
+    console.log(`\n🔍 Searching user by wallet: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`);
     
     try {
       const response = await axios.get(

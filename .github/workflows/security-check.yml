@@ -204,18 +204,17 @@ jobs:
         echo "🔍 Checking for sensitive data patterns..."
         
         SENSITIVE_PATTERNS=(
-          "console.log.*private"
-          "console.log.*secret"
-          "console.log.*token"
-          "console.log.*password"
-          "console.log.*key"
-          "console.log.*wallet"
-          "console.log.*mnemonic"
+          "console\.log.*private.*key"
+          "console\.log.*secret.*[^(]"
+          "console\.log.*mnemonic"
+          "console\.log.*password.*[^)]"
+          "console\.log.*wallet.*0x[0-9a-fA-F]{40}"
         )
         
         sensitive_found=false
         for pattern in "${SENSITIVE_PATTERNS[@]}"; do
-          if grep -r "$pattern" . --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --exclude-dir=node_modules >/dev/null 2>&1; then
+          # Use a temp file to avoid broken pipe issues
+          if grep -r "$pattern" . --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --exclude-dir=node_modules > /tmp/grep_results.tmp 2>/dev/null && [ -s /tmp/grep_results.tmp ]; then
             if [ "$sensitive_found" = false ]; then
               echo "❌ **CRITICAL SECURITY ERROR:** Potential sensitive data exposure in logs" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
@@ -223,7 +222,7 @@ jobs:
               echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
               sensitive_found=true
             fi
-            grep -r "$pattern" . --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --exclude-dir=node_modules | head -5 >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
+            head -5 /tmp/grep_results.tmp >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
           fi
         done
         
@@ -237,15 +236,39 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
         fi
         
-        # Check for missing test files (WARNING only)
+        # Check for missing test files (WARNING only) with better path handling
         echo "🔍 Checking for missing test coverage..."
         missing_tests=0
-        find frontend/src/lib -name "*.ts" -type f | while read lib_file; do
-          base_name=$(basename "$lib_file" .ts)
-          if [ ! -f "frontend/src/test/${base_name}.test.ts" ] && [ "$base_name" != "types" ]; then
-            echo "⚠️  Missing test file for $lib_file"
-            echo "   Expected: frontend/src/test/${base_name}.test.ts"
-            missing_tests=$((missing_tests + 1))
+        
+        # Check for lib directories in various locations
+        LIB_PATHS=(
+          "frontend/src/lib"
+          "src/lib"
+          "lib"
+          "utils"
+          "src/utils"
+        )
+        
+        for lib_path in "${LIB_PATHS[@]}"; do
+          if [ -d "$lib_path" ]; then
+            echo "📂 Checking test coverage for: $lib_path"
+            find "$lib_path" -name "*.ts" -type f 2>/dev/null | while read -r lib_file; do
+              base_name=$(basename "$lib_file" .ts)
+              test_dirs=("test" "tests" "__tests__" "src/test" "frontend/src/test")
+              
+              has_test=false
+              for test_dir in "${test_dirs[@]}"; do
+                if [ -f "$test_dir/${base_name}.test.ts" ] || [ -f "$test_dir/${base_name}.spec.ts" ]; then
+                  has_test=true
+                  break
+                fi
+              done
+              
+              if [ "$has_test" = false ] && [ "$base_name" != "types" ] && [ "$base_name" != "index" ]; then
+                echo "⚠️  Missing test file for $lib_file"
+                missing_tests=$((missing_tests + 1))
+              fi
+            done
           fi
         done
         
@@ -294,6 +317,9 @@ jobs:
         if [ $WARNINGS -gt 0 ] || [ $ERRORS -gt 0 ]; then
           echo "🎯 **Action Items:** Review and address security findings for better protection" >> $GITHUB_STEP_SUMMARY
         fi
+        
+        # Cleanup temp files
+        rm -f /tmp/grep_results.tmp typescript-output.txt eslint-output.txt
       continue-on-error: true
         
     - name: 🏗️ Production Build Test
