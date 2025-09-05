@@ -39,14 +39,20 @@ jobs:
 
     - name: 🔍 Complete TypeScript Analysis (ALL files, Non-blocking)
       run: |
+        set -o pipefail
         echo "## 🔍 Complete TypeScript Analysis Results" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Including ALL directories (even excluded ones)" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
-        # First, run standard type check
+        # First, run standard type check with proper error detection
         echo "#### Standard Type Check (respecting tsconfig.json)" >> $GITHUB_STEP_SUMMARY
-        if pnpm run type-check 2>&1 | tee typescript-output.txt; then
+        set +e  # Disable exit on error temporarily
+        pnpm run type-check > typescript-output.txt 2>&1
+        TS_EXIT_CODE=$?
+        set -e  # Re-enable exit on error
+        
+        if [ $TS_EXIT_CODE -eq 0 ]; then
           echo "✅ **TypeScript compilation successful (with current exclusions)**" >> $GITHUB_STEP_SUMMARY
         else
           echo "❌ **TypeScript errors found in included files:**" >> $GITHUB_STEP_SUMMARY
@@ -73,69 +79,99 @@ jobs:
         }
         EOF
         
-        # Count errors in different directories
+        # Count errors in different directories with proper error handling
         echo "##### Error Count by Directory:" >> $GITHUB_STEP_SUMMARY
-        echo "| Directory | Error Count | Status |" >> $GITHUB_STEP_SUMMARY
-        echo "|-----------|-------------|---------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Directory | Error Count | Status | Sample Error |" >> $GITHUB_STEP_SUMMARY
+        echo "|-----------|-------------|---------|---------------|" >> $GITHUB_STEP_SUMMARY
         
-        # Check ranking-frontend
-        RANKING_FRONTEND_ERRORS=$(npx tsc --noEmit --project tsconfig.full.json 2>&1 | grep "ranking-frontend" | wc -l || echo "0")
-        echo "| ranking-frontend/ | $RANKING_FRONTEND_ERRORS | $([ $RANKING_FRONTEND_ERRORS -eq 0 ] && echo "✅ Clean" || echo "⚠️ Has errors") |" >> $GITHUB_STEP_SUMMARY
+        # Run full TypeScript check and capture output
+        set +e
+        npx tsc --noEmit --project tsconfig.full.json > typescript-full-output.txt 2>&1
+        FULL_EXIT_CODE=$?
+        set -e
         
-        # Check ranking-backend
-        RANKING_BACKEND_ERRORS=$(npx tsc --noEmit --project tsconfig.full.json 2>&1 | grep "ranking-backend" | wc -l || echo "0")
-        echo "| ranking-backend/ | $RANKING_BACKEND_ERRORS | $([ $RANKING_BACKEND_ERRORS -eq 0 ] && echo "✅ Clean" || echo "⚠️ Has errors") |" >> $GITHUB_STEP_SUMMARY
+        # Check app/ directory (main directory)
+        APP_ERRORS=$(grep "app/" typescript-full-output.txt | wc -l || echo "0")
+        APP_SAMPLE=$(grep "app/" typescript-full-output.txt | head -1 | cut -d: -f3- | sed 's/^[[:space:]]*//' || echo "No errors")
+        echo "| app/ | $APP_ERRORS | $([ $APP_ERRORS -eq 0 ] && echo "✅ Clean" || echo "⚠️ Has errors") | $APP_SAMPLE |" >> $GITHUB_STEP_SUMMARY
         
-        # Check lib/agent
-        AGENT_ERRORS=$(npx tsc --noEmit --project tsconfig.full.json 2>&1 | grep "lib/agent" | wc -l || echo "0")
-        echo "| lib/agent/ | $AGENT_ERRORS | $([ $AGENT_ERRORS -eq 0 ] && echo "✅ Clean" || echo "⚠️ Has errors") |" >> $GITHUB_STEP_SUMMARY
+        # Check components/ directory
+        COMPONENTS_ERRORS=$(grep "components/" typescript-full-output.txt | wc -l || echo "0")
+        COMPONENTS_SAMPLE=$(grep "components/" typescript-full-output.txt | head -1 | cut -d: -f3- | sed 's/^[[:space:]]*//' || echo "No errors")
+        echo "| components/ | $COMPONENTS_ERRORS | $([ $COMPONENTS_ERRORS -eq 0 ] && echo "✅ Clean" || echo "⚠️ Has errors") | $COMPONENTS_SAMPLE |" >> $GITHUB_STEP_SUMMARY
         
-        # Check app/
-        APP_ERRORS=$(npx tsc --noEmit --project tsconfig.full.json 2>&1 | grep "app/" | wc -l || echo "0")
-        echo "| app/ | $APP_ERRORS | $([ $APP_ERRORS -eq 0 ] && echo "✅ Clean" || echo "⚠️ Has errors") |" >> $GITHUB_STEP_SUMMARY
+        # Check lib/agent directory
+        AGENT_ERRORS=$(grep "lib/agent" typescript-full-output.txt | wc -l || echo "0")
+        AGENT_SAMPLE=$(grep "lib/agent" typescript-full-output.txt | head -1 | cut -d: -f3- | sed 's/^[[:space:]]*//' || echo "No errors")
+        echo "| lib/agent/ | $AGENT_ERRORS | $([ $AGENT_ERRORS -eq 0 ] && echo "✅ Clean" || echo "⚠️ Has errors") | $AGENT_SAMPLE |" >> $GITHUB_STEP_SUMMARY
         
-        # Check components/
-        COMPONENTS_ERRORS=$(npx tsc --noEmit --project tsconfig.full.json 2>&1 | grep "components/" | wc -l || echo "0")
-        echo "| components/ | $COMPONENTS_ERRORS | $([ $COMPONENTS_ERRORS -eq 0 ] && echo "✅ Clean" || echo "⚠️ Has errors") |" >> $GITHUB_STEP_SUMMARY
+        # Check scripts/ directory
+        SCRIPTS_ERRORS=$(grep "scripts/" typescript-full-output.txt | wc -l || echo "0")
+        SCRIPTS_SAMPLE=$(grep "scripts/" typescript-full-output.txt | head -1 | cut -d: -f3- | sed 's/^[[:space:]]*//' || echo "No errors")
+        echo "| scripts/ | $SCRIPTS_ERRORS | $([ $SCRIPTS_ERRORS -eq 0 ] && echo "✅ Clean" || echo "⚠️ Has errors") | $SCRIPTS_SAMPLE |" >> $GITHUB_STEP_SUMMARY
         
-        # Check scripts/
-        SCRIPTS_ERRORS=$(npx tsc --noEmit --project tsconfig.full.json 2>&1 | grep "scripts/" | wc -l || echo "0")
-        echo "| scripts/ | $SCRIPTS_ERRORS | $([ $SCRIPTS_ERRORS -eq 0 ] && echo "✅ Clean" || echo "⚠️ Has errors") |" >> $GITHUB_STEP_SUMMARY
+        # Check any other TypeScript files
+        OTHER_ERRORS=$(grep -v "app/\|components/\|lib/agent\|scripts/\|node_modules" typescript-full-output.txt | grep "error TS" | wc -l || echo "0")
+        OTHER_SAMPLE=$(grep -v "app/\|components/\|lib/agent\|scripts/\|node_modules" typescript-full-output.txt | grep "error TS" | head -1 | cut -d: -f3- | sed 's/^[[:space:]]*//' || echo "No errors")
+        echo "| Other files/ | $OTHER_ERRORS | $([ $OTHER_ERRORS -eq 0 ] && echo "✅ Clean" || echo "⚠️ Has errors") | $OTHER_SAMPLE |" >> $GITHUB_STEP_SUMMARY
         
         echo "" >> $GITHUB_STEP_SUMMARY
         
-        # Total error count
-        TOTAL_ERRORS=$(npx tsc --noEmit --project tsconfig.full.json 2>&1 | grep "error TS" | wc -l || echo "0")
+        # Total error count from captured output
+        TOTAL_ERRORS=$(grep "error TS" typescript-full-output.txt | wc -l || echo "0")
+        echo "" >> $GITHUB_STEP_SUMMARY
         echo "#### 📊 Total TypeScript Errors (Full System): **$TOTAL_ERRORS**" >> $GITHUB_STEP_SUMMARY
         
-        # Show sample of errors from excluded directories
+        # Show sample of errors with better formatting
         if [ $TOTAL_ERRORS -gt 0 ]; then
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "##### Sample of TypeScript errors in excluded directories:" >> $GITHUB_STEP_SUMMARY
+          echo "##### First 20 TypeScript Errors (Full Details):" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          npx tsc --noEmit --project tsconfig.full.json 2>&1 | head -50 >> $GITHUB_STEP_SUMMARY || true
+          grep "error TS" typescript-full-output.txt | head -20 >> $GITHUB_STEP_SUMMARY || true
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "⚠️ **Note:** These errors are currently excluded from blocking builds but should be addressed for code quality." >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Note:** These errors are in directories currently excluded from builds." >> $GITHUB_STEP_SUMMARY
+          echo "🎯 **Action:** Consider gradual migration to resolve technical debt." >> $GITHUB_STEP_SUMMARY
+        else
+          echo "🎉 **Excellent!** No TypeScript errors found in complete system!" >> $GITHUB_STEP_SUMMARY
         fi
         
-        # Clean up
-        rm -f tsconfig.full.json
+        # Clean up all temporary files
+        rm -f tsconfig.full.json typescript-full-output.txt typescript-output.txt eslint-output.txt test-output.txt build-output.txt
         
         echo "" >> $GITHUB_STEP_SUMMARY
       continue-on-error: true
 
     - name: 🧹 ESLint Analysis (Non-blocking)
       run: |
+        set -o pipefail
         echo "## 🧹 ESLint Analysis Results" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
-        if pnpm run lint 2>&1 | tee eslint-output.txt; then
-          echo "✅ **ESLint validation successful**" >> $GITHUB_STEP_SUMMARY
+        # Run ESLint with proper error detection
+        set +e
+        pnpm run lint > eslint-output.txt 2>&1
+        ESLINT_EXIT_CODE=$?
+        set -e
+        
+        if [ $ESLINT_EXIT_CODE -eq 0 ]; then
+          echo "✅ **ESLint validation successful** - No linting issues found" >> $GITHUB_STEP_SUMMARY
         else
-          echo "❌ **ESLint issues found:**" >> $GITHUB_STEP_SUMMARY
+          # Count different types of ESLint issues
+          ERROR_COUNT=$(grep -c "error" eslint-output.txt || echo "0")
+          WARNING_COUNT=$(grep -c "warning" eslint-output.txt || echo "0")
+          
+          echo "❌ **ESLint issues found:** $ERROR_COUNT errors, $WARNING_COUNT warnings" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Issue Breakdown:" >> $GITHUB_STEP_SUMMARY
+          echo "| Type | Count | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Errors | $ERROR_COUNT | $([ $ERROR_COUNT -eq 0 ] && echo "✅ None" || echo "❌ Fix Required") |" >> $GITHUB_STEP_SUMMARY
+          echo "| Warnings | $WARNING_COUNT | $([ $WARNING_COUNT -eq 0 ] && echo "✅ None" || echo "⚠️ Review Suggested") |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Sample Issues (First 20):" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          tail -30 eslint-output.txt >> $GITHUB_STEP_SUMMARY
+          head -20 eslint-output.txt >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
         fi
         echo "" >> $GITHUB_STEP_SUMMARY
@@ -143,13 +179,36 @@ jobs:
 
     - name: 🧪 Test Suite Analysis (Non-blocking)
       run: |
+        set -o pipefail
         echo "## 🧪 Test Suite Results" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
-        if pnpm run test:ci 2>&1 | tee test-output.txt; then
-          echo "✅ **Tests passed**" >> $GITHUB_STEP_SUMMARY
+        # Run tests with proper error detection
+        set +e
+        pnpm run test:ci > test-output.txt 2>&1
+        TEST_EXIT_CODE=$?
+        set -e
+        
+        if [ $TEST_EXIT_CODE -eq 0 ]; then
+          # Extract test statistics if available
+          PASSED_TESTS=$(grep -o "[0-9]\+ passing" test-output.txt | grep -o "[0-9]\+" || echo "0")
+          FAILED_TESTS=$(grep -o "[0-9]\+ failing" test-output.txt | grep -o "[0-9]\+" || echo "0")
+          
+          echo "✅ **Tests passed successfully** - $PASSED_TESTS tests passed" >> $GITHUB_STEP_SUMMARY
+          if [ "$FAILED_TESTS" -gt 0 ]; then
+            echo "⚠️ Note: $FAILED_TESTS tests had issues but were resolved" >> $GITHUB_STEP_SUMMARY
+          fi
         else
-          echo "⚠️ **Test execution attempted:**" >> $GITHUB_STEP_SUMMARY
+          echo "❌ **Test execution issues detected:**" >> $GITHUB_STEP_SUMMARY
+          
+          # Try to extract meaningful test information
+          if grep -q "failing" test-output.txt; then
+            FAILED_COUNT=$(grep -o "[0-9]\+ failing" test-output.txt | grep -o "[0-9]\+" || echo "unknown")
+            echo "📊 Failed tests: $FAILED_COUNT" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Output (Last 20 lines):" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           tail -20 test-output.txt >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
@@ -159,13 +218,35 @@ jobs:
 
     - name: 🏗️ Build Analysis (Non-blocking)
       run: |
+        set -o pipefail
         echo "## 🏗️ Production Build Results" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         
-        if timeout 300 pnpm run build 2>&1 | tee build-output.txt; then
-          echo "✅ **Production build successful**" >> $GITHUB_STEP_SUMMARY
+        # Run build with proper error detection and timeout
+        set +e
+        timeout 300 pnpm run build > build-output.txt 2>&1
+        BUILD_EXIT_CODE=$?
+        set -e
+        
+        if [ $BUILD_EXIT_CODE -eq 0 ]; then
+          echo "✅ **Production build successful** - Build completed without errors" >> $GITHUB_STEP_SUMMARY
+          
+          # Try to extract build statistics
+          if grep -q "✓ Compiled successfully" build-output.txt; then
+            echo "📊 Build compiled successfully" >> $GITHUB_STEP_SUMMARY
+          fi
+          if grep -q "Webpack compiled" build-output.txt; then
+            echo "📦 Webpack compilation completed" >> $GITHUB_STEP_SUMMARY
+          fi
         else
-          echo "❌ **Build errors detected:**" >> $GITHUB_STEP_SUMMARY
+          if [ $BUILD_EXIT_CODE -eq 124 ]; then
+            echo "⏰ **Build timeout** - Build exceeded 300 seconds" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Build errors detected:**" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Error Details:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           tail -30 build-output.txt >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
