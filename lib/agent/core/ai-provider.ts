@@ -101,8 +101,8 @@ export class AIProvider {
   // ===================================================
 
   /**
-   * Direct OpenAI streaming with manual tool calls handling
-   * GPT-5 September 2025 implementation with official parameters
+   * Direct OpenAI streaming with intelligent fallback for organization verification
+   * GPT-5 September 2025 implementation with official parameters + fallback strategy
    */
   async streamWithOpenAI(
     messages: ChatCompletionMessageParam[],
@@ -112,28 +112,84 @@ export class AIProvider {
     stream: AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>;
     handleToolCalls: () => Promise<string>;
   }> {
-    const stream = await this.openaiClient.chat.completions.create({
-      // ✅ GPT-5 official configuration (September 2025)
-      model: this.config.model,
-      messages,
-      max_completion_tokens: this.config.maxCompletionTokens, // ✅ REQUIRED for GPT-5
-      stream: true,
-      tools: tools.length > 0 ? tools : undefined,
-      tool_choice: tools.length > 0 ? 'auto' : undefined,
+    // 🔄 Smart fallback strategy for unverified organizations
+    const attemptStreaming = async (useStreaming: boolean = true, fallbackModel?: string) => {
+      const modelToUse = fallbackModel || this.config.model;
+      const shouldStream = useStreaming && !fallbackModel; // Don't stream with fallback models
       
-      // ✅ Structured outputs for GPT-5
-      ...(this.config.enableStructuredOutputs && tools.length > 0 && {
-        response_format: { type: 'json_object' }
-      }),
+      return await this.openaiClient.chat.completions.create({
+        // ✅ GPT-5 official configuration with intelligent fallback
+        model: modelToUse,
+        messages,
+        max_completion_tokens: this.config.maxCompletionTokens, // ✅ REQUIRED for GPT-5
+        stream: shouldStream,
+        tools: tools.length > 0 ? tools : undefined,
+        tool_choice: tools.length > 0 ? 'auto' : undefined,
+        
+        // ✅ Structured outputs for GPT-5 (only when streaming is disabled for unverified orgs)
+        ...(this.config.enableStructuredOutputs && tools.length > 0 && !shouldStream && {
+          response_format: { type: 'json_object' }
+        }),
+        
+        // 🚧 TEMPORARILY DISABLED - SDK Compatibility Issue:
+        // reasoning_effort: this.config.reasoningEffort, // ⏳ Not available in openai@4.104.0
+        // verbosity: this.config.verbosity,              // ⏳ Not available in openai@4.104.0
+        // TODO: Re-enable when OpenAI SDK supports GPT-5 September 2025 parameters
+        
+        // ❌ REMOVED: temperature (causes GPT-5 API errors)
+        // ❌ REMOVED: max_tokens (use max_completion_tokens)
+      });
+    };
+
+    try {
+      // 🚀 First attempt: GPT-5 with streaming (preferred)
+      const stream = await attemptStreaming(true);
+      // Return the stream directly since it's already an AsyncIterable
+      return this.handleStreamResponse(stream as AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>, messages, tools, onToolCall);
       
-      // 🚧 TEMPORARILY DISABLED - SDK Compatibility Issue:
-      // reasoning_effort: this.config.reasoningEffort, // ⏳ Not available in openai@4.104.0
-      // verbosity: this.config.verbosity,              // ⏳ Not available in openai@4.104.0
-      // TODO: Re-enable when OpenAI SDK supports GPT-5 September 2025 parameters
-      
-      // ❌ REMOVED: temperature (causes GPT-5 API errors)
-      // ❌ REMOVED: max_tokens (use max_completion_tokens)
-    });
+    } catch (error: any) {
+      // 🔍 Handle specific organization verification errors
+      if (error?.status === 400 && 
+          error?.message?.includes('organization must be verified to stream')) {
+        
+        console.warn('⚠️ Organization not verified for GPT-5 streaming, falling back to non-streaming...');
+        
+        // 🔄 Fallback 1: GPT-5 without streaming
+        try {
+          const response = await attemptStreaming(false);
+          return this.handleNonStreamResponse(response as OpenAI.Chat.Completions.ChatCompletion, messages, tools, onToolCall);
+        } catch (fallbackError: any) {
+          
+          console.warn('⚠️ GPT-5 non-streaming failed, trying GPT-4o fallback...');
+          
+          // 🔄 Fallback 2: GPT-4o with streaming (most compatible)
+          try {
+            const fallbackResponse = await attemptStreaming(true, 'gpt-4o');
+            return this.handleStreamResponse(fallbackResponse as AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>, messages, tools, onToolCall);
+          } catch (finalError: any) {
+            
+            // 🔄 Fallback 3: GPT-4o without streaming (last resort)
+            console.warn('⚠️ Final fallback: GPT-4o non-streaming...');
+            const finalResponse = await attemptStreaming(false, 'gpt-4o');
+            return this.handleNonStreamResponse(finalResponse as OpenAI.Chat.Completions.ChatCompletion, messages, tools, onToolCall);
+          }
+        }
+      } else {
+        // 🚨 Re-throw non-verification errors
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Handle streaming response with tool calls
+   */
+  private async handleStreamResponse(
+    stream: AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>,
+    messages: ChatCompletionMessageParam[],
+    tools: Array<OpenAI.Chat.Completions.ChatCompletionTool>,
+    onToolCall?: (toolCall: ToolCall) => Promise<string>
+  ): Promise<{ stream: AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>; handleToolCalls: () => Promise<string>; }> {
 
     const handleToolCalls = async (): Promise<string> => {
       let fullResponse = '';
@@ -219,6 +275,79 @@ export class AIProvider {
     };
 
     return { stream, handleToolCalls };
+  }
+
+  /**
+   * Handle non-streaming response with tool calls (for unverified organizations)
+   */
+  private async handleNonStreamResponse(
+    response: OpenAI.Chat.Completions.ChatCompletion,
+    messages: ChatCompletionMessageParam[],
+    tools: Array<OpenAI.Chat.Completions.ChatCompletionTool>,
+    onToolCall?: (toolCall: ToolCall) => Promise<string>
+  ): Promise<{ stream: AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>; handleToolCalls: () => Promise<string>; }> {
+    
+    const message = response.choices[0]?.message;
+    let fullResponse = message?.content || '';
+    
+    // Handle tool calls if present
+    if (message?.tool_calls && message.tool_calls.length > 0 && onToolCall) {
+      const toolResults = await Promise.all(
+        message.tool_calls.map(async (toolCall) => {
+          try {
+            const result = await onToolCall({
+              id: toolCall.id,
+              type: toolCall.type,
+              function: toolCall.function
+            });
+            return { role: 'tool' as const, tool_call_id: toolCall.id, content: result };
+          } catch (error) {
+            return { 
+              role: 'tool' as const, 
+              tool_call_id: toolCall.id, 
+              content: `Error: ${error instanceof Error ? error.message : 'Tool execution failed'}` 
+            };
+          }
+        })
+      );
+
+      // Second completion with tool results
+      if (toolResults.length > 0) {
+        const followupMessages: ChatCompletionMessageParam[] = [
+          ...messages,
+          { role: 'assistant', content: fullResponse, tool_calls: message.tool_calls },
+          ...toolResults,
+        ];
+
+        const followupResponse = await this.openaiClient.chat.completions.create({
+          model: this.config.model,
+          messages: followupMessages,
+          max_completion_tokens: this.config.maxCompletionTokens,
+          stream: false,
+        });
+
+        fullResponse = followupResponse.choices[0]?.message?.content || fullResponse;
+      }
+    }
+    
+    // Create a mock stream that returns the complete response
+    const mockStream = (async function* () {
+      yield {
+        id: response.id,
+        object: 'chat.completion.chunk' as const,
+        created: response.created,
+        model: response.model,
+        choices: [{
+          index: 0,
+          delta: { content: fullResponse, role: 'assistant' as const },
+          finish_reason: 'stop' as const
+        }]
+      };
+    })();
+
+    const handleToolCalls = async () => fullResponse;
+
+    return { stream: mockStream, handleToolCalls };
   }
 
   // ===================================================

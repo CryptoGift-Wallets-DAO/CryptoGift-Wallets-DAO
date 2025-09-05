@@ -138,6 +138,33 @@ export async function POST(req: NextRequest) {
   const startTime = Date.now();
   
   try {
+    // 🔐 Basic origin validation for production
+    const origin = req.headers.get('origin');
+    const referer = req.headers.get('referer');
+    
+    if (process.env.NODE_ENV === 'production') {
+      const allowedDomains = [
+        'crypto-gift-wallets-dao.vercel.app',
+        'cryptogift-wallets-dao.vercel.app',
+        'localhost:3000'
+      ];
+      
+      const isValidOrigin = allowedDomains.some(domain => 
+        origin?.includes(domain) || referer?.includes(domain)
+      );
+      
+      if (!isValidOrigin && origin && referer) {
+        logger.warn('Blocked request from unauthorized origin', { origin, referer, requestId });
+        return new Response(JSON.stringify({
+          error: 'Unauthorized origin',
+          requestId,
+        }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    }
+    
     // Parse and validate request with enhanced error logging
     let body: any;
     try {

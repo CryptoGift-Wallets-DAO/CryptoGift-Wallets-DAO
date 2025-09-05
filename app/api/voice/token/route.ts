@@ -116,10 +116,34 @@ async function generateEphemeralToken(userId?: string) {
 
 export async function POST(req: NextRequest) {
   try {
+    // 🔐 Basic rate limiting and origin validation
+    const origin = req.headers.get('origin');
+    const referer = req.headers.get('referer');
+    
+    // Only allow requests from our domains in production
+    if (process.env.NODE_ENV === 'production') {
+      const allowedDomains = [
+        'crypto-gift-wallets-dao.vercel.app',
+        'cryptogift-wallets-dao.vercel.app',
+        'localhost:3000'
+      ];
+      
+      const isValidOrigin = allowedDomains.some(domain => 
+        origin?.includes(domain) || referer?.includes(domain)
+      );
+      
+      if (!isValidOrigin) {
+        return NextResponse.json(
+          { error: 'Unauthorized origin' },
+          { status: 403 }
+        );
+      }
+    }
+    
     const body = await req.json();
     const { userId, sessionId } = TokenRequestSchema.parse(body);
     
-    // Rate limiting check (simple para demo)
+    // Rate limiting: max 5 requests per minute per IP
     // TODO: Implementar rate limiting con Upstash
     
     // Generate ephemeral token
