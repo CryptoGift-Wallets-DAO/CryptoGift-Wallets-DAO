@@ -86,11 +86,14 @@ const initializeCoreServices = () => {
   
   if (!aiProvider) {
     // AI provider with GPT-5 September 2025 configuration
+    // 🚧 TEMPORARILY DISABLED GPT-5 parameters due to SDK compatibility (openai@4.104.0)
     aiProvider = createAIProvider({
       model: process.env.AI_MODEL || 'gpt-5', // ✅ GPT-5 default (Aug 7, 2025 release)
       maxCompletionTokens: parseInt(process.env.MAX_COMPLETION_TOKENS || '3000'), // ✅ GPT-5 parameter
-      reasoningEffort: (process.env.REASONING_EFFORT as 'minimal' | 'high') || 'high', // ✅ Sept 2025 feature
-      verbosity: (process.env.VERBOSITY as 'low' | 'medium' | 'high') || 'medium', // ✅ Sept 2025 feature
+      // 🚧 TEMPORARILY DISABLED - SDK Compatibility Issue:
+      // reasoningEffort: (process.env.REASONING_EFFORT as 'minimal' | 'high') || 'high', // ⏳ GPT-5 Sept 2025 feature
+      // verbosity: (process.env.VERBOSITY as 'low' | 'medium' | 'high') || 'medium', // ⏳ GPT-5 Sept 2025 feature
+      // TODO: Re-enable when OpenAI SDK supports GPT-5 September 2025 parameters
       maxToolRoundtrips: 5,
       enableStructuredOutputs: true
       
@@ -114,9 +117,10 @@ const initializeCoreServices = () => {
 function getSystemPrompt(mode: string): string {
   const basePrompt = `Eres apeX, el asistente técnico-operativo principal del ecosistema CryptoGift DAO, potenciado por GPT-5 con máxima capacidad de razonamiento.
 
-🧠 MODELO: GPT-5 (Released August 7, 2025) con reasoning_effort: "high" 
+🧠 MODELO: GPT-5 (Released August 7, 2025) - máxima capacidad de razonamiento disponible
 📅 ACTUALIZADO: Septiembre 2025 - Última versión oficial de OpenAI
 🔗 REFERENCIA: https://openai.com/index/introducing-gpt-5/
+⚙️ NOTA: Funciones avanzadas GPT-5 (reasoning_effort, verbosity) temporalmente deshabilitadas por compatibilidad SDK
 
 CONTEXTO CRÍTICO:
 - DAO Address: ${process.env.ARAGON_DAO_ADDRESS || '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31'}
@@ -135,9 +139,9 @@ CAPACIDADES AVANZADAS GPT-5 (September 2025):
 - ⚙️ ARAGON OSx, EAS, EIP-712 specialization
 
 INSTRUCCIONES DE RAZONAMIENTO GPT-5:
-- Usa tu máxima capacidad de reasoning (reasoning_effort: "high") 
+- Usa tu máxima capacidad de reasoning inherente (GPT-5 nativo)
 - Proporciona análisis paso a paso para decisiones complejas
-- Aprovecha tus reasoning tokens gratuitos para profundidad
+- Aprovecha tu arquitectura GPT-5 para máxima profundidad analítica
 - Fundamenta TODAS las recomendaciones con análisis técnico
 - Considera múltiples perspectivas antes de concluir
 - Aplica tu expert-level performance para DAO governance

@@ -117,8 +117,6 @@ export class AIProvider {
       model: this.config.model,
       messages,
       max_completion_tokens: this.config.maxCompletionTokens, // ✅ REQUIRED for GPT-5
-      reasoning_effort: this.config.reasoningEffort, // ✅ September 2025 feature
-      verbosity: this.config.verbosity, // ✅ September 2025 feature
       stream: true,
       tools: tools.length > 0 ? tools : undefined,
       tool_choice: tools.length > 0 ? 'auto' : undefined,
@@ -127,6 +125,11 @@ export class AIProvider {
       ...(this.config.enableStructuredOutputs && tools.length > 0 && {
         response_format: { type: 'json_object' }
       }),
+      
+      // 🚧 TEMPORARILY DISABLED - SDK Compatibility Issue:
+      // reasoning_effort: this.config.reasoningEffort, // ⏳ Not available in openai@4.104.0
+      // verbosity: this.config.verbosity,              // ⏳ Not available in openai@4.104.0
+      // TODO: Re-enable when OpenAI SDK supports GPT-5 September 2025 parameters
       
       // ❌ REMOVED: temperature (causes GPT-5 API errors)
       // ❌ REMOVED: max_tokens (use max_completion_tokens)
@@ -197,9 +200,12 @@ export class AIProvider {
             model: this.config.model,
             messages: followupMessages,
             max_completion_tokens: this.config.maxCompletionTokens, // ✅ REQUIRED for GPT-5
-            reasoning_effort: this.config.reasoningEffort, // ✅ September 2025 feature
-            verbosity: this.config.verbosity, // ✅ September 2025 feature
             stream: false, // Non-streaming for tool results
+            
+            // 🚧 TEMPORARILY DISABLED - SDK Compatibility Issue:
+            // reasoning_effort: this.config.reasoningEffort, // ⏳ Not available in openai@4.104.0
+            // verbosity: this.config.verbosity,              // ⏳ Not available in openai@4.104.0
+            // TODO: Re-enable when OpenAI SDK supports GPT-5 September 2025 parameters
             
             // ❌ REMOVED: temperature (causes GPT-5 API errors)
             // ❌ REMOVED: max_tokens (use max_completion_tokens)
@@ -237,8 +243,8 @@ export class AIProvider {
       toolChoice: Object.keys(tools).length > 0 ? 'auto' : undefined,
       maxToolRoundtrips: this.config.maxToolRoundtrips,
       
-      // ✅ GPT-5 experimental parameters (if supported by Vercel AI SDK)
-      experimental_reasoningEffort: this.config.reasoningEffort,
+      // 🚧 TEMPORARILY DISABLED - SDK Compatibility Issue:
+      // experimental_reasoningEffort: this.config.reasoningEffort, // ⏳ Not available in Vercel AI SDK yet
       
       // 2025 best practice: use stopWhen for agent loop control
       stopWhen: (step) => {
@@ -274,8 +280,8 @@ export class AIProvider {
       toolChoice: Object.keys(tools).length > 0 ? 'auto' : undefined,
       maxToolRoundtrips: this.config.maxToolRoundtrips,
       
-      // ✅ GPT-5 experimental parameters (if supported by Vercel AI SDK)
-      experimental_reasoningEffort: this.config.reasoningEffort,
+      // 🚧 TEMPORARILY DISABLED - SDK Compatibility Issue:
+      // experimental_reasoningEffort: this.config.reasoningEffort, // ⏳ Not available in Vercel AI SDK yet
       
       // ❌ REMOVED: temperature (deprecated in GPT-5)
     });
@@ -352,8 +358,11 @@ export class AIProvider {
         model: this.config.model,
         messages: [{ role: 'user', content: 'Test connection' }],
         max_completion_tokens: 10, // ✅ REQUIRED for GPT-5
-        reasoning_effort: 'minimal', // ✅ Use minimal for test to save costs
-        verbosity: 'low', // ✅ Short response for test
+        
+        // 🚧 TEMPORARILY DISABLED - SDK Compatibility Issue:
+        // reasoning_effort: 'minimal', // ⏳ Not available in openai@4.104.0
+        // verbosity: 'low',            // ⏳ Not available in openai@4.104.0
+        // TODO: Re-enable when OpenAI SDK supports GPT-5 September 2025 parameters
         
         // ❌ REMOVED: max_tokens (use max_completion_tokens)
       });
