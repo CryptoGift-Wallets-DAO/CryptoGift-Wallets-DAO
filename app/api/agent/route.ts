@@ -1,24 +1,27 @@
 /**
- * 🤖 CG DAO AGENT API ENDPOINT
- * GPT-5 Thinking Mode + MCP Streamable HTTP + SSE Streaming
+ * 🤖 CG DAO AGENT API - Unified Core Integration (2025)
  * 
  * Features:
- * - GPT-5 with reasoning.effort: "high" (Thinking mode)
- * - MCP access to documentation in read-only mode
- * - Server-sent events (SSE) streaming
- * - Rate limiting and security
- * - Audit logging and metrics
+ * - Unified AI provider with OpenAI SDK and Vercel AI SDK v5
+ * - MCP Streamable HTTP Transport (2025-03-26 spec)
+ * - Manual parallel tool calls handling
+ * - Proper tool_calls processing in streaming loop
+ * - Local MCP in development, internal in production
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import { Redis } from '@upstash/redis';
-import OpenAI from 'openai';
 import { getCorsHeaders, getCorsHeadersJson, handleCorsPreflight, validateCors } from '@/lib/security/cors';
 import { SafeJSON } from '@/lib/utils/safe-json';
 import { ErrorHandler } from '@/lib/monitoring/error-taxonomy';
 import { observabilityUtils, trackRequest } from '@/lib/monitoring/observability';
+
+// Import unified core modules
+import { createMCPClient } from '@/lib/agent/core/mcp-client';
+import { createAIProvider } from '@/lib/agent/core/ai-provider';
+import { createToolExecutor } from '@/lib/agent/core/tool-executor';
 
 // ===================================================
 // 📋 CONFIGURATION & VALIDATION
@@ -50,18 +53,7 @@ const getRedis = () => {
   return redis;
 };
 
-// Setup OpenAI client - initialize lazily to avoid build errors
-let openai: OpenAI | null = null;
-const getOpenAI = () => {
-  if (!openai && process.env.OPENAI_API_KEY && 
-      process.env.OPENAI_API_KEY !== 'your-openai-key-here' &&
-      process.env.OPENAI_API_KEY !== 'your-ope********here') {
-    openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-  }
-  return openai;
-};
+// OpenAI client is now handled by unified AI provider
 
 // ===================================================
 // 📊 LOGGING & METRICS
@@ -79,116 +71,80 @@ const logger = {
 
 // Agent configuration is handled in initializeAgent() function
 
-// MCP Tools interface for document access
-const mcpTools = {
-  url: `${process.env.NEXT_PUBLIC_DAO_URL || 'http://localhost:3000'}/api/mcp-docs`,
-  headers: {
-    'Authorization': `Bearer ${process.env.MCP_AUTH_TOKEN || 'internal'}`,
-    'Content-Type': 'application/json',
+// Initialize core services
+let mcpClient: any = null;
+let aiProvider: any = null;
+let toolExecutor: any = null;
+
+const initializeCoreServices = () => {
+  if (!mcpClient) {
+    // MCP client with environment-based URL routing
+    mcpClient = createMCPClient({
+      enableLogging: process.env.NODE_ENV === 'development'
+    });
   }
+  
+  if (!aiProvider) {
+    // AI provider with environment-based configuration
+    aiProvider = createAIProvider({
+      model: process.env.AI_MODEL || 'gpt-4o',
+      temperature: parseFloat(process.env.AI_TEMPERATURE || '0.7'),
+      maxTokens: parseInt(process.env.MAX_TOKENS || '3000'),
+      maxToolRoundtrips: 5,
+      enableStructuredOutputs: true
+    });
+  }
+  
+  if (!toolExecutor) {
+    // Tool executor with MCP integration
+    toolExecutor = createToolExecutor(mcpClient, {
+      timeout: 30000,
+      maxRetries: 2,
+      enableLogging: process.env.NODE_ENV === 'development'
+    });
+  }
+  
+  return { mcpClient, aiProvider, toolExecutor };
 };
 
-// MCP Tool execution functions
-async function callMCPTool(method: string, params: any) {
-  try {
-    const response = await fetch(mcpTools.url, {
-      method: 'POST',
-      headers: mcpTools.headers,
-      body: JSON.stringify({
-        method: 'tools/call',
-        params: {
-          name: method,
-          arguments: params
-        }
-      })
-    });
+function getSystemPrompt(mode: string): string {
+  const basePrompt = `Eres apeX, el asistente técnico-operativo principal del ecosistema CryptoGift DAO, potenciado por GPT-4o con capacidades avanzadas.
 
-    if (!response.ok) {
-      throw new Error(`MCP call failed: ${response.status}`);
-    }
+CONTEXTO CRÍTICO:
+- DAO Address: ${process.env.ARAGON_DAO_ADDRESS || '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31'}
+- CGC Token: ${process.env.CGC_TOKEN_ADDRESS || '0x5e3a61b550328f3D8C44f60b3e10a49D3d806175'} (2M total supply)
+- Network: Base Mainnet (Chain ID: 8453)
+- Fase actual: Production Ready - Contratos desplegados y verificados
 
-    const result = await response.json();
-    if (result.error) {
-      throw new Error(`MCP error: ${result.error.message}`);
-    }
+CAPACIDADES AVANZADAS:
+- Análisis profundo paso a paso para problemas complejos
+- Análisis de contratos inteligentes con detalles técnicos precisos
+- Búsqueda inteligente y síntesis de información del proyecto
+- Gobernanza DAO con recomendaciones estratégicas fundamentadas
+- Soporte técnico especializado en Aragon OSx, EAS, EIP-712
+- Pensamiento crítico y resolución de problemas multi-paso
 
-    return result.result?.content?.[0]?.text || 'No content returned';
-  } catch (error) {
-    logger.error('MCP tool call failed:', error);
-    return `Error accessing documentation: ${error instanceof Error ? error.message : 'Unknown error'}`;
-  }
-}
+INSTRUCCIONES DE RAZONAMIENTO:
+- Analiza problemas complejos paso a paso
+- Proporciona explicaciones detalladas cuando sea apropiado
+- Fundamenta tus recomendaciones con análisis técnico profundo
+- Considera múltiples perspectivas antes de concluir
 
-// Tool handlers for OpenAI function calls
-async function handleFunctionCall(name: string, arguments_str: string) {
-  const args = JSON.parse(arguments_str);
-  
-  switch (name) {
-    case 'read_project_file':
-      return await callMCPTool('read_file', { path: args.path });
-      
-    case 'search_project_files': 
-      return await callMCPTool('search_files', { query: args.query });
-      
-    case 'get_project_overview':
-      return await callMCPTool('get_project_structure', {});
-      
-    default:
-      return `Unknown function: ${name}`;
-  }
-}
+HERRAMIENTAS MCP OBLIGATORIAS:
+Antes de responder CUALQUIER pregunta:
+1. Usa get_project_overview para entender el estado actual
+2. Usa read_project_file para acceder a CLAUDE.md
+3. Usa search_project_files para encontrar documentación relevante
+4. Usa list_directory para explorar carpetas relevantes`;
 
-async function initializeAgent() {
-  // Return agent configuration ready for OpenAI API with MCP tools
-  try {
-    return {
-      name: 'CG DAO Operations Assistant',
-      instructions: `You are apeX, the expert AI assistant for CryptoGift DAO operations. You have access to all project documentation through MCP tools and can read any file in the project.
+  const modePrompts = {
+    technical: `\n\nMODO TÉCNICO ACTIVADO:\n- Proporcionar detalles de implementación\n- Incluir direcciones de contratos y funciones\n- Explicar arquitectura y patrones de diseño\n- Sugerir mejoras y optimizaciones`,
+    governance: `\n\nMODO GOBERNANZA ACTIVADO:\n- Información sobre propuestas y votaciones\n- Procesos de toma de decisiones\n- Tokenomics y distribución\n- Mecánicas de participación`,
+    operations: `\n\nMODO OPERACIONES ACTIVADO:\n- Estado actual del sistema\n- Métricas y KPIs\n- Procedimientos operativos\n- Troubleshooting y soporte`,
+    general: ''
+  };
 
-## Your Role:
-- Provide accurate information about the DAO's smart contracts, governance, and operations
-- ALWAYS access documentation using MCP tools before answering questions
-- Cite specific files and sections when providing information
-- Use friendly but professional tone
-- Be comprehensive yet concise
-
-## Critical Information:
-- DAO Address: ${process.env.ARAGON_DAO_ADDRESS}
-- CGC Token: ${process.env.CGC_TOKEN_ADDRESS} (2M total supply on Base Mainnet)
-- Network: Base (Chain ID: 8453)
-- Current Phase: Production Ready - All contracts deployed and verified
-
-## MANDATORY MCP Tools Usage:
-Before answering ANY question:
-1. Use get_project_structure to understand the current project state
-2. Use read_file to access CLAUDE.md for latest information
-3. Use search_files to find relevant documentation
-4. Use list_directory to explore relevant folders
-
-When users ask about:
-- Contracts → read files in contracts/ directory
-- Development status → read CLAUDE.md and docs/
-- Configuration → check relevant config files
-- Specific features → search for related files
-
-## Response Format:
-- Start with brief summary
-- Provide detailed answer with specific file citations
-- Include relevant contract addresses when applicable
-- End with actionable next steps if appropriate
-
-## Security Guidelines:
-- Never provide private keys or sensitive information
-- Only reference publicly deployed contract addresses
-- Always recommend best practices for DAO operations`,
-      model: 'gpt-4o',
-      maxTokens: 2000,
-      mcpTools: mcpTools
-    };
-  } catch (error) {
-    logger.error('Failed to initialize agent:', error);
-    throw new Error('Failed to initialize agent system');
-  }
+  return basePrompt + (modePrompts[mode as keyof typeof modePrompts] || '');
 }
 
 // ===================================================
@@ -370,8 +326,8 @@ export async function POST(req: NextRequest) {
       });
     }
     
-    // Initialize agent
-    const agent = await initializeAgent();
+    // Initialize core services
+    const { mcpClient, aiProvider, toolExecutor } = initializeCoreServices();
     
     // Get session context
     const session = await getSession(finalSessionId);
@@ -406,7 +362,7 @@ Current Query: ${message}
 `;
 
     if (stream) {
-      // Stream response with SSE
+      // Use unified AI provider with proper tool calls handling
       const encoder = new TextEncoder();
       
       const readableStream = new ReadableStream({
@@ -436,7 +392,6 @@ Current Query: ${message}
           };
           
           // Set a timeout aligned with Vercel function limits
-          // Vercel Hobby: 10s, Pro: 60s, we use 50s for safety margin
           const timeoutMs = process.env.VERCEL_ENV === 'production' ? 50000 : 120000;
           streamTimeout = setTimeout(() => {
             logger.warn(`Stream timeout for session ${finalSessionId} after ${timeoutMs}ms`);
@@ -449,11 +404,11 @@ Current Query: ${message}
           }, timeoutMs);
           
           try {
-            // Build messages for OpenAI
+            // Build messages for AI provider
             const messages = [
               {
                 role: 'system' as const,
-                content: agent.instructions
+                content: getSystemPrompt(mode)
               },
               ...session.messages.slice(-4).map(msg => ({
                 role: msg.role as 'user' | 'assistant',
@@ -465,110 +420,51 @@ Current Query: ${message}
               }
             ];
 
-            const openaiClient = getOpenAI();
-            if (!openaiClient) {
-              throw new Error('OpenAI API key not configured');
-            }
+            // Get OpenAI tools from tool executor
+            const tools = toolExecutor.getOpenAITools();
             
-            const stream = await openaiClient.chat.completions.create({
-              model: "gpt-4o",  // Temporary fallback to GPT-4o until organization verification
+            // Use unified AI provider with manual tool calls handling
+            const { stream: openaiStream, handleToolCalls } = await aiProvider.streamWithOpenAI(
               messages,
-              max_tokens: 3000,  // GPT-4o uses max_tokens
-              stream: true,
-              tools: [
-                {
-                  type: "function",
-                  function: {
-                    name: "read_project_file",
-                    description: "Read any file from the CryptoGift DAO project using MCP",
-                    parameters: {
-                      type: "object",
-                      properties: {
-                        path: {
-                          type: "string",
-                          description: "Path to the file to read (e.g., 'CLAUDE.md', 'contracts/CGCToken.sol')"
-                        }
-                      },
-                      required: ["path"]
-                    }
-                  }
-                },
-                {
-                  type: "function", 
-                  function: {
-                    name: "search_project_files",
-                    description: "Search for specific text across all project files using MCP",
-                    parameters: {
-                      type: "object",
-                      properties: {
-                        query: {
-                          type: "string",
-                          description: "Text to search for in project files"
-                        }
-                      },
-                      required: ["query"]
-                    }
-                  }
-                },
-                {
-                  type: "function",
-                  function: {
-                    name: "get_project_overview",
-                    description: "Get an overview of the project structure and key files",
-                    parameters: {
-                      type: "object",
-                      properties: {}
-                    }
-                  }
-                }
-              ],
-              tool_choice: "auto"
-            });
-
-            let fullResponse = '';
-            let lastChunkTime = Date.now();
-            
-            // Handle streaming response with individual chunk error handling
-            for await (const chunk of stream) {
-              if (isStreamClosed) break;
-              
-              lastChunkTime = Date.now();
-              
-              try {
-                const content = chunk.choices[0]?.delta?.content || '';
-                if (content) {
-                  fullResponse += content;
-                  const data = {
-                    type: 'chunk',
-                    content,
-                    sessionId: finalSessionId,
-                    timestamp: Date.now(),
-                  };
-                  
-                  // Use SafeJSON for SSE serialization with round-trip verification
-                  const sseData = SafeJSON.sseSerialize(data, 'chunk');
-                  controller.enqueue(encoder.encode(sseData));
-                }
-              } catch (chunkError) {
-                logger.error('Error processing chunk:', chunkError);
-                // Continue processing other chunks
+              tools,
+              async (toolCall: any) => {
+                // Execute tool call via tool executor
+                return await toolExecutor.executeTool(
+                  toolCall.function.name,
+                  JSON.parse(toolCall.function.arguments)
+                );
               }
-            }
+            );
+            
+            // Handle the response with proper tool calls processing
+            const fullResponse = await handleToolCalls();
             
             if (isStreamClosed) return;
+            
+            // Stream the response content
+            if (fullResponse) {
+              const data = {
+                type: 'chunk',
+                content: fullResponse,
+                sessionId: finalSessionId,
+                timestamp: Date.now(),
+              };
+              
+              const sseData = SafeJSON.sseSerialize(data, 'chunk');
+              controller.enqueue(encoder.encode(sseData));
+            }
             
             // Save session with error handling
             try {
               session.messages.push({
                 role: 'assistant',
-                content: fullResponse,
+                content: fullResponse || 'No response generated',
                 timestamp: Date.now()
               });
               
               await updateSession(finalSessionId, session);
             } catch (sessionError) {
               logger.error('Error updating session:', sessionError);
-              // Continue with response even if session save fails
             }
             
             // Send final message
@@ -577,7 +473,7 @@ Current Query: ${message}
               sessionId: finalSessionId,
               metrics: {
                 duration: Date.now() - startTime,
-                tokens: fullResponse.length, // Approximate token count
+                tokens: (fullResponse || '').length,
                 reasoning_tokens: 0,
               }
             };
@@ -612,12 +508,11 @@ Current Query: ${message}
       });
       
     } else {
-      // Non-streaming response
-      // Build messages for OpenAI
+      // Non-streaming response using Vercel AI SDK
       const messages = [
         {
           role: 'system' as const,
-          content: agent.instructions
+          content: getSystemPrompt(mode)
         },
         ...session.messages.slice(-4).map(msg => ({
           role: msg.role as 'user' | 'assistant',
@@ -629,20 +524,17 @@ Current Query: ${message}
         }
       ];
 
-      const openaiClient = getOpenAI();
-      if (!openaiClient) {
-        return NextResponse.json(
-          { error: 'OpenAI API key not configured' },
-          { status: 503 }
-        );
-      }
-      const completion = await openaiClient.chat.completions.create({
-        model: "gpt-4o",  // Temporary fallback to GPT-4o until organization verification
+      // Get Vercel AI tools from tool executor
+      const tools = toolExecutor.getVercelAITools();
+      
+      // Use unified AI provider with tools
+      const result = await aiProvider.generateWithTools(
         messages,
-        max_tokens: 3000,  // GPT-4o uses max_tokens
-      });
+        tools,
+        getSystemPrompt(mode)
+      );
 
-      const response = completion.choices[0]?.message?.content || '';
+      const response = result.text || '';
       
       // Add assistant message to session
       session.messages.push({
@@ -760,15 +652,17 @@ export async function GET(req: NextRequest) {
       default:
         requestTracker.finish(200);
         return NextResponse.json({
-          service: 'CG DAO Agent API',
-          version: '2.0.0',
+          service: 'CG DAO Agent API - Unified Core',
+          version: '3.0.0',
           capabilities: [
-            'GPT-5 with Maximum Reasoning (100% Juice)',
-            'MCP Document Access with OpenAI Functions',
-            'Real-time Project Documentation Access',
+            'Unified AI Provider (OpenAI + Vercel AI SDK v5)',
+            'MCP Streamable HTTP Transport (2025-03-26 spec)',
+            'Manual Parallel Tool Calls Handling',
+            'Local MCP in Development',
+            'Proper Tool_calls Processing',
             'Session Management with Persistence',
             'Advanced Rate Limiting',
-            'SSE Streaming with Round-trip Verification',
+            'SSE Streaming with Tool Integration',
             'Comprehensive Error Taxonomy',
             'Production Observability'
           ]

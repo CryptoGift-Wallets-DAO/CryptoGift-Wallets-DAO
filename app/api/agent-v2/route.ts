@@ -277,15 +277,18 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   return new Response(JSON.stringify({
-    service: 'CG DAO Agent API V2',
-    version: '2.0.0',
+    service: 'CG DAO Agent API V2 - Unified Core',
+    version: '3.0.0',
     status: 'healthy',
-    model: process.env.AI_MODEL || 'gpt-4o', // Fallback estable hasta verificación GPT-5
+    model: process.env.AI_MODEL || 'gpt-4o',
     capabilities: [
-      'Streaming with Vercel AI SDK',
+      'Unified AI Provider (OpenAI + Vercel AI SDK v5)',
+      'MCP Streamable HTTP Transport (2025-03-26 spec)',
+      'Proper Tool Calling with Parallel Execution',
+      'toDataStreamResponse() with proper headers',
+      'Local MCP in Development',
       'Rate limiting',
       'Session management',
-      'Tool calling ready',
     ],
     timestamp: new Date().toISOString(),
   }), {
