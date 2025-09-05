@@ -407,8 +407,14 @@ Current Query: ${message}
             }
           };
           
-          // Set a timeout aligned with Vercel function limits
-          const timeoutMs = process.env.VERCEL_ENV === 'production' ? 50000 : 120000;
+          // Set a timeout aligned with Vercel function limits and GPT-5 non-streaming requirements
+          // Increased timeout for GPT-5 reasoning-heavy requests
+          const isReasoningRequest = message.toLowerCase().includes('piensa') || 
+                                   message.toLowerCase().includes('think') || 
+                                   message.toLowerCase().includes('analiza') ||
+                                   message.toLowerCase().includes('razona');
+          const baseTimeout = process.env.VERCEL_ENV === 'production' ? 90000 : 120000; // 90s prod, 120s dev
+          const timeoutMs = isReasoningRequest ? baseTimeout + 60000 : baseTimeout; // +60s for reasoning requests
           streamTimeout = setTimeout(() => {
             logger.warn(`Stream timeout for session ${finalSessionId} after ${timeoutMs}ms`);
             closeStream({

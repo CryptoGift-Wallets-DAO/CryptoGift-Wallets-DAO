@@ -252,6 +252,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
                 try {
                   const data = line.slice(6).trim();
                   if (data === '[DONE]') {
+                    setIsLoading(false); // ✅ Ensure loading state is cleared
                     resolve();
                     return;
                   }
@@ -279,6 +280,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
                         onMetrics(parsed.metrics);
                       }
                       
+                      setIsLoading(false); // ✅ Ensure loading state is cleared
                       resolve();
                       return;
                       
@@ -297,6 +299,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
                       setError(agentError);
                       if (onError) onError(agentError);
                       
+                      setIsLoading(false); // ✅ Ensure loading state is cleared on error
                       reject(new Error(parsed.error || 'Unknown streaming error'));
                       return;
                   }
