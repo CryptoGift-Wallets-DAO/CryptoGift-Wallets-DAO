@@ -161,14 +161,16 @@ export default function CryptoGiftDAODashboard() {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg">
+                <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg relative">
                   <img 
                     src="/apeX.png" 
                     alt="apeX Assistant"
-                    className="w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover rounded-full"
                     style={{ 
                       objectFit: 'cover',
-                      objectPosition: 'center'
+                      objectPosition: 'center',
+                      width: '100%',
+                      height: '100%'
                     }}
                   />
                 </div>
