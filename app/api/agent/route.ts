@@ -137,24 +137,29 @@ INSTRUCCIONES DE RAZONAMIENTO GPT-5:
 - Considera múltiples perspectivas antes de concluir
 - Aplica tu expert-level performance para DAO governance
 
-🛠️ HERRAMIENTAS DE DOCUMENTACIÓN (100% FUNCIONALES):
-Tienes acceso DIRECTO y CONFIABLE a toda la documentación del proyecto:
+🛠️ HERRAMIENTAS DE DOCUMENTACIÓN:
+Tienes 4 herramientas para acceder a la documentación del proyecto:
 
-✅ HERRAMIENTAS DISPONIBLES:
-- get_project_overview: Overview completo del proyecto (estructura, deployment, estado)
-- read_project_file: Lee CUALQUIER archivo (CLAUDE.md, contratos, docs, deployment JSONs)
-- search_project_files: Busca texto en contratos/docs/governance files  
-- list_directory: Explora directorios (contracts/, docs/, scripts/, deployments/)
+1. get_project_overview() - Sin parámetros
+2. read_project_file(path: "CLAUDE.md") - Requiere path como string  
+3. search_project_files(query: "DAO") - Requiere query, type opcional
+4. list_directory() - Sin parámetros para root, o path opcional
 
-⚡ PROTOCOLO OBLIGATORIO para respuestas sobre el DAO:
-1. **SIEMPRE** usar get_project_overview primero para contexto actual
-2. **LEER** CLAUDE.md para configuraciones críticas y estado reciente  
-3. **CONSULTAR** deployments/deployment-base-latest.json para addresses exactas
-4. **BUSCAR** en documentación específica según la pregunta
-5. **FUNDAMENTAR** todas las respuestas con datos específicos del proyecto
+⚡ INSTRUCCIONES CRÍTICAS:
+- USA las herramientas INMEDIATAMENTE sin explicar qué vas a hacer
+- NO muestres tu proceso de razonamiento
+- EJECUTA primero, explica después  
+- Para preguntas sobre el DAO: usa get_project_overview() primero
+- NUNCA repitas llamadas a herramientas
 
-🎯 ESPECIALMENTE para "¿Qué nos falta para tener el DAO completamente operativo?"
-▶️ DEBES usar las herramientas para dar una respuesta precisa y actualizada`;
+🚫 PROHIBIDO:
+- Explicar que "vas a usar herramientas"
+- Mostrar pasos internos de razonamiento  
+- Repetir llamadas infinitas a herramientas
+- Decir "ejecutando", "llamando", "listando"
+
+✅ FORMATO CORRECTO: 
+Usar herramienta → Analizar resultado → Responder directamente`;
 
   const modePrompts = {
     technical: `\n\nMODO TÉCNICO ACTIVADO:\n- Proporcionar detalles de implementación\n- Incluir direcciones de contratos y funciones\n- Explicar arquitectura y patrones de diseño\n- Sugerir mejoras y optimizaciones`,
@@ -410,14 +415,9 @@ Current Query: ${message}
             }
           };
           
-          // Set a timeout aligned with Vercel function limits and GPT-5 non-streaming requirements
-          // Increased timeout for GPT-5 reasoning-heavy requests
-          const isReasoningRequest = message.toLowerCase().includes('piensa') || 
-                                   message.toLowerCase().includes('think') || 
-                                   message.toLowerCase().includes('analiza') ||
-                                   message.toLowerCase().includes('razona');
-          const baseTimeout = process.env.VERCEL_ENV === 'production' ? 90000 : 120000; // 90s prod, 120s dev
-          const timeoutMs = isReasoningRequest ? baseTimeout + 60000 : baseTimeout; // +60s for reasoning requests
+          // Set a timeout to prevent infinite loops
+          const baseTimeout = 45000; // 45s to prevent tool call loops
+          const timeoutMs = baseTimeout;
           streamTimeout = setTimeout(() => {
             logger.warn(`Stream timeout for session ${finalSessionId} after ${timeoutMs}ms`);
             closeStream({

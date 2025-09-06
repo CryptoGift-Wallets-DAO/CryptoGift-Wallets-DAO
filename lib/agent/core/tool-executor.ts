@@ -125,7 +125,7 @@ export class ToolExecutor {
                 description: 'Filter by file type (optional)'
               }
             },
-            required: ['query', 'type'],
+            required: ['query'],
             additionalProperties: false
           } as any,
           strict: true,
@@ -155,11 +155,11 @@ export class ToolExecutor {
             properties: {
               path: {
                 type: 'string',
-                description: 'Directory path to list (optional, defaults to root)',
+                description: 'Directory path to list (use empty string for root)',
                 default: ''
               }
             },
-            required: ['path'],
+            required: [],
             additionalProperties: false
           } as any,
           strict: true,
