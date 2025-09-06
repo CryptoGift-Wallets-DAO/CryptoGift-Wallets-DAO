@@ -406,7 +406,7 @@ export class TaskService {
       const { data, error } = await client.rpc('claim_task', {
         p_task_id: taskId,
         p_user_address: userAddress,
-      })
+      } as any)
 
       if (error) throw error
 
@@ -442,7 +442,7 @@ export class TaskService {
         p_task_id: taskId,
         p_evidence_url: evidenceUrl,
         p_pr_url: prUrl,
-      })
+      } as any)
 
       if (error) throw error
 
@@ -480,7 +480,7 @@ export class TaskService {
           status: 'completed' as const,
           completed_at: new Date().toISOString(),
           validators: [...(task.validators || []), validatorAddress],
-        })
+        } as any)
         .eq('task_id', taskId)
     )
 
@@ -497,11 +497,11 @@ export class TaskService {
         await client
           .from('collaborators')
           .update({
-            total_cgc_earned: collaborator.total_cgc_earned + task.reward_cgc,
-            tasks_completed: collaborator.tasks_completed + 1,
-            tasks_in_progress: Math.max(0, collaborator.tasks_in_progress - 1),
+            total_cgc_earned: (collaborator as any).total_cgc_earned + task.reward_cgc,
+            tasks_completed: (collaborator as any).tasks_completed + 1,
+            tasks_in_progress: Math.max(0, (collaborator as any).tasks_in_progress - 1),
             last_activity: new Date().toISOString(),
-          })
+          } as any)
           .eq('address', task.assignee_address)
       } else {
         // Create new collaborator
@@ -510,11 +510,11 @@ export class TaskService {
           total_cgc_earned: task.reward_cgc,
           tasks_completed: 1,
           tasks_in_progress: 0,
-        })
+        } as any)
       }
 
       // Recalculate ranks
-      await client.rpc('calculate_rank')
+      await client.rpc('calculate_rank' as any)
     }
 
     // Clear caches
@@ -568,7 +568,7 @@ export class TaskService {
     return supabaseQuery(async () =>
       await client
         .from('task_proposals')
-        .insert(proposal)
+        .insert(proposal as any)
         .select()
         .single()
     )
@@ -622,7 +622,7 @@ export class TaskService {
       for (let i = 0; i < tasksToInsert.length; i += chunkSize) {
         const chunk = tasksToInsert.slice(i, i + chunkSize)
         const client = ensureSupabaseClient()
-        await client.from('tasks').insert(chunk)
+        await client.from('tasks').insert(chunk as any)
       }
 
       console.log(`Initialized ${tasksToInsert.length} tasks`)
