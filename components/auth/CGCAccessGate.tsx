@@ -38,7 +38,7 @@ export function CGCAccessGate({
 }: CGCAccessGateProps) {
   const { address, isConnected, isConnecting } = useAccount()
   const chainId = useChainId()
-  const { balance, isLoading: isBalanceLoading, error: balanceError } = useCGCBalance(address)
+  const { balance, isLoading: isBalanceLoading, isError: balanceError } = useCGCBalance(address)
 
   const isCorrectNetwork = chainId === base.id
   const cgcBalanceNum = parseFloat(balance || '0')
