@@ -111,18 +111,13 @@ export class ToolExecutor {
         type: 'function',
         function: {
           name: 'search_project_files',
-          description: 'Search for specific text across all project files using MCP',
+          description: 'Search for specific text across all project files',
           parameters: {
             type: 'object',
             properties: {
               query: {
                 type: 'string',
                 description: 'Text to search for in project files'
-              },
-              type: {
-                type: 'string',
-                enum: ['contracts', 'docs', 'governance'],
-                description: 'Filter by file type (optional)'
               }
             },
             required: ['query'],
