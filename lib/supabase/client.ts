@@ -12,29 +12,32 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_DAO_URL || process.env.SUPA
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_DAO_ANON_KEY || process.env.SUPABASE_DAO_ANON_KEY
 const supabaseServiceKey = process.env.SUPABASE_DAO_SERVICE_KEY
 
+// During build time, Supabase might not be configured yet
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+  console.warn('⚠️ Supabase environment variables not configured. Some features will be disabled.')
 }
 
 // Public client for client-side operations
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-  db: {
-    schema: 'public',
-  },
-  global: {
-    headers: {
-      'x-application': 'cryptogift-dao',
-    },
-  },
-})
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+      db: {
+        schema: 'public',
+      },
+      global: {
+        headers: {
+          'x-application': 'cryptogift-dao',
+        },
+      },
+    })
+  : null
 
 // Admin client for server-side operations (with service role key)
-export const supabaseAdmin = process.env.SUPABASE_DAO_SERVICE_KEY
-  ? createClient<Database>(supabaseUrl, supabaseServiceKey!, {
+export const supabaseAdmin = (supabaseUrl && supabaseServiceKey)
+  ? createClient<Database>(supabaseUrl, supabaseServiceKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
@@ -57,6 +60,10 @@ export async function getServerClient() {
 export async function supabaseQuery<T>(
   queryFn: () => Promise<{ data: T | null; error: any }>
 ): Promise<T> {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized. Please configure SUPABASE_DAO environment variables.')
+  }
+  
   const { data, error } = await queryFn()
   
   if (error) {
@@ -77,6 +84,11 @@ export function subscribeToTable<T>(
   callback: (payload: T) => void,
   filter?: string
 ) {
+  if (!supabase) {
+    console.warn('Supabase client not initialized. Subscriptions disabled.')
+    return () => {} // Return no-op unsubscribe function
+  }
+  
   const channel = supabase
     .channel(`${table}_changes`)
     .on(
@@ -104,6 +116,10 @@ export async function batchInsert<T extends Record<string, any>>(
   records: T[],
   chunkSize = 100
 ) {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized. Please configure SUPABASE_DAO environment variables.')
+  }
+  
   const chunks = []
   for (let i = 0; i < records.length; i += chunkSize) {
     chunks.push(records.slice(i, i + chunkSize))
