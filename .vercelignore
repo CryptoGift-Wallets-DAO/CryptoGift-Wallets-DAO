@@ -35,7 +35,7 @@ build
 !public/apeX22.PNG
 
 # Contracts (not needed for runtime)
-contracts
+/contracts
 deployments/*
 !deployments/deployment-base-latest.json
 
