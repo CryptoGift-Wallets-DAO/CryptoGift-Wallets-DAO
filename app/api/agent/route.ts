@@ -573,7 +573,7 @@ Current Query: ${message}
         openaiMessages.push({
           role: 'assistant',
           content: response.content || null,
-          tool_calls: response.toolCalls.map(tc => ({
+          tool_calls: response.toolCalls.map((tc: any) => ({
             id: tc.id,
             type: 'function' as const,
             function: {
