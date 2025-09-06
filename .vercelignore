@@ -31,10 +31,13 @@ build
 *.ico
 !app/icon.png
 !public/favicon.ico
+!public/apeX.png
+!public/apeX22.PNG
 
 # Contracts (not needed for runtime)
 contracts
-deployments
+deployments/*
+!deployments/deployment-base-latest.json
 
 # Backup files (prevent bundling in serverless functions)
 backups
@@ -65,6 +68,7 @@ bots
 !pnpm-lock.yaml
 .env*
 !.env.production
-README.md
 *.md
 !CLAUDE.md
+!README.md
+!docs/PLAN_DESARROLLO_COMPLETO.md

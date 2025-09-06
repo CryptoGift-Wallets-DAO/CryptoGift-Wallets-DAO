@@ -27,19 +27,35 @@ export interface DocumentationTool {
 const PROJECT_ROOT = (() => {
   const cwd = process.cwd();
   
-  // In Vercel, check if we're in the correct directory by looking for key files
+  // In Vercel, the app is deployed to /var/task
+  if (cwd === '/var/task' || cwd.startsWith('/var/task')) {
+    console.log(`[DOCS-TOOLS] Detected Vercel environment at: ${cwd}`);
+    // In Vercel, files are at the root of /var/task
+    return cwd;
+  }
+  
+  // In local dev, check if we're in the correct directory by looking for key files
   if (fs.existsSync(path.join(cwd, 'CLAUDE.md')) && fs.existsSync(path.join(cwd, 'package.json'))) {
+    console.log(`[DOCS-TOOLS] Found project root at: ${cwd}`);
     return cwd;
   }
   
   // Try parent directory (in case we're in a subdirectory)
   const parentDir = path.dirname(cwd);
   if (fs.existsSync(path.join(parentDir, 'CLAUDE.md')) && fs.existsSync(path.join(parentDir, 'package.json'))) {
+    console.log(`[DOCS-TOOLS] Found project root at parent: ${parentDir}`);
     return parentDir;
   }
   
   // Fallback to current working directory
   console.warn(`[DOCS-TOOLS] Could not find project root with CLAUDE.md, using cwd: ${cwd}`);
+  // List files in current directory for debugging
+  try {
+    const files = fs.readdirSync(cwd).slice(0, 20);
+    console.log(`[DOCS-TOOLS] Files in ${cwd}: ${files.join(', ')}`);
+  } catch (e) {
+    console.error(`[DOCS-TOOLS] Could not list files in ${cwd}`);
+  }
   return cwd;
 })();
 
