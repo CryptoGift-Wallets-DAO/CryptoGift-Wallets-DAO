@@ -347,8 +347,8 @@ export class TaskService {
    */
   async getTasksInProgress(): Promise<Task[]> {
     const client = ensureSupabaseClient()
-    return supabaseQuery(() =>
-      client
+    return supabaseQuery(async () =>
+      await client
         .from('tasks')
         .select('*')
         .eq('status', 'in_progress')
@@ -361,8 +361,8 @@ export class TaskService {
    */
   async getCompletedTasks(limit = 50): Promise<Task[]> {
     const client = ensureSupabaseClient()
-    return supabaseQuery(() =>
-      client
+    return supabaseQuery(async () =>
+      await client
         .from('tasks')
         .select('*')
         .eq('status', 'completed')
@@ -473,8 +473,8 @@ export class TaskService {
 
     // Update task status
     const client = ensureSupabaseClient()
-    await supabaseQuery(() =>
-      client
+    await supabaseQuery(async () =>
+      await client
         .from('tasks')
         .update({
           status: 'completed' as const,
@@ -565,8 +565,8 @@ export class TaskService {
     estimated_days?: number
   }): Promise<TaskProposal> {
     const client = ensureSupabaseClient()
-    return supabaseQuery(() =>
-      client
+    return supabaseQuery(async () =>
+      await client
         .from('task_proposals')
         .insert(proposal)
         .select()
@@ -579,8 +579,8 @@ export class TaskService {
    */
   async getPendingProposals(): Promise<TaskProposal[]> {
     const client = ensureSupabaseClient()
-    return supabaseQuery(() =>
-      client
+    return supabaseQuery(async () =>
+      await client
         .from('task_proposals')
         .select('*')
         .eq('status', 'pending')
