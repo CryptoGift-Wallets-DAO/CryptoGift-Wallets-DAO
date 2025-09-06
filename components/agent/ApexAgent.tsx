@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { 
   MessageCircle, 
   Settings, 
@@ -138,17 +139,12 @@ export function ApexAgent() {
       >
         {/* apeX22.PNG Image - ocupando 100% del espacio disponible sin deformarse */}
         <div className="w-full h-full relative overflow-hidden rounded-full">
-          <img 
+          <Image 
             src="/apeX22.PNG"
             alt="apeX Assistant"
-            className="absolute inset-0 w-full h-full object-cover rounded-full"
-            style={{ 
-              objectFit: 'cover',
-              objectPosition: 'center',
-              width: '100%',
-              height: '100%',
-              display: 'block'
-            }}
+            width={80}
+            height={80}
+            className="rounded-full object-cover w-full h-full"
           />
           
           {/* Overlay when menu is open or access is restricted */}

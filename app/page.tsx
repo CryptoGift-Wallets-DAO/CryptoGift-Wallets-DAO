@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { ConnectWallet } from '@/components/web3/ConnectWallet';
 import { ApexAgent } from '@/components/agent/ApexAgent';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
@@ -163,16 +164,12 @@ export default function CryptoGiftDAODashboard() {
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg relative">
-                  <img 
+                  <Image 
                     src="/apeX.png" 
                     alt="apeX Assistant"
-                    className="absolute inset-0 w-full h-full object-cover rounded-full"
-                    style={{ 
-                      objectFit: 'cover',
-                      objectPosition: 'center',
-                      width: '100%',
-                      height: '100%'
-                    }}
+                    width={48}
+                    height={48}
+                    className="rounded-full object-cover"
                   />
                 </div>
                 <div>

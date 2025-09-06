@@ -12,19 +12,21 @@ const DAO_PREFIX = 'dao:';
 
 // Cliente Redis con wrapper de seguridad
 class DAORedisClient {
-  private redis: Redis;
+  private redis: Redis | null = null;
+  private enabled: boolean = false;
   
   constructor() {
     const url = process.env.UPSTASH_REDIS_REST_URL;
     const token = process.env.UPSTASH_REDIS_REST_TOKEN;
     
     if (!url || !token) {
-      throw new Error(
-        'Redis configuration missing. Please set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables.'
-      );
+      console.warn('Redis configuration missing. Redis features will be disabled.');
+      this.enabled = false;
+      return;
     }
     
     this.redis = new Redis({ url, token });
+    this.enabled = true;
   }
 
   /**
@@ -41,6 +43,9 @@ class DAORedisClient {
    * GET con prefijo automático
    */
   async get(key: string) {
+    if (!this.enabled || !this.redis) {
+      return null;
+    }
     const safeKey = this.ensureDAOPrefix(key);
     return await this.redis.get(safeKey);
   }
@@ -49,6 +54,9 @@ class DAORedisClient {
    * SET con prefijo automático
    */
   async set(key: string, value: any, options?: { ex?: number }) {
+    if (!this.enabled || !this.redis) {
+      return null;
+    }
     const safeKey = this.ensureDAOPrefix(key);
     if (options?.ex) {
       return await this.redis.setex(safeKey, options.ex, value);
@@ -60,6 +68,9 @@ class DAORedisClient {
    * DELETE con prefijo automático
    */
   async del(key: string) {
+    if (!this.enabled || !this.redis) {
+      return null;
+    }
     const safeKey = this.ensureDAOPrefix(key);
     return await this.redis.del(safeKey);
   }
@@ -68,6 +79,9 @@ class DAORedisClient {
    * EXISTS con prefijo automático
    */
   async exists(key: string) {
+    if (!this.enabled || !this.redis) {
+      return 0;
+    }
     const safeKey = this.ensureDAOPrefix(key);
     return await this.redis.exists(safeKey);
   }
@@ -76,6 +90,9 @@ class DAORedisClient {
    * HSET con prefijo automático
    */
   async hset(key: string, field: string, value: any) {
+    if (!this.enabled || !this.redis) {
+      return null;
+    }
     const safeKey = this.ensureDAOPrefix(key);
     return await this.redis.hset(safeKey, { [field]: value });
   }
@@ -84,6 +101,9 @@ class DAORedisClient {
    * HGET con prefijo automático
    */
   async hget(key: string, field: string) {
+    if (!this.enabled || !this.redis) {
+      return null;
+    }
     const safeKey = this.ensureDAOPrefix(key);
     return await this.redis.hget(safeKey, field);
   }
