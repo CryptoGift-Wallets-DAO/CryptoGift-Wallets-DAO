@@ -194,6 +194,9 @@ class DAORedisClient {
    * Health check
    */
   async ping(): Promise<boolean> {
+    if (!this.enabled || !this.redis) {
+      return false;
+    }
     try {
       const result = await this.redis.ping();
       return result === 'PONG';
