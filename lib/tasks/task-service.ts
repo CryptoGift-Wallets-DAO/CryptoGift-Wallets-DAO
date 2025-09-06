@@ -432,7 +432,7 @@ export class TaskService {
 
     // Update task status
     const client = ensureSupabaseClient()
-    const { error: updateError } = await client
+    const { error: updateError } = await (client as any)
       .from('tasks')
       .update({
         status: 'completed' as const,
@@ -455,7 +455,7 @@ export class TaskService {
         .single()
 
       if (collaborator) {
-        const { error: collabError } = await client
+        const { error: collabError } = await (client as any)
           .from('collaborators')
           .update({
             total_cgc_earned: (collaborator as any).total_cgc_earned + task.reward_cgc,
@@ -629,19 +629,19 @@ export class TaskService {
       // Sync database with on-chain state
       const updates: any = {}
       
-      if (onChainStatus === TaskStatus.Claimed && !task.assignee_address && onChainAssignee) {
+      if (onChainStatus === TaskStatus.Claimed && !(task as any).assignee_address && onChainAssignee) {
         updates.assignee_address = onChainAssignee
         updates.status = 'claimed'
         updates.claimed_at = new Date().toISOString()
-      } else if (onChainStatus === TaskStatus.InProgress && task.status === 'claimed') {
+      } else if (onChainStatus === TaskStatus.InProgress && (task as any).status === 'claimed') {
         updates.status = 'in_progress'
-      } else if (onChainStatus === TaskStatus.Completed && task.status !== 'completed') {
+      } else if (onChainStatus === TaskStatus.Completed && (task as any).status !== 'completed') {
         updates.status = 'completed'
         updates.completed_at = new Date().toISOString()
       }
       
       if (Object.keys(updates).length > 0) {
-        await client
+        await (client as any)
           .from('tasks')
           .update(updates)
           .eq('task_id', taskId)
@@ -695,13 +695,13 @@ export class TaskService {
       }
 
       // Update database
-      const { error: updateError } = await client
+      const { error: updateError } = await (client as any)
         .from('tasks')
         .update({
           status: 'claimed',
           assignee_address: claimantAddress,
           claimed_at: new Date().toISOString()
-        })
+        } as any)
         .eq('task_id', taskId)
 
       if (updateError) {
@@ -773,14 +773,14 @@ export class TaskService {
       }
 
       // Update database
-      const { error: updateError } = await client
+      const { error: updateError } = await (client as any)
         .from('tasks')
         .update({
           status: 'submitted',
           evidence_url: evidenceUrl,
           pr_url: prUrl,
           submitted_at: new Date().toISOString()
-        })
+        } as any)
         .eq('task_id', taskId)
 
       if (updateError) {
@@ -832,23 +832,23 @@ export class TaskService {
       
       if (!txHash) {
         // Rollback database creation
-        await client.from('tasks').delete().eq('id', createdTask.id)
+        await client.from('tasks').delete().eq('id', (createdTask as any).id)
         return { success: false, error: 'Failed to create task on blockchain' }
       }
 
       // Update task with blockchain transaction hash
-      await client
+      await (client as any)
         .from('tasks')
         .update({ 
           metadata: { creation_tx: txHash }
-        })
-        .eq('id', createdTask.id)
+        } as any)
+        .eq('id', (createdTask as any).id)
 
       // Log the creation
       await client
         .from('task_history')
         .insert({
-          task_id: createdTask.task_id,
+          task_id: (createdTask as any).task_id,
           action: 'created',
           actor_address: 'system',
           metadata: { txHash }

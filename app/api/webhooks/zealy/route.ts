@@ -166,7 +166,7 @@ async function handleQuestApproved(payload: ZealyWebhookPayload) {
     
     if (mappedTask) {
       // Update task status to completed
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('tasks')
         .update({
           status: 'completed',
