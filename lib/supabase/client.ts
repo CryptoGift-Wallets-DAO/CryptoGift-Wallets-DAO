@@ -115,21 +115,21 @@ export async function batchInsert<T extends Record<string, any>>(
   table: string,
   records: T[],
   chunkSize = 100
-) {
+): Promise<T[]> {
   if (!supabase) {
     throw new Error('Supabase client not initialized. Please configure SUPABASE_DAO environment variables.')
   }
   
-  const chunks = []
+  const chunks: T[][] = []
   for (let i = 0; i < records.length; i += chunkSize) {
     chunks.push(records.slice(i, i + chunkSize))
   }
 
-  const results = []
+  const results: T[] = []
   for (const chunk of chunks) {
-    const { data, error } = await supabase.from(table).insert(chunk).select()
+    const { data, error } = await supabase.from(table).insert(chunk as any).select()
     if (error) throw error
-    results.push(...(data || []))
+    results.push(...(data as T[] || []))
   }
 
   return results

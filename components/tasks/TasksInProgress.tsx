@@ -166,7 +166,7 @@ export function TasksInProgress({
               <div>
                 <h4 className="font-medium text-sm mb-1">{selectedTask.title}</h4>
                 <p className="text-xs text-glass-secondary">
-                  Provide evidence that you've completed this task
+                  Provide evidence that you&apos;ve completed this task
                 </p>
               </div>
 

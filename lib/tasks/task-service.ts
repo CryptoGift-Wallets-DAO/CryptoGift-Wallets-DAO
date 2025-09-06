@@ -7,7 +7,15 @@
 import { supabase, supabaseQuery, cachedQuery } from '@/lib/supabase/client'
 import { getDAORedis, RedisKeys, RedisTTL } from '@/lib/redis-dao'
 import type { Task, TaskInsert, TaskUpdate, Collaborator, TaskProposal } from '@/lib/supabase/types'
-import { keccak256, toUtf8Bytes } from 'ethers'
+import { ethers } from 'ethers'
+
+// Helper function to ensure supabase client is available
+function ensureSupabaseClient() {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized. Please configure SUPABASE_DAO environment variables.')
+  }
+  return supabase
+}
 
 // Task complexity to reward mapping (days * 50 CGC)
 export const TASK_REWARDS = {
@@ -337,8 +345,9 @@ export class TaskService {
    * Get tasks in progress
    */
   async getTasksInProgress(): Promise<Task[]> {
+    const client = ensureSupabaseClient()
     return supabaseQuery(() =>
-      supabase
+      client
         .from('tasks')
         .select('*')
         .eq('status', 'in_progress')
@@ -350,8 +359,9 @@ export class TaskService {
    * Get completed tasks
    */
   async getCompletedTasks(limit = 50): Promise<Task[]> {
+    const client = ensureSupabaseClient()
     return supabaseQuery(() =>
-      supabase
+      client
         .from('tasks')
         .select('*')
         .eq('status', 'completed')
@@ -364,7 +374,8 @@ export class TaskService {
    * Get task by ID
    */
   async getTaskById(taskId: string): Promise<Task | null> {
-    const { data } = await supabase
+    const client = ensureSupabaseClient()
+    const { data } = await client
       .from('tasks')
       .select('*')
       .eq('task_id', taskId)
@@ -379,7 +390,8 @@ export class TaskService {
   async claimTask(taskId: string, userAddress: string): Promise<boolean> {
     try {
       // Check if user already has a task in progress
-      const { data: existingTasks } = await supabase
+      const client = ensureSupabaseClient()
+      const { data: existingTasks } = await client
         .from('tasks')
         .select('id')
         .eq('assignee_address', userAddress)
@@ -390,7 +402,8 @@ export class TaskService {
       }
 
       // Claim the task using stored procedure
-      const { data, error } = await supabase.rpc('claim_task', {
+      const client = ensureSupabaseClient()
+      const { data, error } = await client.rpc('claim_task', {
         p_task_id: taskId,
         p_user_address: userAddress,
       })
@@ -424,7 +437,8 @@ export class TaskService {
     prUrl?: string
   ): Promise<boolean> {
     try {
-      const { data, error } = await supabase.rpc('submit_task_evidence', {
+      const client = ensureSupabaseClient()
+      const { data, error } = await client.rpc('submit_task_evidence', {
         p_task_id: taskId,
         p_evidence_url: evidenceUrl,
         p_pr_url: prUrl,
@@ -458,8 +472,9 @@ export class TaskService {
     if (!task) throw new Error('Task not found')
 
     // Update task status
+    const client = ensureSupabaseClient()
     await supabaseQuery(() =>
-      supabase
+      client
         .from('tasks')
         .update({
           status: 'completed' as const,
@@ -471,14 +486,15 @@ export class TaskService {
 
     // Update collaborator stats
     if (task.assignee_address) {
-      const { data: collaborator } = await supabase
+      const client2 = ensureSupabaseClient()
+      const { data: collaborator } = await client2
         .from('collaborators')
         .select('*')
         .eq('address', task.assignee_address)
         .single()
 
       if (collaborator) {
-        await supabase
+        await client2
           .from('collaborators')
           .update({
             total_cgc_earned: collaborator.total_cgc_earned + task.reward_cgc,
@@ -489,7 +505,8 @@ export class TaskService {
           .eq('address', task.assignee_address)
       } else {
         // Create new collaborator
-        await supabase.from('collaborators').insert({
+        const client = ensureSupabaseClient()
+        await client.from('collaborators').insert({
           address: task.assignee_address,
           total_cgc_earned: task.reward_cgc,
           tasks_completed: 1,
@@ -498,7 +515,8 @@ export class TaskService {
       }
 
       // Recalculate ranks
-      await supabase.rpc('calculate_rank')
+      const client = ensureSupabaseClient()
+      await client.rpc('calculate_rank')
     }
 
     // Clear caches
@@ -511,7 +529,8 @@ export class TaskService {
    */
   async getLeaderboard(limit = 100): Promise<Collaborator[]> {
     return cachedQuery('leaderboard', async () => {
-      const { data, error } = await supabase
+      const client = ensureSupabaseClient()
+      const { data, error } = await client
         .from('leaderboard_view')
         .select('*')
         .limit(limit)
@@ -525,7 +544,8 @@ export class TaskService {
    * Get collaborator by address
    */
   async getCollaborator(address: string): Promise<Collaborator | null> {
-    const { data } = await supabase
+    const client = ensureSupabaseClient()
+    const { data } = await client
       .from('collaborators')
       .select('*')
       .eq('address', address)
@@ -546,8 +566,9 @@ export class TaskService {
     estimated_complexity?: number
     estimated_days?: number
   }): Promise<TaskProposal> {
+    const client = ensureSupabaseClient()
     return supabaseQuery(() =>
-      supabase
+      client
         .from('task_proposals')
         .insert(proposal)
         .select()
@@ -559,8 +580,9 @@ export class TaskService {
    * Get pending proposals
    */
   async getPendingProposals(): Promise<TaskProposal[]> {
+    const client = ensureSupabaseClient()
     return supabaseQuery(() =>
-      supabase
+      client
         .from('task_proposals')
         .select('*')
         .eq('status', 'pending')
@@ -574,7 +596,8 @@ export class TaskService {
   async initializeTasks(): Promise<void> {
     try {
       // Check if tasks already exist
-      const { data: existingTasks } = await supabase
+      const client = ensureSupabaseClient()
+      const { data: existingTasks } = await client
         .from('tasks')
         .select('id')
         .limit(1)
@@ -586,7 +609,7 @@ export class TaskService {
 
       // Prepare tasks for insertion
       const tasksToInsert: TaskInsert[] = INITIAL_TASKS.map((task, index) => ({
-        task_id: keccak256(toUtf8Bytes(`task_${index}_${Date.now()}`)),
+        task_id: ethers.utils.id(`task_${index}_${Date.now()}`),
         title: task.title,
         description: task.description,
         complexity: task.complexity,
@@ -600,7 +623,8 @@ export class TaskService {
       const chunkSize = 10
       for (let i = 0; i < tasksToInsert.length; i += chunkSize) {
         const chunk = tasksToInsert.slice(i, i + chunkSize)
-        await supabase.from('tasks').insert(chunk)
+        const client = ensureSupabaseClient()
+        await client.from('tasks').insert(chunk)
       }
 
       console.log(`Initialized ${tasksToInsert.length} tasks`)
