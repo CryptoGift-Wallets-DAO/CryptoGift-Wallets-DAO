@@ -329,7 +329,8 @@ export class TaskService {
     const cacheKey = `tasks:available:${userAddress || 'all'}`
     
     return cachedQuery(cacheKey, async () => {
-      const { data, error } = await supabase
+      const client = ensureSupabaseClient()
+      const { data, error } = await client
         .from('tasks')
         .select('*')
         .eq('status', 'available')
@@ -402,7 +403,6 @@ export class TaskService {
       }
 
       // Claim the task using stored procedure
-      const client = ensureSupabaseClient()
       const { data, error } = await client.rpc('claim_task', {
         p_task_id: taskId,
         p_user_address: userAddress,
@@ -486,15 +486,15 @@ export class TaskService {
 
     // Update collaborator stats
     if (task.assignee_address) {
-      const client2 = ensureSupabaseClient()
-      const { data: collaborator } = await client2
+      const client = ensureSupabaseClient()
+      const { data: collaborator } = await client
         .from('collaborators')
         .select('*')
         .eq('address', task.assignee_address)
         .single()
 
       if (collaborator) {
-        await client2
+        await client
           .from('collaborators')
           .update({
             total_cgc_earned: collaborator.total_cgc_earned + task.reward_cgc,
@@ -505,7 +505,6 @@ export class TaskService {
           .eq('address', task.assignee_address)
       } else {
         // Create new collaborator
-        const client = ensureSupabaseClient()
         await client.from('collaborators').insert({
           address: task.assignee_address,
           total_cgc_earned: task.reward_cgc,
@@ -515,7 +514,6 @@ export class TaskService {
       }
 
       // Recalculate ranks
-      const client = ensureSupabaseClient()
       await client.rpc('calculate_rank')
     }
 
