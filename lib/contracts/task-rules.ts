@@ -51,11 +51,11 @@ export enum TaskStatus {
 
 export class TaskRulesContract {
   private contract: ethers.Contract
-  private provider: ethers.JsonRpcProvider
+  private provider: ethers.providers.JsonRpcProvider
   private signer?: ethers.Signer
 
   constructor(privateKey?: string) {
-    this.provider = new ethers.JsonRpcProvider(RPC_URL)
+    this.provider = new ethers.providers.JsonRpcProvider(RPC_URL)
     this.contract = new ethers.Contract(CONTRACT_ADDRESS, TASK_RULES_ABI, this.provider)
     
     if (privateKey) {
@@ -73,8 +73,8 @@ export class TaskRulesContract {
     }
 
     try {
-      const taskId = ethers.id(task.task_id)
-      const rewardWei = ethers.parseEther(task.reward_cgc.toString())
+      const taskId = ethers.utils.id(task.task_id)
+      const rewardWei = ethers.utils.parseEther(task.reward_cgc.toString())
       
       const tx = await this.contract.createTask(
         taskId,
@@ -102,7 +102,7 @@ export class TaskRulesContract {
     }
 
     try {
-      const taskIdBytes32 = ethers.id(taskId)
+      const taskIdBytes32 = ethers.utils.id(taskId)
       
       const tx = await this.contract.claimTask(
         taskIdBytes32,
@@ -133,7 +133,7 @@ export class TaskRulesContract {
     }
 
     try {
-      const taskIdBytes32 = ethers.id(taskId)
+      const taskIdBytes32 = ethers.utils.id(taskId)
       
       const tx = await this.contract.validateSubmission(
         taskIdBytes32,
@@ -163,7 +163,7 @@ export class TaskRulesContract {
     }
 
     try {
-      const taskIdBytes32 = ethers.id(taskId)
+      const taskIdBytes32 = ethers.utils.id(taskId)
       
       const tx = await this.contract.completeTask(taskIdBytes32)
       
@@ -182,12 +182,12 @@ export class TaskRulesContract {
    */
   async getTask(taskId: string): Promise<any | null> {
     try {
-      const taskIdBytes32 = ethers.id(taskId)
+      const taskIdBytes32 = ethers.utils.id(taskId)
       const taskData = await this.contract.getTask(taskIdBytes32)
       
       return {
         id: taskData.id,
-        reward: ethers.formatEther(taskData.reward),
+        reward: ethers.utils.formatEther(taskData.reward),
         complexity: taskData.complexity,
         title: taskData.title,
         assignee: taskData.assignee,
@@ -204,7 +204,7 @@ export class TaskRulesContract {
    */
   async isTaskClaimable(taskId: string): Promise<boolean> {
     try {
-      const taskIdBytes32 = ethers.id(taskId)
+      const taskIdBytes32 = ethers.utils.id(taskId)
       return await this.contract.isTaskClaimable(taskIdBytes32)
     } catch (error) {
       console.error('Error checking task claimability:', error)
@@ -217,9 +217,9 @@ export class TaskRulesContract {
    */
   async getTaskAssignee(taskId: string): Promise<string | null> {
     try {
-      const taskIdBytes32 = ethers.id(taskId)
+      const taskIdBytes32 = ethers.utils.id(taskId)
       const assignee = await this.contract.getTaskAssignee(taskIdBytes32)
-      return assignee === ethers.ZeroAddress ? null : assignee
+      return assignee === ethers.constants.AddressZero ? null : assignee
     } catch (error) {
       console.error('Error fetching task assignee:', error)
       return null
@@ -231,7 +231,7 @@ export class TaskRulesContract {
    */
   async getTaskStatus(taskId: string): Promise<TaskStatus> {
     try {
-      const taskIdBytes32 = ethers.id(taskId)
+      const taskIdBytes32 = ethers.utils.id(taskId)
       const status = await this.contract.getTaskStatus(taskIdBytes32)
       return status
     } catch (error) {
@@ -270,7 +270,7 @@ export class TaskRulesContract {
       }
 
       const nonce = await this.contract.nonces(claimantAddress)
-      const taskIdBytes32 = ethers.id(taskId)
+      const taskIdBytes32 = ethers.utils.id(taskId)
 
       const value = {
         taskId: taskIdBytes32,
@@ -279,7 +279,7 @@ export class TaskRulesContract {
         nonce: nonce
       }
 
-      return await this.signer.signTypedData(domain, types, value)
+      return await this.signer._signTypedData(domain, types, value)
     } catch (error) {
       console.error('Error generating claim signature:', error)
       throw error
@@ -318,7 +318,7 @@ export class TaskRulesContract {
       }
 
       const nonce = await this.contract.nonces(assigneeAddress)
-      const taskIdBytes32 = ethers.id(taskId)
+      const taskIdBytes32 = ethers.utils.id(taskId)
 
       const value = {
         taskId: taskIdBytes32,
@@ -328,7 +328,7 @@ export class TaskRulesContract {
         nonce: nonce
       }
 
-      return await this.signer.signTypedData(domain, types, value)
+      return await this.signer._signTypedData(domain, types, value)
     } catch (error) {
       console.error('Error generating submission signature:', error)
       throw error
@@ -343,7 +343,7 @@ export class TaskRulesContract {
     this.contract.on('TaskCreated', (taskId, rewardAmount, complexity) => {
       console.log('Task created on-chain:', {
         taskId: taskId,
-        reward: ethers.formatEther(rewardAmount),
+        reward: ethers.utils.formatEther(rewardAmount),
         complexity: complexity
       })
     })
@@ -370,7 +370,7 @@ export class TaskRulesContract {
       console.log('Task completed on-chain:', {
         taskId: taskId,
         assignee: assignee,
-        reward: ethers.formatEther(rewardAmount)
+        reward: ethers.utils.formatEther(rewardAmount)
       })
     })
   }
@@ -408,13 +408,13 @@ export function getTaskRulesContract(privateKey?: string): TaskRulesContract {
 
 // Helper functions
 export function taskIdToBytes32(taskId: string): string {
-  return ethers.id(taskId)
+  return ethers.utils.id(taskId)
 }
 
 export function formatTaskReward(rewardWei: string): string {
-  return ethers.formatEther(rewardWei)
+  return ethers.utils.formatEther(rewardWei)
 }
 
 export function parseTaskReward(rewardCGC: string): string {
-  return ethers.parseEther(rewardCGC).toString()
+  return ethers.utils.parseEther(rewardCGC).toString()
 }

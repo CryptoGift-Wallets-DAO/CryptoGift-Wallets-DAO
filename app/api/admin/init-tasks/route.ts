@@ -590,7 +590,6 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     category: 'compliance',
     priority: 'high',
     status: 'available',
-    estimated_days: 35,
     required_skills: ['compliance', 'legal', 'reporting'],
     tags: ['compliance', 'kyc', 'aml', 'reporting'],
     assignee_address: null,
@@ -794,10 +793,11 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Build comprehensive React component library with Storybook documentation, TypeScript support, and NPM publishing.',
     complexity: 3,
     reward_cgc: 500, // 10 days × 50 CGC
+    estimated_days: 10,
+    platform: 'github',
     category: 'frontend',
     priority: 'low',
     status: 'available',
-    estimated_days: 10,
     required_skills: ['react', 'typescript', 'storybook'],
     tags: ['components', 'library', 'react', 'storybook'],
     assignee_address: null,
@@ -806,7 +806,10 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     submitted_at: null,
     completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   }
 ]
 
