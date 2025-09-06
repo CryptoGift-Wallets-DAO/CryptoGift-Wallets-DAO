@@ -5,8 +5,10 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Enums
-CREATE TYPE task_status AS ENUM ('available', 'in_progress', 'completed', 'expired');
+CREATE TYPE task_status AS ENUM ('available', 'claimed', 'in_progress', 'submitted', 'completed', 'cancelled', 'expired');
 CREATE TYPE task_platform AS ENUM ('github', 'discord', 'manual', 'custom');
+CREATE TYPE task_category AS ENUM ('security', 'frontend', 'backend', 'mobile', 'ai', 'defi', 'governance', 'analytics', 'documentation', 'blockchain', 'nft', 'performance', 'testing', 'localization', 'social', 'notifications', 'treasury', 'integration', 'automation', 'algorithm', 'compliance', 'infrastructure', 'gamification', 'search');
+CREATE TYPE task_priority AS ENUM ('low', 'medium', 'high', 'critical');
 CREATE TYPE collaborator_level AS ENUM ('novice', 'contributor', 'expert', 'master', 'legend');
 CREATE TYPE proposal_status AS ENUM ('pending', 'approved', 'rejected', 'reviewing');
 CREATE TYPE task_action AS ENUM ('created', 'claimed', 'submitted', 'validated', 'completed', 'expired');
@@ -21,16 +23,23 @@ CREATE TABLE IF NOT EXISTS tasks (
   reward_cgc DECIMAL(20,2) NOT NULL,
   estimated_days INT NOT NULL,
   platform task_platform DEFAULT 'manual',
+  category task_category,
+  priority task_priority DEFAULT 'medium',
   status task_status DEFAULT 'available',
+  required_skills TEXT[] DEFAULT ARRAY[]::TEXT[],
+  tags TEXT[] DEFAULT ARRAY[]::TEXT[],
   assignee_address VARCHAR(42),
   assignee_discord_id VARCHAR(50),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  claimed_at TIMESTAMP WITH TIME ZONE,
+  submitted_at TIMESTAMP WITH TIME ZONE,
   completed_at TIMESTAMP WITH TIME ZONE,
   evidence_url TEXT,
   pr_url TEXT,
   validation_hash VARCHAR(66),
-  validators TEXT[] DEFAULT ARRAY[]::TEXT[]
+  validators TEXT[] DEFAULT ARRAY[]::TEXT[],
+  metadata JSONB DEFAULT '{}'::JSONB
 );
 
 -- Collaborators table

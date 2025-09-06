@@ -25,16 +25,23 @@ export interface Database {
           reward_cgc: number
           estimated_days: number
           platform: 'github' | 'discord' | 'manual' | 'custom'
-          status: 'available' | 'in_progress' | 'completed' | 'expired'
+          category: 'security' | 'frontend' | 'backend' | 'mobile' | 'ai' | 'defi' | 'governance' | 'analytics' | 'documentation' | 'blockchain' | 'nft' | 'performance' | 'testing' | 'localization' | 'social' | 'notifications' | 'treasury' | 'integration' | 'automation' | 'algorithm' | 'compliance' | 'infrastructure' | 'gamification' | 'search' | null
+          priority: 'low' | 'medium' | 'high' | 'critical'
+          status: 'available' | 'claimed' | 'in_progress' | 'submitted' | 'completed' | 'cancelled' | 'expired'
+          required_skills: string[] | null
+          tags: string[] | null
           assignee_address: string | null
           assignee_discord_id: string | null
           created_at: string
           updated_at: string
+          claimed_at: string | null
+          submitted_at: string | null
           completed_at: string | null
           evidence_url: string | null
           pr_url: string | null
           validation_hash: string | null
           validators: string[] | null
+          metadata: Json | null
         }
         Insert: {
           id?: string
@@ -45,16 +52,23 @@ export interface Database {
           reward_cgc: number
           estimated_days: number
           platform?: 'github' | 'discord' | 'manual' | 'custom'
-          status?: 'available' | 'in_progress' | 'completed' | 'expired'
+          category?: 'security' | 'frontend' | 'backend' | 'mobile' | 'ai' | 'defi' | 'governance' | 'analytics' | 'documentation' | 'blockchain' | 'nft' | 'performance' | 'testing' | 'localization' | 'social' | 'notifications' | 'treasury' | 'integration' | 'automation' | 'algorithm' | 'compliance' | 'infrastructure' | 'gamification' | 'search' | null
+          priority?: 'low' | 'medium' | 'high' | 'critical'
+          status?: 'available' | 'claimed' | 'in_progress' | 'submitted' | 'completed' | 'cancelled' | 'expired'
+          required_skills?: string[] | null
+          tags?: string[] | null
           assignee_address?: string | null
           assignee_discord_id?: string | null
           created_at?: string
           updated_at?: string
+          claimed_at?: string | null
+          submitted_at?: string | null
           completed_at?: string | null
           evidence_url?: string | null
           pr_url?: string | null
           validation_hash?: string | null
           validators?: string[] | null
+          metadata?: Json | null
         }
         Update: {
           id?: string
@@ -65,16 +79,23 @@ export interface Database {
           reward_cgc?: number
           estimated_days?: number
           platform?: 'github' | 'discord' | 'manual' | 'custom'
-          status?: 'available' | 'in_progress' | 'completed' | 'expired'
+          category?: 'security' | 'frontend' | 'backend' | 'mobile' | 'ai' | 'defi' | 'governance' | 'analytics' | 'documentation' | 'blockchain' | 'nft' | 'performance' | 'testing' | 'localization' | 'social' | 'notifications' | 'treasury' | 'integration' | 'automation' | 'algorithm' | 'compliance' | 'infrastructure' | 'gamification' | 'search' | null
+          priority?: 'low' | 'medium' | 'high' | 'critical'
+          status?: 'available' | 'claimed' | 'in_progress' | 'submitted' | 'completed' | 'cancelled' | 'expired'
+          required_skills?: string[] | null
+          tags?: string[] | null
           assignee_address?: string | null
           assignee_discord_id?: string | null
           created_at?: string
           updated_at?: string
+          claimed_at?: string | null
+          submitted_at?: string | null
           completed_at?: string | null
           evidence_url?: string | null
           pr_url?: string | null
           validation_hash?: string | null
           validators?: string[] | null
+          metadata?: Json | null
         }
       }
       collaborators: {

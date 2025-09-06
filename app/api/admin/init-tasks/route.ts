@@ -32,15 +32,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Conduct comprehensive security audit of all DAO smart contracts including CGC Token, TaskRulesEIP712, and MilestoneEscrow. Document vulnerabilities and provide recommendations.',
     complexity: 10,
     reward_cgc: 2250, // 45 days × 50 CGC
+    estimated_days: 45,
+    platform: 'manual',
     category: 'security',
     priority: 'critical',
     status: 'available',
-    estimated_days: 45,
-    required_skills: ['solidity', 'security', 'auditing'],
-    tags: ['audit', 'security', 'smart-contracts'],
+    required_skills: ['solidity', 'security-audit', 'smart-contracts'],
+    tags: ['audit', 'security', 'smart-contracts', 'vulnerability'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('ui-ux-redesign'),
@@ -48,15 +56,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Redesign the entire DAO dashboard with modern glass-morphism design, improved user experience, and mobile responsiveness. Include Figma mockups.',
     complexity: 9,
     reward_cgc: 2000, // 40 days × 50 CGC
+    estimated_days: 40,
+    platform: 'github',
     category: 'frontend',
     priority: 'high',
     status: 'available',
-    estimated_days: 40,
     required_skills: ['figma', 'ui-design', 'ux-research'],
     tags: ['design', 'ui', 'ux', 'figma'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('backend-microservices'),
@@ -64,15 +80,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Build scalable microservices architecture for task management, user authentication, and blockchain interactions using Node.js and Docker.',
     complexity: 9,
     reward_cgc: 2000, // 40 days × 50 CGC
+    estimated_days: 40,
+    platform: 'github',
     category: 'backend',
     priority: 'high',
     status: 'available',
-    estimated_days: 40,
     required_skills: ['nodejs', 'docker', 'microservices'],
     tags: ['backend', 'architecture', 'microservices'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('mobile-app-development'),
@@ -80,15 +104,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Develop iOS and Android mobile applications for DAO task management with wallet integration and push notifications.',
     complexity: 10,
     reward_cgc: 2250, // 45 days × 50 CGC
+    estimated_days: 45,
+    platform: 'github',
     category: 'mobile',
     priority: 'medium',
     status: 'available',
-    estimated_days: 45,
     required_skills: ['react-native', 'mobile-development', 'wallet-integration'],
     tags: ['mobile', 'react-native', 'ios', 'android'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('ai-task-matching'),
@@ -96,15 +128,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Implement machine learning algorithm to match tasks with collaborators based on skills, availability, and past performance.',
     complexity: 8,
     reward_cgc: 1750, // 35 days × 50 CGC
+    estimated_days: 35,
+    platform: 'github',
     category: 'ai',
     priority: 'medium',
     status: 'available',
-    estimated_days: 35,
     required_skills: ['machine-learning', 'python', 'ai'],
     tags: ['ai', 'ml', 'matching', 'algorithm'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('defi-integration'),
@@ -112,15 +152,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Integrate CGC token with major DeFi protocols (Uniswap, Aave, Compound) for yield farming and liquidity provision.',
     complexity: 8,
     reward_cgc: 1750, // 35 days × 50 CGC
+    estimated_days: 35,
+    platform: 'github',
     category: 'defi',
     priority: 'high',
     status: 'available',
-    estimated_days: 35,
     required_skills: ['defi', 'solidity', 'yield-farming'],
     tags: ['defi', 'yield', 'liquidity', 'uniswap'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('governance-voting'),
@@ -128,15 +176,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Implement quadratic voting, delegation, and multi-choice proposals with gasless voting using EIP-712 signatures.',
     complexity: 7,
     reward_cgc: 1500, // 30 days × 50 CGC
+    estimated_days: 30,
+    platform: 'github',
     category: 'governance',
     priority: 'high',
     status: 'available',
-    estimated_days: 30,
     required_skills: ['solidity', 'governance', 'eip-712'],
     tags: ['governance', 'voting', 'quadratic', 'delegation'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('analytics-dashboard'),
@@ -144,15 +200,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Build comprehensive analytics dashboard with task completion rates, collaborator performance metrics, and DAO treasury insights.',
     complexity: 6,
     reward_cgc: 1250, // 25 days × 50 CGC
+    estimated_days: 25,
+    platform: 'github',
     category: 'analytics',
     priority: 'medium',
     status: 'available',
-    estimated_days: 25,
     required_skills: ['data-visualization', 'react', 'analytics'],
     tags: ['analytics', 'dashboard', 'metrics', 'insights'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('api-documentation'),
@@ -160,15 +224,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Create detailed API documentation using OpenAPI/Swagger with interactive examples and SDK generation for multiple languages.',
     complexity: 5,
     reward_cgc: 1000, // 20 days × 50 CGC
+    estimated_days: 20,
+    platform: 'github',
     category: 'documentation',
     priority: 'medium',
     status: 'available',
-    estimated_days: 20,
     required_skills: ['technical-writing', 'openapi', 'documentation'],
     tags: ['docs', 'api', 'swagger', 'sdk'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('cross-chain-bridge'),
@@ -176,15 +248,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Develop secure bridge for CGC token across Ethereum, Polygon, and Arbitrum with proper validation and monitoring.',
     complexity: 9,
     reward_cgc: 2000, // 40 days × 50 CGC
+    estimated_days: 40,
+    platform: 'github',
     category: 'blockchain',
     priority: 'medium',
     status: 'available',
-    estimated_days: 40,
     required_skills: ['solidity', 'cross-chain', 'bridge-development'],
     tags: ['bridge', 'cross-chain', 'ethereum', 'polygon'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('security-monitoring'),
@@ -192,15 +272,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Implement comprehensive security monitoring system with anomaly detection, transaction analysis, and automated alerts.',
     complexity: 7,
     reward_cgc: 1500, // 30 days × 50 CGC
+    estimated_days: 30,
+    platform: 'github',
     category: 'security',
     priority: 'high',
     status: 'available',
-    estimated_days: 30,
     required_skills: ['security', 'monitoring', 'anomaly-detection'],
     tags: ['security', 'monitoring', 'alerts', 'anomaly'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('nft-rewards-system'),
@@ -208,15 +296,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Create dynamic NFT system that evolves based on contributor achievements, task completions, and DAO participation.',
     complexity: 6,
     reward_cgc: 1250, // 25 days × 50 CGC
+    estimated_days: 25,
+    platform: 'github',
     category: 'nft',
     priority: 'low',
     status: 'available',
-    estimated_days: 25,
     required_skills: ['solidity', 'nft', 'metadata'],
     tags: ['nft', 'achievements', 'rewards', 'gamification'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('performance-optimization'),
@@ -224,15 +320,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Optimize application performance including database queries, API endpoints, frontend rendering, and blockchain interactions.',
     complexity: 5,
     reward_cgc: 1000, // 20 days × 50 CGC
+    estimated_days: 20,
+    platform: 'github',
     category: 'performance',
     priority: 'medium',
     status: 'available',
-    estimated_days: 20,
     required_skills: ['performance', 'optimization', 'profiling'],
     tags: ['performance', 'optimization', 'speed', 'efficiency'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('automated-testing'),
@@ -240,15 +344,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Develop end-to-end testing suite including unit tests, integration tests, and automated smart contract testing.',
     complexity: 4,
     reward_cgc: 750, // 15 days × 50 CGC
+    estimated_days: 15,
+    platform: 'github',
     category: 'testing',
     priority: 'high',
     status: 'available',
-    estimated_days: 15,
     required_skills: ['testing', 'jest', 'playwright'],
     tags: ['testing', 'automation', 'quality-assurance'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('localization-i18n'),
@@ -256,15 +368,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Implement multi-language support for the DAO platform supporting English, Spanish, Chinese, and French.',
     complexity: 4,
     reward_cgc: 750, // 15 days × 50 CGC
+    estimated_days: 15,
+    platform: 'github',
     category: 'localization',
     priority: 'low',
     status: 'available',
-    estimated_days: 15,
     required_skills: ['i18n', 'localization', 'translation'],
     tags: ['i18n', 'localization', 'multilingual'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('social-features'),
@@ -272,15 +392,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Add social features including collaborator profiles, reputation system, mentorship matching, and team formation tools.',
     complexity: 6,
     reward_cgc: 1250, // 25 days × 50 CGC
+    estimated_days: 25,
+    platform: 'github',
     category: 'social',
     priority: 'medium',
     status: 'available',
-    estimated_days: 25,
     required_skills: ['social-features', 'community', 'reputation'],
     tags: ['social', 'community', 'profiles', 'mentorship'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('notification-system'),
@@ -288,15 +416,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Build notification system supporting email, SMS, push notifications, Discord, and Slack with user preferences.',
     complexity: 5,
     reward_cgc: 1000, // 20 days × 50 CGC
+    estimated_days: 20,
+    platform: 'github',
     category: 'notifications',
     priority: 'medium',
     status: 'available',
-    estimated_days: 20,
     required_skills: ['notifications', 'integrations', 'messaging'],
     tags: ['notifications', 'email', 'push', 'discord'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('treasury-management'),
@@ -304,15 +440,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Implement sophisticated treasury management with multi-sig operations, automated diversification, and yield optimization.',
     complexity: 8,
     reward_cgc: 1750, // 35 days × 50 CGC
+    estimated_days: 35,
+    platform: 'github',
     category: 'treasury',
     priority: 'high',
     status: 'available',
-    estimated_days: 35,
     required_skills: ['defi', 'treasury', 'multi-sig'],
     tags: ['treasury', 'multi-sig', 'yield', 'management'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('dispute-resolution'),
@@ -320,15 +464,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Create fair dispute resolution system for task conflicts using randomly selected jury panels and economic incentives.',
     complexity: 7,
     reward_cgc: 1500, // 30 days × 50 CGC
+    estimated_days: 30,
+    platform: 'github',
     category: 'governance',
     priority: 'medium',
     status: 'available',
-    estimated_days: 30,
     required_skills: ['governance', 'dispute-resolution', 'economics'],
     tags: ['disputes', 'resolution', 'jury', 'governance'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('marketplace-integration'),
@@ -336,15 +488,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Integrate with popular freelance marketplaces (Upwork, Fiverr) to automatically post available tasks and manage applicants.',
     complexity: 6,
     reward_cgc: 1250, // 25 days × 50 CGC
+    estimated_days: 25,
+    platform: 'github',
     category: 'integration',
     priority: 'low',
     status: 'available',
-    estimated_days: 25,
     required_skills: ['api-integration', 'marketplace', 'automation'],
     tags: ['marketplace', 'freelance', 'integration', 'automation'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   // Continue with remaining tasks...
   {
@@ -353,15 +513,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Implement AI-powered code review system that automatically checks submissions for quality, security, and style compliance.',
     complexity: 7,
     reward_cgc: 1500, // 30 days × 50 CGC
+    estimated_days: 30,
+    platform: 'github',
     category: 'automation',
     priority: 'medium',
     status: 'available',
-    estimated_days: 30,
     required_skills: ['ai', 'code-analysis', 'automation'],
     tags: ['code-review', 'ai', 'automation', 'quality'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('knowledge-base'),
@@ -369,15 +537,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Build searchable knowledge base with tutorials, best practices, and troubleshooting guides for DAO contributors.',
     complexity: 4,
     reward_cgc: 750, // 15 days × 50 CGC
+    estimated_days: 15,
+    platform: 'github',
     category: 'documentation',
     priority: 'medium',
     status: 'available',
-    estimated_days: 15,
     required_skills: ['technical-writing', 'documentation', 'search'],
     tags: ['knowledge-base', 'docs', 'tutorials', 'search'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('reputation-algorithm'),
@@ -385,15 +561,23 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Design and implement sophisticated reputation system considering task difficulty, quality, timeliness, and peer reviews.',
     complexity: 6,
     reward_cgc: 1250, // 25 days × 50 CGC
+    estimated_days: 25,
+    platform: 'github',
     category: 'algorithm',
     priority: 'medium',
     status: 'available',
-    estimated_days: 25,
     required_skills: ['algorithms', 'reputation', 'mathematics'],
     tags: ['reputation', 'algorithm', 'scoring', 'peer-review'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('compliance-reporting'),
@@ -401,6 +585,8 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     description: 'Implement comprehensive compliance reporting for various jurisdictions including KYC/AML checks and tax reporting.',
     complexity: 8,
     reward_cgc: 1750, // 35 days × 50 CGC
+    estimated_days: 35,
+    platform: 'github',
     category: 'compliance',
     priority: 'high',
     status: 'available',
@@ -408,8 +594,15 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     required_skills: ['compliance', 'legal', 'reporting'],
     tags: ['compliance', 'kyc', 'aml', 'reporting'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('backup-recovery'),
@@ -424,8 +617,15 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     required_skills: ['devops', 'backup', 'disaster-recovery'],
     tags: ['backup', 'recovery', 'failover', 'redundancy'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('integration-testing'),
@@ -440,8 +640,15 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     required_skills: ['testing', 'integration', 'automation'],
     tags: ['integration', 'testing', 'third-party', 'automation'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('workflow-automation'),
@@ -456,8 +663,15 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     required_skills: ['workflow', 'automation', 'orchestration'],
     tags: ['workflow', 'automation', 'lifecycle', 'orchestration'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('smart-contract-upgrade'),
@@ -472,8 +686,15 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     required_skills: ['solidity', 'proxy-patterns', 'upgrades'],
     tags: ['smart-contracts', 'upgrades', 'proxy', 'governance'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('gamification-system'),
@@ -488,8 +709,15 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     required_skills: ['gamification', 'game-design', 'psychology'],
     tags: ['gamification', 'badges', 'levels', 'competitions'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('advanced-search'),
@@ -504,8 +732,15 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     required_skills: ['nlp', 'search', 'elasticsearch'],
     tags: ['search', 'ai', 'nlp', 'semantic'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('blockchain-indexing'),
@@ -520,8 +755,15 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     required_skills: ['blockchain', 'indexing', 'performance'],
     tags: ['blockchain', 'indexing', 'events', 'performance'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('bug-bounty-program'),
@@ -536,8 +778,15 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     required_skills: ['security', 'bug-bounty', 'smart-contracts'],
     tags: ['bug-bounty', 'security', 'automation', 'escrow'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
-    pr_url: null
+    pr_url: null,
+    validation_hash: null,
+    validators: null,
+    metadata: null
   },
   {
     task_id: ethers.utils.id('component-library'),
@@ -552,6 +801,10 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
     required_skills: ['react', 'typescript', 'storybook'],
     tags: ['components', 'library', 'react', 'storybook'],
     assignee_address: null,
+    assignee_discord_id: null,
+    claimed_at: null,
+    submitted_at: null,
+    completed_at: null,
     evidence_url: null,
     pr_url: null
   }
