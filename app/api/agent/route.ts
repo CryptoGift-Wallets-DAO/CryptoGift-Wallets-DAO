@@ -415,8 +415,8 @@ Current Query: ${message}
             }
           };
           
-          // Set a timeout to prevent infinite loops
-          const baseTimeout = 45000; // 45s to prevent tool call loops
+          // Set a timeout - increased for tool execution debugging
+          const baseTimeout = 120000; // 120s for debugging tool execution
           const timeoutMs = baseTimeout;
           streamTimeout = setTimeout(() => {
             logger.warn(`Stream timeout for session ${finalSessionId} after ${timeoutMs}ms`);

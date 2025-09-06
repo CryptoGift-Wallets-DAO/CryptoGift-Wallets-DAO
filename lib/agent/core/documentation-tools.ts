@@ -63,11 +63,8 @@ async function readProjectFile(relativePath: string): Promise<string> {
   try {
     const fullPath = path.join(PROJECT_ROOT, relativePath);
     
-    // Enhanced logging for debugging
-    console.log(`[DOCS-TOOLS] Reading file: ${relativePath}`);
-    console.log(`[DOCS-TOOLS] PROJECT_ROOT: ${PROJECT_ROOT}`);
-    console.log(`[DOCS-TOOLS] Full path: ${fullPath}`);
-    console.log(`[DOCS-TOOLS] File exists: ${fs.existsSync(fullPath)}`);
+    // Minimal logging for production performance
+    console.log(`[DOCS-TOOLS] Reading: ${relativePath}`);
     
     // Security check - ensure path is within project
     if (!fullPath.startsWith(PROJECT_ROOT)) {
@@ -75,13 +72,7 @@ async function readProjectFile(relativePath: string): Promise<string> {
     }
     
     if (!fs.existsSync(fullPath)) {
-      // List available files for debugging
-      try {
-        const rootFiles = fs.readdirSync(PROJECT_ROOT).slice(0, 10);
-        return `File not found: ${relativePath}\nPROJECT_ROOT: ${PROJECT_ROOT}\nAvailable files: ${rootFiles.join(', ')}`;
-      } catch {
-        return `File not found: ${relativePath}\nPROJECT_ROOT: ${PROJECT_ROOT}`;
-      }
+      return `File not found: ${relativePath}`;
     }
     
     const stats = fs.statSync(fullPath);
@@ -90,7 +81,6 @@ async function readProjectFile(relativePath: string): Promise<string> {
     }
     
     const content = fs.readFileSync(fullPath, 'utf-8');
-    console.log(`[DOCS-TOOLS] Successfully read ${content.length} characters from ${relativePath}`);
     return `File: ${relativePath}\n\n${content}`;
     
   } catch (error) {
@@ -138,80 +128,44 @@ async function listProjectDirectory(relativePath: string = ''): Promise<string> 
 
 async function searchProjectFiles(query: string, fileType?: string): Promise<string> {
   try {
-    let patterns: string[] = [];
-    
-    switch (fileType) {
-      case 'contracts':
-        patterns = ['contracts/**/*.sol', 'lib/**/*.sol', 'src/**/*.sol'];
-        break;
-      case 'docs':
-        patterns = ['docs/**/*.md', '*.md', 'README*.md', 'CHANGELOG*.md'];
-        break;
-      case 'governance':
-        patterns = ['governance/**/*', 'proposals/**/*', '*governance*', '*DAO*'];
-        break;
-      default:
-        patterns = ['**/*.md', '**/*.sol', '**/*.ts', '**/*.js', '**/*.json'];
-        break;
-    }
+    // Simplified search - only check key files to avoid timeout
+    const keyFiles = [
+      'CLAUDE.md',
+      'README.md', 
+      'package.json',
+      'deployments/deployment-base-latest.json'
+    ];
     
     const matches: string[] = [];
+    const lowerQuery = query.toLowerCase();
     
-    for (const pattern of patterns) {
+    for (const file of keyFiles) {
       try {
-        const files = await glob(pattern, {
-          cwd: PROJECT_ROOT,
-          ignore: ['node_modules/**', '.git/**', '.next/**', 'dist/**', 'build/**', 'coverage/**']
-        });
+        const fullPath = path.join(PROJECT_ROOT, file);
+        if (!fs.existsSync(fullPath)) continue;
         
-        for (const file of files) {
-          try {
-            const fullPath = path.join(PROJECT_ROOT, file);
-            const content = fs.readFileSync(fullPath, 'utf-8');
-            
-            if (content.toLowerCase().includes(query.toLowerCase())) {
-              // Find the line with the match for context
-              const lines = content.split('\n');
-              const matchingLines = lines
-                .map((line, index) => ({ line, index }))
-                .filter(({ line }) => line.toLowerCase().includes(query.toLowerCase()))
-                .slice(0, 3); // Max 3 matches per file
-              
-              const contextLines = matchingLines.map(({ line, index }) => 
-                `  Line ${index + 1}: ${line.trim()}`
-              ).join('\n');
-              
-              matches.push(`📄 ${file}\n${contextLines}`);
-            }
-          } catch (fileError) {
-            // Skip files that can't be read
-            continue;
-          }
+        const content = fs.readFileSync(fullPath, 'utf-8');
+        if (content.toLowerCase().includes(lowerQuery)) {
+          matches.push(`📄 ${file} - Contains "${query}"`);
         }
-      } catch (globError) {
-        // Skip patterns that fail
-        continue;
+      } catch (error) {
+        continue; // Skip files that can't be read
       }
     }
     
     if (matches.length === 0) {
-      return `No matches found for "${query}" in ${fileType || 'all'} files`;
+      return `No matches found for "${query}" in key project files`;
     }
     
-    return [
-      `Search results for "${query}" in ${fileType || 'all'} files (${matches.length} matches):`,
-      '',
-      ...matches.slice(0, 10) // Limit to top 10 matches
-    ].join('\n');
+    return `Found "${query}" in:\n${matches.join('\n')}`;
     
   } catch (error) {
-    return `Error searching files: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    return `Error searching: ${error instanceof Error ? error.message : 'Unknown error'}`;
   }
 }
 
 async function getProjectOverview(): Promise<string> {
   try {
-    console.log(`[DOCS-TOOLS] Getting project overview from: ${PROJECT_ROOT}`);
     
     // Key files to check
     const keyFiles = [

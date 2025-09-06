@@ -261,22 +261,20 @@ export class ToolExecutor {
    * Internal tool execution routing - Using direct documentation tools
    */
   private async executeToolInternal(name: ToolName, arguments_: Record<string, any>): Promise<string> {
-    console.log(`[TOOL-EXECUTOR] Executing tool: ${name} with args:`, arguments_);
+    console.log(`[TOOL-EXECUTOR] Executing: ${name}`);
     
     // Import documentation tools dynamically to avoid issues
     const { DOCUMENTATION_TOOLS } = await import('./documentation-tools');
-    console.log(`[TOOL-EXECUTOR] Imported ${DOCUMENTATION_TOOLS.length} documentation tools`);
     
     // Find and execute the corresponding tool
     const tool = DOCUMENTATION_TOOLS.find(t => t.name === name);
     if (!tool) {
-      console.error(`[TOOL-EXECUTOR] Unknown tool: ${name}. Available tools: ${DOCUMENTATION_TOOLS.map(t => t.name).join(', ')}`);
+      console.error(`[TOOL-EXECUTOR] Unknown tool: ${name}`);
       throw new Error(`Unknown tool: ${name}`);
     }
     
-    console.log(`[TOOL-EXECUTOR] Found tool ${name}, executing...`);
     const result = await tool.execute(arguments_);
-    console.log(`[TOOL-EXECUTOR] Tool ${name} returned ${result.length} characters`);
+    console.log(`[TOOL-EXECUTOR] ${name} completed: ${result.length} chars`);
     
     return result;
   }
