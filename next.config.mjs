@@ -30,6 +30,12 @@ const nextConfig = {
       ...config.resolve.alias,
       'pino-pretty': false,
     };
+
+    // Ensure TypeScript path mapping works correctly
+    config.resolve.extensionAlias = {
+      '.js': ['.js', '.ts'],
+      '.jsx': ['.jsx', '.tsx'],
+    };
     
     return config;
   },

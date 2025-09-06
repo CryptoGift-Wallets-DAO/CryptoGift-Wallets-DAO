@@ -59,7 +59,7 @@
     "typechain-types",
     "contracts/*.sol",
     "contracts/hardhat",
-    "scripts/*.js",
+    "scripts",
     "test",
     "tests",
     "hardhat.config.*",

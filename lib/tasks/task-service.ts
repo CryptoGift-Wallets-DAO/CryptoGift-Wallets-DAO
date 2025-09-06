@@ -6,7 +6,7 @@
 
 import { supabase, supabaseQuery, cachedQuery } from '@/lib/supabase/client'
 import { getDAORedis, RedisKeys, RedisTTL } from '@/lib/redis-dao'
-import { getTaskRulesContract, TaskStatus } from '@/lib/contracts/task-rules'
+import { getTaskRulesContract, TaskStatus } from '../contracts/task-rules'
 import type { Task, TaskInsert, TaskUpdate, Collaborator, TaskProposal } from '@/lib/supabase/types'
 import { ethers } from 'ethers'
 
