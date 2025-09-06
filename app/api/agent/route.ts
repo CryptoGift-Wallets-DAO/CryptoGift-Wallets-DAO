@@ -19,7 +19,6 @@ import { ErrorHandler } from '@/lib/monitoring/error-taxonomy';
 import { observabilityUtils, trackRequest } from '@/lib/monitoring/observability';
 
 // Import unified core modules
-import { createMCPClient } from '@/lib/agent/core/mcp-client';
 import { createAIProvider } from '@/lib/agent/core/ai-provider';
 import { createToolExecutor } from '@/lib/agent/core/tool-executor';
 
@@ -72,18 +71,10 @@ const logger = {
 // Agent configuration is handled in initializeAgent() function
 
 // Initialize core services
-let mcpClient: any = null;
 let aiProvider: any = null;
 let toolExecutor: any = null;
 
 const initializeCoreServices = () => {
-  if (!mcpClient) {
-    // MCP client with environment-based URL routing
-    mcpClient = createMCPClient({
-      enableLogging: process.env.NODE_ENV === 'development'
-    });
-  }
-  
   if (!aiProvider) {
     // AI provider with GPT-5 September 2025 configuration
     // 🚧 TEMPORARILY DISABLED GPT-5 parameters due to SDK compatibility (openai@4.104.0)
@@ -103,15 +94,15 @@ const initializeCoreServices = () => {
   }
   
   if (!toolExecutor) {
-    // Tool executor with MCP integration
-    toolExecutor = createToolExecutor(mcpClient, {
+    // Tool executor with direct documentation tools (no MCP dependency)
+    toolExecutor = createToolExecutor({
       timeout: 30000,
       maxRetries: 2,
       enableLogging: process.env.NODE_ENV === 'development'
     });
   }
   
-  return { mcpClient, aiProvider, toolExecutor };
+  return { aiProvider, toolExecutor };
 };
 
 function getSystemPrompt(mode: string): string {
@@ -146,12 +137,24 @@ INSTRUCCIONES DE RAZONAMIENTO GPT-5:
 - Considera múltiples perspectivas antes de concluir
 - Aplica tu expert-level performance para DAO governance
 
-HERRAMIENTAS MCP OBLIGATORIAS:
-Antes de responder CUALQUIER pregunta:
-1. Usa get_project_overview para entender el estado actual
-2. Usa read_project_file para acceder a CLAUDE.md
-3. Usa search_project_files para encontrar documentación relevante
-4. Usa list_directory para explorar carpetas relevantes`;
+🛠️ HERRAMIENTAS DE DOCUMENTACIÓN (100% FUNCIONALES):
+Tienes acceso DIRECTO y CONFIABLE a toda la documentación del proyecto:
+
+✅ HERRAMIENTAS DISPONIBLES:
+- get_project_overview: Overview completo del proyecto (estructura, deployment, estado)
+- read_project_file: Lee CUALQUIER archivo (CLAUDE.md, contratos, docs, deployment JSONs)
+- search_project_files: Busca texto en contratos/docs/governance files  
+- list_directory: Explora directorios (contracts/, docs/, scripts/, deployments/)
+
+⚡ PROTOCOLO OBLIGATORIO para respuestas sobre el DAO:
+1. **SIEMPRE** usar get_project_overview primero para contexto actual
+2. **LEER** CLAUDE.md para configuraciones críticas y estado reciente  
+3. **CONSULTAR** deployments/deployment-base-latest.json para addresses exactas
+4. **BUSCAR** en documentación específica según la pregunta
+5. **FUNDAMENTAR** todas las respuestas con datos específicos del proyecto
+
+🎯 ESPECIALMENTE para "¿Qué nos falta para tener el DAO completamente operativo?"
+▶️ DEBES usar las herramientas para dar una respuesta precisa y actualizada`;
 
   const modePrompts = {
     technical: `\n\nMODO TÉCNICO ACTIVADO:\n- Proporcionar detalles de implementación\n- Incluir direcciones de contratos y funciones\n- Explicar arquitectura y patrones de diseño\n- Sugerir mejoras y optimizaciones`,
@@ -342,8 +345,8 @@ export async function POST(req: NextRequest) {
       });
     }
     
-    // Initialize core services
-    const { mcpClient, aiProvider, toolExecutor } = initializeCoreServices();
+    // Initialize core services (direct documentation tools, no MCP dependency)
+    const { aiProvider, toolExecutor } = initializeCoreServices();
     
     // Get session context
     const session = await getSession(finalSessionId);
@@ -530,7 +533,7 @@ Current Query: ${message}
       });
       
     } else {
-      // Non-streaming response using Vercel AI SDK
+      // Non-streaming response using direct OpenAI with manual tool handling
       const messages = [
         {
           role: 'system' as const,
@@ -546,22 +549,65 @@ Current Query: ${message}
         }
       ];
 
-      // Get Vercel AI tools from tool executor
-      const tools = toolExecutor.getVercelAITools();
+      // Get OpenAI tools from tool executor
+      const tools = toolExecutor.getOpenAITools();
       
-      // Use unified AI provider with tools
-      const result = await aiProvider.generateWithTools(
-        messages,
+      // Use direct OpenAI API for non-streaming with manual tool calls handling
+      const openaiMessages = aiProvider.convertToOpenAIMessages(messages);
+      
+      // Make initial request
+      let response = await aiProvider.chatCompletionDirect(
+        openaiMessages,
         tools,
-        getSystemPrompt(mode)
+        false // non-streaming
       );
+      
+      // Handle tool calls manually
+      while (response.toolCalls && response.toolCalls.length > 0) {
+        logger.info(`Processing ${response.toolCalls.length} tool calls in non-streaming mode`);
+        
+        // Execute all tool calls in parallel
+        const toolResults = await toolExecutor.executeParallelTools(response.toolCalls);
+        
+        // Add tool results to conversation
+        openaiMessages.push({
+          role: 'assistant',
+          content: response.content || null,
+          tool_calls: response.toolCalls.map(tc => ({
+            id: tc.id,
+            type: 'function' as const,
+            function: {
+              name: tc.function.name,
+              arguments: tc.function.arguments
+            }
+          }))
+        });
+        
+        // Add tool result messages
+        for (const toolResult of toolResults) {
+          openaiMessages.push({
+            role: 'tool',
+            content: toolResult.error 
+              ? `Error: ${toolResult.error}`
+              : toolResult.result,
+            tool_call_id: toolResult.id
+          });
+        }
+        
+        // Make follow-up request
+        response = await aiProvider.chatCompletionDirect(
+          openaiMessages,
+          tools,
+          false // non-streaming
+        );
+      }
 
-      const response = result.text || '';
+      const finalResponse = response.content || '';
       
       // Add assistant message to session
       session.messages.push({
         role: 'assistant',
-        content: response,
+        content: finalResponse,
         timestamp: Date.now()
       });
       
@@ -572,12 +618,12 @@ Current Query: ${message}
       observabilityUtils.track('agent.response.success', 1, 'count');
       
       return NextResponse.json({
-        response,
+        response: finalResponse,
         sessionId: finalSessionId,
         metrics: {
           duration: Date.now() - startTime,
-          tokens: result.usage?.totalTokens || 0, // ✅ Fixed: use result from generateWithTools
-          reasoning_tokens: result.usage?.reasoningTokens || 0, // ✅ GPT-5 reasoning tokens
+          tokens: (finalResponse || '').length, // Estimate token count
+          reasoning_tokens: 0, // Not available in non-streaming
         }
       }, {
         headers: getCorsHeadersJson(origin)

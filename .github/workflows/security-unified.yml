@@ -1,4 +1,4 @@
-name: 🛡️ Security & Quality Gate
+name: 🛡️ Security & Quality Gate (Comprehensive)
 
 on:
   push:
@@ -8,8 +8,12 @@ on:
 
 jobs:
   security-quality-check:
-    name: Complete Security & Quality Validation
+    name: 🔍 Complete Security & Quality Validation
     runs-on: ubuntu-latest
+    
+    env:
+      NODE_ENV: test
+      CI: true
     
     steps:
     - name: 📥 Checkout Code
@@ -40,12 +44,57 @@ jobs:
         
     - name: 🔍 TypeScript Compilation Check
       run: |
-        pnpm run type-check || echo "⚠️ TypeScript errors found but continuing (warning mode)"
+        set -o pipefail
+        echo "## 🔍 TypeScript Analysis" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        set +e
+        pnpm run type-check > typescript-output.txt 2>&1
+        TS_EXIT_CODE=$?
+        set -e
+        
+        if [ $TS_EXIT_CODE -eq 0 ]; then
+          echo "✅ **TypeScript: PASSED** - No compilation errors" >> $GITHUB_STEP_SUMMARY
+        else
+          ERROR_COUNT=$(grep -c "error TS" typescript-output.txt || echo "0")
+          echo "❌ **TypeScript: $ERROR_COUNT errors found** (non-blocking)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Sample TypeScript Errors:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          head -10 typescript-output.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        echo "⚠️ TypeScript check completed (non-blocking)"
       continue-on-error: true
         
     - name: 🧹 ESLint Security Rules
       run: |
-        pnpm run lint || echo "⚠️ ESLint issues found but continuing (warning mode)"
+        set -o pipefail
+        echo "## 🧹 ESLint Analysis" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        set +e
+        pnpm run lint > eslint-output.txt 2>&1
+        ESLINT_EXIT_CODE=$?
+        set -e
+        
+        if [ $ESLINT_EXIT_CODE -eq 0 ]; then
+          echo "✅ **ESLint: PASSED** - No linting issues found" >> $GITHUB_STEP_SUMMARY
+        else
+          ERROR_COUNT=$(grep -c "error" eslint-output.txt || echo "0")
+          WARNING_COUNT=$(grep -c "warning" eslint-output.txt || echo "0")
+          echo "❌ **ESLint: Issues Found** - $ERROR_COUNT errors, $WARNING_COUNT warnings (non-blocking)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ESLint Issues Summary:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          head -15 eslint-output.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        echo "⚠️ ESLint check completed (non-blocking)"
       continue-on-error: true
         
     - name: 🔒 Security Audit - Dependencies

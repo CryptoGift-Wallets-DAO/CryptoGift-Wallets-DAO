@@ -51,20 +51,17 @@ export interface ToolDefinition {
 // ===================================================
 
 export class ToolExecutor {
-  private mcpClient: MCPClient;
   private timeout: number;
   private maxRetries: number;
   private enableLogging: boolean;
 
   constructor(
-    mcpClient: MCPClient,
     options: {
       timeout?: number;
       maxRetries?: number;
       enableLogging?: boolean;
     } = {}
   ) {
-    this.mcpClient = mcpClient;
     this.timeout = options.timeout ?? 30000;
     this.maxRetries = options.maxRetries ?? 2;
     this.enableLogging = options.enableLogging ?? (process.env.NODE_ENV === 'development');
@@ -274,25 +271,27 @@ export class ToolExecutor {
   }
 
   /**
-   * Internal tool execution routing
+   * Internal tool execution routing - Using direct documentation tools
    */
   private async executeToolInternal(name: ToolName, arguments_: Record<string, any>): Promise<string> {
-    switch (name) {
-      case 'read_project_file':
-        return await this.mcpClient.readFile(arguments_.path);
-
-      case 'search_project_files':
-        return await this.mcpClient.searchFiles(arguments_.query, arguments_.type);
-
-      case 'get_project_overview':
-        return await this.mcpClient.getProjectStructure();
-
-      case 'list_directory':
-        return await this.mcpClient.callTool('list_directory', { path: arguments_.path || '' });
-
-      default:
-        throw new Error(`Unknown tool: ${name}`);
+    console.log(`[TOOL-EXECUTOR] Executing tool: ${name} with args:`, arguments_);
+    
+    // Import documentation tools dynamically to avoid issues
+    const { DOCUMENTATION_TOOLS } = await import('./documentation-tools');
+    console.log(`[TOOL-EXECUTOR] Imported ${DOCUMENTATION_TOOLS.length} documentation tools`);
+    
+    // Find and execute the corresponding tool
+    const tool = DOCUMENTATION_TOOLS.find(t => t.name === name);
+    if (!tool) {
+      console.error(`[TOOL-EXECUTOR] Unknown tool: ${name}. Available tools: ${DOCUMENTATION_TOOLS.map(t => t.name).join(', ')}`);
+      throw new Error(`Unknown tool: ${name}`);
     }
+    
+    console.log(`[TOOL-EXECUTOR] Found tool ${name}, executing...`);
+    const result = await tool.execute(arguments_);
+    console.log(`[TOOL-EXECUTOR] Tool ${name} returned ${result.length} characters`);
+    
+    return result;
   }
 
   // ===================================================
@@ -420,35 +419,9 @@ export class ToolExecutor {
    * Test tool availability
    */
   async testTools(): Promise<{ available: string[]; errors: Record<string, string> }> {
-    const available: string[] = [];
-    const errors: Record<string, string> = {};
-
-    // Test MCP connection first
-    try {
-      await this.mcpClient.listTools();
-    } catch (error) {
-      errors.mcp_connection = error instanceof Error ? error.message : 'MCP connection failed';
-      return { available, errors };
-    }
-
-    // Test each tool with minimal arguments
-    const testCases: Record<ToolName, Record<string, any>> = {
-      read_project_file: { path: 'CLAUDE.md' },
-      search_project_files: { query: 'test' },
-      get_project_overview: {},
-      list_directory: { path: '' },
-    };
-
-    for (const [toolName, args] of Object.entries(testCases)) {
-      try {
-        await this.executeTool(toolName as ToolName, args);
-        available.push(toolName);
-      } catch (error) {
-        errors[toolName] = error instanceof Error ? error.message : 'Tool test failed';
-      }
-    }
-
-    return { available, errors };
+    // Use the test function from documentation tools
+    const { testDocumentationTools } = await import('./documentation-tools');
+    return await testDocumentationTools();
   }
 }
 
@@ -457,12 +430,12 @@ export class ToolExecutor {
 // ===================================================
 
 /**
- * Create tool executor with MCP client
+ * Create tool executor with documentation tools
  */
-export function createToolExecutor(mcpClient: MCPClient, options?: {
+export function createToolExecutor(options?: {
   timeout?: number;
   maxRetries?: number;
   enableLogging?: boolean;
 }): ToolExecutor {
-  return new ToolExecutor(mcpClient, options);
+  return new ToolExecutor(options);
 }

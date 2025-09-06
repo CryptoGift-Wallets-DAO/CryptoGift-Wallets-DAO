@@ -390,6 +390,101 @@ export class AIProvider {
   }
 
   /**
+   * Non-streaming direct OpenAI completion with manual tool calls handling
+   */
+  async chatCompletionDirect(
+    messages: ChatCompletionMessageParam[],
+    tools: Array<OpenAI.Chat.Completions.ChatCompletionTool> = [],
+    streaming: boolean = false
+  ): Promise<{
+    content: string | null;
+    toolCalls?: ToolCall[];
+  }> {
+    // 🔄 Smart fallback strategy similar to streaming
+    const attemptCompletion = async (fallbackModel?: string) => {
+      const modelToUse = fallbackModel || this.config.model;
+      
+      return await this.openaiClient.chat.completions.create({
+        model: modelToUse,
+        messages,
+        max_completion_tokens: this.config.maxCompletionTokens,
+        stream: streaming,
+        tools: tools.length > 0 ? tools : undefined,
+        tool_choice: tools.length > 0 ? 'auto' : undefined,
+        // ❌ REMOVED: temperature (deprecated in GPT-5)
+      });
+    };
+
+    try {
+      // 🚀 First attempt: GPT-5 non-streaming
+      const completion = await attemptCompletion();
+      
+      if (streaming) {
+        throw new Error('Streaming mode not supported in chatCompletionDirect');
+      }
+      
+      const response = completion as OpenAI.Chat.Completions.ChatCompletion;
+      const choice = response.choices[0];
+      
+      if (!choice) {
+        return { content: null };
+      }
+
+      const toolCalls = choice.message.tool_calls?.map(tc => ({
+        id: tc.id,
+        type: 'function' as const,
+        function: {
+          name: tc.function.name,
+          arguments: tc.function.arguments,
+        },
+      })) || [];
+
+      return {
+        content: choice.message.content,
+        toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
+      };
+
+    } catch (error: any) {
+      // 🔍 Handle specific organization verification errors
+      if (error?.status === 400 && error?.message?.includes('organization must be verified')) {
+        console.warn('⚠️ Organization not verified for GPT-5, falling back to GPT-4o...');
+        
+        try {
+          // 🔄 Fallback: GPT-4o non-streaming
+          const completion = await attemptCompletion('gpt-4o');
+          const response = completion as OpenAI.Chat.Completions.ChatCompletion;
+          const choice = response.choices[0];
+          
+          if (!choice) {
+            return { content: null };
+          }
+
+          const toolCalls = choice.message.tool_calls?.map(tc => ({
+            id: tc.id,
+            type: 'function' as const,
+            function: {
+              name: tc.function.name,
+              arguments: tc.function.arguments,
+            },
+          })) || [];
+
+          return {
+            content: choice.message.content,
+            toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
+          };
+
+        } catch (fallbackError) {
+          console.error('❌ GPT-4o fallback also failed:', fallbackError);
+          throw fallbackError;
+        }
+      }
+      
+      console.error('❌ OpenAI completion error:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Non-streaming text generation with GPT-5 September 2025 configuration
    */
   async generateWithTools(
