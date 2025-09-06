@@ -187,11 +187,11 @@ export default function CryptoGiftDAODashboard() {
               
               {/* Quick Nav */}
               <nav className="hidden lg:flex items-center gap-2">
+                <a href="/tasks" className="glass-button text-sm">
+                  Tasks & Rewards
+                </a>
                 <a href="/governance" className="glass-button text-sm">
                   Governance
-                </a>
-                <a href="/quests" className="glass-button text-sm">
-                  Quests
                 </a>
                 <a href="/treasury" className="glass-button text-sm">
                   Treasury
