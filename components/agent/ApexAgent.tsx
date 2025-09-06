@@ -13,9 +13,12 @@ import {
   Zap,
   Brain,
   X,
-  Maximize2
+  Maximize2,
+  Lock
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAccount } from 'wagmi';
+import { useCGCBalance } from '@/lib/web3/hooks';
 
 interface OrbitalMenuItem {
   id: string;
@@ -30,6 +33,12 @@ export function ApexAgent() {
   const [isAnimating, setIsAnimating] = useState(false);
   const bubbleRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  
+  // CGC access control
+  const { address, isConnected } = useAccount();
+  const { balance } = useCGCBalance(address);
+  const cgcBalance = parseFloat(balance || '0');
+  const hasAccess = isConnected && cgcBalance >= 0.01;
 
   // Orbital menu items positioned around the top-left of the bubble
   const menuItems: OrbitalMenuItem[] = [
@@ -39,8 +48,13 @@ export function ApexAgent() {
       label: 'Chat with apeX',
       action: () => {
         setIsMenuOpen(false);
-        // Open mini chat or navigate to full chat
-        router.push('/agent');
+        // Check CGC access before navigation
+        if (hasAccess) {
+          router.push('/agent');
+        } else {
+          // Show access message and navigate to agent page (which will show access gate)
+          router.push('/agent');
+        }
       },
       position: { x: -45, y: -25 } // Top-left
     },
@@ -79,13 +93,13 @@ export function ApexAgent() {
     }
   ];
 
-  // Handle bubble click - Direct navigation to agent chat
+  // Handle bubble click - Direct navigation to agent chat with CGC check
   const handleBubbleClick = () => {
     if (isAnimating) return;
     
     setIsAnimating(true);
     
-    // Direct navigation to agent chat instead of orbital menu
+    // Navigate to agent page (CGC access gate will handle permissions)
     router.push('/agent');
     
     // Reset animation state
@@ -137,10 +151,14 @@ export function ApexAgent() {
             }}
           />
           
-          {/* Overlay when menu is open */}
-          {isMenuOpen && (
+          {/* Overlay when menu is open or access is restricted */}
+          {(isMenuOpen || !hasAccess) && (
             <div className="absolute inset-0 bg-black bg-opacity-20 rounded-full flex items-center justify-center transition-opacity duration-300">
-              <X className="w-6 h-6 text-white drop-shadow-lg" />
+              {isMenuOpen ? (
+                <X className="w-6 h-6 text-white drop-shadow-lg" />
+              ) : !hasAccess ? (
+                <Lock className="w-4 h-4 text-white drop-shadow-lg" />
+              ) : null}
             </div>
           )}
         </div>
@@ -165,7 +183,11 @@ export function ApexAgent() {
       <div
         className="absolute -top-12 -left-8 glass-card px-3 py-1 text-sm text-glass whitespace-nowrap pointer-events-none transition-all duration-300 spring-in"
       >
-        Click me! I&apos;m apeX 🤖
+        {hasAccess ? (
+          <>Click me! I&apos;m apeX 🤖</>
+        ) : (
+          <>🔒 CGC tokens required</>
+        )}
         <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-glass" />
       </div>
     </div>

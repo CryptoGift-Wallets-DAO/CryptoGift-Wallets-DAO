@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ConnectWallet } from '@/components/web3/ConnectWallet';
 import { ApexAgent } from '@/components/agent/ApexAgent';
+import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { useDashboardStats, useCGCTransfer, useMilestoneRelease } from '@/lib/web3/hooks';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { base } from 'wagmi/chains';
@@ -344,34 +345,40 @@ export default function CryptoGiftDAODashboard() {
             delay="1.1s"
           />
 
-          {/* Token Management Panel */}
-          <ActionPanel
-            title="Token Management"
-            description="Manage your CGC tokens and rewards"
-            icon={<Wallet className="w-6 h-6 text-green-500" />}
-            actions={[
-              {
-                label: isReleasePending ? 'Releasing...' : "Request Token Release",
-                action: () => handleAction('Request token release', 'release'),
-                loading: loadingStates.release || isReleasePending,
-                disabled: !isConnected || isReleasePending,
-                primary: true
-              },
-              {
-                label: "Release History",
-                action: () => handleAction('View release history', 'history'),
-                loading: loadingStates.history,
-                disabled: !isConnected
-              },
-              {
-                label: "Vesting Schedule",
-                action: () => handleAction('Check vesting schedule', 'vesting'),
-                loading: loadingStates.vesting,
-                disabled: !isConnected
-              }
-            ]}
-            delay="1.2s"
-          />
+          {/* Token Management Panel - Protected */}
+          <CGCAccessGate
+            requiredBalance="0.01"
+            title="🪙 Token Management Access"
+            description="Advanced token management features require CGC token holdings. Connect your wallet and hold at least 0.01 CGC to access token releases, history, and vesting schedules."
+          >
+            <ActionPanel
+              title="Token Management"
+              description="Manage your CGC tokens and rewards"
+              icon={<Wallet className="w-6 h-6 text-green-500" />}
+              actions={[
+                {
+                  label: isReleasePending ? 'Releasing...' : "Request Token Release",
+                  action: () => handleAction('Request token release', 'release'),
+                  loading: loadingStates.release || isReleasePending,
+                  disabled: !isConnected || isReleasePending,
+                  primary: true
+                },
+                {
+                  label: "Release History",
+                  action: () => handleAction('View release history', 'history'),
+                  loading: loadingStates.history,
+                  disabled: !isConnected
+                },
+                {
+                  label: "Vesting Schedule",
+                  action: () => handleAction('Check vesting schedule', 'vesting'),
+                  loading: loadingStates.vesting,
+                  disabled: !isConnected
+                }
+              ]}
+              delay="1.2s"
+            />
+          </CGCAccessGate>
 
           {/* Quest Platform Panel */}
           <ActionPanel
@@ -401,32 +408,38 @@ export default function CryptoGiftDAODashboard() {
             delay="1.3s"
           />
 
-          {/* Administration Panel */}
-          <ActionPanel
-            title="Administration"
-            description="Advanced system administration"
-            icon={<Settings className="w-6 h-6 text-gray-500" />}
-            actions={[
-              {
-                label: "Safe Multisig",
-                action: () => handleAction('Open Safe Multisig', 'safe'),
-                loading: loadingStates.safe
-              },
-              {
-                label: "Contract Admin",
-                action: () => handleAction('Access contract admin', 'admin'),
-                loading: loadingStates.admin,
-                disabled: !isConnected
-              },
-              {
-                label: "System Status",
-                action: () => handleAction('Check system status', 'status'),
-                loading: loadingStates.status,
-                secondary: true
-              }
-            ]}
-            delay="1.4s"
-          />
+          {/* Administration Panel - Protected */}
+          <CGCAccessGate
+            requiredBalance="1.0"
+            title="⚙️ Administration Access"
+            description="Advanced administration features are restricted to significant CGC token holders. You need at least 1.0 CGC tokens to access multisig management and contract administration."
+          >
+            <ActionPanel
+              title="Administration"
+              description="Advanced system administration"
+              icon={<Settings className="w-6 h-6 text-gray-500" />}
+              actions={[
+                {
+                  label: "Safe Multisig",
+                  action: () => handleAction('Open Safe Multisig', 'safe'),
+                  loading: loadingStates.safe
+                },
+                {
+                  label: "Contract Admin",
+                  action: () => handleAction('Access contract admin', 'admin'),
+                  loading: loadingStates.admin,
+                  disabled: !isConnected
+                },
+                {
+                  label: "System Status",
+                  action: () => handleAction('Check system status', 'status'),
+                  loading: loadingStates.status,
+                  secondary: true
+                }
+              ]}
+              delay="1.4s"
+            />
+          </CGCAccessGate>
         </section>
 
         {/* System Status Footer */}

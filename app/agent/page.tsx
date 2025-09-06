@@ -1,6 +1,7 @@
 /**
  * 🤖 AGENT DEMO PAGE
  * Demonstration page for the CG DAO Agent integration
+ * Protected with CGC token-based access control
  */
 
 'use client';
@@ -9,6 +10,7 @@ import { AgentChat } from '@/components/agent/AgentChat';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { 
   Bot, 
   Zap, 
@@ -24,30 +26,35 @@ import {
 
 export default function AgentPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Header */}
-      <div className="border-b bg-white/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Bot className="h-8 w-8 text-blue-600" />
-                <h1 className="text-2xl font-bold text-gray-900">CG DAO Agent</h1>
+    <CGCAccessGate
+      title="🤖 apeX Agent Access"
+      description="The apeX intelligent assistant is exclusively available to CGC token holders. Connect your wallet and hold at least 0.01 CGC tokens to chat with your DAO assistant."
+      requiredBalance="0.01"
+    >
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        {/* Header */}
+        <div className="border-b bg-white/80 backdrop-blur-sm">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <Bot className="h-8 w-8 text-blue-600" />
+                  <h1 className="text-2xl font-bold text-gray-900">CG DAO Agent</h1>
+                </div>
+                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                  <Activity className="h-3 w-3 mr-1" />
+                  Live & Ready
+                </Badge>
               </div>
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                <Activity className="h-3 w-3 mr-1" />
-                Live & Ready
-              </Badge>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline">GPT-5 Thinking</Badge>
-              <Badge variant="outline">MCP Enabled</Badge>
-              <Badge variant="outline">SSE Streaming</Badge>
+              
+              <div className="flex items-center space-x-2">
+                <Badge variant="outline">GPT-5 Thinking</Badge>
+                <Badge variant="outline">MCP Enabled</Badge>
+                <Badge variant="outline">SSE Streaming</Badge>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -248,7 +255,8 @@ export default function AgentPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </CGCAccessGate>
   );
 }
 
