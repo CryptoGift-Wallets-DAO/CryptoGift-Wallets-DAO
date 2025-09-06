@@ -6,6 +6,7 @@
 
 import { supabase, supabaseQuery, cachedQuery } from '@/lib/supabase/client'
 import { getDAORedis, RedisKeys, RedisTTL } from '@/lib/redis-dao'
+import { getTaskRulesContract, TaskStatus } from '@/lib/contracts/task-rules'
 import type { Task, TaskInsert, TaskUpdate, Collaborator, TaskProposal } from '@/lib/supabase/types'
 import { ethers } from 'ethers'
 
@@ -473,16 +474,18 @@ export class TaskService {
 
     // Update task status
     const client = ensureSupabaseClient()
-    await supabaseQuery(async () =>
-      await client
-        .from('tasks')
-        .update({
-          status: 'completed' as const,
-          completed_at: new Date().toISOString(),
-          validators: [...(task.validators || []), validatorAddress],
-        } as any)
-        .eq('task_id', taskId)
-    )
+    const { error: updateError } = await client
+      .from('tasks')
+      .update({
+        status: 'completed' as const,
+        completed_at: new Date().toISOString(),
+        validators: [...(task.validators || []), validatorAddress],
+      } as any)
+      .eq('task_id', taskId)
+    
+    if (updateError) {
+      throw updateError
+    }
 
     // Update collaborator stats
     if (task.assignee_address) {
@@ -494,7 +497,7 @@ export class TaskService {
         .single()
 
       if (collaborator) {
-        await client
+        const { error: collabError } = await client
           .from('collaborators')
           .update({
             total_cgc_earned: (collaborator as any).total_cgc_earned + task.reward_cgc,
@@ -503,6 +506,10 @@ export class TaskService {
             last_activity: new Date().toISOString(),
           } as any)
           .eq('address', task.assignee_address)
+        
+        if (collabError) {
+          console.error('Error updating collaborator stats:', collabError)
+        }
       } else {
         // Create new collaborator
         await client.from('collaborators').insert({
@@ -636,8 +643,260 @@ export class TaskService {
    * Sync task with blockchain
    */
   async syncWithBlockchain(taskId: string): Promise<void> {
-    // This will be implemented to sync with TaskRulesEIP712 contract
-    // For now, it's a placeholder
-    console.log('Syncing task with blockchain:', taskId)
+    try {
+      const client = ensureSupabaseClient()
+      
+      // Get task from database
+      const { data: task } = await client
+        .from('tasks')
+        .select('*')
+        .eq('task_id', taskId)
+        .single()
+
+      if (!task) {
+        throw new Error('Task not found')
+      }
+
+      // Initialize contract connection
+      const contract = getTaskRulesContract()
+      
+      // Get on-chain task status
+      const onChainStatus = await contract.getTaskStatus(taskId)
+      const onChainAssignee = await contract.getTaskAssignee(taskId)
+      
+      // Sync database with on-chain state
+      const updates: any = {}
+      
+      if (onChainStatus === TaskStatus.Claimed && !task.assignee_address && onChainAssignee) {
+        updates.assignee_address = onChainAssignee
+        updates.status = 'claimed'
+        updates.claimed_at = new Date().toISOString()
+      } else if (onChainStatus === TaskStatus.InProgress && task.status === 'claimed') {
+        updates.status = 'in_progress'
+      } else if (onChainStatus === TaskStatus.Completed && task.status !== 'completed') {
+        updates.status = 'completed'
+        updates.completed_at = new Date().toISOString()
+      }
+      
+      if (Object.keys(updates).length > 0) {
+        await client
+          .from('tasks')
+          .update(updates)
+          .eq('task_id', taskId)
+          
+        console.log('Task synced with blockchain:', { taskId, updates })
+      }
+
+    } catch (error) {
+      console.error('Error syncing task with blockchain:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Claim task with blockchain integration
+   */
+  async claimTask(taskId: string, claimantAddress: string): Promise<{ success: boolean; txHash?: string; error?: string }> {
+    try {
+      const client = ensureSupabaseClient()
+      
+      // Check if task exists and is available
+      const { data: task } = await client
+        .from('tasks')
+        .select('*')
+        .eq('task_id', taskId)
+        .eq('status', 'available')
+        .single()
+
+      if (!task) {
+        return { success: false, error: 'Task not found or not available' }
+      }
+
+      // Initialize contract with private key
+      const contract = getTaskRulesContract(process.env.PRIVATE_KEY_DAO_DEPLOYER)
+      
+      // Check if task is claimable on-chain
+      const isClaimable = await contract.isTaskClaimable(taskId)
+      if (!isClaimable) {
+        return { success: false, error: 'Task not claimable on blockchain' }
+      }
+
+      // Generate EIP-712 signature for claiming
+      const deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour deadline
+      const signature = await contract.generateClaimSignature(taskId, claimantAddress, deadline)
+      
+      // Claim task on blockchain
+      const txHash = await contract.claimTask(taskId, claimantAddress, signature)
+      
+      if (!txHash) {
+        return { success: false, error: 'Failed to claim task on blockchain' }
+      }
+
+      // Update database
+      const { error: updateError } = await client
+        .from('tasks')
+        .update({
+          status: 'claimed',
+          assignee_address: claimantAddress,
+          claimed_at: new Date().toISOString()
+        })
+        .eq('task_id', taskId)
+
+      if (updateError) {
+        console.error('Error updating task after claim:', updateError)
+        // Note: Task is claimed on blockchain but not in DB
+        return { success: false, error: 'Database update failed after blockchain claim' }
+      }
+
+      // Log the claim
+      await client
+        .from('task_history')
+        .insert({
+          task_id: taskId,
+          action: 'claimed',
+          actor_address: claimantAddress,
+          metadata: { txHash, signature }
+        } as any)
+
+      return { success: true, txHash }
+
+    } catch (error) {
+      console.error('Error claiming task:', error)
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    }
+  }
+
+  /**
+   * Submit task evidence with blockchain validation
+   */
+  async submitTaskEvidence(
+    taskId: string, 
+    assigneeAddress: string, 
+    evidenceUrl: string, 
+    prUrl?: string
+  ): Promise<{ success: boolean; txHash?: string; error?: string }> {
+    try {
+      const client = ensureSupabaseClient()
+      
+      // Verify task ownership
+      const { data: task } = await client
+        .from('tasks')
+        .select('*')
+        .eq('task_id', taskId)
+        .eq('assignee_address', assigneeAddress)
+        .in('status', ['claimed', 'in_progress'])
+        .single()
+
+      if (!task) {
+        return { success: false, error: 'Task not found or not assigned to you' }
+      }
+
+      // Initialize contract with private key
+      const contract = getTaskRulesContract(process.env.PRIVATE_KEY_DAO_DEPLOYER)
+      
+      // Generate EIP-712 signature for submission
+      const deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour deadline
+      const signature = await contract.generateSubmissionSignature(
+        taskId, 
+        assigneeAddress, 
+        evidenceUrl, 
+        deadline
+      )
+      
+      // Validate submission on blockchain
+      const { isValid, txHash } = await contract.validateSubmission(taskId, evidenceUrl, signature)
+      
+      if (!isValid) {
+        return { success: false, error: 'Submission validation failed on blockchain' }
+      }
+
+      // Update database
+      const { error: updateError } = await client
+        .from('tasks')
+        .update({
+          status: 'submitted',
+          evidence_url: evidenceUrl,
+          pr_url: prUrl,
+          submitted_at: new Date().toISOString()
+        })
+        .eq('task_id', taskId)
+
+      if (updateError) {
+        console.error('Error updating task after submission:', updateError)
+        return { success: false, error: 'Database update failed after blockchain validation' }
+      }
+
+      // Log the submission
+      await client
+        .from('task_history')
+        .insert({
+          task_id: taskId,
+          action: 'submitted',
+          actor_address: assigneeAddress,
+          metadata: { txHash, evidenceUrl, prUrl, signature }
+        } as any)
+
+      return { success: true, txHash }
+
+    } catch (error) {
+      console.error('Error submitting task evidence:', error)
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    }
+  }
+
+  /**
+   * Create task on blockchain and database
+   */
+  async createTaskWithBlockchain(taskData: TaskInsert): Promise<{ success: boolean; txHash?: string; error?: string }> {
+    try {
+      const client = ensureSupabaseClient()
+      
+      // Create task in database first
+      const { data: createdTask, error: dbError } = await client
+        .from('tasks')
+        .insert(taskData as any)
+        .select()
+        .single()
+
+      if (dbError) {
+        return { success: false, error: 'Failed to create task in database' }
+      }
+
+      // Initialize contract with private key
+      const contract = getTaskRulesContract(process.env.PRIVATE_KEY_DAO_DEPLOYER)
+      
+      // Create task on blockchain
+      const txHash = await contract.createTask(createdTask)
+      
+      if (!txHash) {
+        // Rollback database creation
+        await client.from('tasks').delete().eq('id', createdTask.id)
+        return { success: false, error: 'Failed to create task on blockchain' }
+      }
+
+      // Update task with blockchain transaction hash
+      await client
+        .from('tasks')
+        .update({ 
+          metadata: { creation_tx: txHash }
+        })
+        .eq('id', createdTask.id)
+
+      // Log the creation
+      await client
+        .from('task_history')
+        .insert({
+          task_id: createdTask.task_id,
+          action: 'created',
+          actor_address: 'system',
+          metadata: { txHash }
+        } as any)
+
+      return { success: true, txHash }
+
+    } catch (error) {
+      console.error('Error creating task with blockchain:', error)
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    }
   }
 }

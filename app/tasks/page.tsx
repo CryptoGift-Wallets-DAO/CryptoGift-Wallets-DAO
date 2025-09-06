@@ -95,24 +95,26 @@ export default function TasksPage() {
 
   const handleInitializeTasks = async () => {
     try {
-      const response = await fetch('/api/tasks', {
+      const adminToken = process.env.NEXT_PUBLIC_ADMIN_TOKEN || process.env.ADMIN_DAO_API_TOKEN
+      
+      const response = await fetch('/api/admin/init-tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer admin-key', // In production, use proper auth
+          'Authorization': `Bearer ${adminToken}`,
         },
-        body: JSON.stringify({ action: 'initialize' }),
       })
 
       const data = await response.json()
       
       if (data.success) {
-        success('Tasks initialized!', 'All 34 initial tasks have been created')
+        success('Tasks initialized!', `All ${data.data.tasksCreated} tasks created. Total rewards: ${data.data.totalRewards} CGC`)
         handleRefresh()
       } else {
         error('Initialization failed', data.error)
       }
     } catch (err) {
+      console.error('Error initializing tasks:', err)
       error('Error initializing tasks', 'Please try again')
     }
   }
