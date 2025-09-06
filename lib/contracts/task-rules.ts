@@ -279,7 +279,7 @@ export class TaskRulesContract {
         nonce: nonce
       }
 
-      return await this.signer._signTypedData(domain, types, value)
+      return await (this.signer as any)._signTypedData(domain, types, value)
     } catch (error) {
       console.error('Error generating claim signature:', error)
       throw error
@@ -328,7 +328,7 @@ export class TaskRulesContract {
         nonce: nonce
       }
 
-      return await this.signer._signTypedData(domain, types, value)
+      return await (this.signer as any)._signTypedData(domain, types, value)
     } catch (error) {
       console.error('Error generating submission signature:', error)
       throw error

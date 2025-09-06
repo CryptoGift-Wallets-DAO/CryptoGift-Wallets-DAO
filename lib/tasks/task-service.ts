@@ -386,48 +386,6 @@ export class TaskService {
     return data
   }
 
-  /**
-   * Claim a task
-   */
-  async claimTask(taskId: string, userAddress: string): Promise<boolean> {
-    try {
-      // Check if user already has a task in progress
-      const client = ensureSupabaseClient()
-      const { data: existingTasks } = await client
-        .from('tasks')
-        .select('id')
-        .eq('assignee_address', userAddress)
-        .eq('status', 'in_progress')
-
-      if (existingTasks && existingTasks.length >= 3) {
-        throw new Error('You can only have 3 tasks in progress at a time')
-      }
-
-      // Claim the task using stored procedure
-      const { data, error } = await client.rpc('claim_task', {
-        p_task_id: taskId,
-        p_user_address: userAddress,
-      } as any)
-
-      if (error) throw error
-
-      // Clear cache
-      await this.redis.del(RedisKeys.cache('tasks:available:all'))
-      await this.redis.del(RedisKeys.cache(`tasks:available:${userAddress}`))
-
-      // Log to Redis for real-time updates
-      await this.redis.zadd(
-        RedisKeys.userQuests(userAddress),
-        Date.now(),
-        taskId
-      )
-
-      return data === true
-    } catch (error) {
-      console.error('Error claiming task:', error)
-      throw error
-    }
-  }
 
   /**
    * Submit task evidence
@@ -512,12 +470,16 @@ export class TaskService {
         }
       } else {
         // Create new collaborator
-        await client.from('collaborators').insert({
+        const { error: insertError } = await client.from('collaborators').insert({
           address: task.assignee_address,
           total_cgc_earned: task.reward_cgc,
           tasks_completed: 1,
           tasks_in_progress: 0,
         } as any)
+        
+        if (insertError) {
+          console.error('Error creating collaborator:', insertError)
+        }
       }
 
       // Recalculate ranks

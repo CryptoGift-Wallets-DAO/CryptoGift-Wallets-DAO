@@ -172,8 +172,8 @@ async function handleQuestApproved(payload: ZealyWebhookPayload) {
           status: 'completed',
           completed_at: new Date().toISOString(),
           evidence_url: `https://zealy.io/c/cryptogiftdao/questboard/${quest.id}`
-        })
-        .eq('task_id', mappedTask.task_id)
+        } as any)
+        .eq('task_id', (mappedTask as any).task_id)
 
       if (updateError) {
         console.error('Error updating mapped task:', updateError)
@@ -184,7 +184,7 @@ async function handleQuestApproved(payload: ZealyWebhookPayload) {
     const { error: logError } = await supabase
       .from('task_history')
       .insert({
-        task_id: mappedTask?.task_id || `zealy_${quest.id}`,
+        task_id: (mappedTask as any)?.task_id || `zealy_${quest.id}`,
         action: 'quest_approved',
         actor_address: user.walletAddress || user.name,
         metadata: {

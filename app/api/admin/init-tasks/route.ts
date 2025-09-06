@@ -854,7 +854,7 @@ export async function POST(request: NextRequest) {
     
     // Insert all tasks in batches to avoid timeouts
     const BATCH_SIZE = 5
-    const results = []
+    const results: any[] = []
     
     for (let i = 0; i < PREDEFINED_TASKS.length; i += BATCH_SIZE) {
       const batch = PREDEFINED_TASKS.slice(i, i + BATCH_SIZE)
@@ -940,7 +940,7 @@ export async function GET(request: NextRequest) {
     // Get task statistics
     const { data: tasks, error } = await supabase
       .from('tasks')
-      .select('status, complexity, reward_cgc, category')
+      .select('status, complexity, reward_cgc, category') as { data: any[] | null, error: any }
     
     if (error) {
       return NextResponse.json(

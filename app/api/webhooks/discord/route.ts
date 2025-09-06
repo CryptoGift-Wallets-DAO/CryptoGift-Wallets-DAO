@@ -189,6 +189,14 @@ async function handleProfileCommand(payload: DiscordWebhookPayload) {
     
     // Find collaborator by Discord username
     const discordUsername = payload.member?.user?.username || payload.user?.username
+    
+    if (!discordUsername) {
+      return NextResponse.json({
+        type: 4,
+        data: { content: '❌ Unable to identify Discord user' }
+      })
+    }
+    
     const { data: collaborator } = await supabase
       .from('collaborators')
       .select('*')
@@ -218,23 +226,23 @@ async function handleProfileCommand(payload: DiscordWebhookPayload) {
       type: 4,
       data: {
         embeds: [{
-          title: `👤 ${collaborator.username || 'Anonymous'}`,
-          description: collaborator.bio || 'DAO Contributor',
+          title: `👤 ${(collaborator as any).username || 'Anonymous'}`,
+          description: (collaborator as any).bio || 'DAO Contributor',
           color: 0x7C3AED,
           fields: [
             {
               name: '💎 CGC Earned',
-              value: `${collaborator.total_earned_cgc} CGC`,
+              value: `${(collaborator as any).total_cgc_earned || 0} CGC`,
               inline: true
             },
             {
               name: '✅ Tasks Completed',
-              value: `${collaborator.tasks_completed}`,
+              value: `${(collaborator as any).tasks_completed || 0}`,
               inline: true
             },
             {
               name: '🏆 Reputation',
-              value: `${collaborator.reputation_score}`,
+              value: `${(collaborator as any).reputation_score || 0}`,
               inline: true
             }
           ],
@@ -260,8 +268,8 @@ async function handleLeaderboardCommand(payload: DiscordWebhookPayload) {
     // Get top 10 collaborators
     const { data: topCollaborators } = await supabase
       .from('collaborators')
-      .select('username, total_earned_cgc, tasks_completed')
-      .order('total_earned_cgc', { ascending: false })
+      .select('username, total_cgc_earned, tasks_completed')
+      .order('total_cgc_earned', { ascending: false })
       .limit(10)
 
     if (!topCollaborators || topCollaborators.length === 0) {
@@ -275,7 +283,7 @@ async function handleLeaderboardCommand(payload: DiscordWebhookPayload) {
       .map((collab, index) => {
         const rank = index + 1
         const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`
-        return `${medal} **${collab.username || 'Anonymous'}** - ${collab.total_earned_cgc} CGC (${collab.tasks_completed} tasks)`
+        return `${medal} **${(collab as any).username || 'Anonymous'}** - ${(collab as any).total_cgc_earned || 0} CGC (${(collab as any).tasks_completed || 0} tasks)`
       })
       .join('\n')
 
