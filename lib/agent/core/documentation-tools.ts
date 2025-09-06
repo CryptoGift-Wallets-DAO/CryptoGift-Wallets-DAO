@@ -300,17 +300,12 @@ export const DOCUMENTATION_TOOLS: DocumentationTool[] = [
   {
     name: 'list_directory',
     description: 'List contents of a directory in the project',
-    execute: async ({ path }: { path?: string }) => {
-      return await listProjectDirectory(path);
+    execute: async () => {
+      return await listProjectDirectory(''); // Always list root directory
     },
     schema: {
       type: 'object',
-      properties: {
-        path: {
-          type: 'string',
-          description: 'Directory path to list (optional, defaults to root)'
-        }
-      },
+      properties: {},
       required: []
     }
   },

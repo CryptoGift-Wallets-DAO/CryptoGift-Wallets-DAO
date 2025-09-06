@@ -29,9 +29,7 @@ export const ToolSchemas = {
   
   get_project_overview: z.object({}),
   
-  list_directory: z.object({
-    path: z.string().optional().describe('Directory path to list (default: root)'),
-  }),
+  list_directory: z.object({}),
 };
 
 export type ToolName = keyof typeof ToolSchemas;
@@ -147,13 +145,7 @@ export class ToolExecutor {
           description: 'List contents of a directory in the project',
           parameters: {
             type: 'object',
-            properties: {
-              path: {
-                type: 'string',
-                description: 'Directory path to list (use empty string for root)',
-                default: ''
-              }
-            },
+            properties: {},
             required: [],
             additionalProperties: false
           } as any,
@@ -195,8 +187,8 @@ export class ToolExecutor {
       list_directory: {
         description: 'List contents of a directory in the project',
         parameters: ToolSchemas.list_directory,
-        execute: async ({ path }: { path?: string }) => {
-          return await this.executeTool('list_directory', { path: path || '' });
+        execute: async () => {
+          return await this.executeTool('list_directory', {});
         },
       },
     };
