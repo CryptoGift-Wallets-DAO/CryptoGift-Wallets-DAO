@@ -112,6 +112,9 @@ class DAORedisClient {
    * HGETALL con prefijo automático
    */
   async hgetall(key: string) {
+    if (!this.enabled || !this.redis) {
+      return {};
+    }
     const safeKey = this.ensureDAOPrefix(key);
     return await this.redis.hgetall(safeKey);
   }
@@ -120,6 +123,9 @@ class DAORedisClient {
    * ZADD con prefijo automático
    */
   async zadd(key: string, score: number, member: string) {
+    if (!this.enabled || !this.redis) {
+      return null;
+    }
     const safeKey = this.ensureDAOPrefix(key);
     return await this.redis.zadd(safeKey, { score, member });
   }
@@ -128,6 +134,9 @@ class DAORedisClient {
    * ZRANGE con prefijo automático
    */
   async zrange(key: string, start: number, stop: number) {
+    if (!this.enabled || !this.redis) {
+      return [];
+    }
     const safeKey = this.ensureDAOPrefix(key);
     return await this.redis.zrange(safeKey, start, stop);
   }
@@ -136,6 +145,9 @@ class DAORedisClient {
    * TTL con prefijo automático
    */
   async ttl(key: string) {
+    if (!this.enabled || !this.redis) {
+      return -1;
+    }
     const safeKey = this.ensureDAOPrefix(key);
     return await this.redis.ttl(safeKey);
   }
@@ -144,6 +156,9 @@ class DAORedisClient {
    * EXPIRE con prefijo automático
    */
   async expire(key: string, seconds: number) {
+    if (!this.enabled || !this.redis) {
+      return 0;
+    }
     const safeKey = this.ensureDAOPrefix(key);
     return await this.redis.expire(safeKey, seconds);
   }
@@ -152,6 +167,9 @@ class DAORedisClient {
    * Listar todas las keys del DAO (solo para debug)
    */
   async listDAOKeys(): Promise<string[]> {
+    if (!this.enabled || !this.redis) {
+      return [];
+    }
     const pattern = `${DAO_PREFIX}*`;
     const keys = await this.redis.keys(pattern);
     return keys;
@@ -168,7 +186,7 @@ class DAORedisClient {
     const keys = await this.listDAOKeys();
     if (keys.length === 0) return 0;
     
-    const deleted = await this.redis.del(...keys);
+    const deleted = await this.redis!.del(...keys);
     return deleted;
   }
 
