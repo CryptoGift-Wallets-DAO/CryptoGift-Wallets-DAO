@@ -50,9 +50,9 @@ export const GET = authHelpers.public(async (request: NextRequest) => {
       { status: 500 }
     )
   }
-}
+})
 
-export async function POST(request: NextRequest) {
+export const POST = authHelpers.protected(async (request: NextRequest) => {
   try {
     const body = await request.json()
     const { action } = body
