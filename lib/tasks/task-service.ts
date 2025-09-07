@@ -499,7 +499,7 @@ export class TaskService {
     return cachedQuery('leaderboard', async () => {
       const client = ensureSupabaseClient()
       const { data, error } = await client
-        .from('leaderboard_view')
+        .from('leaderboard')
         .select('*')
         .limit(limit)
 
