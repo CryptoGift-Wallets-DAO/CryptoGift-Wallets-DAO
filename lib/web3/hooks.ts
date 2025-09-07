@@ -462,6 +462,42 @@ export function useBlockchainTask(taskId?: string) {
   }
 }
 
+/**
+ * Validate task completion on blockchain
+ */
+export function useTaskValidation() {
+  const { writeContract, data: hash, isPending, error } = useWriteContract()
+  
+  const validateCompletion = async (
+    taskId: string,
+    approved: boolean
+  ) => {
+    // Convert taskId string to bytes32 using keccak256 hash
+    const taskIdBytes32 = keccak256(toHex(taskId))
+    
+    return writeContract({
+      address: contracts.taskRules,
+      abi: TASK_RULES_ABI,
+      functionName: 'validateCompletion',
+      args: [taskIdBytes32, approved],
+      chainId: targetChainId,
+    })
+  }
+
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+    hash,
+  })
+
+  return {
+    validateCompletion,
+    isPending,
+    isConfirming,
+    isSuccess,
+    error,
+    hash,
+  }
+}
+
 // ===== Utility Hooks =====
 
 /**

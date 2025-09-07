@@ -27,7 +27,7 @@ export interface Database {
           platform: 'github' | 'discord' | 'manual' | 'custom'
           category: 'security' | 'frontend' | 'backend' | 'mobile' | 'ai' | 'defi' | 'governance' | 'analytics' | 'documentation' | 'blockchain' | 'nft' | 'performance' | 'testing' | 'localization' | 'social' | 'notifications' | 'treasury' | 'integration' | 'automation' | 'algorithm' | 'compliance' | 'infrastructure' | 'gamification' | 'search' | null
           priority: 'low' | 'medium' | 'high' | 'critical'
-          status: 'available' | 'claimed' | 'in_progress' | 'submitted' | 'completed' | 'cancelled' | 'expired'
+          status: 'available' | 'claimed' | 'in_progress' | 'submitted' | 'validated' | 'completed' | 'cancelled' | 'expired'
           required_skills: string[] | null
           tags: string[] | null
           assignee_address: string | null
@@ -41,6 +41,11 @@ export interface Database {
           pr_url: string | null
           validation_hash: string | null
           validators: string[] | null
+          validated_at: string | null
+          validator_address: string | null
+          validation_notes: string | null
+          rejected_at: string | null
+          rejected_by: string | null
           metadata: Json | null
         }
         Insert: {
@@ -54,7 +59,7 @@ export interface Database {
           platform?: 'github' | 'discord' | 'manual' | 'custom'
           category?: 'security' | 'frontend' | 'backend' | 'mobile' | 'ai' | 'defi' | 'governance' | 'analytics' | 'documentation' | 'blockchain' | 'nft' | 'performance' | 'testing' | 'localization' | 'social' | 'notifications' | 'treasury' | 'integration' | 'automation' | 'algorithm' | 'compliance' | 'infrastructure' | 'gamification' | 'search' | null
           priority?: 'low' | 'medium' | 'high' | 'critical'
-          status?: 'available' | 'claimed' | 'in_progress' | 'submitted' | 'completed' | 'cancelled' | 'expired'
+          status?: 'available' | 'claimed' | 'in_progress' | 'submitted' | 'validated' | 'completed' | 'cancelled' | 'expired'
           required_skills?: string[] | null
           tags?: string[] | null
           assignee_address?: string | null
@@ -68,6 +73,11 @@ export interface Database {
           pr_url?: string | null
           validation_hash?: string | null
           validators?: string[] | null
+          validated_at?: string | null
+          validator_address?: string | null
+          validation_notes?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
           metadata?: Json | null
         }
         Update: {
@@ -81,7 +91,7 @@ export interface Database {
           platform?: 'github' | 'discord' | 'manual' | 'custom'
           category?: 'security' | 'frontend' | 'backend' | 'mobile' | 'ai' | 'defi' | 'governance' | 'analytics' | 'documentation' | 'blockchain' | 'nft' | 'performance' | 'testing' | 'localization' | 'social' | 'notifications' | 'treasury' | 'integration' | 'automation' | 'algorithm' | 'compliance' | 'infrastructure' | 'gamification' | 'search' | null
           priority?: 'low' | 'medium' | 'high' | 'critical'
-          status?: 'available' | 'claimed' | 'in_progress' | 'submitted' | 'completed' | 'cancelled' | 'expired'
+          status?: 'available' | 'claimed' | 'in_progress' | 'submitted' | 'validated' | 'completed' | 'cancelled' | 'expired'
           required_skills?: string[] | null
           tags?: string[] | null
           assignee_address?: string | null
@@ -95,6 +105,11 @@ export interface Database {
           pr_url?: string | null
           validation_hash?: string | null
           validators?: string[] | null
+          validated_at?: string | null
+          validator_address?: string | null
+          validation_notes?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
           metadata?: Json | null
         }
       }
