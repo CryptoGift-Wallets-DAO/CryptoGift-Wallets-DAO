@@ -63,7 +63,10 @@ export function TasksInProgress({
   }
 
   const handleSubmitEvidence = async () => {
-    if (!selectedTask || !userAddress || !evidenceForm.evidenceUrl || !address) return
+    // Use either userAddress prop or address from wagmi
+    const walletAddress = userAddress || address
+    
+    if (!selectedTask || !walletAddress || !evidenceForm.evidenceUrl) return
 
     try {
       setIsSubmitting(true)
@@ -73,13 +76,13 @@ export function TasksInProgress({
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'x-wallet-address': userAddress
+          'x-wallet-address': walletAddress
         },
         body: JSON.stringify({
           taskId: selectedTask.task_id,
           evidenceUrl: evidenceForm.evidenceUrl,
           prUrl: evidenceForm.prUrl || undefined,
-          userAddress,
+          userAddress: walletAddress,
         }),
       })
 

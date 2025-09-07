@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
-import { authHelpers } from '@/lib/auth/middleware'
+import { authHelpers, type AuthContext } from '@/lib/auth/middleware'
 import { getDAORedis, RedisKeys } from '@/lib/redis-dao'
 
 const taskService = new TaskService()
@@ -18,10 +18,13 @@ const AUTHORIZED_VALIDATORS = [
   '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31', // DAO
 ]
 
-export const POST = authHelpers.admin(async (request: NextRequest) => {
+export const POST = authHelpers.admin(async (request: NextRequest, context: AuthContext) => {
   try {
     const body = await request.json()
-    const { taskId, validatorAddress, approved, notes } = body
+    const { taskId, approved, notes } = body
+    
+    // Get validatorAddress from context or body
+    const validatorAddress = context.address || body.validatorAddress
 
     // Validate inputs
     if (!taskId || !validatorAddress || approved === undefined) {
@@ -225,7 +228,7 @@ export const POST = authHelpers.admin(async (request: NextRequest) => {
   }
 })
 
-export const GET = authHelpers.admin(async (request: NextRequest) => {
+export const GET = authHelpers.admin(async (request: NextRequest, context: AuthContext) => {
   try {
     // Get tasks pending validation
     const tasks = await taskService.getTasksByStatus('in_progress')

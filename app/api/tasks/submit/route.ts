@@ -6,16 +6,19 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
-import { authHelpers } from '@/lib/auth/middleware'
+import { authHelpers, type AuthContext } from '@/lib/auth/middleware'
 import { getDAORedis, RedisKeys } from '@/lib/redis-dao'
 
 const taskService = new TaskService()
 const redis = getDAORedis()
 
-export const POST = authHelpers.protected(async (request: NextRequest) => {
+export const POST = authHelpers.protected(async (request: NextRequest, context: AuthContext) => {
   try {
     const body = await request.json()
-    const { taskId, evidenceUrl, prUrl, userAddress } = body
+    const { taskId, evidenceUrl, prUrl } = body
+    
+    // Get userAddress from context or body
+    const userAddress = context.address || body.userAddress
 
     // Validate inputs
     if (!taskId || !evidenceUrl || !userAddress) {

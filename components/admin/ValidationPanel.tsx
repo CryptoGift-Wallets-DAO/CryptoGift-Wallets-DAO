@@ -66,11 +66,18 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
   }, [refreshKey, isAuthorized])
 
   const loadTasksForValidation = async () => {
+    if (!address) {
+      console.warn('No wallet address available for loading validation tasks')
+      setTasks([])
+      setIsLoading(false)
+      return
+    }
+    
     try {
       setIsLoading(true)
       const response = await fetch('/api/tasks/validate', {
         headers: {
-          'x-wallet-address': address || ''
+          'x-wallet-address': address
         }
       })
       const data = await response.json()
@@ -104,7 +111,7 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'x-wallet-address': address || ''
+          'x-wallet-address': address
         },
         body: JSON.stringify({
           taskId,

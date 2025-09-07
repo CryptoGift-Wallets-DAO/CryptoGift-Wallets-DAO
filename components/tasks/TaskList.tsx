@@ -107,7 +107,10 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
   }
 
   const handleClaimTask = async (taskId: string) => {
-    if (!userAddress || !address) {
+    // Use either userAddress prop or address from wagmi
+    const walletAddress = userAddress || address
+    
+    if (!walletAddress) {
       alert('Please connect your wallet to claim tasks')
       return
     }
@@ -127,9 +130,9 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'x-wallet-address': userAddress
+          'x-wallet-address': walletAddress
         },
-        body: JSON.stringify({ taskId, userAddress }),
+        body: JSON.stringify({ taskId, userAddress: walletAddress }),
       })
 
       const data = await response.json()
@@ -145,7 +148,7 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
       await createTask(
         task.task_id,
         task.platform,
-        address, // assignee is the current user
+        walletAddress, // assignee is the current user
         task.complexity,
         task.reward_cgc.toString(), // custom reward amount
         deadline,
