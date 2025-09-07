@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
 import { authHelpers } from '@/lib/auth/middleware'
 import { getDAORedis, RedisKeys } from '@/lib/redis-dao'
+import type { Database } from '@/lib/supabase/types'
 
 const taskService = new TaskService()
 const redis = getDAORedis()
@@ -120,32 +121,48 @@ export const POST = authHelpers.admin(async (request: NextRequest) => {
           const client = await getServerClient()
           
           // First, check if collaborator exists
-          const { data: existingCollaborator } = await client
+          const { data: existingCollaborator, error: fetchError } = await client
             .from('collaborators')
-            .select('total_cgc_earned, tasks_completed')
+            .select('id, total_cgc_earned, tasks_completed')
             .eq('wallet_address', task.assignee_address)
             .single()
           
-          if (existingCollaborator) {
-            // Update existing collaborator
-            await client
+          if (existingCollaborator && !fetchError) {
+            // Update existing collaborator with proper typing
+            const updateData: Database['public']['Tables']['collaborators']['Update'] = {
+              total_cgc_earned: (existingCollaborator.total_cgc_earned || 0) + reward,
+              tasks_completed: (existingCollaborator.tasks_completed || 0) + 1,
+              last_activity: new Date().toISOString()
+            }
+            
+            const { error: updateError } = await client
               .from('collaborators')
-              .update({
-                total_cgc_earned: (existingCollaborator.total_cgc_earned || 0) + reward,
-                tasks_completed: (existingCollaborator.tasks_completed || 0) + 1,
-                last_activity: new Date().toISOString()
-              })
+              .update(updateData)
               .eq('wallet_address', task.assignee_address)
-          } else {
-            // Create new collaborator record
-            await client
+            
+            if (updateError) {
+              console.error('Error updating collaborator:', updateError)
+            }
+          } else if (fetchError?.code === 'PGRST116') {
+            // No collaborator found, create new one with proper typing
+            const insertData: Database['public']['Tables']['collaborators']['Insert'] = {
+              wallet_address: task.assignee_address,
+              total_cgc_earned: reward,
+              tasks_completed: 1,
+              tasks_in_progress: 0,
+              reputation_score: 0,
+              is_active: true,
+              joined_at: new Date().toISOString(),
+              last_activity: new Date().toISOString()
+            }
+            
+            const { error: insertError } = await client
               .from('collaborators')
-              .insert({
-                wallet_address: task.assignee_address,
-                total_cgc_earned: reward,
-                tasks_completed: 1,
-                is_active: true
-              })
+              .insert(insertData)
+            
+            if (insertError) {
+              console.error('Error creating collaborator:', insertError)
+            }
           }
           
           console.log(`💰 Updated collaborator earnings: +${reward} CGC for ${task.assignee_address}`)

@@ -115,46 +115,70 @@ export interface Database {
       }
       collaborators: {
         Row: {
-          address: string
-          discord_id: string | null
+          id: string
+          wallet_address: string | null
+          username: string | null
+          discord_username: string | null
           github_username: string | null
+          telegram_username: string | null
+          bio: string | null
+          avatar_url: string | null
+          skills: string[] | null
+          preferred_categories: string[] | null
           total_cgc_earned: number
           tasks_completed: number
           tasks_in_progress: number
-          rank: number | null
-          level: 'novice' | 'contributor' | 'expert' | 'master' | 'legend'
-          badges: string[] | null
+          reputation_score: number
+          is_active: boolean
+          joined_at: string
+          last_activity: string
+          metadata: Json | null
           created_at: string
           updated_at: string
-          last_activity: string | null
         }
         Insert: {
-          address: string
-          discord_id?: string | null
+          id?: string
+          wallet_address?: string | null
+          username?: string | null
+          discord_username?: string | null
           github_username?: string | null
+          telegram_username?: string | null
+          bio?: string | null
+          avatar_url?: string | null
+          skills?: string[] | null
+          preferred_categories?: string[] | null
           total_cgc_earned?: number
           tasks_completed?: number
           tasks_in_progress?: number
-          rank?: number | null
-          level?: 'novice' | 'contributor' | 'expert' | 'master' | 'legend'
-          badges?: string[] | null
+          reputation_score?: number
+          is_active?: boolean
+          joined_at?: string
+          last_activity?: string
+          metadata?: Json | null
           created_at?: string
           updated_at?: string
-          last_activity?: string | null
         }
         Update: {
-          address?: string
-          discord_id?: string | null
+          id?: string
+          wallet_address?: string | null
+          username?: string | null
+          discord_username?: string | null
           github_username?: string | null
+          telegram_username?: string | null
+          bio?: string | null
+          avatar_url?: string | null
+          skills?: string[] | null
+          preferred_categories?: string[] | null
           total_cgc_earned?: number
           tasks_completed?: number
           tasks_in_progress?: number
-          rank?: number | null
-          level?: 'novice' | 'contributor' | 'expert' | 'master' | 'legend'
-          badges?: string[] | null
+          reputation_score?: number
+          is_active?: boolean
+          joined_at?: string
+          last_activity?: string
+          metadata?: Json | null
           created_at?: string
           updated_at?: string
-          last_activity?: string | null
         }
       }
       task_proposals: {
