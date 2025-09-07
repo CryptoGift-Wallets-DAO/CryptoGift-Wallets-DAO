@@ -437,13 +437,15 @@ export function useBlockchainTask(taskId?: string) {
     chainId: targetChainId,
   })
 
+  // Only query task data if taskId exists and task is confirmed to exist
+  const shouldFetchTask = !!taskIdBytes32 && !!taskExists
+  
   const { data: taskData, isLoading, isError, refetch } = useReadContract({
     address: contracts.taskRules,
     abi: TASK_RULES_ABI,
     functionName: 'getTask',
-    args: taskIdBytes32 ? [taskIdBytes32] : undefined,
+    args: shouldFetchTask ? [taskIdBytes32] : undefined,
     chainId: targetChainId,
-    enabled: !!taskIdBytes32 && !!taskExists,
   })
 
   return {
