@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select'
 import { Search, Filter, Loader2 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
-import { useTaskCreate, useBlockchainTask } from '@/lib/web3/hooks'
+// Web3 hooks removed - TaskService handles blockchain integration
 import { useAccount } from 'wagmi'
 import { ensureEthereumAddress } from '@/lib/utils'
 
@@ -39,9 +39,8 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
   const [sortBy, setSortBy] = useState<'reward' | 'complexity' | 'days'>('reward')
   const [claimingTask, setClaimingTask] = useState<string | null>(null)
 
-  // Blockchain hooks
+  // Wallet connection
   const { address } = useAccount()
-  const { createTask, isPending: isCreatingTask, isSuccess: isTaskCreated, error: createError } = useTaskCreate()
 
   useEffect(() => {
     loadTasks()
@@ -142,19 +141,8 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
         throw new Error(data.error || 'Failed to claim task in database')
       }
 
-      // Step 2: Create task on blockchain
-      const deadline = Math.floor(Date.now() / 1000) + (task.estimated_days * 24 * 60 * 60) // Current time + estimated days
-      const verificationHash = `${task.task_id}-verification` // Simple verification hash based on task ID
-      
-      await createTask(
-        task.task_id,
-        task.platform,
-        walletAddress, // assignee is the current user
-        task.complexity,
-        task.reward_cgc.toString(), // custom reward amount
-        deadline,
-        verificationHash
-      )
+      // Step 2: Blockchain transaction completed by TaskService (no additional action needed)
+      console.log('✅ Blockchain transaction completed:', data.data?.txHash)
 
       // Step 3: Update local state
       onTaskClaimed?.(taskId)

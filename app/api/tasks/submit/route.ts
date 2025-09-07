@@ -78,14 +78,14 @@ export const POST = authHelpers.protected(async (request: NextRequest, context: 
       )
     }
 
-    // Submit evidence
-    const success = await taskService.submitEvidence(taskId, evidenceUrl, prUrl)
+    // Submit evidence with blockchain validation
+    const result = await taskService.submitTaskEvidence(taskId, userAddress, evidenceUrl, prUrl)
 
-    if (!success) {
+    if (!result.success) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Failed to submit evidence',
+          error: result.error || 'Failed to submit evidence',
         },
         { status: 500 }
       )
@@ -116,6 +116,7 @@ export const POST = authHelpers.protected(async (request: NextRequest, context: 
         prUrl,
         submittedAt: new Date().toISOString(),
         status: 'pending_validation',
+        txHash: result.txHash,
       },
     })
   } catch (error) {

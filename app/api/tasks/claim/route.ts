@@ -49,13 +49,13 @@ export const POST = authHelpers.protected(async (request: NextRequest, context: 
     await redis.set(rateLimitKey, (parseInt(attempts as string || '0') + 1).toString(), { ex: 60 })
 
     // Claim the task
-    const success = await taskService.claimTask(taskId, userAddress)
+    const result = await taskService.claimTask(taskId, userAddress)
 
-    if (!success) {
+    if (!result.success) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Failed to claim task. It may no longer be available.',
+          error: result.error || 'Failed to claim task. It may no longer be available.',
         },
         { status: 400 }
       )
@@ -75,6 +75,7 @@ export const POST = authHelpers.protected(async (request: NextRequest, context: 
         taskId,
         userAddress,
         claimedAt: new Date().toISOString(),
+        txHash: result.txHash,
       },
     })
   } catch (error) {
