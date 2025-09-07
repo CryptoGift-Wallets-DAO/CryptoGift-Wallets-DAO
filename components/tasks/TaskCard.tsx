@@ -27,6 +27,7 @@ interface TaskCardProps {
   task: Task
   onClaim?: () => void
   onSubmit?: () => void
+  onViewDetails?: () => void
   canClaim?: boolean
   showProgress?: boolean
   isClaimingTask?: boolean
@@ -36,6 +37,7 @@ export function TaskCard({
   task, 
   onClaim, 
   onSubmit,
+  onViewDetails,
   canClaim = true,
   showProgress = false,
   isClaimingTask = false
@@ -162,26 +164,36 @@ export function TaskCard({
         )}
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="flex-col space-y-2">
         {task.status === 'available' && (
-          <Button
-            onClick={onClaim}
-            disabled={!canClaim || isClaimingTask}
-            className="w-full"
-            variant="default"
-          >
-            {isClaimingTask ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Claiming...
-              </>
-            ) : (
-              <>
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Claim Task
-              </>
-            )}
-          </Button>
+          <div className="flex w-full space-x-2">
+            <Button
+              onClick={onViewDetails}
+              variant="outline"
+              className="flex-1"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Details
+            </Button>
+            <Button
+              onClick={onClaim}
+              disabled={!canClaim || isClaimingTask}
+              className="flex-1"
+              variant="default"
+            >
+              {isClaimingTask ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Claiming...
+                </>
+              ) : (
+                <>
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Claim Task
+                </>
+              )}
+            </Button>
+          </div>
         )}
         
         {task.status === 'in_progress' && !task.evidence_url && (

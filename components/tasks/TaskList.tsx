@@ -8,6 +8,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { TaskCard } from './TaskCard'
+import { TaskDetailsModal } from './TaskDetailsModal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { 
@@ -38,6 +39,7 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
   const [platformFilter, setPlatformFilter] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'reward' | 'complexity' | 'days'>('reward')
   const [claimingTask, setClaimingTask] = useState<string | null>(null)
+  const [selectedTaskForDetails, setSelectedTaskForDetails] = useState<Task | null>(null)
 
   // Wallet connection
   const { address } = useAccount()
@@ -244,11 +246,27 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
               key={task.id}
               task={task}
               onClaim={() => handleClaimTask(task.task_id)}
+              onViewDetails={() => setSelectedTaskForDetails(task)}
               canClaim={!!userAddress && claimingTask !== task.task_id}
               isClaimingTask={claimingTask === task.task_id}
             />
           ))}
         </div>
+      )}
+
+      {/* Task Details Modal */}
+      {selectedTaskForDetails && (
+        <TaskDetailsModal
+          task={selectedTaskForDetails}
+          isOpen={!!selectedTaskForDetails}
+          onClose={() => setSelectedTaskForDetails(null)}
+          onClaim={() => {
+            handleClaimTask(selectedTaskForDetails.task_id)
+            setSelectedTaskForDetails(null)
+          }}
+          canClaim={!!userAddress && claimingTask !== selectedTaskForDetails.task_id}
+          isClaimingTask={claimingTask === selectedTaskForDetails.task_id}
+        />
       )}
     </div>
   )
