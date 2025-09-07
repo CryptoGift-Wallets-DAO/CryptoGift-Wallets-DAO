@@ -76,19 +76,27 @@ export async function POST(request: NextRequest) {
     let updateData: any = {}
 
     if (approved) {
-      newStatus = 'validated'
+      // Check if this is a payment completion (contains "PAYMENT RELEASED" in notes)
+      const isPaymentCompleted = notes && notes.includes('PAYMENT RELEASED')
+      
+      newStatus = isPaymentCompleted ? 'completed' : 'validated'
       updateData = {
-        status: 'validated',
+        status: newStatus,
         validated_at: new Date().toISOString(),
         validator_address: validatorAddress,
         validation_notes: notes,
+      }
+      
+      // If payment was completed, add completion timestamp
+      if (isPaymentCompleted) {
+        updateData.completed_at = new Date().toISOString()
       }
 
       // Store validation in Redis
       await redis.hset(
         RedisKeys.questCompletion(taskId, task.assignee_address!),
         'status',
-        'validated'
+        newStatus
       )
       await redis.hset(
         RedisKeys.questCompletion(taskId, task.assignee_address!),
@@ -101,7 +109,28 @@ export async function POST(request: NextRequest) {
         validatorAddress
       )
 
-      console.log(`✅ Task ${taskId} validated by ${validatorAddress}`)
+      // If payment was completed, update collaborator earnings
+      if (isPaymentCompleted && task.assignee_address) {
+        try {
+          const taskService = new TaskService()
+          const reward = parseInt(notes.match(/PAYMENT RELEASED: (\d+)/)?.[1] || '0')
+          
+          // Update collaborator earnings
+          const client = taskService['ensureSupabaseClient']?.() || require('@/lib/supabase/client').createClient()
+          await (client as any)
+            .rpc('update_collaborator_earnings', {
+              p_address: task.assignee_address,
+              p_cgc_earned: reward,
+              p_tasks_completed: 1
+            })
+          
+          console.log(`💰 Updated collaborator earnings: +${reward} CGC for ${task.assignee_address}`)
+        } catch (earningsError) {
+          console.error('Error updating collaborator earnings:', earningsError)
+        }
+      }
+
+      console.log(`✅ Task ${taskId} ${isPaymentCompleted ? 'completed with payment' : 'validated'} by ${validatorAddress}`)
     } else {
       // Rejected - reset to in_progress, clear evidence
       updateData = {
@@ -129,9 +158,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // TODO: If approved, trigger smart contract validation
-    // This would call TaskRulesEIP712.validateCompletion()
-    // and MilestoneEscrow.releaseMilestonePayment()
+    // TODO: Trigger smart contract validation - this needs to be done from frontend
+    // due to wallet signing requirements. Frontend should call:
+    // 1. useTaskValidation hook with taskId and approved
+    // 2. If approved and blockchain validation succeeds, trigger payment release
 
     return NextResponse.json({
       success: true,

@@ -27,7 +27,7 @@ import {
   GitPullRequest
 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
-import { useTaskValidation } from '@/lib/web3/hooks'
+import { useTaskValidation, useMilestoneRelease } from '@/lib/web3/hooks'
 
 // Authorized validator addresses - should match backend
 const AUTHORIZED_VALIDATORS = [
@@ -49,7 +49,10 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
   const [filter, setFilter] = useState<'all' | 'pending' | 'validated'>('pending')
 
   // Blockchain validation hook
-  const { validateCompletion, isPending: isBlockchainPending } = useTaskValidation()
+  const { validateCompletion, isPending: isBlockchainPending, isSuccess: isValidationSuccess } = useTaskValidation()
+  
+  // Payment release hook
+  const { releaseMilestone, isPending: isPaymentPending, isSuccess: isPaymentSuccess } = useMilestoneRelease()
 
   // Check if current user is authorized
   const isAuthorized = address && AUTHORIZED_VALIDATORS.some(
@@ -82,6 +85,13 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
   const handleValidation = async (taskId: string, approved: boolean) => {
     if (!address || !isAuthorized) return
 
+    // Find the task being validated for payment data
+    const task = tasks.find(t => t.task_id === taskId)
+    if (!task) {
+      alert('Task not found')
+      return
+    }
+
     try {
       setIsValidating(true)
       
@@ -109,8 +119,30 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
           await validateCompletion(taskId, approved)
           console.log('✅ Task validated on blockchain and database')
           
-          // Show success message
-          alert('✅ Task validated successfully on blockchain! Payment will be processed automatically.')
+          // Step 3: Release payment automatically
+          if (task.assignee_address) {
+            console.log('🚀 Triggering automatic payment release...')
+            await releaseMilestone(
+              task.assignee_address as `0x${string}`,
+              task.reward_cgc.toString(),
+              taskId
+            )
+            
+            // Update task status to completed in database
+            await fetch('/api/tasks/validate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                taskId,
+                validatorAddress: address,
+                approved: true,
+                notes: `${validationNotes} | PAYMENT RELEASED: ${task.reward_cgc} CGC`,
+              }),
+            })
+            
+            console.log('✅ Payment released successfully!')
+            alert('✅ Task validated and payment released successfully! User received ' + task.reward_cgc + ' CGC tokens.')
+          }
         } catch (blockchainError: any) {
           console.error('Blockchain validation failed:', blockchainError)
           
@@ -348,11 +380,11 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
                         <div className="flex space-x-3">
                           <Button
                             onClick={() => handleValidation(task.task_id, false)}
-                            disabled={isValidating || isBlockchainPending}
+                            disabled={isValidating || isBlockchainPending || isPaymentPending}
                             variant="destructive"
                             className="flex-1"
                           >
-                            {(isValidating || isBlockchainPending) ? (
+                            {(isValidating || isBlockchainPending || isPaymentPending) ? (
                               <Loader2 className="w-4 h-4 animate-spin mr-2" />
                             ) : (
                               <XCircle className="w-4 h-4 mr-2" />
@@ -361,14 +393,16 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
                           </Button>
                           <Button
                             onClick={() => handleValidation(task.task_id, true)}
-                            disabled={isValidating || isBlockchainPending}
+                            disabled={isValidating || isBlockchainPending || isPaymentPending}
                             variant="default"
                             className="flex-1 bg-green-600 hover:bg-green-700"
                           >
-                            {(isValidating || isBlockchainPending) ? (
+                            {(isValidating || isBlockchainPending || isPaymentPending) ? (
                               <>
                                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                {isBlockchainPending ? 'Confirming on blockchain...' : 'Validating...'}
+                                {isPaymentPending ? 'Releasing payment...' : 
+                                 isBlockchainPending ? 'Confirming on blockchain...' : 
+                                 'Validating...'}
                               </>
                             ) : (
                               <>
