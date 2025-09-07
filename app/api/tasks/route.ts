@@ -6,12 +6,13 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
+import { authHelpers } from '@/lib/auth/middleware'
 import { getDAORedis } from '@/lib/redis-dao'
 
 const taskService = new TaskService()
 const redis = getDAORedis()
 
-export async function GET(request: NextRequest) {
+export const GET = authHelpers.public(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
@@ -88,4 +89,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

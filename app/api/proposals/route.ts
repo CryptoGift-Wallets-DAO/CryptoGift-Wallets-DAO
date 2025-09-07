@@ -6,10 +6,11 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
+import { authHelpers } from '@/lib/auth/middleware'
 
 const taskService = new TaskService()
 
-export async function GET(request: NextRequest) {
+export const GET = authHelpers.public(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') || 'pending'
@@ -38,9 +39,9 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
 
-export async function POST(request: NextRequest) {
+export const POST = authHelpers.protected(async (request: NextRequest) => {
   try {
     const body = await request.json()
     const {
@@ -90,4 +91,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

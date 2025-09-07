@@ -905,11 +905,10 @@ export const POST = authHelpers.admin(async (request: NextRequest) => {
       { status: 500 }
     )
   }
-}))
+})
 
 export const GET = authHelpers.admin(async (request: NextRequest) => {
   try {
-
     const supabase = await getServerClient()
     
     // Get task statistics
