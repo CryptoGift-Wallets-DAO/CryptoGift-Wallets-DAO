@@ -14,6 +14,8 @@ import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Loader2, Upload, ExternalLink } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
+import { useTaskCompletion } from '@/lib/web3/hooks'
+import { useAccount } from 'wagmi'
 
 interface TasksInProgressProps {
   userAddress?: string
@@ -34,6 +36,10 @@ export function TasksInProgress({
     evidenceUrl: '',
     prUrl: '',
   })
+
+  // Blockchain hooks
+  const { address } = useAccount()
+  const { submitCompletion, isPending: isSubmittingToBlockchain } = useTaskCompletion()
 
   useEffect(() => {
     loadTasks()
@@ -57,11 +63,12 @@ export function TasksInProgress({
   }
 
   const handleSubmitEvidence = async () => {
-    if (!selectedTask || !userAddress || !evidenceForm.evidenceUrl) return
+    if (!selectedTask || !userAddress || !evidenceForm.evidenceUrl || !address) return
 
     try {
       setIsSubmitting(true)
       
+      // Step 1: Submit evidence to database
       const response = await fetch('/api/tasks/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -75,17 +82,42 @@ export function TasksInProgress({
 
       const data = await response.json()
       
-      if (data.success) {
-        onTaskSubmitted?.(selectedTask.task_id)
-        setSelectedTask(null)
-        setEvidenceForm({ evidenceUrl: '', prUrl: '' })
-        loadTasks()
-      } else {
-        alert(data.error || 'Failed to submit evidence')
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to submit evidence to database')
       }
-    } catch (error) {
+
+      // Step 2: Submit completion to blockchain
+      // Create a hash of the evidence URLs for proof
+      const proofString = `${evidenceForm.evidenceUrl}${evidenceForm.prUrl || ''}`
+      const encoder = new TextEncoder()
+      const dataBuffer = encoder.encode(proofString)
+      const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer)
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      const proofHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+      
+      await submitCompletion(selectedTask.task_id, proofHash)
+
+      // Step 3: Update local state
+      onTaskSubmitted?.(selectedTask.task_id)
+      setSelectedTask(null)
+      setEvidenceForm({ evidenceUrl: '', prUrl: '' })
+      loadTasks()
+
+      console.log('✅ Task completion submitted to blockchain and database')
+
+    } catch (error: any) {
       console.error('Error submitting evidence:', error)
-      alert('Failed to submit evidence. Please try again.')
+      
+      let errorMessage = 'Failed to submit evidence. Please try again.'
+      if (error.message?.includes('User rejected')) {
+        errorMessage = 'Transaction was cancelled by user.'
+      } else if (error.message?.includes('insufficient funds')) {
+        errorMessage = 'Insufficient funds for gas fees.'
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      alert(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
@@ -216,12 +248,12 @@ export function TasksInProgress({
                 </Button>
                 <Button
                   onClick={handleSubmitEvidence}
-                  disabled={!evidenceForm.evidenceUrl || isSubmitting}
+                  disabled={!evidenceForm.evidenceUrl || isSubmitting || isSubmittingToBlockchain}
                 >
-                  {isSubmitting ? (
+                  {(isSubmitting || isSubmittingToBlockchain) ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      Submitting...
+                      {isSubmittingToBlockchain ? 'Confirming on blockchain...' : 'Submitting...'}
                     </>
                   ) : (
                     <>
