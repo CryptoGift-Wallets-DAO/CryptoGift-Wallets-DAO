@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Loader2, Upload, ExternalLink } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
-import { useTaskCompletion } from '@/lib/web3/hooks'
+// Web3 hooks removed - TaskService handles blockchain integration
 import { useAccount } from 'wagmi'
 
 interface TasksInProgressProps {
@@ -37,9 +37,8 @@ export function TasksInProgress({
     prUrl: '',
   })
 
-  // Blockchain hooks
+  // Wallet connection
   const { address } = useAccount()
-  const { submitCompletion, isPending: isSubmittingToBlockchain } = useTaskCompletion()
 
   useEffect(() => {
     loadTasks()
@@ -92,16 +91,8 @@ export function TasksInProgress({
         throw new Error(data.error || 'Failed to submit evidence to database')
       }
 
-      // Step 2: Submit completion to blockchain
-      // Create a hash of the evidence URLs for proof
-      const proofString = `${evidenceForm.evidenceUrl}${evidenceForm.prUrl || ''}`
-      const encoder = new TextEncoder()
-      const dataBuffer = encoder.encode(proofString)
-      const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer)
-      const hashArray = Array.from(new Uint8Array(hashBuffer))
-      const proofHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-      
-      await submitCompletion(selectedTask.task_id, proofHash)
+      // Step 2: Blockchain submission completed by TaskService (no additional action needed)
+      console.log('✅ Blockchain submission completed:', data.data?.txHash)
 
       // Step 3: Update local state
       onTaskSubmitted?.(selectedTask.task_id)
@@ -254,12 +245,12 @@ export function TasksInProgress({
                 </Button>
                 <Button
                   onClick={handleSubmitEvidence}
-                  disabled={!evidenceForm.evidenceUrl || isSubmitting || isSubmittingToBlockchain}
+                  disabled={!evidenceForm.evidenceUrl || isSubmitting}
                 >
-                  {(isSubmitting || isSubmittingToBlockchain) ? (
+                  {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      {isSubmittingToBlockchain ? 'Confirming on blockchain...' : 'Submitting...'}
+                      Submitting evidence...
                     </>
                   ) : (
                     <>
