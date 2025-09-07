@@ -68,7 +68,11 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
   const loadTasksForValidation = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/tasks/validate')
+      const response = await fetch('/api/tasks/validate', {
+        headers: {
+          'x-wallet-address': address || ''
+        }
+      })
       const data = await response.json()
       
       if (data.success) {
@@ -98,7 +102,10 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
       // Step 1: Update database first
       const response = await fetch('/api/tasks/validate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-wallet-address': address || ''
+        },
         body: JSON.stringify({
           taskId,
           validatorAddress: address,
@@ -131,7 +138,10 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
             // Update task status to completed in database
             await fetch('/api/tasks/validate', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                'Content-Type': 'application/json',
+                'x-wallet-address': address || ''
+              },
               body: JSON.stringify({
                 taskId,
                 validatorAddress: address,
@@ -149,7 +159,10 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
           // Revert database validation if blockchain fails
           await fetch('/api/tasks/validate', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'x-wallet-address': address || ''
+            },
             body: JSON.stringify({
               taskId,
               validatorAddress: address,

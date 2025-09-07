@@ -71,7 +71,10 @@ export function TasksInProgress({
       // Step 1: Submit evidence to database
       const response = await fetch('/api/tasks/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-wallet-address': userAddress
+        },
         body: JSON.stringify({
           taskId: selectedTask.task_id,
           evidenceUrl: evidenceForm.evidenceUrl,

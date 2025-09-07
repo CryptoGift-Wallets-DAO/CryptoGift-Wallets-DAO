@@ -125,7 +125,10 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
       // Step 1: Claim task in database (sets assignee and status to 'in_progress')
       const response = await fetch('/api/tasks/claim', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-wallet-address': userAddress
+        },
         body: JSON.stringify({ taskId, userAddress }),
       })
 
