@@ -185,28 +185,121 @@ export const MASTER_CONTROLLER_ABI = [
   },
 ] as const
 
-// TaskRules ABI - For task validation
+// TaskRules ABI - For task validation and management
 export const TASK_RULES_ABI = [
+  // Read functions
   {
     inputs: [{ internalType: 'uint8', name: 'complexity', type: 'uint8' }],
-    name: 'getRewardForComplexity',
+    name: 'calculateReward',
     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
-    name: 'getActiveTaskCount',
+    name: 'totalTasksCreated',
     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [],
-    name: 'getTotalTasksCompleted',
+    name: 'totalTasksCompleted',
     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'bytes32', name: 'taskId', type: 'bytes32' }],
+    name: 'getTask',
+    outputs: [
+      {
+        internalType: 'tuple',
+        name: '',
+        type: 'tuple',
+        components: [
+          { internalType: 'bytes32', name: 'taskId', type: 'bytes32' },
+          { internalType: 'string', name: 'platform', type: 'string' },
+          { internalType: 'address', name: 'assignee', type: 'address' },
+          { internalType: 'uint8', name: 'complexity', type: 'uint8' },
+          { internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
+          { internalType: 'uint256', name: 'deadline', type: 'uint256' },
+          { internalType: 'bytes32', name: 'verificationHash', type: 'bytes32' },
+          { internalType: 'uint256', name: 'createdAt', type: 'uint256' },
+          { internalType: 'address', name: 'creator', type: 'address' },
+          { internalType: 'bool', name: 'isActive', type: 'bool' }
+        ]
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'bytes32', name: 'taskId', type: 'bytes32' }],
+    name: 'taskExists',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  // Write functions
+  {
+    inputs: [
+      { internalType: 'bytes32', name: 'taskId', type: 'bytes32' },
+      { internalType: 'string', name: 'platform', type: 'string' },
+      { internalType: 'address', name: 'assignee', type: 'address' },
+      { internalType: 'uint8', name: 'complexity', type: 'uint8' },
+      { internalType: 'uint256', name: 'customReward', type: 'uint256' },
+      { internalType: 'uint256', name: 'deadline', type: 'uint256' },
+      { internalType: 'bytes32', name: 'verificationHash', type: 'bytes32' }
+    ],
+    name: 'createTask',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'bytes32', name: 'taskId', type: 'bytes32' },
+      { internalType: 'bytes32', name: 'proofHash', type: 'bytes32' }
+    ],
+    name: 'submitCompletion',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'bytes32', name: 'taskId', type: 'bytes32' },
+      { internalType: 'bool', name: 'approve', type: 'bool' }
+    ],
+    name: 'validateCompletion',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  // Events
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: 'bytes32', name: 'taskId', type: 'bytes32' },
+      { indexed: true, internalType: 'address', name: 'assignee', type: 'address' },
+      { indexed: false, internalType: 'uint256', name: 'rewardAmount', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'deadline', type: 'uint256' },
+      { indexed: false, internalType: 'address', name: 'creator', type: 'address' }
+    ],
+    name: 'TaskCreated',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: 'bytes32', name: 'taskId', type: 'bytes32' },
+      { indexed: true, internalType: 'address', name: 'completer', type: 'address' },
+      { indexed: false, internalType: 'bytes32', name: 'proofHash', type: 'bytes32' },
+      { indexed: false, internalType: 'uint256', name: 'timestamp', type: 'uint256' }
+    ],
+    name: 'TaskCompleted',
+    type: 'event',
   },
 ] as const
 

@@ -228,23 +228,24 @@ export function useSystemStatus() {
  * Get task statistics
  */
 export function useTaskStats() {
-  const { data: activeCount } = useReadContract({
+  const { data: createdCount } = useReadContract({
     address: contracts.taskRules,
     abi: TASK_RULES_ABI,
-    functionName: 'getActiveTaskCount',
+    functionName: 'totalTasksCreated',
     chainId: targetChainId,
   })
 
   const { data: completedCount } = useReadContract({
     address: contracts.taskRules,
     abi: TASK_RULES_ABI,
-    functionName: 'getTotalTasksCompleted',
+    functionName: 'totalTasksCompleted',
     chainId: targetChainId,
   })
 
   return {
-    activeTasks: activeCount ? Number(activeCount) : 0,
+    activeTasks: createdCount && completedCount ? Number(createdCount) - Number(completedCount) : 0,
     completedTasks: completedCount ? Number(completedCount) : 0,
+    totalTasks: createdCount ? Number(createdCount) : 0,
   }
 }
 
@@ -336,6 +337,124 @@ export function useMilestoneRelease() {
   }
 }
 
+/**
+ * Create task on blockchain
+ */
+export function useTaskCreate() {
+  const { writeContract, data: hash, isPending, error } = useWriteContract()
+  
+  const createTask = async (
+    taskId: string,
+    platform: string,
+    assignee: `0x${string}`,
+    complexity: number,
+    customReward: string,
+    deadline: number,
+    verificationHash: string
+  ) => {
+    const taskIdBytes32 = `0x${taskId.padStart(64, '0')}` as `0x${string}`
+    const verificationBytes32 = `0x${verificationHash.padStart(64, '0')}` as `0x${string}`
+    const customRewardWei = parseUnits(customReward, 18)
+    
+    return writeContract({
+      address: contracts.taskRules,
+      abi: TASK_RULES_ABI,
+      functionName: 'createTask',
+      args: [
+        taskIdBytes32,
+        platform,
+        assignee,
+        complexity,
+        customRewardWei,
+        BigInt(deadline),
+        verificationBytes32
+      ],
+      chainId: targetChainId,
+    })
+  }
+
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+    hash,
+  })
+
+  return {
+    createTask,
+    isPending,
+    isConfirming,
+    isSuccess,
+    error,
+    hash,
+  }
+}
+
+/**
+ * Submit task completion
+ */
+export function useTaskCompletion() {
+  const { writeContract, data: hash, isPending, error } = useWriteContract()
+  
+  const submitCompletion = async (
+    taskId: string,
+    proofHash: string
+  ) => {
+    const taskIdBytes32 = `0x${taskId.padStart(64, '0')}` as `0x${string}`
+    const proofBytes32 = `0x${proofHash.padStart(64, '0')}` as `0x${string}`
+    
+    return writeContract({
+      address: contracts.taskRules,
+      abi: TASK_RULES_ABI,
+      functionName: 'submitCompletion',
+      args: [taskIdBytes32, proofBytes32],
+      chainId: targetChainId,
+    })
+  }
+
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+    hash,
+  })
+
+  return {
+    submitCompletion,
+    isPending,
+    isConfirming,
+    isSuccess,
+    error,
+    hash,
+  }
+}
+
+/**
+ * Get blockchain task details
+ */
+export function useBlockchainTask(taskId?: string) {
+  const taskIdBytes32 = taskId ? `0x${taskId.padStart(64, '0')}` as `0x${string}` : undefined
+
+  const { data: taskExists } = useReadContract({
+    address: contracts.taskRules,
+    abi: TASK_RULES_ABI,
+    functionName: 'taskExists',
+    args: taskIdBytes32 ? [taskIdBytes32] : undefined,
+    chainId: targetChainId,
+  })
+
+  const { data: taskData, isLoading, isError, refetch } = useReadContract({
+    address: contracts.taskRules,
+    abi: TASK_RULES_ABI,
+    functionName: 'getTask',
+    args: taskIdBytes32 ? [taskIdBytes32] : undefined,
+    chainId: targetChainId,
+    enabled: !!taskIdBytes32 && !!taskExists,
+  })
+
+  return {
+    task: taskData,
+    exists: !!taskExists,
+    isLoading,
+    isError,
+    refetch,
+  }
+}
+
 // ===== Utility Hooks =====
 
 /**
@@ -349,7 +468,7 @@ export function useDashboardStats() {
   const { escrowBalance } = useEscrowBalance()
   const { milestonesReleased } = useMilestonesReleased()
   const { proposalCount } = useAragonProposals()
-  const { activeTasks, completedTasks } = useTaskStats()
+  const { activeTasks, completedTasks, totalTasks } = useTaskStats()
   const { balance: userBalance } = useCGCBalance(address)
   const { earnings } = useCollaboratorEarnings(address)
   const { isActive, limits, usage } = useSystemStatus()
@@ -369,6 +488,7 @@ export function useDashboardStats() {
     proposalsActive: proposalCount,
     questsCompleted: completedTasks,
     activeTasks,
+    totalTasks,
     milestonesReleased,
     userBalance,
     userEarnings: earnings,

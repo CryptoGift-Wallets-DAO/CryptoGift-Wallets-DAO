@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/select'
 import { Search, Filter, Loader2 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
+import { useTaskCreate, useBlockchainTask } from '@/lib/web3/hooks'
+import { useAccount } from 'wagmi'
 
 interface TaskListProps {
   userAddress?: string
@@ -34,6 +36,11 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
   const [complexityFilter, setComplexityFilter] = useState<string>('all')
   const [platformFilter, setPlatformFilter] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'reward' | 'complexity' | 'days'>('reward')
+  const [claimingTask, setClaimingTask] = useState<string | null>(null)
+
+  // Blockchain hooks
+  const { address } = useAccount()
+  const { createTask, isPending: isCreatingTask, isSuccess: isTaskCreated, error: createError } = useTaskCreate()
 
   useEffect(() => {
     loadTasks()
@@ -100,12 +107,22 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
   }
 
   const handleClaimTask = async (taskId: string) => {
-    if (!userAddress) {
+    if (!userAddress || !address) {
       alert('Please connect your wallet to claim tasks')
       return
     }
 
+    // Find the task being claimed
+    const task = tasks.find(t => t.task_id === taskId)
+    if (!task) {
+      alert('Task not found')
+      return
+    }
+
+    setClaimingTask(taskId)
+
     try {
+      // Step 1: Claim task in database (sets assignee and status to 'in_progress')
       const response = await fetch('/api/tasks/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -114,15 +131,45 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
 
       const data = await response.json()
       
-      if (data.success) {
-        onTaskClaimed?.(taskId)
-        loadTasks() // Reload to update list
-      } else {
-        alert(data.error || 'Failed to claim task')
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to claim task in database')
       }
-    } catch (error) {
+
+      // Step 2: Create task on blockchain
+      const deadline = Math.floor(Date.now() / 1000) + (task.estimated_days * 24 * 60 * 60) // Current time + estimated days
+      const verificationHash = `${task.task_id}-verification` // Simple verification hash based on task ID
+      
+      await createTask(
+        task.task_id,
+        task.platform,
+        address, // assignee is the current user
+        task.complexity,
+        task.reward_cgc.toString(), // custom reward amount
+        deadline,
+        verificationHash
+      )
+
+      // Step 3: Update local state
+      onTaskClaimed?.(taskId)
+      loadTasks() // Reload to update list
+
+      console.log('✅ Task claimed successfully on blockchain and database')
+
+    } catch (error: any) {
       console.error('Error claiming task:', error)
-      alert('Failed to claim task. Please try again.')
+      
+      let errorMessage = 'Failed to claim task. Please try again.'
+      if (error.message?.includes('User rejected')) {
+        errorMessage = 'Transaction was cancelled by user.'
+      } else if (error.message?.includes('insufficient funds')) {
+        errorMessage = 'Insufficient funds for gas fees.'
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      alert(errorMessage)
+    } finally {
+      setClaimingTask(null)
     }
   }
 
@@ -202,7 +249,8 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
               key={task.id}
               task={task}
               onClaim={() => handleClaimTask(task.task_id)}
-              canClaim={!!userAddress}
+              canClaim={!!userAddress && claimingTask !== task.task_id}
+              isClaimingTask={claimingTask === task.task_id}
             />
           ))}
         </div>

@@ -18,7 +18,8 @@ import {
   FileText,
   TrendingUp,
   Calendar,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
 
@@ -28,6 +29,7 @@ interface TaskCardProps {
   onSubmit?: () => void
   canClaim?: boolean
   showProgress?: boolean
+  isClaimingTask?: boolean
 }
 
 export function TaskCard({ 
@@ -35,7 +37,8 @@ export function TaskCard({
   onClaim, 
   onSubmit,
   canClaim = true,
-  showProgress = false 
+  showProgress = false,
+  isClaimingTask = false
 }: TaskCardProps) {
   // Get platform icon
   const getPlatformIcon = () => {
@@ -150,12 +153,21 @@ export function TaskCard({
         {task.status === 'available' && (
           <Button
             onClick={onClaim}
-            disabled={!canClaim}
+            disabled={!canClaim || isClaimingTask}
             className="w-full"
             variant="default"
           >
-            <TrendingUp className="w-4 h-4 mr-2" />
-            Claim Task
+            {isClaimingTask ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Claiming...
+              </>
+            ) : (
+              <>
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Claim Task
+              </>
+            )}
           </Button>
         )}
         
