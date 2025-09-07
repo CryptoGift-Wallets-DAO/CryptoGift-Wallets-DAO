@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
+import { authHelpers } from '@/lib/auth/middleware'
 import { getDAORedis, RedisKeys } from '@/lib/redis-dao'
 
 const taskService = new TaskService()
@@ -17,7 +18,7 @@ const AUTHORIZED_VALIDATORS = [
   '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31', // DAO
 ]
 
-export async function POST(request: NextRequest) {
+export const POST = authHelpers.admin(async (request: NextRequest) => {
   try {
     const body = await request.json()
     const { taskId, validatorAddress, approved, notes } = body
@@ -112,12 +113,12 @@ export async function POST(request: NextRequest) {
       // If payment was completed, update collaborator earnings
       if (isPaymentCompleted && task.assignee_address) {
         try {
-          const taskService = new TaskService()
+          const { createClient } = await import('@/lib/supabase/client')
           const reward = parseInt(notes.match(/PAYMENT RELEASED: (\d+)/)?.[1] || '0')
           
           // Update collaborator earnings
-          const client = taskService['ensureSupabaseClient']?.() || require('@/lib/supabase/client').createClient()
-          await (client as any)
+          const client = createClient()
+          await client
             .rpc('update_collaborator_earnings', {
               p_address: task.assignee_address,
               p_cgc_earned: reward,
@@ -184,9 +185,9 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
 
-export async function GET(request: NextRequest) {
+export const GET = authHelpers.admin(async (request: NextRequest) => {
   try {
     // Get tasks pending validation
     const tasks = await taskService.getTasksByStatus('in_progress')
@@ -209,4 +210,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

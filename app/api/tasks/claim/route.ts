@@ -6,12 +6,13 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
+import { authHelpers } from '@/lib/auth/middleware'
 import { getDAORedis, RedisKeys } from '@/lib/redis-dao'
 
 const taskService = new TaskService()
 const redis = getDAORedis()
 
-export async function POST(request: NextRequest) {
+export const POST = authHelpers.protected(async (request: NextRequest) => {
   try {
     const body = await request.json()
     const { taskId, userAddress } = body
@@ -83,4 +84,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

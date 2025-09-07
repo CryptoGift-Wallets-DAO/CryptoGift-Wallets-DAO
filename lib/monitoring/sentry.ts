@@ -3,10 +3,17 @@
  * Single source of truth for error monitoring setup
  */
 
-import * as Sentry from '@sentry/nextjs';
+// Conditional import to avoid OpenTelemetry warnings when Sentry is disabled
+let Sentry: any = null;
+try {
+  Sentry = require('@sentry/nextjs');
+} catch (error) {
+  // Sentry not available, use no-op implementation
+  console.log('Sentry disabled or not available');
+}
 
 // Shared configuration for all environments
-const sharedConfig: Partial<Sentry.NodeOptions | Sentry.BrowserOptions> = {
+const sharedConfig: any = {
   dsn: process.env.NEXT_PUBLIC_SENTRY_DAO_DSN,
   environment: process.env.NODE_ENV || 'development',
   release: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA,
@@ -52,7 +59,7 @@ const sharedConfig: Partial<Sentry.NodeOptions | Sentry.BrowserOptions> = {
 };
 
 // Client-specific configuration
-const clientConfig: Partial<Sentry.BrowserOptions> = {
+const clientConfig: any = {
   ...sharedConfig,
   
   // Replay settings for user sessions
@@ -66,7 +73,7 @@ const clientConfig: Partial<Sentry.BrowserOptions> = {
 };
 
 // Server-specific configuration
-const serverConfig: Partial<Sentry.NodeOptions> = {
+const serverConfig: any = {
   ...sharedConfig,
   
   // Server performance monitoring
@@ -84,6 +91,11 @@ const serverConfig: Partial<Sentry.NodeOptions> = {
 
 // Initialize Sentry based on runtime
 export function initializeSentry() {
+  if (!Sentry) {
+    console.log('[Sentry] Disabled - skipping initialization');
+    return;
+  }
+  
   if (typeof window === 'undefined') {
     // Server-side initialization
     Sentry.init(serverConfig);
@@ -99,7 +111,11 @@ export function initializeSentry() {
 export const sentryUtils = {
   // Capture error with context
   captureError: (error: Error, context?: Record<string, any>) => {
-    Sentry.withScope((scope) => {
+    if (!Sentry) {
+      console.error('[Sentry] Error capture skipped - Sentry disabled:', error, context);
+      return;
+    }
+    Sentry.withScope((scope: any) => {
       if (context) {
         Object.entries(context).forEach(([key, value]) => {
           scope.setContext(key, value);
@@ -110,8 +126,12 @@ export const sentryUtils = {
   },
   
   // Capture message with level
-  captureMessage: (message: string, level: Sentry.SeverityLevel = 'info', context?: Record<string, any>) => {
-    Sentry.withScope((scope) => {
+  captureMessage: (message: string, level: any = 'info', context?: Record<string, any>) => {
+    if (!Sentry) {
+      console.log('[Sentry] Message capture skipped - Sentry disabled:', message, level, context);
+      return;
+    }
+    Sentry.withScope((scope: any) => {
       if (context) {
         Object.entries(context).forEach(([key, value]) => {
           scope.setContext(key, value);
@@ -122,17 +142,29 @@ export const sentryUtils = {
   },
   
   // Set user context
-  setUser: (user: Sentry.User) => {
+  setUser: (user: any) => {
+    if (!Sentry) {
+      console.log('[Sentry] Set user skipped - Sentry disabled:', user);
+      return;
+    }
     Sentry.setUser(user);
   },
   
   // Add breadcrumb
-  addBreadcrumb: (breadcrumb: Sentry.Breadcrumb) => {
+  addBreadcrumb: (breadcrumb: any) => {
+    if (!Sentry) {
+      console.log('[Sentry] Breadcrumb skipped - Sentry disabled:', breadcrumb);
+      return;
+    }
     Sentry.addBreadcrumb(breadcrumb);
   },
   
   // Create span for performance monitoring (v10+ API)
   startSpan: (options: any, callback?: any) => {
+    if (!Sentry) {
+      console.log('[Sentry] Span skipped - Sentry disabled, executing directly');
+      return callback ? callback() : Promise.resolve();
+    }
     return Sentry.startSpan(options, callback);
   },
 };
@@ -141,6 +173,16 @@ export const sentryUtils = {
 export const performance = {
   // Measure function execution time
   measureAsync: async <T>(name: string, fn: () => Promise<T>): Promise<T> => {
+    if (!Sentry) {
+      console.log(`[Sentry] Performance measure skipped - executing ${name} directly`);
+      try {
+        return await fn();
+      } catch (error) {
+        sentryUtils.captureError(error as Error, { function: name });
+        throw error;
+      }
+    }
+    
     return await Sentry.startSpan({ name, op: 'function' }, async () => {
       try {
         const result = await fn();
@@ -154,6 +196,16 @@ export const performance = {
   
   // Measure synchronous function execution
   measure: <T>(name: string, fn: () => T): T => {
+    if (!Sentry) {
+      console.log(`[Sentry] Performance measure skipped - executing ${name} directly`);
+      try {
+        return fn();
+      } catch (error) {
+        sentryUtils.captureError(error as Error, { function: name });
+        throw error;
+      }
+    }
+    
     return Sentry.startSpan({ name, op: 'function' }, () => {
       try {
         const result = fn();

@@ -7,22 +7,11 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerClient } from '@/lib/supabase/client'
+import { authHelpers } from '@/lib/auth/middleware'
 import { ethers } from 'ethers'
 import type { Database } from '@/lib/supabase/types'
 
 type Task = Database['public']['Tables']['tasks']['Insert']
-
-// Verify admin access
-function verifyAdminAccess(request: NextRequest) {
-  const adminToken = request.headers.get('Authorization')?.replace('Bearer ', '')
-  const expectedToken = process.env.ADMIN_DAO_API_TOKEN
-  
-  if (!adminToken || !expectedToken || adminToken !== expectedToken) {
-    return false
-  }
-  
-  return true
-}
 
 // All 34 predefined tasks with proper complexity mapping
 const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
@@ -813,15 +802,8 @@ const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
   }
 ]
 
-export async function POST(request: NextRequest) {
+export const POST = authHelpers.admin(async (request: NextRequest) => {
   try {
-    // Verify admin access
-    if (!verifyAdminAccess(request)) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized - Admin access required' },
-        { status: 401 }
-      )
-    }
 
     const supabase = await getServerClient()
     
@@ -923,17 +905,10 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+}))
 
-export async function GET(request: NextRequest) {
+export const GET = authHelpers.admin(async (request: NextRequest) => {
   try {
-    // Verify admin access for status check
-    if (!verifyAdminAccess(request)) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized - Admin access required' },
-        { status: 401 }
-      )
-    }
 
     const supabase = await getServerClient()
     
@@ -993,4 +968,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
