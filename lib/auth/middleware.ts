@@ -126,8 +126,11 @@ export async function withAuth(
   // Admin check
   const isAdmin = walletAddress ? ADMIN_ADDRESSES.includes(walletAddress) : false
   
+  // Wallet authentication - any valid wallet address is authenticated
+  const hasValidWallet = walletAddress && walletAddress.startsWith('0x') && walletAddress.length === 42
+  
   // Authentication check
-  const isAuthenticated = hasValidApiKey || isAdmin
+  const isAuthenticated = hasValidApiKey || isAdmin || hasValidWallet
 
   // Build auth context
   const authContext: AuthContext = {
@@ -162,7 +165,7 @@ export async function withAuth(
   }
 
   // Log access for monitoring
-  console.log(`[API] ${request.method} ${endpoint} - IP: ${clientIP} - Auth: ${isAuthenticated} - Admin: ${isAdmin}`)
+  console.log(`[API] ${request.method} ${endpoint} - IP: ${clientIP} - Auth: ${isAuthenticated} - Admin: ${isAdmin} - Wallet: ${walletAddress || 'none'}`)
 
   return handler(request, authContext)
 }
