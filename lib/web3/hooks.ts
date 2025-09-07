@@ -4,7 +4,7 @@
  */
 
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi'
-import { formatUnits, parseUnits } from 'viem'
+import { formatUnits, parseUnits, keccak256, toHex, pad } from 'viem'
 import { contracts, targetChainId } from './config'
 import { 
   CGC_TOKEN_ABI, 
@@ -352,8 +352,10 @@ export function useTaskCreate() {
     deadline: number,
     verificationHash: string
   ) => {
-    const taskIdBytes32 = `0x${taskId.padStart(64, '0')}` as `0x${string}`
-    const verificationBytes32 = `0x${verificationHash.padStart(64, '0')}` as `0x${string}`
+    // Convert taskId string to bytes32 using keccak256 hash
+    const taskIdBytes32 = keccak256(toHex(taskId))
+    // Convert verificationHash to bytes32 similarly
+    const verificationBytes32 = keccak256(toHex(verificationHash))
     const customRewardWei = parseUnits(customReward, 18)
     
     return writeContract({
@@ -397,7 +399,9 @@ export function useTaskCompletion() {
     taskId: string,
     proofHash: string
   ) => {
-    const taskIdBytes32 = `0x${taskId.padStart(64, '0')}` as `0x${string}`
+    // Convert taskId string to bytes32 using keccak256 hash
+    const taskIdBytes32 = keccak256(toHex(taskId))
+    // proofHash is already a hex hash from SHA-256, just ensure it's bytes32
     const proofBytes32 = `0x${proofHash.padStart(64, '0')}` as `0x${string}`
     
     return writeContract({
@@ -427,7 +431,8 @@ export function useTaskCompletion() {
  * Get blockchain task details
  */
 export function useBlockchainTask(taskId?: string) {
-  const taskIdBytes32 = taskId ? `0x${taskId.padStart(64, '0')}` as `0x${string}` : undefined
+  // Convert taskId string to bytes32 using keccak256 hash
+  const taskIdBytes32 = taskId ? keccak256(toHex(taskId)) : undefined
 
   const { data: taskExists } = useReadContract({
     address: contracts.taskRules,
