@@ -862,4 +862,63 @@ export class TaskService {
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }
+
+  /**
+   * Update task with arbitrary data
+   */
+  async updateTask(taskId: string, updateData: any): Promise<boolean> {
+    try {
+      const client = ensureSupabaseClient()
+      
+      const { error } = await (client as any)
+        .from('tasks')
+        .update(updateData)
+        .eq('task_id', taskId)
+      
+      if (error) {
+        console.error('Error updating task:', error)
+        return false
+      }
+
+      // Record in task history
+      await (client as any)
+        .from('task_history')
+        .insert({
+          task_id: taskId,
+          action: 'updated',
+          actor_address: updateData.validator_address || updateData.rejected_by || 'system',
+          metadata: updateData
+        } as any)
+
+      return true
+    } catch (error) {
+      console.error('Error in updateTask:', error)
+      return false
+    }
+  }
+
+  /**
+   * Get tasks by status
+   */
+  async getTasksByStatus(status: string): Promise<Task[]> {
+    try {
+      const client = ensureSupabaseClient()
+      
+      const { data, error } = await (client as any)
+        .from('tasks')
+        .select('*')
+        .eq('status', status)
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        console.error('Error fetching tasks by status:', error)
+        return []
+      }
+
+      return data || []
+    } catch (error) {
+      console.error('Error in getTasksByStatus:', error)
+      return []
+    }
+  }
 }

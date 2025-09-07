@@ -117,6 +117,19 @@ export function TaskCard({
           </div>
         </div>
 
+        {/* Show assignee for in-progress tasks */}
+        {task.status === 'in_progress' && task.assignee_address && (
+          <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+              <span className="text-xs text-glass-secondary">Assigned to:</span>
+            </div>
+            <span className="text-xs font-mono text-glass">
+              {task.assignee_address.slice(0, 6)}...{task.assignee_address.slice(-4)}
+            </span>
+          </div>
+        )}
+
         {/* Progress bar for in-progress tasks */}
         {showProgress && task.status === 'in_progress' && (
           <div className="space-y-2">
