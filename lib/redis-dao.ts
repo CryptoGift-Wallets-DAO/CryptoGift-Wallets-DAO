@@ -186,17 +186,6 @@ class DAORedisClient {
   }
 
   /**
-   * EXPIRE con prefijo automático
-   */
-  async expire(key: string, seconds: number) {
-    if (!this.enabled || !this.redis) {
-      return 0;
-    }
-    const safeKey = this.ensureDAOPrefix(key);
-    return await this.redis.expire(safeKey, seconds);
-  }
-
-  /**
    * Listar todas las keys del DAO (solo para debug)
    */
   async listDAOKeys(): Promise<string[]> {

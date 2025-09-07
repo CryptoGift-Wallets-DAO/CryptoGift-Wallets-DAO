@@ -118,12 +118,35 @@ export const POST = authHelpers.admin(async (request: NextRequest) => {
           
           // Update collaborator earnings
           const client = await getServerClient()
-          await client
-            .rpc('update_collaborator_earnings', {
-              p_address: task.assignee_address,
-              p_cgc_earned: reward,
-              p_tasks_completed: 1
-            })
+          
+          // First, check if collaborator exists
+          const { data: existingCollaborator } = await client
+            .from('collaborators')
+            .select('total_cgc_earned, tasks_completed')
+            .eq('wallet_address', task.assignee_address)
+            .single()
+          
+          if (existingCollaborator) {
+            // Update existing collaborator
+            await client
+              .from('collaborators')
+              .update({
+                total_cgc_earned: (existingCollaborator.total_cgc_earned || 0) + reward,
+                tasks_completed: (existingCollaborator.tasks_completed || 0) + 1,
+                last_activity: new Date().toISOString()
+              })
+              .eq('wallet_address', task.assignee_address)
+          } else {
+            // Create new collaborator record
+            await client
+              .from('collaborators')
+              .insert({
+                wallet_address: task.assignee_address,
+                total_cgc_earned: reward,
+                tasks_completed: 1,
+                is_active: true
+              })
+          }
           
           console.log(`💰 Updated collaborator earnings: +${reward} CGC for ${task.assignee_address}`)
         } catch (earningsError) {
