@@ -87,6 +87,39 @@ class DAORedisClient {
   }
 
   /**
+   * SETEX con prefijo automático
+   */
+  async setex(key: string, seconds: number, value: any) {
+    if (!this.enabled || !this.redis) {
+      return null;
+    }
+    const safeKey = this.ensureDAOPrefix(key);
+    return await this.redis.setex(safeKey, seconds, value);
+  }
+
+  /**
+   * INCR con prefijo automático
+   */
+  async incr(key: string) {
+    if (!this.enabled || !this.redis) {
+      return 0;
+    }
+    const safeKey = this.ensureDAOPrefix(key);
+    return await this.redis.incr(safeKey);
+  }
+
+  /**
+   * EXPIRE con prefijo automático
+   */
+  async expire(key: string, seconds: number) {
+    if (!this.enabled || !this.redis) {
+      return null;
+    }
+    const safeKey = this.ensureDAOPrefix(key);
+    return await this.redis.expire(safeKey, seconds);
+  }
+
+  /**
    * HSET con prefijo automático
    */
   async hset(key: string, field: string, value: any) {

@@ -68,7 +68,7 @@ async function checkRateLimit(
       return false // Not rate limited
     }
     
-    const count = parseInt(current, 10)
+    const count = parseInt(current as string, 10)
     if (count >= limit.requests) {
       return true // Rate limited
     }

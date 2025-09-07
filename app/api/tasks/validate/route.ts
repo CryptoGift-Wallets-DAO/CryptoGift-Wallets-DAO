@@ -113,11 +113,11 @@ export const POST = authHelpers.admin(async (request: NextRequest) => {
       // If payment was completed, update collaborator earnings
       if (isPaymentCompleted && task.assignee_address) {
         try {
-          const { createClient } = await import('@/lib/supabase/client')
+          const { getServerClient } = await import('@/lib/supabase/client')
           const reward = parseInt(notes.match(/PAYMENT RELEASED: (\d+)/)?.[1] || '0')
           
           // Update collaborator earnings
-          const client = createClient()
+          const client = await getServerClient()
           await client
             .rpc('update_collaborator_earnings', {
               p_address: task.assignee_address,

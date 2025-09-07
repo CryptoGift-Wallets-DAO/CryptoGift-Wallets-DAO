@@ -23,7 +23,7 @@ const sharedConfig: any = {
   tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
   
   // Error filtering
-  beforeSend(event, hint) {
+  beforeSend(event: any, hint: any) {
     // Filter out development noise
     if (process.env.NODE_ENV === 'development') {
       // Skip webpack HMR errors
@@ -49,7 +49,7 @@ const sharedConfig: any = {
   },
   
   // Transaction filtering
-  beforeSendTransaction(event) {
+  beforeSendTransaction(event: any) {
     // Skip health check transactions
     if (event.transaction === 'GET /api/health') {
       return null;
