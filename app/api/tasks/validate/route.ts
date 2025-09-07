@@ -120,12 +120,14 @@ export const POST = authHelpers.admin(async (request: NextRequest) => {
           // Update collaborator earnings
           const client = await getServerClient()
           
-          // First, check if collaborator exists
+          // First, check if collaborator exists with explicit typing
+          type CollaboratorSelect = Pick<Database['public']['Tables']['collaborators']['Row'], 'id' | 'total_cgc_earned' | 'tasks_completed'>
+          
           const { data: existingCollaborator, error: fetchError } = await client
             .from('collaborators')
             .select('id, total_cgc_earned, tasks_completed')
             .eq('wallet_address', task.assignee_address)
-            .single()
+            .single() as { data: CollaboratorSelect | null; error: any }
           
           if (existingCollaborator && !fetchError) {
             // Update existing collaborator with proper typing

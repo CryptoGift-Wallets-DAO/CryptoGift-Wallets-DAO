@@ -85,12 +85,12 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
             <div className="flex items-center space-x-3">
               {getRankIcon(userRank.rank)}
               <div>
-                <p className="font-semibold">{userRank.address.slice(0, 8)}...{userRank.address.slice(-6)}</p>
+                <p className="font-semibold">{userRank.wallet_address?.slice(0, 8)}...{userRank.wallet_address?.slice(-6)}</p>
                 <p className="text-sm text-blue-700">{userRank.total_cgc_earned.toFixed(2)} CGC</p>
               </div>
             </div>
-            <Badge className={getLevelBadge(userRank.level, userRank.total_cgc_earned).color}>
-              {getLevelBadge(userRank.level, userRank.total_cgc_earned).label}
+            <Badge className={getLevelBadge('', userRank.total_cgc_earned).color}>
+              {getLevelBadge('', userRank.total_cgc_earned).label}
             </Badge>
           </div>
         </div>
@@ -120,12 +120,12 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {leaderboard.map((collaborator, index) => {
-              const isUserRow = collaborator.address === userAddress
-              const levelBadge = getLevelBadge(collaborator.level, collaborator.total_cgc_earned)
+              const isUserRow = collaborator.wallet_address === userAddress
+              const levelBadge = getLevelBadge('', collaborator.total_cgc_earned)
               
               return (
                 <tr 
-                  key={collaborator.address}
+                  key={collaborator.wallet_address || collaborator.id}
                   className={`hover:bg-gray-50 ${isUserRow ? 'bg-blue-50' : ''}`}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -136,10 +136,10 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
                       <User className="w-4 h-4 text-gray-400 mr-2" />
                       <div>
                         <p className={`font-medium ${isUserRow ? 'text-blue-900' : 'text-gray-900'}`}>
-                          {collaborator.address.slice(0, 8)}...{collaborator.address.slice(-6)}
+                          {collaborator.wallet_address?.slice(0, 8)}...{collaborator.wallet_address?.slice(-6)}
                         </p>
-                        {collaborator.discord_id && (
-                          <p className="text-xs text-gray-500">Discord ID: {collaborator.discord_id}</p>
+                        {collaborator.discord_username && (
+                          <p className="text-xs text-gray-500">Discord: {collaborator.discord_username}</p>
                         )}
                       </div>
                     </div>

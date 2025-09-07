@@ -452,7 +452,7 @@ export class TaskService {
       const { data: collaborator } = await client
         .from('collaborators')
         .select('*')
-        .eq('address', task.assignee_address)
+        .eq('wallet_address', task.assignee_address)
         .single()
 
       if (collaborator) {
@@ -464,7 +464,7 @@ export class TaskService {
             tasks_in_progress: Math.max(0, (collaborator as any).tasks_in_progress - 1),
             last_activity: new Date().toISOString(),
           } as any)
-          .eq('address', task.assignee_address)
+          .eq('wallet_address', task.assignee_address)
         
         if (collabError) {
           console.error('Error updating collaborator stats:', collabError)
@@ -472,7 +472,7 @@ export class TaskService {
       } else {
         // Create new collaborator
         const { error: insertError } = await client.from('collaborators').insert({
-          address: task.assignee_address,
+          wallet_address: task.assignee_address,
           total_cgc_earned: task.reward_cgc,
           tasks_completed: 1,
           tasks_in_progress: 0,
@@ -516,7 +516,7 @@ export class TaskService {
     const { data } = await client
       .from('collaborators')
       .select('*')
-      .eq('address', address)
+      .eq('wallet_address', address)
       .single()
     
     return data

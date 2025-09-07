@@ -26,7 +26,7 @@ export const GET = authHelpers.public(async (request: NextRequest) => {
       if (collaborator) {
         userRank = {
           ...collaborator,
-          position: leaderboard.findIndex(c => c.address === address) + 1,
+          position: leaderboard.findIndex(c => c.wallet_address === address) + 1,
         }
       }
     }
