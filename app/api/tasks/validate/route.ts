@@ -8,7 +8,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
 import { authHelpers } from '@/lib/auth/middleware'
 import { getDAORedis, RedisKeys } from '@/lib/redis-dao'
-import type { Database } from '@/lib/supabase/types'
 
 const taskService = new TaskService()
 const redis = getDAORedis()
@@ -120,47 +119,44 @@ export const POST = authHelpers.admin(async (request: NextRequest) => {
           // Update collaborator earnings
           const client = await getServerClient()
           
-          // First, check if collaborator exists with explicit typing
-          type CollaboratorSelect = Pick<Database['public']['Tables']['collaborators']['Row'], 'id' | 'total_cgc_earned' | 'tasks_completed'>
-          
-          const { data: existingCollaborator, error: fetchError } = await client
+          // First, check if collaborator exists - use any cast to bypass type inference issues
+          const { data: existingCollaborator, error: fetchError } = await (client as any)
             .from('collaborators')
             .select('id, total_cgc_earned, tasks_completed')
             .eq('wallet_address', task.assignee_address)
-            .single() as { data: CollaboratorSelect | null; error: any }
+            .single()
           
           if (existingCollaborator && !fetchError) {
-            // Update existing collaborator with proper typing
-            const updateData: Database['public']['Tables']['collaborators']['Update'] = {
-              total_cgc_earned: (existingCollaborator.total_cgc_earned || 0) + reward,
-              tasks_completed: (existingCollaborator.tasks_completed || 0) + 1,
-              last_activity: new Date().toISOString()
-            }
+            // Update existing collaborator
+            const newTotalCgc = (existingCollaborator.total_cgc_earned || 0) + reward
+            const newTasksCompleted = (existingCollaborator.tasks_completed || 0) + 1
             
-            const { error: updateError } = await client
+            const { error: updateError } = await (client as any)
               .from('collaborators')
-              .update(updateData)
+              .update({
+                total_cgc_earned: newTotalCgc,
+                tasks_completed: newTasksCompleted,
+                last_activity: new Date().toISOString()
+              })
               .eq('wallet_address', task.assignee_address)
             
             if (updateError) {
               console.error('Error updating collaborator:', updateError)
             }
-          } else if (fetchError?.code === 'PGRST116') {
-            // No collaborator found, create new one with proper typing
-            const insertData: Database['public']['Tables']['collaborators']['Insert'] = {
-              wallet_address: task.assignee_address,
-              total_cgc_earned: reward,
-              tasks_completed: 1,
-              tasks_in_progress: 0,
-              reputation_score: 0,
-              is_active: true,
-              joined_at: new Date().toISOString(),
-              last_activity: new Date().toISOString()
-            }
-            
-            const { error: insertError } = await client
+          } else if (fetchError?.code === 'PGRST116' || !existingCollaborator) {
+            // No collaborator found, create new one
+            const { error: insertError } = await (client as any)
               .from('collaborators')
-              .insert(insertData)
+              .insert({
+                wallet_address: task.assignee_address,
+                total_cgc_earned: reward,
+                tasks_completed: 1,
+                tasks_in_progress: 0,
+                reputation_score: 0,
+                is_active: true,
+                joined_at: new Date().toISOString(),
+                last_activity: new Date().toISOString()
+              })
             
             if (insertError) {
               console.error('Error creating collaborator:', insertError)
