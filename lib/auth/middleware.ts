@@ -121,13 +121,13 @@ export async function withAuth(
   }
 
   // API key authentication
-  const hasValidApiKey = apiKey && VALID_API_KEYS.includes(apiKey)
+  const hasValidApiKey = Boolean(apiKey && VALID_API_KEYS.includes(apiKey))
   
   // Admin check
   const isAdmin = walletAddress ? ADMIN_ADDRESSES.includes(walletAddress) : false
   
   // Wallet authentication - any valid wallet address is authenticated
-  const hasValidWallet = walletAddress && walletAddress.startsWith('0x') && walletAddress.length === 42
+  const hasValidWallet = Boolean(walletAddress && walletAddress.startsWith('0x') && walletAddress.length === 42)
   
   // Authentication check
   const isAuthenticated = hasValidApiKey || isAdmin || hasValidWallet
