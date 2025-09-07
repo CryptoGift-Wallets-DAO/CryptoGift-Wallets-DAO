@@ -21,6 +21,7 @@ import { Search, Filter, Loader2 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
 import { useTaskCreate, useBlockchainTask } from '@/lib/web3/hooks'
 import { useAccount } from 'wagmi'
+import { ensureEthereumAddress } from '@/lib/utils'
 
 interface TaskListProps {
   userAddress?: string
@@ -107,8 +108,8 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
   }
 
   const handleClaimTask = async (taskId: string) => {
-    // Use either userAddress prop or address from wagmi
-    const walletAddress = userAddress || address
+    // Ensure we have a valid Ethereum address
+    const walletAddress = ensureEthereumAddress(address || userAddress)
     
     if (!walletAddress) {
       alert('Please connect your wallet to claim tasks')

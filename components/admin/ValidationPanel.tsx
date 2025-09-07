@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
 import { useTaskValidation, useMilestoneRelease } from '@/lib/web3/hooks'
+import { ensureEthereumAddress } from '@/lib/utils'
 
 // Authorized validator addresses - should match backend
 const AUTHORIZED_VALIDATORS = [
@@ -134,10 +135,11 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
           console.log('✅ Task validated on blockchain and database')
           
           // Step 3: Release payment automatically
-          if (task.assignee_address) {
+          const assigneeAddress = ensureEthereumAddress(task.assignee_address)
+          if (assigneeAddress) {
             console.log('🚀 Triggering automatic payment release...')
             await releaseMilestone(
-              task.assignee_address as `0x${string}`,
+              assigneeAddress,
               task.reward_cgc.toString(),
               taskId
             )
