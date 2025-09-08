@@ -103,7 +103,11 @@ export class TaskRulesContract {
   private createRobustProvider(): ethers.providers.JsonRpcProvider {
     console.log(`🌐 Creating provider with URL: ${this.currentRpcUrl}`)
     
-    const provider = new ethers.providers.JsonRpcProvider(this.currentRpcUrl, {
+    // Create provider with timeout configuration in constructor
+    const provider = new ethers.providers.JsonRpcProvider({
+      url: this.currentRpcUrl,
+      timeout: 15000 // 15 second timeout configured at creation
+    }, {
       name: 'base',
       chainId: 8453,
       ensAddress: undefined
@@ -112,13 +116,8 @@ export class TaskRulesContract {
     // Optimize timeouts for serverless environment
     provider.pollingInterval = 8000 // 8 seconds - faster for serverless
     
-    // Set connection timeout
-    if (provider.connection && typeof provider.connection === 'object') {
-      provider.connection.timeout = 15000 // 15 second timeout
-    }
-    
     // Log provider creation success
-    console.log('✅ Provider created successfully with serverless optimizations')
+    console.log('✅ Provider created successfully with serverless optimizations and 15s timeout')
     
     return provider
   }
@@ -135,13 +134,16 @@ export class TaskRulesContract {
       try {
         console.log(`🔗 Testing RPC ${index + 1}/${RPC_ENDPOINTS.length}: ${rpcUrl}`)
         
-        const testProvider = new ethers.providers.JsonRpcProvider(rpcUrl, {
+        const testProvider = new ethers.providers.JsonRpcProvider({
+          url: rpcUrl,
+          timeout: 8000 // 8 second timeout for connection tests
+        }, {
           name: 'base',
           chainId: 8453,
           ensAddress: undefined
         })
         
-        // Set aggressive timeouts for serverless
+        // Set aggressive polling interval for serverless
         testProvider.pollingInterval = 4000 // 4 seconds
         
         // Use Promise.race with timeout for faster failing
