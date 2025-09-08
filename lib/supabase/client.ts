@@ -57,13 +57,13 @@ export async function getServerClient() {
 }
 
 // Type-safe client getter for task operations
+// NOTE: This function is deprecated. Use supabaseAdmin or supabase directly
 export function getTypedClient() {
   const client = supabaseAdmin || supabase
   if (!client) {
     throw new Error('Supabase client not initialized. Please configure SUPABASE_DAO environment variables.')
   }
-  // Return the client with explicit typing
-  return client as ReturnType<typeof createClient<Database>>
+  return client
 }
 
 // Error handling wrapper
