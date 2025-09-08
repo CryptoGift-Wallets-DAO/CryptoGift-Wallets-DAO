@@ -4,7 +4,7 @@
  * Business logic for task management
  */
 
-import { supabase, supabaseAdmin, supabaseQuery, cachedQuery } from '@/lib/supabase/client'
+import { supabase, supabaseAdmin, supabaseQuery, cachedQuery, getTypedClient } from '@/lib/supabase/client'
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/supabase/types'
 import { getDAORedis, RedisKeys, RedisTTL } from '@/lib/redis-dao'
@@ -14,14 +14,8 @@ import type { Task, TaskInsert, TaskUpdate, Collaborator, TaskProposal } from '@
 import { ethers } from 'ethers'
 
 // Helper function to ensure supabase client is available with proper typing
-function ensureSupabaseClient(): ReturnType<typeof createClient<Database>> {
-  // Prefer admin client for server operations, fallback to regular client
-  const client = supabaseAdmin || supabase
-  if (!client) {
-    throw new Error('Supabase client not initialized. Please configure SUPABASE_DAO environment variables.')
-  }
-  // Force TypeScript to treat this as a properly typed Supabase client
-  return client as ReturnType<typeof createClient<Database>>
+function ensureSupabaseClient() {
+  return getTypedClient()
 }
 
 // Task complexity to reward mapping (days * 50 CGC)
@@ -407,7 +401,7 @@ export class TaskService {
         p_task_id: taskId,
         p_evidence_url: evidenceUrl,
         p_pr_url: prUrl,
-      } as any)
+      })
 
       if (error) throw error
 
@@ -446,7 +440,7 @@ export class TaskService {
         .from('tasks')
         .select('*')
         .eq('task_id', taskId)
-        .single() as { data: Task | null; error: any }
+        .single()
 
       if (fetchError || !task) {
         return { success: false, error: fetchError?.message || 'Task not found' }
@@ -506,7 +500,7 @@ export class TaskService {
         validation_hash: tx.hash,
         validators: [validatorAddress],
         metadata: {
-          ...(task.metadata as any || {}),
+          ...(task.metadata as Record<string, any> || {}),
           payment_tx: tx.hash,
           payment_amount_wei: amountWei.toString(),
           payment_block: receipt.blockNumber,
@@ -516,7 +510,7 @@ export class TaskService {
       
       const { error: updateError } = await client
         .from('tasks')
-        .update(updateData)
+        .update(updateData as Database['public']['Tables']['tasks']['Update'])
         .eq('task_id', taskId)
 
       if (updateError) {
@@ -564,14 +558,14 @@ export class TaskService {
       .from('tasks')
       .select('*')
       .eq('task_id', taskId)
-      .single() as { data: Task | null; error: any }
+      .single()
     
     if (fetchError || !task) {
       throw new Error(fetchError?.message || 'Task not found')
     }
     
     // Update task status
-    const updateData: any = {
+    const updateData: TaskUpdate = {
       status: status,
       updated_at: new Date().toISOString()
     }
@@ -585,7 +579,7 @@ export class TaskService {
     
     const { error: updateError } = await client
       .from('tasks')
-      .update(updateData)
+      .update(updateData as Database['public']['Tables']['tasks']['Update'])
       .eq('task_id', taskId)
     
     if (updateError) {
@@ -602,15 +596,15 @@ export class TaskService {
 
       if (collaborator) {
         const collabUpdate = {
-          total_cgc_earned: (collaborator as any).total_cgc_earned + task.reward_cgc,
-          tasks_completed: (collaborator as any).tasks_completed + 1,
-          tasks_in_progress: Math.max(0, (collaborator as any).tasks_in_progress - 1),
+          total_cgc_earned: collaborator.total_cgc_earned + task.reward_cgc,
+          tasks_completed: collaborator.tasks_completed + 1,
+          tasks_in_progress: Math.max(0, collaborator.tasks_in_progress - 1),
           last_activity: new Date().toISOString(),
         }
         
         const { error: collabError } = await client
           .from('collaborators')
-          .update(collabUpdate)
+          .update(collabUpdate as Database['public']['Tables']['collaborators']['Update'])
           .eq('wallet_address', task.assignee_address)
         
         if (collabError) {
@@ -627,7 +621,7 @@ export class TaskService {
         
         const { error: insertError } = await client
           .from('collaborators')
-          .insert(newCollaborator)
+          .insert(newCollaborator as Database['public']['Tables']['collaborators']['Insert'])
         
         if (insertError) {
           console.error('Error creating collaborator:', insertError)
@@ -635,7 +629,7 @@ export class TaskService {
       }
 
       // Recalculate ranks
-      await client.rpc('calculate_rank' as any)
+      await client.rpc('calculate_rank')
     }
 
     // Clear caches
@@ -646,7 +640,7 @@ export class TaskService {
   /**
    * Get leaderboard
    */
-  async getLeaderboard(limit = 100): Promise<any[]> {
+  async getLeaderboard(limit = 100): Promise<Array<Database['public']['Views']['leaderboard_view']['Row']>> {
     return cachedQuery('leaderboard', async () => {
       const client = ensureSupabaseClient()
       const { data, error } = await client
@@ -689,7 +683,7 @@ export class TaskService {
     return supabaseQuery(async () =>
       await client
         .from('task_proposals')
-        .insert(proposal as any)
+        .insert(proposal)
         .select()
         .single()
     )
@@ -743,7 +737,7 @@ export class TaskService {
       for (let i = 0; i < tasksToInsert.length; i += chunkSize) {
         const chunk = tasksToInsert.slice(i, i + chunkSize)
         const client = ensureSupabaseClient()
-        await client.from('tasks').insert(chunk as any)
+        await client.from('tasks').insert(chunk as Database['public']['Tables']['tasks']['Insert'][])
       }
 
       console.log(`Initialized ${tasksToInsert.length} tasks`)
@@ -779,21 +773,21 @@ export class TaskService {
       const onChainAssignee = await contract.getTaskAssignee(taskId)
       
       // Sync database with on-chain state
-      const updates: any = {}
+      const updates: TaskUpdate = {}
       
-      if (onChainStatus === TaskStatus.Claimed && !(task as any).assignee_address && onChainAssignee) {
+      if (onChainStatus === TaskStatus.Claimed && !task.assignee_address && onChainAssignee) {
         updates.assignee_address = onChainAssignee
         updates.status = 'claimed'
         updates.claimed_at = new Date().toISOString()
-      } else if (onChainStatus === TaskStatus.InProgress && (task as any).status === 'claimed') {
+      } else if (onChainStatus === TaskStatus.InProgress && task.status === 'claimed') {
         updates.status = 'in_progress'
-      } else if (onChainStatus === TaskStatus.Completed && (task as any).status !== 'completed') {
+      } else if (onChainStatus === TaskStatus.Completed && task.status !== 'completed') {
         updates.status = 'completed'
         updates.completed_at = new Date().toISOString()
       }
       
       if (Object.keys(updates).length > 0) {
-        await (client as any)
+        await client
           .from('tasks')
           .update(updates)
           .eq('task_id', taskId)
@@ -821,7 +815,7 @@ export class TaskService {
         .select('*')
         .eq('task_id', taskId)
         .eq('status', 'available')
-        .single()
+        .single() as { data: Task | null; error: any }
 
       if (!task) {
         return { success: false, error: 'Task not found or not available' }
@@ -869,14 +863,14 @@ export class TaskService {
         assignee_address: claimantAddress,
         claimed_at: new Date().toISOString(),
         metadata: {
-          ...(task.metadata as any || {}),
+          ...(task.metadata as Record<string, any> || {}),
           claim_signature: JSON.stringify(signatureData)
         }
       }
       
       const { error: updateError } = await client
         .from('tasks')
-        .update(claimUpdateData)
+        .update(claimUpdateData as Database['public']['Tables']['tasks']['Update'])
         .eq('task_id', taskId)
 
       if (updateError) {
@@ -896,7 +890,7 @@ export class TaskService {
               claim_signature: JSON.stringify(signatureData),
               timestamp: new Date().toISOString()
             }
-          })
+          } as Database['public']['Tables']['task_history']['Insert'])
       } catch (err) {
         console.warn('Failed to log task history:', err)
       }
@@ -936,7 +930,7 @@ export class TaskService {
         .eq('task_id', taskId)
         .eq('assignee_address', assigneeAddress)
         .in('status', ['claimed', 'in_progress'])
-        .single()
+        .single() as { data: Task | null; error: any }
 
       if (!task) {
         return { success: false, error: 'Task not found or not assigned to you' }
@@ -959,14 +953,14 @@ export class TaskService {
         pr_url: prUrl,
         submitted_at: new Date().toISOString(),
         metadata: {
-          ...(task.metadata as any || {}),
+          ...(task.metadata as Record<string, any> || {}),
           submission_data: JSON.stringify(submissionData)
         }
       }
       
       const { error: updateError } = await client
         .from('tasks')
-        .update(submissionUpdateData)
+        .update(submissionUpdateData as Database['public']['Tables']['tasks']['Update'])
         .eq('task_id', taskId)
 
       if (updateError) {
@@ -987,7 +981,7 @@ export class TaskService {
               prUrl, 
               submission_data: JSON.stringify(submissionData)
             }
-          })
+          } as Database['public']['Tables']['task_history']['Insert'])
       } catch (err) {
         console.warn('Failed to log submission history:', err)
       }
@@ -1023,7 +1017,7 @@ export class TaskService {
       // Create task in database
       const { data: createdTask, error: dbError } = await client
         .from('tasks')
-        .insert(taskData as any)
+        .insert(taskData as Database['public']['Tables']['tasks']['Insert'])
         .select()
         .single()
 
@@ -1036,19 +1030,19 @@ export class TaskService {
         await client
           .from('task_history')
           .insert({
-            task_id: (createdTask as any).task_id,
+            task_id: createdTask.task_id,
             action: 'created',
             actor_address: 'system',
             metadata: { 
               created_at: new Date().toISOString(),
               // No txHash in hybrid model
             }
-          })
+          } as Database['public']['Tables']['task_history']['Insert'])
       } catch (err) {
         console.warn('Failed to log task creation:', err)
       }
 
-      console.log(`✅ Task ${(createdTask as any).task_id} created in database (offchain)`)
+      console.log(`✅ Task ${createdTask.task_id} created in database (offchain)`)
 
       // Return success without txHash (no blockchain interaction)
       return { success: true }
@@ -1062,7 +1056,7 @@ export class TaskService {
   /**
    * Update task with arbitrary data
    */
-  async updateTask(taskId: string, updateData: any): Promise<boolean> {
+  async updateTask(taskId: string, updateData: TaskUpdate): Promise<boolean> {
     try {
       const client = ensureSupabaseClient()
       
@@ -1082,10 +1076,10 @@ export class TaskService {
           .from('task_history')
           .insert({
             task_id: taskId,
-            action: 'updated',
+            action: 'updated' as any, // Temporary fix - action enum may not include 'updated'
             actor_address: updateData.validator_address || updateData.rejected_by || 'system',
             metadata: updateData
-          })
+          } as Database['public']['Tables']['task_history']['Insert'])
       } catch (err) {
         console.warn('Failed to log task update history:', err)
       }

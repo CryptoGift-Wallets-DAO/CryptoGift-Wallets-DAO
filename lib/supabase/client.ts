@@ -56,6 +56,16 @@ export async function getServerClient() {
   return supabaseAdmin
 }
 
+// Type-safe client getter for task operations
+export function getTypedClient() {
+  const client = supabaseAdmin || supabase
+  if (!client) {
+    throw new Error('Supabase client not initialized. Please configure SUPABASE_DAO environment variables.')
+  }
+  // Return the client with explicit typing
+  return client as ReturnType<typeof createClient<Database>>
+}
+
 // Error handling wrapper
 export async function supabaseQuery<T>(
   queryFn: () => Promise<{ data: T | null; error: any }>

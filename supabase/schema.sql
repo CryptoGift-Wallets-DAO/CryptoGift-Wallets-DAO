@@ -286,10 +286,16 @@ CREATE POLICY "Service role can insert history" ON public.task_history
     FOR INSERT WITH CHECK (auth.role() = 'service_role');
 
 -- =====================================================
--- 📊 INITIAL VIEWS (optional but helpful)
+-- 📊 VIEWS - SAFE RECREATION
 -- =====================================================
+-- Drop existing views before recreating to avoid structure conflicts
+DROP VIEW IF EXISTS public.active_tasks_with_assignees CASCADE;
+DROP VIEW IF EXISTS public.active_tasks_view CASCADE;
+DROP VIEW IF EXISTS public.leaderboard_view CASCADE;
+DROP VIEW IF EXISTS public.leaderboard CASCADE;
+
 -- View for active tasks with assignee info
-CREATE OR REPLACE VIEW public.active_tasks_with_assignees AS
+CREATE VIEW public.active_tasks_with_assignees AS
 SELECT 
     t.*,
     c.username as assignee_username,
@@ -299,7 +305,7 @@ LEFT JOIN public.collaborators c ON t.assignee_address = c.wallet_address
 WHERE t.status IN ('available', 'claimed', 'in_progress', 'submitted');
 
 -- View for active tasks
-CREATE OR REPLACE VIEW public.active_tasks_view AS
+CREATE VIEW public.active_tasks_view AS
 SELECT 
     task_id,
     title,
@@ -317,7 +323,7 @@ FROM public.tasks
 WHERE assignee_address IS NOT NULL AND status != 'completed';
 
 -- View for leaderboard
-CREATE OR REPLACE VIEW public.leaderboard_view AS
+CREATE VIEW public.leaderboard_view AS
 SELECT 
     wallet_address as address,
     discord_username as discord_id,
