@@ -436,15 +436,15 @@ export class TaskService {
     try {
       const client = ensureSupabaseClient()
       
-      // 1. Get task from database
-      const { data: task } = await client
+      // 1. Get task from database with proper typing
+      const { data: task, error: fetchError } = await client
         .from('tasks')
         .select('*')
         .eq('task_id', taskId)
-        .single()
+        .single() as { data: Task | null; error: any }
 
-      if (!task) {
-        return { success: false, error: 'Task not found' }
+      if (fetchError || !task) {
+        return { success: false, error: fetchError?.message || 'Task not found' }
       }
 
       if (!task.assignee_address) {
@@ -509,7 +509,7 @@ export class TaskService {
             payment_block: receipt.blockNumber,
             gas_used: receipt.gasUsed.toString()
           }
-        })
+        } as TaskUpdate)
         .eq('task_id', taskId)
 
       if (updateError) {
@@ -549,24 +549,44 @@ export class TaskService {
   /**
    * Helper to update task status in database only (no blockchain)
    */
-  async updateTaskStatus(taskId: string, status: string): Promise<void> {
+  async updateTaskStatus(taskId: string, status: string, validatorAddress?: string): Promise<void> {
     const client = ensureSupabaseClient()
-    const { error: updateError } = await (client as any)
+    
+    // First get the task to have its data
+    const { data: task, error: fetchError } = await client
       .from('tasks')
-      .update({
-        status: 'completed' as const,
-        completed_at: new Date().toISOString(),
-        validators: [...(task.validators || []), validatorAddress],
-      } as any)
+      .select('*')
+      .eq('task_id', taskId)
+      .single() as { data: Task | null; error: any }
+    
+    if (fetchError || !task) {
+      throw new Error(fetchError?.message || 'Task not found')
+    }
+    
+    // Update task status
+    const updateData: any = {
+      status: status,
+      updated_at: new Date().toISOString()
+    }
+    
+    if (status === 'completed') {
+      updateData.completed_at = new Date().toISOString()
+      if (validatorAddress) {
+        updateData.validators = [...(task.validators || []), validatorAddress]
+      }
+    }
+    
+    const { error: updateError } = await client
+      .from('tasks')
+      .update(updateData as TaskUpdate)
       .eq('task_id', taskId)
     
     if (updateError) {
       throw updateError
     }
 
-    // Update collaborator stats
-    if (task.assignee_address) {
-      const client = ensureSupabaseClient()
+    // Update collaborator stats only if task is completed and has assignee
+    if (status === 'completed' && task.assignee_address) {
       const { data: collaborator } = await client
         .from('collaborators')
         .select('*')
@@ -849,7 +869,21 @@ export class TaskService {
         return { success: false, error: 'Failed to update task status' }
       }
 
-      // 5. SUCCESS: Task claimed offchain, ready for work
+      // 5. Log the claim to history (optional)
+      await client
+        .from('task_history')
+        .insert({
+          task_id: taskId,
+          action: 'claimed',
+          actor_address: claimantAddress,
+          metadata: { 
+            claim_signature: JSON.stringify(signatureData),
+            timestamp: new Date().toISOString()
+          }
+        } as any)
+        .catch(err => console.warn('Failed to log task history:', err))
+
+      // 6. SUCCESS: Task claimed offchain, ready for work
       console.log(`✅ Task ${taskId} claimed by ${claimantAddress} (offchain)`)
       
       // Return success without TX hash (no blockchain interaction)
@@ -859,18 +893,6 @@ export class TaskService {
         // No txHash since we didn't touch blockchain
       }
 
-      // Log the claim
-      await client
-        .from('task_history')
-        .insert({
-          task_id: taskId,
-          action: 'claimed',
-          actor_address: claimantAddress,
-          metadata: { txHash, signature }
-        } as any)
-
-      return { success: true, txHash }
-
     } catch (error) {
       console.error('Error claiming task:', error)
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
@@ -878,7 +900,7 @@ export class TaskService {
   }
 
   /**
-   * Submit task evidence with blockchain validation
+   * Submit task evidence - HYBRID MODEL (offchain validation)
    */
   async submitTaskEvidence(
     taskId: string, 
@@ -902,39 +924,34 @@ export class TaskService {
         return { success: false, error: 'Task not found or not assigned to you' }
       }
 
-      // Initialize contract with private key
-      const contract = getTaskRulesContract(process.env.PRIVATE_KEY_DAO_DEPLOYER)
-      
-      // Generate EIP-712 signature for submission
-      const deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour deadline
-      const signature = await contract.generateSubmissionSignature(
-        taskId, 
-        assigneeAddress, 
-        evidenceUrl, 
-        deadline
-      )
-      
-      // Validate submission on blockchain
-      const { isValid, txHash } = await contract.validateSubmission(taskId, evidenceUrl, signature)
-      
-      if (!isValid) {
-        return { success: false, error: 'Submission validation failed on blockchain' }
+      // OFFCHAIN: Generate EIP-712 signature data for future validation (no gas)
+      const submissionData = {
+        taskId,
+        assigneeAddress,
+        evidenceUrl,
+        prUrl,
+        timestamp: Math.floor(Date.now() / 1000),
+        nonce: Date.now()
       }
 
-      // Update database
+      // Update database with submission (no blockchain)
       const { error: updateError } = await (client as any)
         .from('tasks')
         .update({
           status: 'submitted',
           evidence_url: evidenceUrl,
           pr_url: prUrl,
-          submitted_at: new Date().toISOString()
+          submitted_at: new Date().toISOString(),
+          metadata: {
+            ...(task.metadata || {}),
+            submission_data: JSON.stringify(submissionData)
+          }
         } as any)
         .eq('task_id', taskId)
 
       if (updateError) {
         console.error('Error updating task after submission:', updateError)
-        return { success: false, error: 'Database update failed after blockchain validation' }
+        return { success: false, error: 'Failed to submit task evidence' }
       }
 
       // Log the submission
@@ -944,10 +961,18 @@ export class TaskService {
           task_id: taskId,
           action: 'submitted',
           actor_address: assigneeAddress,
-          metadata: { txHash, evidenceUrl, prUrl, signature }
+          metadata: { 
+            evidenceUrl, 
+            prUrl, 
+            submission_data: JSON.stringify(submissionData)
+          }
         } as any)
+        .catch(err => console.warn('Failed to log submission history:', err))
 
-      return { success: true, txHash }
+      console.log(`✅ Task ${taskId} evidence submitted by ${assigneeAddress} (offchain)`)
+      
+      // No txHash since we didn't touch blockchain
+      return { success: true }
 
     } catch (error) {
       console.error('Error submitting task evidence:', error)
@@ -956,42 +981,32 @@ export class TaskService {
   }
 
   /**
-   * Create task on blockchain and database
+   * Create task - HYBRID MODEL (database only, no blockchain)
+   * @deprecated Use createTask() instead for hybrid model
    */
   async createTaskWithBlockchain(taskData: TaskInsert): Promise<{ success: boolean; txHash?: string; error?: string }> {
+    // In hybrid model, we don't create tasks on blockchain
+    // Just create in database
+    return this.createTask(taskData)
+  }
+
+  /**
+   * Create task in database only (HYBRID MODEL)
+   */
+  async createTask(taskData: TaskInsert): Promise<{ success: boolean; txHash?: string; error?: string }> {
     try {
       const client = ensureSupabaseClient()
       
-      // Create task in database first
+      // Create task in database
       const { data: createdTask, error: dbError } = await client
         .from('tasks')
         .insert(taskData as any)
         .select()
         .single()
 
-      if (dbError) {
-        return { success: false, error: 'Failed to create task in database' }
+      if (dbError || !createdTask) {
+        return { success: false, error: dbError?.message || 'Failed to create task in database' }
       }
-
-      // Initialize contract with private key
-      const contract = getTaskRulesContract(process.env.PRIVATE_KEY_DAO_DEPLOYER)
-      
-      // Create task on blockchain
-      const txHash = await contract.createTask(createdTask)
-      
-      if (!txHash) {
-        // Rollback database creation
-        await client.from('tasks').delete().eq('id', (createdTask as any).id)
-        return { success: false, error: 'Failed to create task on blockchain' }
-      }
-
-      // Update task with blockchain transaction hash
-      await (client as any)
-        .from('tasks')
-        .update({ 
-          metadata: { creation_tx: txHash }
-        } as any)
-        .eq('id', (createdTask as any).id)
 
       // Log the creation
       await client
@@ -1000,10 +1015,17 @@ export class TaskService {
           task_id: (createdTask as any).task_id,
           action: 'created',
           actor_address: 'system',
-          metadata: { txHash }
+          metadata: { 
+            created_at: new Date().toISOString(),
+            // No txHash in hybrid model
+          }
         } as any)
+        .catch(err => console.warn('Failed to log task creation:', err))
 
-      return { success: true, txHash }
+      console.log(`✅ Task ${(createdTask as any).task_id} created in database (offchain)`)
+
+      // Return success without txHash (no blockchain interaction)
+      return { success: true }
 
     } catch (error) {
       console.error('Error creating task with blockchain:', error)
