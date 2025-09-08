@@ -18,50 +18,40 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('⚠️ Supabase environment variables not configured. Some features will be disabled.')
 }
 
-// Build-time fallback URL and key (these won't work but satisfy TypeScript)
-const BUILD_TIME_URL = supabaseUrl || 'https://placeholder.supabase.co'
-const BUILD_TIME_ANON_KEY = supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder'
-const BUILD_TIME_SERVICE_KEY = supabaseServiceKey || BUILD_TIME_ANON_KEY
-
-// Public client for client-side operations - ALWAYS returns a typed client
-export const supabase: TypedSupabaseClient = createClient<Database>(
-  BUILD_TIME_URL,
-  BUILD_TIME_ANON_KEY,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-    db: {
-      schema: 'public',
-    },
-    global: {
-      headers: {
-        'x-application': 'cryptogift-dao',
+// Public client for client-side operations
+export const supabase: TypedSupabaseClient | null = supabaseUrl && supabaseAnonKey
+  ? createClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
       },
-    },
-  }
-)
+      db: {
+        schema: 'public',
+      },
+      global: {
+        headers: {
+          'x-application': 'cryptogift-dao',
+        },
+      },
+    })
+  : null
 
-// Admin client for server-side operations - ALWAYS returns a typed client
-export const supabaseAdmin: TypedSupabaseClient = createClient<Database>(
-  BUILD_TIME_URL,
-  BUILD_TIME_SERVICE_KEY,
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-    db: {
-      schema: 'public',
-    },
-  }
-)
+// Admin client for server-side operations
+export const supabaseAdmin: TypedSupabaseClient | null = (supabaseUrl && supabaseServiceKey)
+  ? createClient<Database>(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+      db: {
+        schema: 'public',
+      },
+    })
+  : null
 
 // Helper functions
 export async function getServerClient(): Promise<TypedSupabaseClient> {
-  // Check if we have real credentials
-  if (!supabaseUrl || !supabaseServiceKey) {
+  if (!supabaseAdmin) {
     throw new Error('Supabase admin client not properly configured')
   }
   return supabaseAdmin
@@ -69,11 +59,9 @@ export async function getServerClient(): Promise<TypedSupabaseClient> {
 
 // Type-safe client getter for task operations
 export function getTypedClient(): TypedSupabaseClient {
-  // Check if we have real credentials
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('Supabase client not properly configured, using placeholder')
+  if (!supabaseAdmin) {
+    throw new Error('Supabase admin client not initialized. Please configure SUPABASE_DAO environment variables.')
   }
-  // Always return the admin client which is always typed
   return supabaseAdmin
 }
 

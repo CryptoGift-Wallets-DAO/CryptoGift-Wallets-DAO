@@ -16,7 +16,9 @@ import { ethers } from 'ethers'
 
 // Helper function to ensure supabase client is available with proper typing
 function ensureSupabaseClient(): TypedSupabaseClient {
-  // Always use the admin client which is always typed
+  if (!supabaseAdmin) {
+    throw new Error('Supabase admin client not initialized. Please configure SUPABASE_DAO environment variables.')
+  }
   return supabaseAdmin
 }
 
@@ -552,7 +554,7 @@ export class TaskService {
   /**
    * Helper to update task status in database only (no blockchain)
    */
-  async updateTaskStatus(taskId: string, status: string, validatorAddress?: string): Promise<void> {
+  async updateTaskStatus(taskId: string, status: 'available' | 'claimed' | 'in_progress' | 'submitted' | 'validated' | 'completed' | 'cancelled' | 'expired', validatorAddress?: string): Promise<void> {
     const client = ensureSupabaseClient()
     
     // First get the task to have its data

@@ -265,12 +265,12 @@ async function handleLeaderboardCommand(payload: DiscordWebhookPayload) {
   try {
     const supabase = await getServerClient()
     
-    // Get top 10 collaborators
+    // Get top 10 collaborators with explicit typing
     const { data: topCollaborators } = await supabase
       .from('collaborators')
       .select('username, total_cgc_earned, tasks_completed')
       .order('total_cgc_earned', { ascending: false })
-      .limit(10)
+      .limit(10) as { data: { username: string | null; total_cgc_earned: number; tasks_completed: number }[] | null; error: any }
 
     if (!topCollaborators || topCollaborators.length === 0) {
       return NextResponse.json({
@@ -280,10 +280,10 @@ async function handleLeaderboardCommand(payload: DiscordWebhookPayload) {
     }
 
     const leaderboardText = topCollaborators
-      .map((collab, index) => {
+      .map((collab: { username: string | null; total_cgc_earned: number; tasks_completed: number }, index: number) => {
         const rank = index + 1
         const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`
-        return `${medal} **${(collab as any).username || 'Anonymous'}** - ${(collab as any).total_cgc_earned || 0} CGC (${(collab as any).tasks_completed || 0} tasks)`
+        return `${medal} **${collab.username || 'Anonymous'}** - ${collab.total_cgc_earned || 0} CGC (${collab.tasks_completed || 0} tasks)`
       })
       .join('\n')
 
