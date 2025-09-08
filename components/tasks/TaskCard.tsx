@@ -6,7 +6,7 @@
 
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -64,19 +64,35 @@ export function TaskCard({
     return 'bg-red-100 text-red-800'
   }
 
-  // Calculate progress if in progress
-  const calculateProgress = () => {
-    if (!showProgress || task.status !== 'in_progress') return 0
-    
-    const startTime = new Date(task.created_at).getTime()
-    const now = Date.now()
-    const totalTime = task.estimated_days * 24 * 60 * 60 * 1000
-    const elapsed = now - startTime
-    
-    return Math.min(100, Math.round((elapsed / totalTime) * 100))
-  }
+  // Calculate progress if in progress (SSR-safe)
+  const [progress, setProgress] = useState(0)
+  
+  useEffect(() => {
+    const calculateProgress = () => {
+      if (!showProgress || task.status !== 'in_progress') return 0
+      
+      const startTime = new Date(task.created_at).getTime()
+      const now = Date.now()
+      const totalTime = task.estimated_days * 24 * 60 * 60 * 1000
+      const elapsed = now - startTime
+      
+      return Math.min(100, Math.round((elapsed / totalTime) * 100))
+    }
 
-  const progress = calculateProgress()
+    setProgress(calculateProgress())
+    
+    // Update progress every minute if task is in progress
+    let interval: NodeJS.Timeout | null = null
+    if (task.status === 'in_progress') {
+      interval = setInterval(() => {
+        setProgress(calculateProgress())
+      }, 60000) // Update every minute
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [task.status, task.created_at, task.estimated_days, showProgress])
 
   return (
     <Card className="glass-panel hover:shadow-lg transition-all duration-300 spring-in">

@@ -48,9 +48,17 @@ const RPC_ENDPOINTS = [
   process.env.NEXT_PUBLIC_RPC_URL, 
   process.env.RPC_URL,
   process.env.ALCHEMY_BASE_RPC,
+  // Primary endpoints - most reliable
   'https://mainnet.base.org',
+  'https://base-rpc.publicnode.com',
+  'https://base.llamarpc.com',
+  // Secondary endpoints - additional backup
   'https://base-mainnet.public.blastapi.io',
-  'https://base.blockpi.network/v1/rpc/public'
+  'https://base.blockpi.network/v1/rpc/public',
+  'https://base.drpc.org',
+  'https://base-mainnet.diamondswap.org/rpc',
+  // Coinbase official endpoints
+  'https://developer-access-mainnetbeta.base.org',
 ].filter(Boolean) as string[]
 
 // Get the first available RPC URL
@@ -61,11 +69,14 @@ if (typeof window === 'undefined') {
   console.log('🔧 TaskRules RPC Configuration:')
   console.log(`  Available endpoints: ${RPC_ENDPOINTS.length}`)
   console.log(`  Selected RPC: ${RPC_URL}`)
+  console.log(`  All endpoints: ${JSON.stringify(RPC_ENDPOINTS)}`)
   console.log(`  Environment variables:`)
   console.log(`    BASE_RPC_URL: ${process.env.BASE_RPC_URL ? '✅ Set' : '❌ Missing'}`)
   console.log(`    NEXT_PUBLIC_RPC_URL: ${process.env.NEXT_PUBLIC_RPC_URL ? '✅ Set' : '❌ Missing'}`)
   console.log(`    RPC_URL: ${process.env.RPC_URL ? '✅ Set' : '❌ Missing'}`)
   console.log(`    ALCHEMY_BASE_RPC: ${process.env.ALCHEMY_BASE_RPC ? '✅ Set' : '❌ Missing'}`)
+  console.log(`  NODE_ENV: ${process.env.NODE_ENV}`)
+  console.log(`  VERCEL: ${process.env.VERCEL}`)
 }
 
 
@@ -98,55 +109,90 @@ export class TaskRulesContract {
       ensAddress: undefined
     })
 
-    // Set generous timeouts for production stability
-    provider.pollingInterval = 12000 // 12 seconds
+    // Optimize timeouts for serverless environment
+    provider.pollingInterval = 8000 // 8 seconds - faster for serverless
+    
+    // Set connection timeout
+    if (provider.connection && typeof provider.connection === 'object') {
+      provider.connection.timeout = 15000 // 15 second timeout
+    }
     
     // Log provider creation success
-    console.log('✅ Provider created successfully')
+    console.log('✅ Provider created successfully with serverless optimizations')
     
     return provider
   }
 
   /**
    * Test connection and fallback to alternative RPC if needed
+   * Optimized for serverless environments with timeouts
    */
   private async testAndFallbackProvider(): Promise<void> {
-    for (let i = 0; i < RPC_ENDPOINTS.length; i++) {
-      const rpcUrl = RPC_ENDPOINTS[i]
-      
+    console.log(`🔄 Testing ${RPC_ENDPOINTS.length} RPC endpoints for failover...`)
+    
+    // Test all endpoints in parallel with timeout
+    const testPromises = RPC_ENDPOINTS.map(async (rpcUrl, index) => {
       try {
-        console.log(`🔗 Testing RPC connection: ${rpcUrl}`)
+        console.log(`🔗 Testing RPC ${index + 1}/${RPC_ENDPOINTS.length}: ${rpcUrl}`)
+        
         const testProvider = new ethers.providers.JsonRpcProvider(rpcUrl, {
           name: 'base',
           chainId: 8453,
           ensAddress: undefined
         })
         
-        // Test connection with network detection
-        const network = await testProvider.getNetwork()
+        // Set aggressive timeouts for serverless
+        testProvider.pollingInterval = 4000 // 4 seconds
+        
+        // Use Promise.race with timeout for faster failing
+        const networkPromise = testProvider.getNetwork()
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Connection timeout')), 8000) // 8 second timeout
+        })
+        
+        const network = await Promise.race([networkPromise, timeoutPromise])
+        
         if (network.chainId === 8453) {
-          console.log(`✅ RPC connection successful: ${rpcUrl}`)
-          
-          // Update provider if different from current
-          if (rpcUrl !== this.currentRpcUrl) {
-            this.currentRpcUrl = rpcUrl
-            this.provider = testProvider
-            this.contract = new ethers.Contract(CONTRACT_ADDRESS, TASK_RULES_ABI, this.provider)
-            
-            if (this.signer) {
-              this.signer = new ethers.Wallet((this.signer as ethers.Wallet).privateKey, this.provider)
-              this.contract = this.contract.connect(this.signer)
-            }
-          }
-          return
+          console.log(`✅ RPC ${index + 1} connection successful: ${rpcUrl}`)
+          return { rpcUrl, provider: testProvider, success: true, index }
         }
+        
+        throw new Error(`Wrong network: ${network.chainId}`)
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
-        console.warn(`⚠️ RPC connection failed: ${rpcUrl} -`, errorMessage)
-        continue
+        console.warn(`⚠️ RPC ${index + 1} failed: ${rpcUrl} - ${errorMessage}`)
+        return { rpcUrl, provider: null, success: false, error: errorMessage, index }
+      }
+    })
+    
+    // Wait for first successful connection or all to fail
+    const results = await Promise.allSettled(testPromises)
+    
+    // Find first successful connection
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value.success) {
+        const successfulConnection = result.value
+        console.log(`🎯 Using RPC endpoint ${successfulConnection.index + 1}: ${successfulConnection.rpcUrl}`)
+        
+        // Update provider if different from current
+        if (successfulConnection.rpcUrl !== this.currentRpcUrl) {
+          this.currentRpcUrl = successfulConnection.rpcUrl
+          this.provider = successfulConnection.provider!
+          this.contract = new ethers.Contract(CONTRACT_ADDRESS, TASK_RULES_ABI, this.provider)
+          
+          if (this.signer) {
+            this.signer = new ethers.Wallet((this.signer as ethers.Wallet).privateKey, this.provider)
+            this.contract = this.contract.connect(this.signer)
+          }
+        }
+        return
       }
     }
     
+    // All endpoints failed
+    console.error('💥 ALL RPC endpoints failed. Results:', 
+      results.map(r => r.status === 'fulfilled' ? r.value : r.reason)
+    )
     throw new Error('All RPC endpoints failed. Please check network connectivity and try again.')
   }
 

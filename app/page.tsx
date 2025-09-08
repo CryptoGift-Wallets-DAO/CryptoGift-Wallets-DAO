@@ -110,7 +110,9 @@ export default function CryptoGiftDAODashboard() {
         case 'Request token release':
           // Example: Release 100 CGC tokens to connected wallet
           if (address) {
-            await releaseMilestone(address, '100', `milestone-${Date.now()}`);
+            // Use a more predictable milestone ID to avoid SSR hydration issues
+            const milestoneId = `milestone-user-${address.slice(-8)}`;
+            await releaseMilestone(address, '100', milestoneId);
             info('Transaction Submitted', 'Waiting for confirmation...');
           }
           break;
