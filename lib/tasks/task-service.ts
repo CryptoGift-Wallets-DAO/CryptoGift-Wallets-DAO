@@ -15,17 +15,8 @@ import { ethers } from 'ethers'
 
 // Helper function to ensure supabase client is available with proper typing
 function ensureSupabaseClient() {
-  // During build time, return a mock client to satisfy TypeScript
-  if (typeof window === 'undefined' && !supabaseAdmin && !supabase) {
-    // Return a properly typed mock that will never be used in production
-    return {} as ReturnType<typeof createClient<Database>>
-  }
-  
-  const client = supabaseAdmin || supabase
-  if (!client) {
-    throw new Error('Supabase client not initialized. Please configure SUPABASE_DAO environment variables.')
-  }
-  return client
+  // Always use the admin client which is always typed
+  return supabaseAdmin
 }
 
 // Task complexity to reward mapping (days * 50 CGC)
@@ -450,7 +441,7 @@ export class TaskService {
         .from('tasks')
         .select('*')
         .eq('task_id', taskId)
-        .single() as { data: Task | null; error: any }
+        .single()
 
       if (fetchError || !task) {
         return { success: false, error: fetchError?.message || 'Task not found' }
@@ -520,7 +511,7 @@ export class TaskService {
       
       const { error: updateError } = await client
         .from('tasks')
-        .update(updateData as any)
+        .update(updateData)
         .eq('task_id', taskId)
 
       if (updateError) {
@@ -589,7 +580,7 @@ export class TaskService {
     
     const { error: updateError } = await client
       .from('tasks')
-      .update(updateData as any)
+      .update(updateData)
       .eq('task_id', taskId)
     
     if (updateError) {
@@ -614,7 +605,7 @@ export class TaskService {
         
         const { error: collabError } = await client
           .from('collaborators')
-          .update(collabUpdate as any)
+          .update(collabUpdate)
           .eq('wallet_address', task.assignee_address)
         
         if (collabError) {
@@ -631,7 +622,7 @@ export class TaskService {
         
         const { error: insertError } = await client
           .from('collaborators')
-          .insert(newCollaborator as any)
+          .insert(newCollaborator)
         
         if (insertError) {
           console.error('Error creating collaborator:', insertError)
@@ -693,7 +684,7 @@ export class TaskService {
     return supabaseQuery(async () =>
       await client
         .from('task_proposals')
-        .insert(proposal as any)
+        .insert(proposal)
         .select()
         .single()
     )
@@ -747,7 +738,7 @@ export class TaskService {
       for (let i = 0; i < tasksToInsert.length; i += chunkSize) {
         const chunk = tasksToInsert.slice(i, i + chunkSize)
         const client = ensureSupabaseClient()
-        await client.from('tasks').insert(chunk as any)
+        await client.from('tasks').insert(chunk)
       }
 
       console.log(`Initialized ${tasksToInsert.length} tasks`)
@@ -799,7 +790,7 @@ export class TaskService {
       if (Object.keys(updates).length > 0) {
         await client
           .from('tasks')
-          .update(updates as any)
+          .update(updates)
           .eq('task_id', taskId)
           
         console.log('Task synced with blockchain:', { taskId, updates })
@@ -880,7 +871,7 @@ export class TaskService {
       
       const { error: updateError } = await client
         .from('tasks')
-        .update(claimUpdateData as any)
+        .update(claimUpdateData)
         .eq('task_id', taskId)
 
       if (updateError) {
@@ -894,7 +885,7 @@ export class TaskService {
           .from('task_history')
           .insert({
             task_id: taskId,
-            action: 'claimed' as any,
+            action: 'claimed',
             actor_address: claimantAddress,
             metadata: { 
               claim_signature: JSON.stringify(signatureData),
@@ -970,7 +961,7 @@ export class TaskService {
       
       const { error: updateError } = await client
         .from('tasks')
-        .update(submissionUpdateData as any)
+        .update(submissionUpdateData)
         .eq('task_id', taskId)
 
       if (updateError) {
@@ -984,7 +975,7 @@ export class TaskService {
           .from('task_history')
           .insert({
             task_id: taskId,
-            action: 'submitted' as any,
+            action: 'submitted',
             actor_address: assigneeAddress,
             metadata: { 
               evidenceUrl, 
@@ -1027,7 +1018,7 @@ export class TaskService {
       // Create task in database
       const { data: createdTask, error: dbError } = await client
         .from('tasks')
-        .insert(taskData as any)
+        .insert(taskData)
         .select()
         .single()
 
@@ -1041,7 +1032,7 @@ export class TaskService {
           .from('task_history')
           .insert({
             task_id: createdTask.task_id,
-            action: 'created' as any,
+            action: 'created',
             actor_address: 'system',
             metadata: { 
               created_at: new Date().toISOString(),
@@ -1072,7 +1063,7 @@ export class TaskService {
       
       const { error } = await client
         .from('tasks')
-        .update(updateData as any)
+        .update(updateData)
         .eq('task_id', taskId)
       
       if (error) {
