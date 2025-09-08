@@ -401,7 +401,7 @@ export class TaskService {
         p_task_id: taskId,
         p_evidence_url: evidenceUrl,
         p_pr_url: prUrl,
-      } as Database['public']['Functions']['submit_task_evidence']['Args'])
+      })
 
       if (error) throw error
 
@@ -440,7 +440,7 @@ export class TaskService {
         .from('tasks')
         .select('*')
         .eq('task_id', taskId)
-        .single()
+        .single() as { data: Task | null; error: any }
 
       if (fetchError || !task) {
         return { success: false, error: fetchError?.message || 'Task not found' }
