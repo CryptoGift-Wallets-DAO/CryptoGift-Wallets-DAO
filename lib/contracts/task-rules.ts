@@ -41,21 +41,140 @@ const TASK_RULES_ABI = [
 
 // Contract configuration
 const CONTRACT_ADDRESS = process.env.TASK_RULES_ADDRESS || '0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb'
-const RPC_URL = process.env.BASE_RPC_URL || 'https://mainnet.base.org'
+
+// Robust RPC configuration with multiple fallbacks
+const RPC_ENDPOINTS = [
+  process.env.BASE_RPC_URL,
+  process.env.NEXT_PUBLIC_RPC_URL, 
+  process.env.RPC_URL,
+  process.env.ALCHEMY_BASE_RPC,
+  'https://mainnet.base.org',
+  'https://base-mainnet.public.blastapi.io',
+  'https://base.blockpi.network/v1/rpc/public'
+].filter(Boolean) as string[]
+
+// Get the first available RPC URL
+const RPC_URL = RPC_ENDPOINTS[0]
+
+// Debug logging for production troubleshooting
+if (typeof window === 'undefined') {
+  console.log('🔧 TaskRules RPC Configuration:')
+  console.log(`  Available endpoints: ${RPC_ENDPOINTS.length}`)
+  console.log(`  Selected RPC: ${RPC_URL}`)
+  console.log(`  Environment variables:`)
+  console.log(`    BASE_RPC_URL: ${process.env.BASE_RPC_URL ? '✅ Set' : '❌ Missing'}`)
+  console.log(`    NEXT_PUBLIC_RPC_URL: ${process.env.NEXT_PUBLIC_RPC_URL ? '✅ Set' : '❌ Missing'}`)
+  console.log(`    RPC_URL: ${process.env.RPC_URL ? '✅ Set' : '❌ Missing'}`)
+  console.log(`    ALCHEMY_BASE_RPC: ${process.env.ALCHEMY_BASE_RPC ? '✅ Set' : '❌ Missing'}`)
+}
 
 
 export class TaskRulesContract {
   private contract: ethers.Contract
   private provider: ethers.providers.JsonRpcProvider
   private signer?: ethers.Signer
+  private currentRpcUrl: string
 
   constructor(privateKey?: string) {
-    this.provider = new ethers.providers.JsonRpcProvider(RPC_URL)
+    this.currentRpcUrl = RPC_URL
+    this.provider = this.createRobustProvider()
     this.contract = new ethers.Contract(CONTRACT_ADDRESS, TASK_RULES_ABI, this.provider)
     
     if (privateKey) {
       this.signer = new ethers.Wallet(privateKey, this.provider)
       this.contract = this.contract.connect(this.signer)
+    }
+  }
+
+  /**
+   * Create a robust provider with connection testing and fallbacks
+   */
+  private createRobustProvider(): ethers.providers.JsonRpcProvider {
+    console.log(`🌐 Creating provider with URL: ${this.currentRpcUrl}`)
+    
+    const provider = new ethers.providers.JsonRpcProvider(this.currentRpcUrl, {
+      name: 'base',
+      chainId: 8453,
+      ensAddress: undefined
+    })
+
+    // Set generous timeouts for production stability
+    provider.pollingInterval = 12000 // 12 seconds
+    
+    // Log provider creation success
+    console.log('✅ Provider created successfully')
+    
+    return provider
+  }
+
+  /**
+   * Test connection and fallback to alternative RPC if needed
+   */
+  private async testAndFallbackProvider(): Promise<void> {
+    for (let i = 0; i < RPC_ENDPOINTS.length; i++) {
+      const rpcUrl = RPC_ENDPOINTS[i]
+      
+      try {
+        console.log(`🔗 Testing RPC connection: ${rpcUrl}`)
+        const testProvider = new ethers.providers.JsonRpcProvider(rpcUrl, {
+          name: 'base',
+          chainId: 8453,
+          ensAddress: undefined
+        })
+        
+        // Test connection with network detection
+        const network = await testProvider.getNetwork()
+        if (network.chainId === 8453) {
+          console.log(`✅ RPC connection successful: ${rpcUrl}`)
+          
+          // Update provider if different from current
+          if (rpcUrl !== this.currentRpcUrl) {
+            this.currentRpcUrl = rpcUrl
+            this.provider = testProvider
+            this.contract = new ethers.Contract(CONTRACT_ADDRESS, TASK_RULES_ABI, this.provider)
+            
+            if (this.signer) {
+              this.signer = new ethers.Wallet((this.signer as ethers.Wallet).privateKey, this.provider)
+              this.contract = this.contract.connect(this.signer)
+            }
+          }
+          return
+        }
+      } catch (error) {
+        console.warn(`⚠️ RPC connection failed: ${rpcUrl} -`, error.message)
+        continue
+      }
+    }
+    
+    throw new Error('All RPC endpoints failed. Please check network connectivity and try again.')
+  }
+
+  /**
+   * Retry a contract call with fallback providers on network errors
+   */
+  private async retryWithFallback<T>(
+    operation: () => Promise<T>,
+    errorContext: string
+  ): Promise<T> {
+    try {
+      return await operation()
+    } catch (error) {
+      console.error(`${errorContext}:`, error)
+      
+      // If network error, try fallback providers
+      if (error.message?.includes('could not detect network') || error.code === 'NETWORK_ERROR') {
+        console.log('🔄 Network error detected, attempting fallback providers...')
+        try {
+          await this.testAndFallbackProvider()
+          // Retry with fallback provider
+          return await operation()
+        } catch (fallbackError) {
+          console.error('Fallback provider also failed:', fallbackError)
+          throw fallbackError
+        }
+      }
+      
+      throw error
     }
   }
 
@@ -97,20 +216,22 @@ export class TaskRulesContract {
     }
 
     try {
-      const taskIdBytes32 = ethers.utils.id(taskId)
-      
-      const tx = await this.contract.claimTask(
-        taskIdBytes32,
-        claimantAddress,
-        signature
-      )
-      
-      console.log('Task claim transaction:', tx.hash)
-      await tx.wait()
-      
-      return tx.hash
+      return await this.retryWithFallback(async () => {
+        const taskIdBytes32 = ethers.utils.id(taskId)
+        
+        const tx = await this.contract.claimTask(
+          taskIdBytes32,
+          claimantAddress,
+          signature
+        )
+        
+        console.log('Task claim transaction:', tx.hash)
+        await tx.wait()
+        
+        return tx.hash
+      }, 'Error claiming task on-chain')
     } catch (error) {
-      console.error('Error claiming task on-chain:', error)
+      console.error('Final error claiming task on-chain:', error)
       return null
     }
   }
@@ -177,19 +298,21 @@ export class TaskRulesContract {
    */
   async getTask(taskId: string): Promise<any | null> {
     try {
-      const taskIdBytes32 = ethers.utils.id(taskId)
-      const taskData = await this.contract.getTask(taskIdBytes32)
-      
-      return {
-        id: taskData.id,
-        reward: ethers.utils.formatEther(taskData.reward),
-        complexity: taskData.complexity,
-        title: taskData.title,
-        assignee: taskData.assignee,
-        status: taskData.status
-      }
+      return await this.retryWithFallback(async () => {
+        const taskIdBytes32 = ethers.utils.id(taskId)
+        const taskData = await this.contract.getTask(taskIdBytes32)
+        
+        return {
+          id: taskData.id,
+          reward: ethers.utils.formatEther(taskData.reward),
+          complexity: taskData.complexity,
+          title: taskData.title,
+          assignee: taskData.assignee,
+          status: taskData.status
+        }
+      }, 'Error fetching task from contract')
     } catch (error) {
-      console.error('Error fetching task from contract:', error)
+      console.error('Final error fetching task from contract:', error)
       return null
     }
   }
@@ -199,10 +322,12 @@ export class TaskRulesContract {
    */
   async isTaskClaimable(taskId: string): Promise<boolean> {
     try {
-      const taskIdBytes32 = ethers.utils.id(taskId)
-      return await this.contract.isTaskClaimable(taskIdBytes32)
+      return await this.retryWithFallback(async () => {
+        const taskIdBytes32 = ethers.utils.id(taskId)
+        return await this.contract.isTaskClaimable(taskIdBytes32)
+      }, 'Error checking task claimability')
     } catch (error) {
-      console.error('Error checking task claimability:', error)
+      console.error('Final error checking task claimability:', error)
       return false
     }
   }
