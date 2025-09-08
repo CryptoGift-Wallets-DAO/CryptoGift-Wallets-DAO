@@ -94,7 +94,7 @@ export function subscribeToTable<T>(
   callback: (payload: T) => void,
   filter?: string
 ) {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabaseUrl || !supabaseAnonKey || !supabase) {
     console.warn('Supabase client not properly configured. Subscriptions disabled.')
     return () => {} // Return no-op unsubscribe function
   }
@@ -116,7 +116,9 @@ export function subscribeToTable<T>(
     .subscribe()
 
   return () => {
-    supabase.removeChannel(channel)
+    if (supabase) {
+      supabase.removeChannel(channel)
+    }
   }
 }
 
