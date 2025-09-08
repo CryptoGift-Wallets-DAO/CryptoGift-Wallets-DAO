@@ -207,7 +207,7 @@ async function checkRedisConnection() {
       console.log(chalk.red('❌'), 'Redis Connection Failed');
     }
   } catch (error) {
-    console.log(chalk.red('❌'), 'Redis Connection Error:', error.message);
+    console.log(chalk.red('❌'), 'Redis Connection Error:', error instanceof Error ? error.message : String(error));
   }
 }
 

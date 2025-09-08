@@ -141,7 +141,8 @@ export class TaskRulesContract {
           return
         }
       } catch (error) {
-        console.warn(`⚠️ RPC connection failed: ${rpcUrl} -`, error.message)
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        console.warn(`⚠️ RPC connection failed: ${rpcUrl} -`, errorMessage)
         continue
       }
     }
@@ -161,8 +162,13 @@ export class TaskRulesContract {
     } catch (error) {
       console.error(`${errorContext}:`, error)
       
+      // Type guard for error handling
+      const isError = error instanceof Error
+      const errorMessage = isError ? error.message : String(error)
+      const errorCode = (error as any)?.code
+      
       // If network error, try fallback providers
-      if (error.message?.includes('could not detect network') || error.code === 'NETWORK_ERROR') {
+      if (errorMessage?.includes('could not detect network') || errorCode === 'NETWORK_ERROR') {
         console.log('🔄 Network error detected, attempting fallback providers...')
         try {
           await this.testAndFallbackProvider()

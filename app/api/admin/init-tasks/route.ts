@@ -854,7 +854,7 @@ export const POST = authHelpers.admin(async (request: NextRequest) => {
           { 
             success: false, 
             error: 'Failed to insert tasks',
-            details: error.message,
+            details: error instanceof Error ? error.message : String(error),
             batch: Math.floor(i / BATCH_SIZE) + 1
           },
           { status: 500 }
@@ -918,7 +918,7 @@ export const GET = authHelpers.admin(async (request: NextRequest) => {
     
     if (error) {
       return NextResponse.json(
-        { success: false, error: 'Failed to fetch task statistics', details: error.message },
+        { success: false, error: 'Failed to fetch task statistics', details: error instanceof Error ? error.message : String(error) },
         { status: 500 }
       )
     }
