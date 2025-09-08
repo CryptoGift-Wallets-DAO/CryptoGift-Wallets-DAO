@@ -510,8 +510,8 @@ export class TaskService {
       
       const { error: updateError } = await client
         .from('tasks')
-        .update(updateData as Database['public']['Tables']['tasks']['Update'])
-        .eq('task_id', taskId)
+        .update(updateData)
+        .eq('task_id', taskId) as { data: null; error: any }
 
       if (updateError) {
         console.error('Error updating task after payment:', updateError)
