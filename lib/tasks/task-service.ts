@@ -7,6 +7,7 @@
 import { supabase, supabaseAdmin, supabaseQuery, cachedQuery } from '@/lib/supabase/client'
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/supabase/types'
+import type { TypedSupabaseClient } from '@/lib/supabase/client-types'
 import { getDAORedis, RedisKeys, RedisTTL } from '@/lib/redis-dao'
 import { TaskStatus } from '@/lib/contracts/types'
 import { getTaskRulesContract } from '@/lib/contracts/task-rules'
@@ -14,7 +15,7 @@ import type { Task, TaskInsert, TaskUpdate, Collaborator, TaskProposal } from '@
 import { ethers } from 'ethers'
 
 // Helper function to ensure supabase client is available with proper typing
-function ensureSupabaseClient() {
+function ensureSupabaseClient(): TypedSupabaseClient {
   // Always use the admin client which is always typed
   return supabaseAdmin
 }
@@ -382,7 +383,7 @@ export class TaskService {
       .from('tasks')
       .select('*')
       .eq('task_id', taskId)
-      .single()
+      .single() as { data: Task | null; error: any }
     
     return data
   }
@@ -441,7 +442,7 @@ export class TaskService {
         .from('tasks')
         .select('*')
         .eq('task_id', taskId)
-        .single()
+        .single() as { data: Task | null; error: any }
 
       if (fetchError || !task) {
         return { success: false, error: fetchError?.message || 'Task not found' }
@@ -559,7 +560,7 @@ export class TaskService {
       .from('tasks')
       .select('*')
       .eq('task_id', taskId)
-      .single()
+      .single() as { data: Task | null; error: any }
     
     if (fetchError || !task) {
       throw new Error(fetchError?.message || 'Task not found')
@@ -593,7 +594,7 @@ export class TaskService {
         .from('collaborators')
         .select('*')
         .eq('wallet_address', task.assignee_address)
-        .single()
+        .single() as { data: Collaborator | null; error: any }
 
       if (collaborator) {
         const collabUpdate = {

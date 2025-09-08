@@ -6,6 +6,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from './types'
+import type { TypedSupabaseClient } from './client-types'
 
 // Environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_DAO_URL || process.env.SUPABASE_DAO_URL
@@ -23,7 +24,7 @@ const BUILD_TIME_ANON_KEY = supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX
 const BUILD_TIME_SERVICE_KEY = supabaseServiceKey || BUILD_TIME_ANON_KEY
 
 // Public client for client-side operations - ALWAYS returns a typed client
-export const supabase = createClient<Database>(
+export const supabase: TypedSupabaseClient = createClient<Database>(
   BUILD_TIME_URL,
   BUILD_TIME_ANON_KEY,
   {
@@ -43,7 +44,7 @@ export const supabase = createClient<Database>(
 )
 
 // Admin client for server-side operations - ALWAYS returns a typed client
-export const supabaseAdmin = createClient<Database>(
+export const supabaseAdmin: TypedSupabaseClient = createClient<Database>(
   BUILD_TIME_URL,
   BUILD_TIME_SERVICE_KEY,
   {
@@ -58,7 +59,7 @@ export const supabaseAdmin = createClient<Database>(
 )
 
 // Helper functions
-export async function getServerClient() {
+export async function getServerClient(): Promise<TypedSupabaseClient> {
   // Check if we have real credentials
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Supabase admin client not properly configured')
@@ -67,7 +68,7 @@ export async function getServerClient() {
 }
 
 // Type-safe client getter for task operations
-export function getTypedClient() {
+export function getTypedClient(): TypedSupabaseClient {
   // Check if we have real credentials
   if (!supabaseUrl || !supabaseAnonKey) {
     console.warn('Supabase client not properly configured, using placeholder')
