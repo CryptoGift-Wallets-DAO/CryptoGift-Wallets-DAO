@@ -425,13 +425,131 @@ export class TaskService {
   }
 
   /**
-   * Complete a task (after validation)
+   * Complete task and release payment - HYBRID MODEL
+   * This is the ONLY place where blockchain interaction happens (for payment)
+   */
+  async completeTaskAndReleasepayment(
+    taskId: string, 
+    validatorAddress: string,
+    validatorSignature?: string
+  ): Promise<{ success: boolean; txHash?: string; error?: string }> {
+    try {
+      const client = ensureSupabaseClient()
+      
+      // 1. Get task from database
+      const { data: task } = await client
+        .from('tasks')
+        .select('*')
+        .eq('task_id', taskId)
+        .single()
+
+      if (!task) {
+        return { success: false, error: 'Task not found' }
+      }
+
+      if (!task.assignee_address) {
+        return { success: false, error: 'Task has no assignee' }
+      }
+
+      if (task.status === 'completed') {
+        return { success: false, error: 'Task already completed' }
+      }
+
+      // 2. BLOCKCHAIN INTERACTION: Release payment from MilestoneEscrow
+      const provider = new ethers.providers.JsonRpcProvider({
+        url: process.env.BASE_RPC_URL || 'https://mainnet.base.org',
+        timeout: 15000
+      }, {
+        name: 'base',
+        chainId: 8453,
+        ensAddress: undefined
+      })
+
+      const wallet = new ethers.Wallet(process.env.PRIVATE_KEY_DAO_DEPLOYER!, provider)
+      const ESCROW_ADDRESS = '0x8346CFcaECc90d678d862319449E5a742c03f109'
+      
+      // Simple ABI for MilestoneEscrow release function
+      const ESCROW_ABI = [
+        'function releaseMilestone(address recipient, uint256 amount, string memory milestoneId) external returns (bool)'
+      ]
+      
+      const escrowContract = new ethers.Contract(ESCROW_ADDRESS, ESCROW_ABI, wallet)
+
+      // Convert CGC amount to wei
+      const amountWei = ethers.utils.parseEther(task.reward_cgc.toString())
+
+      console.log(`💰 Releasing ${task.reward_cgc} CGC to ${task.assignee_address}`)
+
+      // Execute payment transaction
+      const tx = await escrowContract.releaseMilestone(
+        task.assignee_address,
+        amountWei,
+        taskId
+      )
+
+      console.log(`📤 Transaction sent: ${tx.hash}`)
+      const receipt = await tx.wait()
+
+      if (receipt.status !== 1) {
+        return { success: false, error: 'Payment transaction failed' }
+      }
+
+      // 3. Update database with completion and TX hash
+      const { error: updateError } = await client
+        .from('tasks')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          validation_hash: tx.hash, // Store payment TX as validation
+          validators: [validatorAddress],
+          metadata: {
+            ...(task.metadata || {}),
+            payment_tx: tx.hash,
+            payment_amount_wei: amountWei.toString(),
+            payment_block: receipt.blockNumber,
+            gas_used: receipt.gasUsed.toString()
+          }
+        })
+        .eq('task_id', taskId)
+
+      if (updateError) {
+        console.error('Error updating task after payment:', updateError)
+        // Payment was successful but DB update failed
+        // TX hash is still valid proof of payment
+      }
+
+      console.log(`✅ Task ${taskId} completed and ${task.reward_cgc} CGC paid to ${task.assignee_address}`)
+      console.log(`   TX Hash: ${tx.hash}`)
+
+      return {
+        success: true,
+        txHash: tx.hash // This is the immutable proof of payment
+      }
+
+    } catch (error) {
+      console.error('Error completing task and releasing payment:', error)
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to complete task and release payment' 
+      }
+    }
+  }
+
+  /**
+   * Complete a task (after validation) - DEPRECATED: Use completeTaskAndReleasepayment
    */
   async completeTask(taskId: string, validatorAddress: string): Promise<void> {
-    const task = await this.getTaskById(taskId)
-    if (!task) throw new Error('Task not found')
+    // Redirect to new hybrid model function
+    const result = await this.completeTaskAndReleasepayment(taskId, validatorAddress)
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to complete task')
+    }
+  }
 
-    // Update task status
+  /**
+   * Helper to update task status in database only (no blockchain)
+   */
+  async updateTaskStatus(taskId: string, status: string): Promise<void> {
     const client = ensureSupabaseClient()
     const { error: updateError } = await (client as any)
       .from('tasks')
@@ -657,13 +775,14 @@ export class TaskService {
   }
 
   /**
-   * Claim task with blockchain integration
+   * Claim task - HYBRID MODEL (Offchain + EIP-712 signature)
+   * No blockchain interaction during claim, only database update
    */
   async claimTask(taskId: string, claimantAddress: string): Promise<{ success: boolean; txHash?: string; error?: string }> {
     try {
       const client = ensureSupabaseClient()
       
-      // Check if task exists and is available
+      // 1. OFFCHAIN: Check if task exists and is available in database
       const { data: task } = await client
         .from('tasks')
         .select('*')
@@ -675,40 +794,69 @@ export class TaskService {
         return { success: false, error: 'Task not found or not available' }
       }
 
-      // Initialize contract with private key
-      const contract = getTaskRulesContract(process.env.PRIVATE_KEY_DAO_DEPLOYER)
-      
-      // Check if task is claimable on-chain
-      const isClaimable = await contract.isTaskClaimable(taskId)
-      if (!isClaimable) {
-        return { success: false, error: 'Task not claimable on blockchain' }
+      // 2. OFFCHAIN: Validate claimant eligibility (can add custom rules here)
+      if (!claimantAddress || !ethers.utils.isAddress(claimantAddress)) {
+        return { success: false, error: 'Invalid claimant address' }
       }
 
-      // Generate EIP-712 signature for claiming
-      const deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour deadline
-      const signature = await contract.generateClaimSignature(taskId, claimantAddress, deadline)
-      
-      // Claim task on blockchain
-      const txHash = await contract.claimTask(taskId, claimantAddress, signature)
-      
-      if (!txHash) {
-        return { success: false, error: 'Failed to claim task on blockchain' }
+      // 3. OFFCHAIN: Generate EIP-712 signature for future validation (no gas)
+      const domain = {
+        name: 'CryptoGift DAO Tasks',
+        version: '1',
+        chainId: 8453, // Base mainnet
+        verifyingContract: '0x8346CFcaECc90d678d862319449E5a742c03f109' // MilestoneEscrow
       }
 
-      // Update database
+      const types = {
+        TaskClaim: [
+          { name: 'taskId', type: 'string' },
+          { name: 'claimant', type: 'address' },
+          { name: 'timestamp', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' }
+        ]
+      }
+
+      const value = {
+        taskId: taskId,
+        claimant: claimantAddress,
+        timestamp: Math.floor(Date.now() / 1000),
+        nonce: Date.now() // Simple nonce for uniqueness
+      }
+
+      // Store signature data for future validation (when payment is needed)
+      const signatureData = {
+        domain,
+        types,
+        value
+      }
+
+      // 4. OFFCHAIN: Update database with claim (no blockchain, no gas!)
       const { error: updateError } = await (client as any)
         .from('tasks')
         .update({
           status: 'claimed',
           assignee_address: claimantAddress,
-          claimed_at: new Date().toISOString()
+          claimed_at: new Date().toISOString(),
+          metadata: {
+            ...(task.metadata || {}),
+            claim_signature: JSON.stringify(signatureData)
+          }
         } as any)
         .eq('task_id', taskId)
 
       if (updateError) {
         console.error('Error updating task after claim:', updateError)
-        // Note: Task is claimed on blockchain but not in DB
-        return { success: false, error: 'Database update failed after blockchain claim' }
+        return { success: false, error: 'Failed to update task status' }
+      }
+
+      // 5. SUCCESS: Task claimed offchain, ready for work
+      console.log(`✅ Task ${taskId} claimed by ${claimantAddress} (offchain)`)
+      
+      // Return success without TX hash (no blockchain interaction)
+      return { 
+        success: true, 
+        error: undefined,
+        // No txHash since we didn't touch blockchain
       }
 
       // Log the claim
