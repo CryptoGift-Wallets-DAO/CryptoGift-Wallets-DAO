@@ -25,6 +25,9 @@ export const GET = authHelpers.public(async (request: NextRequest) => {
       case 'available':
         tasks = await taskService.getAvailableTasks(userAddress || undefined)
         break
+      case 'claimed':
+        tasks = await taskService.getUserClaimedTasks(userAddress || '')
+        break
       case 'in_progress':
         tasks = await taskService.getTasksInProgress()
         break
@@ -32,7 +35,8 @@ export const GET = authHelpers.public(async (request: NextRequest) => {
         tasks = await taskService.getCompletedTasks(limit)
         break
       default:
-        tasks = await taskService.getAvailableTasks()
+        // Show available tasks + user's claimed/in_progress tasks (if userAddress provided)
+        tasks = await taskService.getUserRelevantTasks(userAddress || undefined)
     }
 
     return NextResponse.json({

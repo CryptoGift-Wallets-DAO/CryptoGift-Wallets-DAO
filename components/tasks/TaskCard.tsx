@@ -19,9 +19,13 @@ import {
   TrendingUp,
   Calendar,
   Zap,
-  Loader2
+  Loader2,
+  Timer,
+  AlertTriangle
 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
+import { TASK_CLAIM_CONFIG } from '@/lib/tasks/task-service'
+import { TaskClaimModal } from './TaskClaimModal'
 
 interface TaskCardProps {
   task: Task
@@ -31,6 +35,7 @@ interface TaskCardProps {
   canClaim?: boolean
   showProgress?: boolean
   isClaimingTask?: boolean
+  showClaimModal?: boolean
 }
 
 export function TaskCard({ 
@@ -40,8 +45,10 @@ export function TaskCard({
   onViewDetails,
   canClaim = true,
   showProgress = false,
-  isClaimingTask = false
+  isClaimingTask = false,
+  showClaimModal = true
 }: TaskCardProps) {
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
   // Get platform icon
   const getPlatformIcon = () => {
     switch (task.platform) {
@@ -66,6 +73,8 @@ export function TaskCard({
 
   // Calculate progress if in progress (SSR-safe)
   const [progress, setProgress] = useState(0)
+  const [remainingTime, setRemainingTime] = useState('')
+  const [isExpired, setIsExpired] = useState(false)
   
   useEffect(() => {
     const calculateProgress = () => {
@@ -79,20 +88,33 @@ export function TaskCard({
       return Math.min(100, Math.round((elapsed / totalTime) * 100))
     }
 
+    const updateCountdown = () => {
+      if ((task.status === 'claimed' || task.status === 'in_progress') && task.claimed_at) {
+        const remainingMs = TASK_CLAIM_CONFIG.getRemainingTimeMs(task.claimed_at, task.estimated_days)
+        const formattedTime = TASK_CLAIM_CONFIG.formatRemainingTime(remainingMs)
+        const expired = remainingMs <= 0
+        
+        setRemainingTime(formattedTime)
+        setIsExpired(expired)
+      }
+    }
+
     setProgress(calculateProgress())
+    updateCountdown()
     
-    // Update progress every minute if task is in progress
+    // Update both progress and countdown every minute
     let interval: NodeJS.Timeout | null = null
-    if (task.status === 'in_progress') {
+    if (task.status === 'in_progress' || task.status === 'claimed') {
       interval = setInterval(() => {
         setProgress(calculateProgress())
+        updateCountdown()
       }, 60000) // Update every minute
     }
 
     return () => {
       if (interval) clearInterval(interval)
     }
-  }, [task.status, task.created_at, task.estimated_days, showProgress])
+  }, [task.status, task.created_at, task.estimated_days, task.claimed_at, showProgress])
 
   return (
     <Card className="glass-panel hover:shadow-lg transition-all duration-300 spring-in">
@@ -135,15 +157,52 @@ export function TaskCard({
           </div>
         </div>
 
-        {/* Show assignee for in-progress tasks */}
-        {task.status === 'in_progress' && task.assignee_address && (
+        {/* Show assignee for claimed/in-progress tasks */}
+        {(task.status === 'claimed' || task.status === 'in_progress') && task.assignee_address && (
           <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              <span className="text-xs text-glass-secondary">Assigned to:</span>
+              <div className={`w-2 h-2 rounded-full ${task.status === 'claimed' ? 'bg-yellow-500' : 'bg-blue-500'} animate-pulse`} />
+              <span className="text-xs text-glass-secondary">
+                {task.status === 'claimed' ? 'Claimed by:' : 'Working on:'}
+              </span>
             </div>
             <span className="text-xs font-mono text-glass">
               {task.assignee_address.slice(0, 6)}...{task.assignee_address.slice(-4)}
+            </span>
+          </div>
+        )}
+
+        {/* Countdown timer for claimed/in-progress tasks */}
+        {(task.status === 'claimed' || task.status === 'in_progress') && task.claimed_at && (
+          <div className={`flex items-center justify-between p-2 rounded-lg ${
+            isExpired 
+              ? 'bg-red-50 border border-red-200' 
+              : remainingTime.includes('h') && !remainingTime.includes('d')
+                ? 'bg-amber-50 border border-amber-200'
+                : 'bg-green-50 border border-green-200'
+          }`}>
+            <div className="flex items-center space-x-2">
+              {isExpired ? (
+                <AlertTriangle className="w-4 h-4 text-red-500" />
+              ) : (
+                <Timer className={`w-4 h-4 ${
+                  remainingTime.includes('h') && !remainingTime.includes('d')
+                    ? 'text-amber-500'
+                    : 'text-green-500'
+                }`} />
+              )}
+              <span className="text-xs text-glass-secondary">
+                {isExpired ? 'Expired - Open to all' : 'Time remaining:'}
+              </span>
+            </div>
+            <span className={`text-xs font-semibold ${
+              isExpired 
+                ? 'text-red-600' 
+                : remainingTime.includes('h') && !remainingTime.includes('d')
+                  ? 'text-amber-600'
+                  : 'text-green-600'
+            }`}>
+              {remainingTime}
             </span>
           </div>
         )}
@@ -192,7 +251,7 @@ export function TaskCard({
               Details
             </Button>
             <Button
-              onClick={onClaim}
+              onClick={showClaimModal ? () => setIsClaimModalOpen(true) : onClaim}
               disabled={!canClaim || isClaimingTask}
               className="flex-1"
               variant="default"
@@ -235,6 +294,20 @@ export function TaskCard({
           </Badge>
         )}
       </CardFooter>
+
+      {/* Task Claim Confirmation Modal */}
+      {showClaimModal && (
+        <TaskClaimModal
+          task={task}
+          isOpen={isClaimModalOpen}
+          onClose={() => setIsClaimModalOpen(false)}
+          onConfirmClaim={() => {
+            setIsClaimModalOpen(false)
+            onClaim?.()
+          }}
+          isClaimingTask={isClaimingTask}
+        />
+      )}
     </Card>
   )
 }

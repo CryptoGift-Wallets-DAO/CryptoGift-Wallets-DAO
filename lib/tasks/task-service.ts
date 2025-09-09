@@ -46,6 +46,49 @@ export const TASK_REWARDS = {
   }
 }
 
+// Task claim timeout configuration
+export const TASK_CLAIM_CONFIG = {
+  // Base timeout: 50% of estimated days (minimum 2 hours, maximum 7 days)
+  getClaimTimeoutHours: (estimatedDays: number): number => {
+    const baseHours = (estimatedDays * 24) * 0.5 // 50% of estimated time
+    return Math.max(2, Math.min(168, baseHours)) // Min 2h, Max 7 days
+  },
+  
+  // Check if task has expired
+  isTaskExpired: (claimedAt: string, estimatedDays: number): boolean => {
+    const claimedDate = new Date(claimedAt)
+    const timeoutHours = TASK_CLAIM_CONFIG.getClaimTimeoutHours(estimatedDays)
+    const expirationDate = new Date(claimedDate.getTime() + timeoutHours * 60 * 60 * 1000)
+    return new Date() > expirationDate
+  },
+  
+  // Get remaining time in milliseconds
+  getRemainingTimeMs: (claimedAt: string, estimatedDays: number): number => {
+    const claimedDate = new Date(claimedAt)
+    const timeoutHours = TASK_CLAIM_CONFIG.getClaimTimeoutHours(estimatedDays)
+    const expirationDate = new Date(claimedDate.getTime() + timeoutHours * 60 * 60 * 1000)
+    return Math.max(0, expirationDate.getTime() - new Date().getTime())
+  },
+  
+  // Format remaining time for display
+  formatRemainingTime: (remainingMs: number): string => {
+    if (remainingMs <= 0) return 'Expired'
+    
+    const hours = Math.floor(remainingMs / (1000 * 60 * 60))
+    const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60))
+    
+    if (hours >= 24) {
+      const days = Math.floor(hours / 24)
+      const remainingHours = hours % 24
+      return `${days}d ${remainingHours}h`
+    } else if (hours > 0) {
+      return `${hours}h ${minutes}m`
+    } else {
+      return `${minutes}m`
+    }
+  }
+}
+
 // Initial task list
 export const INITIAL_TASKS = [
   // Complexity 10
@@ -348,17 +391,93 @@ export class TaskService {
   }
 
   /**
-   * Get tasks in progress
+   * Get tasks in progress (includes claimed and in_progress status)
+   * Shows who is working on what to stimulate competition
+   * Also processes expired tasks
    */
   async getTasksInProgress(): Promise<Task[]> {
+    // First, process any expired tasks
+    await this.processExpiredTasks()
+    
     const client = ensureSupabaseClient()
     return supabaseQuery(async () =>
       await client
         .from('tasks')
         .select('*')
-        .eq('status', 'in_progress')
-        .order('created_at', { ascending: false })
+        .in('status', ['claimed', 'in_progress'])
+        .order('claimed_at', { ascending: false })
     )
+  }
+
+  /**
+   * Process expired claimed tasks and make them available again
+   */
+  async processExpiredTasks(): Promise<number> {
+    const client = ensureSupabaseClient()
+    
+    // Get all claimed tasks
+    const { data: claimedTasks, error } = await client
+      .from('tasks')
+      .select('*')
+      .eq('status', 'claimed')
+      .not('claimed_at', 'is', null)
+
+    if (error || !claimedTasks) return 0
+
+    let expiredCount = 0
+    
+    for (const task of claimedTasks) {
+      if (!task.claimed_at) continue
+      
+      const isExpired = TASK_CLAIM_CONFIG.isTaskExpired(task.claimed_at, task.estimated_days)
+      
+      if (isExpired) {
+        // Mark task as available again but preserve claim history
+        const { error: updateError } = await client
+          .from('tasks')
+          .update({
+            status: 'available',
+            // Keep assignee_address and claimed_at for history
+            metadata: {
+              ...(task.metadata as Record<string, any> || {}),
+              previous_claims: [
+                ...((task.metadata as any)?.previous_claims || []),
+                {
+                  assignee_address: task.assignee_address,
+                  claimed_at: task.claimed_at,
+                  expired_at: new Date().toISOString(),
+                }
+              ]
+            }
+          })
+          .eq('task_id', task.task_id)
+          
+        if (!updateError) {
+          expiredCount++
+          console.log(`⏰ Task ${task.task_id} expired and returned to available pool`)
+          
+          // Log to task history
+          try {
+            await client
+              .from('task_history')
+              .insert({
+                task_id: task.task_id,
+                action: 'expired',
+                actor_address: task.assignee_address || 'system',
+                metadata: {
+                  reason: 'claim_timeout_expired',
+                  claimed_at: task.claimed_at,
+                  expired_after_hours: TASK_CLAIM_CONFIG.getClaimTimeoutHours(task.estimated_days)
+                }
+              } as Database['public']['Tables']['task_history']['Insert'])
+          } catch (historyError) {
+            console.warn('Failed to log task expiration:', historyError)
+          }
+        }
+      }
+    }
+    
+    return expiredCount
   }
 
   /**
@@ -390,6 +509,62 @@ export class TaskService {
     return data
   }
 
+  /**
+   * Get tasks relevant to a user (available tasks + their claimed/in_progress tasks)
+   */
+  async getUserRelevantTasks(userAddress?: string): Promise<Task[]> {
+    if (!userAddress) {
+      // If no user address provided, return only available tasks
+      return this.getAvailableTasks()
+    }
+
+    const client = ensureSupabaseClient()
+
+    // Get available tasks
+    const { data: availableTasks, error: availableError } = await client
+      .from('tasks')
+      .select('*')
+      .eq('status', 'available')
+      .order('reward_cgc', { ascending: false })
+      .order('created_at', { ascending: true })
+
+    if (availableError) throw availableError
+
+    // Get user's claimed/in_progress tasks
+    const { data: userTasks, error: userError } = await client
+      .from('tasks')
+      .select('*')
+      .eq('assignee_address', userAddress)
+      .in('status', ['claimed', 'in_progress', 'submitted'])
+      .order('claimed_at', { ascending: false })
+
+    if (userError) throw userError
+
+    // Combine and sort: available tasks first, then user's tasks
+    const allTasks = [
+      ...(availableTasks || []),
+      ...(userTasks || [])
+    ]
+
+    return allTasks
+  }
+
+  /**
+   * Get user's claimed tasks
+   */
+  async getUserClaimedTasks(userAddress: string): Promise<Task[]> {
+    if (!userAddress) return []
+    
+    const client = ensureSupabaseClient()
+    return supabaseQuery(async () =>
+      await client
+        .from('tasks')
+        .select('*')
+        .eq('assignee_address', userAddress)
+        .eq('status', 'claimed')
+        .order('claimed_at', { ascending: false })
+    )
+  }
 
   /**
    * Submit task evidence
