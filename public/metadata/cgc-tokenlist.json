@@ -1,10 +1,10 @@
 {
   "name": "CryptoGift DAO Token List",
-  "timestamp": "2025-09-09T05:05:56.084Z",
+  "timestamp": "2025-09-09T05:07:30.461Z",
   "version": {
     "major": 1,
     "minor": 0,
-    "patch": 0
+    "patch": 1
   },
   "tags": {
     "governance": {
@@ -48,7 +48,7 @@
       ],
       "extensions": {
         "website": "https://crypto-gift-wallets-dao.vercel.app",
-        "discord": "https://discord.gg/cryptogift", 
+        "discord": "https://discord.gg/cryptogift",
         "twitter": "https://x.com/CryptoGiftDAO",
         "coingeckoId": null,
         "cmcId": null,
