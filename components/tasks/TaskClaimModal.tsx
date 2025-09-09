@@ -87,7 +87,7 @@ export function TaskClaimModal({
             <span>Claim Task Confirmation</span>
           </DialogTitle>
           <DialogDescription>
-            Review the task details carefully before claiming. You'll have exclusive access for a limited time.
+            Review the task details carefully before claiming. You&apos;ll have exclusive access for a limited time.
           </DialogDescription>
         </DialogHeader>
 
@@ -187,7 +187,7 @@ export function TaskClaimModal({
               <div className="space-y-2">
                 <h4 className="text-sm font-semibold text-amber-800">Important Notice</h4>
                 <div className="text-xs text-amber-700 space-y-1">
-                  <p>• You'll have <strong>{timeoutDisplay}</strong> of exclusive access to work on this task</p>
+                  <p>• You&apos;ll have <strong>{timeoutDisplay}</strong> of exclusive access to work on this task</p>
                   <p>• After the timeout, the task becomes available to everyone (including you)</p>
                   <p>• You can still complete it after expiration, but others can compete</p>
                   <p>• Submit your evidence before others to claim the reward</p>
