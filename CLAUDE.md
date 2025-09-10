@@ -37,6 +37,8 @@ NOTA: Los contratos siguientes fueron reemplazados por el nuevo sistema:
 - **🎯 Task System**: ✅ Sistema competitivo con timeouts automáticos y confirmación
 - **👨‍💼 Admin Panel**: ✅ Validación segura con autorización wallet-based
 - **⏰ Competitive Features**: ✅ Countdown timers, auto-expiration, claim confirmation
+- **🏷️ Token Metadata**: ✅ Sistema completo con logos optimizados, APIs CoinGecko
+- **📊 CoinGecko Ready**: ✅ Total Supply + Circulating Supply APIs + whitepaper actualizado
 
 ---
 
@@ -59,8 +61,14 @@ app/api/tasks/route.ts - Enhanced API logic + user relevant tasks
 ```
 
 ### 🎯 COMMITS RECIENTES (ENERO 2025)
+- `4b1f1c7` - docs: update documentation with competitive task system implementation
 - `fca066b` - feat: enhance task system with competitive features and claim confirmation
 - `6bc3fd2` - fix: escape apostrophes in TaskClaimModal JSX to resolve ESLint errors
+
+### 🔄 ÚLTIMOS COMMITS (9 ENE 2025) - TOKEN METADATA SYSTEM
+- `[pending]` - feat: complete token metadata system for CoinGecko/BaseScan listing
+- `[pending]` - docs: comprehensive whitepaper update from 1M to 2M supply
+- `[pending]` - api: implement CoinGecko-compliant Total/Circulating Supply APIs
 
 ### ⏰ SISTEMA DE TIMEOUTS IMPLEMENTADO
 - **Timeout Formula**: 50% del tiempo estimado (mínimo 2h, máximo 7 días)
@@ -229,11 +237,15 @@ npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
 8. ✅ **Admin Validation** - COMPLETADO (panel seguro con payments automáticos)
 9. ✅ **Competitive System** - COMPLETADO (countdown timers + claim confirmation)
 10. ✅ **Auto-Expiration Logic** - COMPLETADO (task timeout system)
-11. 🔄 **DAO Integration** - Transferir CGC tokens al vault de Aragon
-12. 🔄 **Production Testing** - Test completo con usuarios reales  
-13. 🔄 **Mobile Optimization** - Verificar countdown timers en mobile
-14. 🔄 **Notification System** - Discord/email alerts para task expirations
-15. 🔄 **Analytics Dashboard** - Métricas de competition effectiveness
+11. ✅ **Token Metadata System** - COMPLETADO (logos, APIs, whitepaper, CoinGecko)
+12. 🔄 **BaseScan Logo Submission** - Enviar 32x32 PNG a BaseScan para verificación
+13. 🔄 **CoinGecko Form Submission** - Completar form con APIs y documentación
+14. 🔄 **Coinbase Wallet Integration** - Usar tokenlist para Coinbase Wallet
+15. 🔄 **DAO Integration** - Transferir CGC tokens al vault de Aragon
+16. 🔄 **Production Testing** - Test completo con usuarios reales  
+17. 🔄 **Mobile Optimization** - Verificar countdown timers en mobile
+18. 🔄 **Notification System** - Discord/email alerts para task expirations
+19. 🔄 **Analytics Dashboard** - Métricas de competition effectiveness
 
 ### Estado de Tokens (ACTUALIZADO)
 ```bash

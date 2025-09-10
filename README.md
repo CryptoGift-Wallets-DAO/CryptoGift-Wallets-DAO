@@ -22,12 +22,12 @@ node scripts/emergency-toolkit.js status
 
 ## 📋 Estado del Proyecto
 
-**Fase**: ✅ PRODUCTION READY - Sistema Competitivo Completamente Operacional  
+**Fase**: ✅ PRODUCTION READY - Sistema Competitivo + Token Metadata Completamente Operacional  
 **Red**: Base Mainnet (Chain ID: 8453)  
 **DAO Desplegado**: ✅ `0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31`  
-**Token**: CGC (CryptoGift Coin) - ✅ 2,000,000 supply con logo GitHub  
+**Token**: CGC (CryptoGift Coin) - ✅ 2,000,000 supply con logo GitHub + CoinGecko APIs  
 **Framework**: Aragon OSx v1.4.0 + Sistema EIP-712 personalizado  
-**Última Actualización**: 9 Enero 2025 - Competitive task system + countdown timers + claim confirmation
+**Última Actualización**: 9 Enero 2025 - Token metadata system + CoinGecko integration + BaseScan ready
 
 ## 🚀 Quick Start
 
@@ -164,7 +164,9 @@ cryptogift-wallets-DAO/
 ### CGC Token
 - **Tipo**: ERC-20 with Votes & Permit
 - **Supply**: 2,000,000 CGC (actualizado)
-- **Logo**: GitHub CDN integrado
+- **Logo**: GitHub CDN integrado + BaseScan compatible
+- **Metadata**: Logos optimizados (64x64, 256x256, 512x512), SVG, tokenlist
+- **APIs**: Total Supply + Circulating Supply (CoinGecko compliant)
 - **Decimales**: 18
 - **Address**: `0x5e3a61b550328f3D8C44f60b3e10a49D3d806175`
 
@@ -277,8 +279,8 @@ npm start
 
 ## 📚 Documentación
 
-- [Whitepaper](docs/governance/whitepaper.md)
-- [Tokenomics](docs/tokenomics/tokenomics.md)
+- [Whitepaper](docs/governance/whitepaper.md) - ✅ Actualizado a 2M supply
+- [Tokenomics CGC](docs/tokenomics-cgc.md) - ✅ CoinGecko compliant
 - [Manual de Gobernanza Aragon](docs/governance/aragon-manual.md)
 - [Especificación EIP-712](docs/technical/spec-eip712.md)
 - [Arquitectura Técnica](docs/technical/arquitectura.md)
@@ -286,6 +288,10 @@ npm start
 ## 🔗 Links Importantes
 
 - **DAO en Aragon**: [Ver en Aragon App](https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31)
+- **Token en BaseScan**: [0x5e3a...175](https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175)
+- **APIs CoinGecko**: 
+  - Total Supply: `/api/cgc/total-supply`
+  - Circulating Supply: `/api/cgc/circulating-supply`
 - **Discord**: [Unirse](https://discord.gg/cryptogift)
 - **Forum**: https://forum.cryptogift-wallets.com
 - **Docs**: https://docs.cryptogift-wallets.com
