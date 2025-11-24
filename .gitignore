@@ -149,3 +149,19 @@ Desktop.ini
 .env.dao
 .env.local
 .env.sentry-build-plugin
+
+# ========================================
+# CONFIDENTIAL - THE MOON IN A BOX
+# ========================================
+# NEVER commit proprietary company documents
+docs/governance/CGC Presentation/
+docs/governance/"CGC Presentation"/
+**/CGC Presentation/
+*.MOV
+*.mov
+
+# Company confidential documents
+METRICAS/
+DELIVERABLES/
+TEMPLATES/
+**/videos e informacion para las presentaciones/

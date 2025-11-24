@@ -195,6 +195,10 @@ export default function CryptoGiftDAODashboard() {
                 <a href="/treasury" className="glass-button text-sm">
                   Treasury
                 </a>
+                <a href="/funding" className="glass-button text-sm flex items-center gap-1">
+                  <span>Funding</span>
+                  <Lock className="w-3 h-3" />
+                </a>
                 <a href="/agent" className="glass-button text-sm flex items-center gap-1">
                   <span>apeX Assistant</span>
                   <ExternalLink className="w-3 h-3" />
