@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { Navbar } from '@/components/layout/Navbar';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
-import { ConnectWallet } from '@/components/web3/ConnectWallet';
 import {
   ChevronDown,
   ChevronRight,
@@ -1299,7 +1299,10 @@ const crowdfundingPlatforms: CrowdfundingPlatform[] = [
 // ===== COMPONENTE PRINCIPAL =====
 export default function FundingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      {/* Professional Navbar */}
+      <Navbar />
+
       {/* Background effects */}
       <div className="fixed inset-0 opacity-30 pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
@@ -1308,25 +1311,15 @@ export default function FundingPage() {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8">
-        {/* Header */}
-        <header className="glass-panel mb-8 p-6">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Funding Opportunities
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Confidential funding tracker for The Moon in a Box / CryptoGift DAO
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <a href="/" className="glass-button text-sm">
-                Back to Dashboard
-              </a>
-              <ConnectWallet />
-            </div>
-          </div>
-        </header>
+        {/* Page Title */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Funding Opportunities
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Confidential funding tracker for The Moon in a Box / CryptoGift DAO
+          </p>
+        </div>
 
         {/* Token Gated Content */}
         <CGCAccessGate

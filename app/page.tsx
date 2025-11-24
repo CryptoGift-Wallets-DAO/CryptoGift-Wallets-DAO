@@ -1,26 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { ConnectWallet } from '@/components/web3/ConnectWallet';
+import { Navbar } from '@/components/layout/Navbar';
 import { ApexAgent } from '@/components/agent/ApexAgent';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { useDashboardStats, useCGCTransfer, useMilestoneRelease } from '@/lib/web3/hooks';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { useToast } from '@/components/ui/toast';
-import { 
-  Wallet, 
-  TrendingUp, 
-  Users, 
-  Vote, 
-  CheckCircle2, 
+import {
+  Wallet,
+  TrendingUp,
+  Users,
+  Vote,
+  CheckCircle2,
   Repeat2,
   Lock,
   Zap,
   Target,
   Settings,
-  ExternalLink,
   Eye,
   EyeOff
 } from 'lucide-react';
@@ -151,65 +149,18 @@ export default function CryptoGiftDAODashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      {/* Professional Navbar */}
+      <Navbar />
+
       {/* Glassmorphism Background Effect */}
-      <div className="fixed inset-0 opacity-30">
+      <div className="fixed inset-0 opacity-30 pointer-events-none">
         <div className="absolute top-20 left-20 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
         <div className="absolute top-40 right-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"></div>
         <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-2000"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Header Navigation */}
-        <header className="glass-panel mb-8 p-6 spring-in">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg relative">
-                  <Image 
-                    src="/apeX.png" 
-                    alt="apeX Assistant"
-                    width={48}
-                    height={48}
-                    className="rounded-full object-cover"
-                  />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-glass bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    CryptoGift DAO
-                  </h1>
-                  <p className="text-glass-secondary text-sm">
-                    Governance & Token Distribution Platform
-                  </p>
-                </div>
-              </div>
-              
-              {/* Quick Nav */}
-              <nav className="hidden lg:flex items-center gap-2">
-                <a href="/tasks" className="glass-button text-sm">
-                  Tasks & Rewards
-                </a>
-                <a href="/governance" className="glass-button text-sm">
-                  Governance
-                </a>
-                <a href="/treasury" className="glass-button text-sm">
-                  Treasury
-                </a>
-                <a href="/funding" className="glass-button text-sm flex items-center gap-1">
-                  <span>Funding</span>
-                  <Lock className="w-3 h-3" />
-                </a>
-                <a href="/agent" className="glass-button text-sm flex items-center gap-1">
-                  <span>apeX Assistant</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </nav>
-            </div>
-            
-            <ConnectWallet />
-          </div>
-        </header>
-
         {/* User Profile Section (if connected) */}
         {isConnected && address && (
           <section className="glass-card mb-8 p-6 spring-in" style={{ animationDelay: '0.1s' }}>
