@@ -1,6 +1,6 @@
 /**
  * 🎯 Tasks & Rewards Page
- * 
+ *
  * Complete task management and rewards system
  */
 
@@ -8,6 +8,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
+import { Navbar } from '@/components/layout/Navbar'
 import { useCGCBalance } from '@/lib/web3/hooks'
 import { TaskList } from '@/components/tasks/TaskList'
 import { TasksInProgress } from '@/components/tasks/TasksInProgress'
@@ -19,12 +20,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
-import { 
-  Trophy, 
-  Target, 
-  Clock, 
-  PlusCircle, 
-  TrendingUp, 
+import {
+  Trophy,
+  Target,
+  Clock,
+  PlusCircle,
+  TrendingUp,
   Users,
   Zap,
   Award,
@@ -120,27 +121,30 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      {/* Professional Navbar */}
+      <Navbar />
+
       {/* Glassmorphism Background */}
-      <div className="fixed inset-0 opacity-30">
+      <div className="fixed inset-0 opacity-30 pointer-events-none">
         <div className="absolute top-20 left-20 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
         <div className="absolute top-40 right-20 w-96 h-96 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"></div>
         <div className="absolute bottom-20 left-1/2 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-2000"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <header className="glass-panel mb-8 p-6 spring-in">
+        {/* Page Header */}
+        <header className="mb-8">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div>
-              <h1 className="text-4xl font-bold text-glass bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
                 Tasks & Rewards
               </h1>
-              <p className="text-glass-secondary">
+              <p className="text-gray-600 dark:text-gray-400">
                 Complete tasks, earn CGC tokens, and climb the leaderboard
               </p>
             </div>
-            
+
             <div className="flex flex-wrap items-center gap-3">
               {address && (
                 <Badge variant="outline" className="glass-bubble px-4 py-2">
