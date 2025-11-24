@@ -1,6 +1,6 @@
 /**
  * 📋 Tasks API Endpoint
- * 
+ *
  * Handles CRUD operations for tasks
  */
 
@@ -8,12 +8,30 @@ import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
 import { authHelpers } from '@/lib/auth/middleware'
 import { getDAORedis } from '@/lib/redis-dao'
+import { supabaseAdmin } from '@/lib/supabase/client'
 
-const taskService = new TaskService()
 const redis = getDAORedis()
 
 export const GET = authHelpers.public(async (request: NextRequest) => {
   try {
+    // Early check for Supabase client
+    if (!supabaseAdmin) {
+      console.error('Supabase admin client not initialized')
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Database service unavailable. Please check environment configuration.',
+          debug: {
+            has_url: Boolean(process.env.NEXT_PUBLIC_SUPABASE_DAO_URL || process.env.SUPABASE_DAO_URL),
+            has_anon_key: Boolean(process.env.NEXT_PUBLIC_SUPABASE_DAO_ANON_KEY || process.env.SUPABASE_DAO_ANON_KEY),
+            has_service_key: Boolean(process.env.SUPABASE_DAO_SERVICE_KEY),
+          }
+        },
+        { status: 503 }
+      )
+    }
+
+    const taskService = new TaskService()
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const userAddress = searchParams.get('address')
@@ -50,6 +68,7 @@ export const GET = authHelpers.public(async (request: NextRequest) => {
       {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to fetch tasks',
+        errorType: error instanceof Error ? error.constructor.name : 'Unknown',
       },
       { status: 500 }
     )
