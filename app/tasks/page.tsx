@@ -8,7 +8,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
-import { Navbar } from '@/components/layout/Navbar'
 import { useCGCBalance } from '@/lib/web3/hooks'
 import { TaskList } from '@/components/tasks/TaskList'
 import { TasksInProgress } from '@/components/tasks/TasksInProgress'
@@ -122,9 +121,6 @@ export default function TasksPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Professional Navbar */}
-      <Navbar />
-
       {/* Glassmorphism Background */}
       <div className="fixed inset-0 opacity-30 pointer-events-none">
         <div className="absolute top-20 left-20 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>

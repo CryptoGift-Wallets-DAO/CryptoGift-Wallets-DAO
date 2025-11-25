@@ -6,17 +6,18 @@
 
 'use client';
 
+import { Navbar } from '@/components/layout/Navbar';
 import { AgentChat } from '@/components/agent/AgentChat';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
-import { 
-  Bot, 
-  Zap, 
-  Shield, 
-  Globe, 
-  Database, 
+import {
+  Bot,
+  Zap,
+  Shield,
+  Globe,
+  Database,
   Activity,
   MessageSquare,
   Settings,
@@ -26,12 +27,17 @@ import {
 
 export default function AgentPage() {
   return (
-    <CGCAccessGate
-      title="🤖 apeX Agent Access"
-      description="The apeX intelligent assistant is exclusively available to CGC token holders. Connect your wallet and hold at least 0.01 CGC tokens to chat with your DAO assistant."
-      requiredBalance="0.01"
-    >
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <>
+      {/* Navbar always visible */}
+      <Navbar />
+
+      {/* Token-gated content */}
+      <CGCAccessGate
+        title="🤖 apeX Agent Access"
+        description="The apeX intelligent assistant is exclusively available to CGC token holders. Connect your wallet and hold at least 0.01 CGC tokens to chat with your DAO assistant."
+        requiredBalance="0.01"
+      >
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
         {/* Header */}
         <div className="border-b bg-white/80 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-6">
@@ -255,8 +261,9 @@ export default function AgentPage() {
           </CardContent>
         </Card>
       </div>
-      </div>
-    </CGCAccessGate>
+        </div>
+      </CGCAccessGate>
+    </>
   );
 }
 
