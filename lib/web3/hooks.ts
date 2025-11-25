@@ -266,7 +266,7 @@ export function useTaskStats() {
  */
 export function useAragonProposals() {
   const { data, isError, isLoading } = useReadContract({
-    address: contracts.aragonDao,
+    address: contracts.aragonDAO,
     abi: ARAGON_DAO_ABI,
     functionName: 'proposalCount',
     chainId: targetChainId,
@@ -517,7 +517,7 @@ export function useDashboardStats() {
   const { address } = useAccount()
   const { totalSupply } = useCGCTotalSupply()
   const { holders } = useCGCHolders()
-  const { balance: treasuryBalance } = useCGCBalance(contracts.aragonDao)
+  const { balance: treasuryBalance } = useCGCBalance(contracts.aragonDAO)
   const { escrowBalance } = useEscrowBalance()
   const { milestonesReleased } = useMilestonesReleased()
   const { proposalCount } = useAragonProposals()
