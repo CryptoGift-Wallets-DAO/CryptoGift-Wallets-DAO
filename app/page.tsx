@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { ApexAgent } from '@/components/agent/ApexAgent';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
@@ -28,7 +28,7 @@ export default function CryptoGiftDAODashboard() {
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { success, error, warning, info } = useToast();
-  
+
   // Get real blockchain data
   const {
     totalSupply,
@@ -68,13 +68,43 @@ export default function CryptoGiftDAODashboard() {
 
   const [balanceVisible, setBalanceVisible] = useState(true);
 
-  // Check network and prompt switch if needed
+  // Ref to prevent multiple simultaneous network switches
+  const isSwitchingRef = useRef(false);
+  const switchAttemptedRef = useRef(false);
+
+  // Auto-switch network silently (prevents notification loop)
   useEffect(() => {
-    if (isConnected && chainId !== base.id) {
-      warning('Wrong Network', 'Please switch to Base Network');
-      switchChain?.({ chainId: base.id });
-    }
-  }, [isConnected, chainId, switchChain, warning]);
+    const handleNetworkSwitch = async () => {
+      // Only attempt switch if connected, on wrong network, and not already switching
+      if (isConnected && chainId !== base.id && !isSwitchingRef.current && switchChain) {
+        // Prevent duplicate attempts
+        if (switchAttemptedRef.current) return;
+
+        isSwitchingRef.current = true;
+        switchAttemptedRef.current = true;
+
+        try {
+          // Silent auto-switch without notification
+          await switchChain({ chainId: base.id });
+          console.log('✅ Auto-switched to Base Network');
+        } catch (err) {
+          // Only log error, don't spam user with notifications
+          console.warn('Network auto-switch failed:', err);
+          // Show ONE subtle warning only if auto-switch fails (not user rejection)
+          if (err instanceof Error && !err.message.toLowerCase().includes('reject')) {
+            warning('Wrong Network', 'Please switch to Base Network');
+          }
+        } finally {
+          isSwitchingRef.current = false;
+        }
+      } else if (isConnected && chainId === base.id) {
+        // Reset attempt flag when on correct network
+        switchAttemptedRef.current = false;
+      }
+    };
+
+    handleNetworkSwitch();
+  }, [isConnected, chainId, switchChain]); // Removed 'warning' to prevent notification re-triggers
 
   // Show transaction success messages
   useEffect(() => {
