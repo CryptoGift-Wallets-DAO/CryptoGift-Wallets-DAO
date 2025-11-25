@@ -90,6 +90,7 @@ export const POST = authHelpers.protected(async (request: NextRequest) => {
         )
       }
 
+      const taskService = new TaskService()
       await taskService.initializeTasks()
       
       return NextResponse.json({
