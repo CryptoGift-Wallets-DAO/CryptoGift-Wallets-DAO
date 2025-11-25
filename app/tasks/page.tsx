@@ -7,7 +7,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useAccount } from 'wagmi'
+import { useAccount } from '@/lib/thirdweb'
 import { useCGCBalance } from '@/lib/web3/hooks'
 import { TaskList } from '@/components/tasks/TaskList'
 import { TasksInProgress } from '@/components/tasks/TasksInProgress'

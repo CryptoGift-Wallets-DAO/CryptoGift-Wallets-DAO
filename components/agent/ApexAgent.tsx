@@ -18,7 +18,7 @@ import {
   Lock
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAccount } from 'wagmi';
+import { useAccount } from '@/lib/thirdweb';
 import { useCGCBalance } from '@/lib/web3/hooks';
 
 interface OrbitalMenuItem {

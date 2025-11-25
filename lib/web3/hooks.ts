@@ -5,14 +5,24 @@
 
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi'
 import { formatUnits, parseUnits, keccak256, toHex, pad } from 'viem'
-import { contracts, targetChainId } from './config'
-import { 
-  CGC_TOKEN_ABI, 
-  MILESTONE_ESCROW_ABI, 
+import {
+  CGC_TOKEN_ABI,
+  MILESTONE_ESCROW_ABI,
   MASTER_CONTROLLER_ABI,
   TASK_RULES_ABI,
-  ARAGON_DAO_ABI 
+  ARAGON_DAO_ABI
 } from './abis'
+
+// Contract addresses (Base Mainnet)
+export const contracts = {
+  cgcToken: '0x5e3a61b550328f3D8C44f60b3e10a49D3d806175' as `0x${string}`,
+  masterController: '0x67D9a01A3F7b5D38694Bb78dD39286Db75D7D869' as `0x${string}`,
+  taskRules: '0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb' as `0x${string}`,
+  milestoneEscrow: '0x8346CFcaECc90d678d862319449E5a742c03f109' as `0x${string}`,
+  aragonDAO: '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31' as `0x${string}`,
+}
+
+export const targetChainId = 8453 // Base Mainnet
 
 // ===== CGC Token Hooks =====
 

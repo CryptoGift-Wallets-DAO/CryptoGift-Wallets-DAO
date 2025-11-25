@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Loader2, Upload, ExternalLink } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
 // Web3 hooks removed - TaskService handles blockchain integration
-import { useAccount } from 'wagmi'
+import { useAccount } from '@/lib/thirdweb'
 
 interface TasksInProgressProps {
   userAddress?: string

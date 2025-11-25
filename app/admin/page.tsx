@@ -22,7 +22,7 @@ import {
   BarChart3
 } from 'lucide-react'
 import { useDashboardStats } from '@/lib/web3/hooks'
-import { useAccount } from 'wagmi'
+import { useAccount } from '@/lib/thirdweb'
 
 export default function AdminPage() {
   const [refreshKey, setRefreshKey] = useState(0)

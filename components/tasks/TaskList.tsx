@@ -21,7 +21,7 @@ import {
 import { Search, Filter, Loader2 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
 // Web3 hooks removed - TaskService handles blockchain integration
-import { useAccount } from 'wagmi'
+import { useAccount } from '@/lib/thirdweb'
 import { ensureEthereumAddress } from '@/lib/utils'
 
 interface TaskListProps {

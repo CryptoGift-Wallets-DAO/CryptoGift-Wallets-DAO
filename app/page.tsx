@@ -5,8 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { ApexAgent } from '@/components/agent/ApexAgent';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { useDashboardStats, useCGCTransfer, useMilestoneRelease } from '@/lib/web3/hooks';
-import { useAccount, useChainId, useSwitchChain } from 'wagmi';
-import { base } from 'wagmi/chains';
+import { useAccount, useNetwork, useSwitchChain, useAutoSwitchToBase } from '@/lib/thirdweb';
 import { useToast } from '@/components/ui/toast';
 import {
   Wallet,
@@ -25,9 +24,11 @@ import {
 
 export default function CryptoGiftDAODashboard() {
   const { address, isConnected } = useAccount();
-  const chainId = useChainId();
-  const { switchChain } = useSwitchChain();
+  const { chainId } = useNetwork();
   const { success, error, warning, info } = useToast();
+
+  // Auto-switch to Base Mainnet (using Thirdweb hook)
+  useAutoSwitchToBase();
 
   // Get real blockchain data
   const {
@@ -68,44 +69,6 @@ export default function CryptoGiftDAODashboard() {
 
   const [balanceVisible, setBalanceVisible] = useState(true);
 
-  // Ref to prevent multiple simultaneous network switches
-  const isSwitchingRef = useRef(false);
-  const switchAttemptedRef = useRef(false);
-
-  // Auto-switch network silently (prevents notification loop)
-  useEffect(() => {
-    const handleNetworkSwitch = async () => {
-      // Only attempt switch if connected, on wrong network, and not already switching
-      if (isConnected && chainId !== base.id && !isSwitchingRef.current && switchChain) {
-        // Prevent duplicate attempts
-        if (switchAttemptedRef.current) return;
-
-        isSwitchingRef.current = true;
-        switchAttemptedRef.current = true;
-
-        try {
-          // Silent auto-switch without notification
-          await switchChain({ chainId: base.id });
-          console.log('✅ Auto-switched to Base Network');
-        } catch (err) {
-          // Only log error, don't spam user with notifications
-          console.warn('Network auto-switch failed:', err);
-          // Show ONE subtle warning only if auto-switch fails (not user rejection)
-          if (err instanceof Error && !err.message.toLowerCase().includes('reject')) {
-            warning('Wrong Network', 'Please switch to Base Network');
-          }
-        } finally {
-          isSwitchingRef.current = false;
-        }
-      } else if (isConnected && chainId === base.id) {
-        // Reset attempt flag when on correct network
-        switchAttemptedRef.current = false;
-      }
-    };
-
-    handleNetworkSwitch();
-  }, [isConnected, chainId, switchChain]); // Removed 'warning' to prevent notification re-triggers
-
   // Show transaction success messages
   useEffect(() => {
     if (isTransferSuccess && transferHash) {
@@ -125,7 +88,7 @@ export default function CryptoGiftDAODashboard() {
       return;
     }
 
-    if (chainId !== base.id) {
+    if (chainId !== 8453) {
       warning('Wrong Network', 'Please switch to Base Network');
       return;
     }
@@ -139,7 +102,7 @@ export default function CryptoGiftDAODashboard() {
           // Example: Release 100 CGC tokens to connected wallet
           if (address) {
             // Use a more predictable milestone ID to avoid SSR hydration issues
-            const milestoneId = `milestone-user-${address.slice(-8)}`;
+            const milestoneId: string = `milestone-user-${address.slice(-8)}`;
             await releaseMilestone(address, '100', milestoneId);
             info('Transaction Submitted', 'Waiting for confirmation...');
           }

@@ -3,11 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useAccount, useChainId, useDisconnect } from 'wagmi';
-import { useCGCBalance } from '@/lib/web3/hooks';
-import { getNetworkInfo } from '@/lib/web3/config';
-import { base } from 'wagmi/chains';
-import { ConnectWalletCompact } from '@/components/web3/ConnectWalletCompact';
+import { useAccount, useNetwork, useCGCBalance } from '@/lib/thirdweb';
+import { useDisconnect } from 'thirdweb/react';
+import { ConnectButtonDAO } from '@/components/thirdweb/ConnectButtonDAO';
 import {
   Wallet,
   ChevronDown,
@@ -23,8 +21,10 @@ export const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { address, isConnected } = useAccount();
-  const chainId = useChainId();
-  const { isSupported } = getNetworkInfo(chainId);
+  const { chainId } = useNetwork();
+
+  // Network is supported if it's Base Mainnet (8453)
+  const isSupported = chainId === 8453;
 
   useEffect(() => {
     setMounted(true);
@@ -104,7 +104,7 @@ export const Navbar: React.FC = () => {
               isConnected && address ? (
                 <WalletDropdown />
               ) : (
-                <ConnectWalletCompact />
+                <ConnectButtonDAO />
               )
             )}
           </div>
@@ -181,7 +181,7 @@ export const Navbar: React.FC = () => {
                 {isConnected && address ? (
                   <WalletDropdown fullWidth />
                 ) : (
-                  <ConnectWalletCompact fullWidth />
+                  <ConnectButtonDAO fullWidth />
                 )}
               </div>
             </div>
@@ -194,7 +194,7 @@ export const Navbar: React.FC = () => {
 
 // Compact wallet badge for mobile
 function MobileWalletBadge({ address }: { address: string }) {
-  const { balance } = useCGCBalance(address as `0x${string}`);
+  const { formatted } = useCGCBalance();
 
   return (
     <div className="flex items-center space-x-2 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg">
@@ -212,16 +212,18 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
   const [copied, setCopied] = useState(false);
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
-  const chainId = useChainId();
-  const { balance } = useCGCBalance(address);
-  const { isSupported, chain, explorer } = getNetworkInfo(chainId);
+  const { chainId } = useNetwork();
+  const { formatted } = useCGCBalance();
+
+  // Network is supported if it's Base Mainnet (8453)
+  const isSupported = chainId === 8453;
+  const chainName = chainId === 8453 ? 'Base' : 'Unsupported Network';
+  const explorer = 'https://basescan.org';
 
   if (!isConnected || !address) return null;
 
   const displayAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
-  const formattedBalance = parseFloat(balance || '0').toLocaleString(undefined, {
-    maximumFractionDigits: 2
-  });
+  const formattedBalance = formatted || '0.00';
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(address);
@@ -283,7 +285,7 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
                     <div className="font-medium text-gray-900 dark:text-white">{displayAddress}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                       <span className={`w-2 h-2 rounded-full ${isSupported ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                      {chain.name}
+                      {chainName}
                     </div>
                   </div>
                 </div>

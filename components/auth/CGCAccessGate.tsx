@@ -1,22 +1,19 @@
 /**
  * 🔐 CGC Access Gate
- * 
+ *
  * Simple access control component that restricts access based on CGC token balance
- * Uses existing useCGCBalance hook from lib/web3/hooks.ts
+ * Uses Thirdweb v5 hooks for wallet connection and balance checking
  */
 
 'use client'
 
 import React from 'react'
-import { useAccount, useChainId } from 'wagmi'
-import { useCGCBalance } from '@/lib/web3/hooks'
-import { ConnectWallet } from '@/components/web3/ConnectWallet'
+import { useAccount, useNetwork, useCGCBalance } from '@/lib/thirdweb'
+import { ConnectButtonDAO } from '@/components/thirdweb/ConnectButtonDAO'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Lock, AlertCircle, ExternalLink, Coins } from 'lucide-react'
-import { base } from 'wagmi/chains'
-import { getExplorerUrl } from '@/lib/web3/config'
 
 interface CGCAccessGateProps {
   children: React.ReactNode
@@ -36,14 +33,15 @@ export function CGCAccessGate({
   title = "CGC Token Required",
   description = "This feature is exclusive to CGC token holders. Connect your wallet and hold at least 0.01 CGC tokens to continue."
 }: CGCAccessGateProps) {
-  const { address, isConnected, isConnecting } = useAccount()
-  const chainId = useChainId()
-  const { balance, isLoading: isBalanceLoading, isError: balanceError } = useCGCBalance(address)
+  const { address, isConnected } = useAccount()
+  const { chainId } = useNetwork()
+  const { formatted, isLoading: isBalanceLoading } = useCGCBalance()
 
-  const isCorrectNetwork = chainId === base.id
-  const cgcBalanceNum = parseFloat(balance || '0')
+  const isCorrectNetwork = chainId === 8453 // Base Mainnet
+  const cgcBalanceNum = parseFloat(formatted || '0')
   const requiredBalanceNum = parseFloat(requiredBalance)
   const hasRequiredBalance = cgcBalanceNum >= requiredBalanceNum
+  const isConnecting = false // Thirdweb handles this internally
 
   // Loading state
   if (isConnecting || (isConnected && isBalanceLoading)) {
@@ -76,7 +74,7 @@ export function CGCAccessGate({
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-gray-600 text-sm">{description}</p>
-            <ConnectWallet />
+            <ConnectButtonDAO fullWidth />
           </CardContent>
         </Card>
       </div>
@@ -101,42 +99,18 @@ export function CGCAccessGate({
                 Please switch to Base Network to access CGC token features.
               </AlertDescription>
             </Alert>
-            <ConnectWallet />
+            <ConnectButtonDAO fullWidth />
           </CardContent>
         </Card>
       </div>
     )
   }
 
-  // Balance error
-  if (balanceError) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <AlertCircle className="h-5 w-5 text-red-500" />
-              <span>Balance Check Failed</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Unable to verify your CGC token balance. Please try again.
-              </AlertDescription>
-            </Alert>
-            <ConnectWallet />
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
 
   // Insufficient balance
   if (!hasRequiredBalance) {
-    const cgcTokenUrl = getExplorerUrl('0x5e3a61b550328f3D8C44f60b3e10a49D3d806175', 'address', chainId)
-    
+    const cgcTokenUrl = `https://basescan.org/address/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175`
+
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Card className="w-full max-w-md">
@@ -150,17 +124,17 @@ export function CGCAccessGate({
             <div className="text-center space-y-3">
               <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
                 <p className="text-sm text-amber-800 mb-2">
-                  <strong>Current Balance:</strong> {balance} CGC
+                  <strong>Current Balance:</strong> {formatted} CGC
                 </p>
                 <p className="text-sm text-amber-800">
                   <strong>Required:</strong> {requiredBalance} CGC
                 </p>
               </div>
-              
+
               <p className="text-gray-600 text-sm">
                 You need to hold at least {requiredBalance} CGC tokens to access this feature.
               </p>
-              
+
               <div className="space-y-2">
                 <a
                   href={cgcTokenUrl}
@@ -189,10 +163,10 @@ export function CGCAccessGate({
       <div className="mb-4">
         <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
           <Coins className="h-3 w-3 mr-1" />
-          CGC Access: {balance} CGC
+          CGC Access: {formatted} CGC
         </Badge>
       </div>
-      
+
       {children}
     </div>
   )
