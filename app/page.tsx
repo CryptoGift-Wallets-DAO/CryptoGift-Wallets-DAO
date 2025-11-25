@@ -8,6 +8,7 @@ import { useDashboardStats, useCGCTransfer, useMilestoneRelease } from '@/lib/we
 import { useAccount, useNetwork, useSwitchChain, useAutoSwitchToBase } from '@/lib/thirdweb';
 import { useToast } from '@/components/ui/toast';
 import { base } from 'thirdweb/chains';
+import { stringToHex } from 'viem';
 import {
   Wallet,
   TrendingUp,
@@ -103,8 +104,9 @@ export default function CryptoGiftDAODashboard() {
           // Example: Release 100 CGC tokens to connected wallet
           if (address) {
             // Use a more predictable milestone ID to avoid SSR hydration issues
-            const milestoneId = `milestone-user-${address.slice(-8)}`;
-            await releaseMilestone(address, '100', milestoneId as `0x${string}`);
+            const milestoneIdString = `milestone-user-${address.slice(-8)}`;
+            const milestoneId = stringToHex(milestoneIdString, { size: 32 });
+            await releaseMilestone(address, '100', milestoneId);
             info('Transaction Submitted', 'Waiting for confirmation...');
           }
           break;

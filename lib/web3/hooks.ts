@@ -319,9 +319,9 @@ export function useMilestoneRelease() {
   const { writeContract, data: hash, isPending, error } = useWriteContract()
   
   const releaseMilestone = async (
-    recipient: `0x${string}`, 
-    amount: string, 
-    milestoneId: string
+    recipient: `0x${string}`,
+    amount: string,
+    milestoneId: `0x${string}`
   ) => {
     const amountWei = parseUnits(amount, 18)
     return writeContract({
