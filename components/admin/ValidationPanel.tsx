@@ -15,11 +15,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { 
-  Shield, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
+import {
+  Shield,
+  CheckCircle,
+  XCircle,
+  Clock,
   ExternalLink,
   Loader2,
   AlertTriangle,
@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
 import { useTaskValidation, useMilestoneRelease } from '@/lib/web3/hooks'
+import { stringToHex } from 'viem'
 import { ensureEthereumAddress } from '@/lib/utils'
 
 // Authorized validator addresses - should match backend
@@ -138,10 +139,11 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
           const assigneeAddress = ensureEthereumAddress(task.assignee_address)
           if (assigneeAddress) {
             console.log('🚀 Triggering automatic payment release...')
+            const milestoneIdHex = stringToHex(taskId, { size: 32 }) as `0x${string}`
             await releaseMilestone(
               assigneeAddress,
               task.reward_cgc.toString(),
-              taskId
+              milestoneIdHex
             )
             
             // Update task status to completed in database

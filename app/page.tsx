@@ -105,7 +105,7 @@ export default function CryptoGiftDAODashboard() {
           if (address) {
             // Use a more predictable milestone ID to avoid SSR hydration issues
             const milestoneIdString = `milestone-user-${address.slice(-8)}`;
-            const milestoneId = stringToHex(milestoneIdString, { size: 32 });
+            const milestoneId = stringToHex(milestoneIdString, { size: 32 }) as `0x${string}`;
             await releaseMilestone(address, '100', milestoneId);
             info('Transaction Submitted', 'Waiting for confirmation...');
           }
