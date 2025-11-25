@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAccount, useNetwork, useCGCBalance } from '@/lib/thirdweb';
-import { useDisconnect } from 'thirdweb/react';
+import { useDisconnect, useActiveWallet } from 'thirdweb/react';
 import { ConnectButtonDAO } from '@/components/thirdweb/ConnectButtonDAO';
 import {
   Wallet,
@@ -212,6 +212,7 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
   const [copied, setCopied] = useState(false);
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
+  const wallet = useActiveWallet();
   const { chainId } = useNetwork();
   const { formatted } = useCGCBalance();
 
@@ -330,7 +331,7 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
 
                 <button
                   onClick={() => {
-                    disconnect();
+                    if (wallet) disconnect(wallet);
                     setShowDropdown(false);
                   }}
                   className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left text-red-600 dark:text-red-400"

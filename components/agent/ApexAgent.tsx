@@ -37,7 +37,7 @@ export function ApexAgent() {
   
   // CGC access control
   const { address, isConnected } = useAccount();
-  const { balance } = useCGCBalance(address);
+  const { balance } = useCGCBalance(address as `0x${string}` | undefined);
   const cgcBalance = parseFloat(balance || '0');
   const hasAccess = isConnected && cgcBalance >= 0.01;
 

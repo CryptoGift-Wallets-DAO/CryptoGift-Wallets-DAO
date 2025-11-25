@@ -35,7 +35,7 @@ import {
 
 export default function TasksPage() {
   const { address, isConnected } = useAccount()
-  const { balance } = useCGCBalance(address)
+  const { balance } = useCGCBalance(address as `0x${string}` | undefined)
   const { success, error, warning, info } = useToast()
   
   const [isLoading, setIsLoading] = useState(true)

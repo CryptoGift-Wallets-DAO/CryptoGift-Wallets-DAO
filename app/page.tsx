@@ -7,6 +7,7 @@ import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { useDashboardStats, useCGCTransfer, useMilestoneRelease } from '@/lib/web3/hooks';
 import { useAccount, useNetwork, useSwitchChain, useAutoSwitchToBase } from '@/lib/thirdweb';
 import { useToast } from '@/components/ui/toast';
+import { base } from 'thirdweb/chains';
 import {
   Wallet,
   TrendingUp,
@@ -102,8 +103,8 @@ export default function CryptoGiftDAODashboard() {
           // Example: Release 100 CGC tokens to connected wallet
           if (address) {
             // Use a more predictable milestone ID to avoid SSR hydration issues
-            const milestoneId: string = `milestone-user-${address.slice(-8)}`;
-            await releaseMilestone(address, '100', milestoneId);
+            const milestoneId = `milestone-user-${address.slice(-8)}`;
+            await releaseMilestone(address, '100', milestoneId as `0x${string}`);
             info('Transaction Submitted', 'Waiting for confirmation...');
           }
           break;
