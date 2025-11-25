@@ -139,7 +139,7 @@ export function ValidationPanel({ refreshKey = 0 }: ValidationPanelProps) {
           const assigneeAddress = ensureEthereumAddress(task.assignee_address)
           if (assigneeAddress) {
             console.log('🚀 Triggering automatic payment release...')
-            const milestoneIdHex = stringToHex(taskId, { size: 32 }) as `0x${string}`
+            const milestoneIdHex: `0x${string}` = stringToHex(taskId, { size: 32 })
             await releaseMilestone(
               assigneeAddress,
               task.reward_cgc.toString(),
