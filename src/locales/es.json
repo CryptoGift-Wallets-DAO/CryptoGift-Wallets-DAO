@@ -1,0 +1,132 @@
+{
+  "navigation": {
+    "dashboard": "Panel",
+    "tasks": "Tareas",
+    "apex": "apeX",
+    "funding": "Financiamiento",
+    "admin": "Admin"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "continue": "Continuar",
+    "connect": "Conectar",
+    "disconnect": "Desconectar",
+    "wallet": "Wallet",
+    "copyAddress": "Copiar Dirección",
+    "copied": "¡Copiado!",
+    "viewOnExplorer": "Ver en Explorer",
+    "balance": "Balance"
+  },
+  "wallet": {
+    "connect": "Conectar Wallet",
+    "connected": "Conectado",
+    "disconnected": "Desconectado",
+    "cgcBalance": "Balance CGC",
+    "network": "Red",
+    "base": "Base",
+    "unsupportedNetwork": "Red No Soportada"
+  },
+  "dashboard": {
+    "title": "Panel de CryptoGift DAO",
+    "subtitle": "Gobernanza y Gestión de Tokens",
+    "stats": {
+      "totalSupply": "Suministro Total",
+      "circulatingSupply": "Suministro Circulante",
+      "treasuryBalance": "Balance del Tesoro",
+      "escrowBalance": "Balance en Custodia",
+      "holders": "Holders",
+      "proposals": "Propuestas Activas",
+      "tasksCompleted": "Tareas Completadas",
+      "milestonesReleased": "Milestones Liberados"
+    },
+    "yourStats": {
+      "title": "Tus Estadísticas",
+      "balance": "Tu Balance",
+      "earnings": "Tus Ganancias"
+    },
+    "system": {
+      "title": "Estado del Sistema",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "limits": "Límites",
+      "daily": "Diario",
+      "weekly": "Semanal",
+      "monthly": "Mensual",
+      "usage": "Uso"
+    }
+  },
+  "tasks": {
+    "title": "Tareas DAO",
+    "subtitle": "Completa tareas para ganar tokens CGC",
+    "available": "Tareas Disponibles",
+    "claimed": "Tareas Reclamadas",
+    "completed": "Tareas Completadas",
+    "claim": "Reclamar Tarea",
+    "submit": "Enviar Evidencia",
+    "reward": "Recompensa",
+    "complexity": "Complejidad",
+    "deadline": "Fecha Límite",
+    "timeRemaining": "Tiempo Restante",
+    "assignee": "Asignado a",
+    "status": {
+      "available": "Disponible",
+      "claimed": "Reclamada",
+      "inProgress": "En Progreso",
+      "submitted": "Enviada",
+      "validated": "Validada",
+      "completed": "Completada",
+      "expired": "Expirada"
+    },
+    "claimModal": {
+      "title": "Reclamar Tarea",
+      "description": "Estás a punto de reclamar esta tarea. Una vez reclamada, tendrás acceso exclusivo para completarla dentro del período de tiempo límite.",
+      "confirm": "Confirmar Reclamo",
+      "cancel": "Cancelar"
+    }
+  },
+  "admin": {
+    "title": "Panel de Validación Admin",
+    "subtitle": "Valida completaciones de tareas y libera pagos",
+    "pending": "Pendientes",
+    "validated": "Validadas",
+    "all": "Todas",
+    "approve": "Aprobar y Pagar",
+    "reject": "Rechazar",
+    "notes": "Notas de Validación",
+    "notAuthorized": "Acceso Denegado",
+    "notAuthorizedMessage": "Tu dirección de wallet no está autorizada para validar tareas."
+  },
+  "agent": {
+    "title": "Asistente apeX",
+    "subtitle": "Ayuda con IA para el DAO",
+    "placeholder": "Pregúntame lo que quieras sobre el DAO...",
+    "send": "Enviar"
+  },
+  "funding": {
+    "title": "Financiamiento",
+    "subtitle": "Apoya el desarrollo del DAO",
+    "locked": "Próximamente"
+  },
+  "theme": {
+    "light": "Claro",
+    "dark": "Oscuro",
+    "auto": "Auto"
+  },
+  "footer": {
+    "brand": {
+      "name": "CryptoGift",
+      "tagline": "DAO",
+      "description": "Gobernanza descentralizada para el ecosistema CryptoGift."
+    },
+    "bottom": {
+      "copyright": "Hecho con amor para el futuro.",
+      "builtOn": "Construido en",
+      "chain": "Base"
+    }
+  }
+}

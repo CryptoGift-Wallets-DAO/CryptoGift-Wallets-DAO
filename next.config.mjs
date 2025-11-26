@@ -1,4 +1,7 @@
 // import { withSentryConfig } from '@sentry/nextjs'; // Temporarily disabled for development
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -70,7 +73,7 @@ const nextConfig = {
 
 // Sentry configuration temporarily disabled for development debugging
 // TODO: Re-enable Sentry once dependencies are resolved
-export default nextConfig;
+export default withNextIntl(nextConfig);
 
 // Original Sentry configuration (commented out):
 /*

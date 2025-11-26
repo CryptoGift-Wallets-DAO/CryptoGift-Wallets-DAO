@@ -1,0 +1,132 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "tasks": "Tasks",
+    "apex": "apeX",
+    "funding": "Funding",
+    "admin": "Admin"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back",
+    "continue": "Continue",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "wallet": "Wallet",
+    "copyAddress": "Copy Address",
+    "copied": "Copied!",
+    "viewOnExplorer": "View on Explorer",
+    "balance": "Balance"
+  },
+  "wallet": {
+    "connect": "Connect Wallet",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "cgcBalance": "CGC Balance",
+    "network": "Network",
+    "base": "Base",
+    "unsupportedNetwork": "Unsupported Network"
+  },
+  "dashboard": {
+    "title": "CryptoGift DAO Dashboard",
+    "subtitle": "Governance & Token Management",
+    "stats": {
+      "totalSupply": "Total Supply",
+      "circulatingSupply": "Circulating Supply",
+      "treasuryBalance": "Treasury Balance",
+      "escrowBalance": "Escrow Balance",
+      "holders": "Holders",
+      "proposals": "Active Proposals",
+      "tasksCompleted": "Tasks Completed",
+      "milestonesReleased": "Milestones Released"
+    },
+    "yourStats": {
+      "title": "Your Stats",
+      "balance": "Your Balance",
+      "earnings": "Your Earnings"
+    },
+    "system": {
+      "title": "System Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "limits": "Limits",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "usage": "Usage"
+    }
+  },
+  "tasks": {
+    "title": "DAO Tasks",
+    "subtitle": "Complete tasks to earn CGC tokens",
+    "available": "Available Tasks",
+    "claimed": "Claimed Tasks",
+    "completed": "Completed Tasks",
+    "claim": "Claim Task",
+    "submit": "Submit Evidence",
+    "reward": "Reward",
+    "complexity": "Complexity",
+    "deadline": "Deadline",
+    "timeRemaining": "Time Remaining",
+    "assignee": "Assignee",
+    "status": {
+      "available": "Available",
+      "claimed": "Claimed",
+      "inProgress": "In Progress",
+      "submitted": "Submitted",
+      "validated": "Validated",
+      "completed": "Completed",
+      "expired": "Expired"
+    },
+    "claimModal": {
+      "title": "Claim Task",
+      "description": "You are about to claim this task. Once claimed, you will have exclusive access to complete it within the timeout period.",
+      "confirm": "Confirm Claim",
+      "cancel": "Cancel"
+    }
+  },
+  "admin": {
+    "title": "Admin Validation Panel",
+    "subtitle": "Validate task completions and release payments",
+    "pending": "Pending",
+    "validated": "Validated",
+    "all": "All",
+    "approve": "Approve & Pay",
+    "reject": "Reject",
+    "notes": "Validation Notes",
+    "notAuthorized": "Access Denied",
+    "notAuthorizedMessage": "Your wallet address is not authorized to validate tasks."
+  },
+  "agent": {
+    "title": "apeX Assistant",
+    "subtitle": "AI-powered help for the DAO",
+    "placeholder": "Ask me anything about the DAO...",
+    "send": "Send"
+  },
+  "funding": {
+    "title": "Funding",
+    "subtitle": "Support the DAO development",
+    "locked": "Coming Soon"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "Auto"
+  },
+  "footer": {
+    "brand": {
+      "name": "CryptoGift",
+      "tagline": "DAO",
+      "description": "Decentralized governance for the CryptoGift ecosystem."
+    },
+    "bottom": {
+      "copyright": "Made with love for the future.",
+      "builtOn": "Built on",
+      "chain": "Base"
+    }
+  }
+}

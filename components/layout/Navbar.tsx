@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useAccount, useNetwork, useCGCBalance } from '@/lib/thirdweb';
 import { useDisconnect, useActiveWallet } from 'thirdweb/react';
 import { ConnectButtonDAO } from '@/components/thirdweb/ConnectButtonDAO';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import {
   Wallet,
   ChevronDown,
@@ -99,6 +101,15 @@ export const Navbar: React.FC = () => {
               <Lock className="w-3 h-3" />
             </Link>
 
+            {/* Separator */}
+            <div className="w-px h-6 bg-gradient-to-b from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-40"></div>
+
+            {/* Language Toggle */}
+            <LanguageToggle />
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* Wallet Section */}
             {mounted && (
               isConnected && address ? (
@@ -175,6 +186,18 @@ export const Navbar: React.FC = () => {
               >
                 Funding <Lock className="w-4 h-4" />
               </Link>
+
+              {/* Mobile Separator */}
+              <div className="mx-4 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-30"></div>
+
+              {/* Mobile Language and Theme Toggles */}
+              <div className="px-4 py-3 flex items-center justify-between">
+                <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Settings</span>
+                <div className="flex items-center gap-2">
+                  <LanguageToggle />
+                  <ThemeToggle />
+                </div>
+              </div>
 
               {/* Mobile Connect */}
               <div className="pt-4 px-4">
