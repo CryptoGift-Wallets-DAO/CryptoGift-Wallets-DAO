@@ -162,7 +162,7 @@ export function AgentChat({
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="/apeX-aro.png" alt="apeX" />
+                  <AvatarImage src="/apeX-avatar.png" alt="apeX" />
                   <AvatarFallback className="bg-blue-600 text-white">aX</AvatarFallback>
                 </Avatar>
                 <div>
@@ -393,7 +393,7 @@ function MessageBubble({ message, onCopy, isCopied, t }: MessageBubbleProps) {
       isUser && 'flex-row-reverse space-x-reverse'
     )}>
       <Avatar className="h-8 w-8 flex-shrink-0">
-        {!isUser && <AvatarImage src="/apeX-aro.png" alt="apeX" />}
+        {!isUser && <AvatarImage src="/apeX-avatar.png" alt="apeX" />}
         <AvatarFallback className={cn(
           isUser ? 'bg-green-600' : 'bg-blue-600',
           'text-white'

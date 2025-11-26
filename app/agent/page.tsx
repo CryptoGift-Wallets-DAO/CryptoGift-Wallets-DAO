@@ -50,7 +50,7 @@ export default function AgentPage() {
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src="/apeX-aro.png" alt="apeX" />
+                    <AvatarImage src="/apeX-avatar.png" alt="apeX" />
                     <AvatarFallback className="bg-blue-600 text-white font-bold">aX</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
