@@ -9,6 +9,7 @@ import { useAccount, useNetwork, useSwitchChain, useAutoSwitchToBase } from '@/l
 import { useToast } from '@/components/ui/toast';
 import { base } from 'thirdweb/chains';
 import { stringToHex } from 'viem';
+import { ensureEthereumAddress } from '@/lib/utils';
 import {
   Wallet,
   TrendingUp,
@@ -103,11 +104,14 @@ export default function CryptoGiftDAODashboard() {
         case 'Request token release':
           // Example: Release 100 CGC tokens to connected wallet
           if (address) {
-            // Use a more predictable milestone ID to avoid SSR hydration issues
-            const milestoneIdString = `milestone-user-${address.slice(-8)}`;
-            const milestoneId: `0x${string}` = stringToHex(milestoneIdString, { size: 32 });
-            await releaseMilestone(address, '100', milestoneId);
-            info('Transaction Submitted', 'Waiting for confirmation...');
+            const recipientAddress = ensureEthereumAddress(address);
+            if (recipientAddress) {
+              // Use a more predictable milestone ID to avoid SSR hydration issues
+              const milestoneIdString = `milestone-user-${address.slice(-8)}`;
+              const milestoneId: `0x${string}` = stringToHex(milestoneIdString, { size: 32 });
+              await releaseMilestone(recipientAddress, '100', milestoneId);
+              info('Transaction Submitted', 'Waiting for confirmation...');
+            }
           }
           break;
           
