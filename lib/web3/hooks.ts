@@ -516,9 +516,9 @@ export function useTaskValidation() {
 export function useDashboardStats() {
   const { address } = useAccount()
   const { totalSupply } = useCGCTotalSupply()
-  const { holders } = useCGCHolders()
   const { balance: treasuryBalance } = useCGCBalance(contracts.aragonDAO)
-  const { escrowBalance } = useEscrowBalance()
+  // Use CGC balance of escrow contract instead of totalFundsHeld
+  const { balance: escrowCGCBalance } = useCGCBalance(contracts.milestoneEscrow)
   const { milestonesReleased } = useMilestonesReleased()
   const { proposalCount } = useAragonProposals()
   const { activeTasks, completedTasks, totalTasks } = useTaskStats()
@@ -528,16 +528,23 @@ export function useDashboardStats() {
 
   // Calculate circulating supply (total - treasury - escrow)
   const treasuryNum = parseFloat(treasuryBalance || '0')
-  const escrowNum = parseFloat(escrowBalance || '0')
+  const escrowNum = parseFloat(escrowCGCBalance || '0')
   const totalNum = parseFloat(totalSupply || '0')
   const circulatingSupply = Math.max(0, totalNum - treasuryNum - escrowNum)
+
+  // Calculate real holders count (exclude treasury and escrow from count)
+  // For now, we use a static count based on known holders - 2 (treasury + escrow)
+  // TODO: Fetch from BaseScan API for accurate count
+  const knownHolders = 5 // From BaseScan token holders page
+  const excludedAddresses = 2 // Treasury + Escrow
+  const realHoldersCount = Math.max(0, knownHolders - excludedAddresses)
 
   return {
     totalSupply,
     circulatingSupply: circulatingSupply.toFixed(2),
     treasuryBalance,
-    escrowBalance,
-    holdersCount: holders,
+    escrowBalance: escrowCGCBalance,
+    holdersCount: realHoldersCount,
     proposalsActive: proposalCount,
     questsCompleted: completedTasks,
     activeTasks,
