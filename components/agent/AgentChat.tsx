@@ -15,7 +15,6 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +37,8 @@ import {
   Copy,
   CheckCircle2,
   Activity,
-  Clock
+  Clock,
+  Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAgent } from '@/lib/agent/useAgent';
@@ -286,13 +286,7 @@ export function AgentChat({
           <div className="space-y-4">
             {messages.length === 0 && (
               <div className="text-center text-gray-500 py-8">
-                <Image
-                  src="/apeX-aro.png"
-                  alt="apeX"
-                  width={64}
-                  height={64}
-                  className="mx-auto mb-4 rounded-full"
-                />
+                <Bot className="h-16 w-16 mx-auto mb-4 text-blue-500" />
                 <p className="mb-2 text-gray-700 font-medium">{t('helloMessage')}</p>
                 <p className="text-sm">{t('askAnything')}</p>
               </div>

@@ -7,13 +7,13 @@
 
 'use client';
 
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Navbar } from '@/components/layout/Navbar';
 import { AgentChat } from '@/components/agent/AgentChat';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import {
   Zap,
@@ -49,13 +49,10 @@ export default function AgentPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-3">
-                  <Image
-                    src="/apeX-aro.png"
-                    alt="apeX"
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                  />
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src="/apeX-aro.png" alt="apeX" />
+                    <AvatarFallback className="bg-blue-600 text-white font-bold">aX</AvatarFallback>
+                  </Avatar>
                   <div className="flex flex-col">
                     <h1 className="text-2xl font-bold text-gray-900">apeX</h1>
                     <span className="text-sm text-gray-500">{t('page.headerTitle')}</span>
