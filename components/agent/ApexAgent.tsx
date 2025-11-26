@@ -1,16 +1,18 @@
 /**
  * 🤖 APEX AGENT - Floating Bubble with Orbital Menu
  * Glass morphism design with CSS animations
+ * 🌐 i18n: Full translation support for EN/ES
  */
 
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { 
-  MessageCircle, 
-  Settings, 
-  HelpCircle, 
+import { useTranslations } from 'next-intl';
+import {
+  MessageCircle,
+  Settings,
+  HelpCircle,
   Zap,
   Brain,
   X,
@@ -30,11 +32,14 @@ interface OrbitalMenuItem {
 }
 
 export function ApexAgent() {
+  // 🌐 Translation hooks
+  const t = useTranslations('agent.bubble');
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const bubbleRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  
+
   // CGC access control
   const { address, isConnected } = useAccount();
   const { balance } = useCGCBalance(address as `0x${string}` | undefined);
@@ -46,7 +51,7 @@ export function ApexAgent() {
     {
       id: 'chat',
       icon: <MessageCircle className="w-4 h-4" />,
-      label: 'Chat with apeX',
+      label: t('chatWithApex'),
       action: () => {
         setIsMenuOpen(false);
         // Check CGC access before navigation
@@ -62,7 +67,7 @@ export function ApexAgent() {
     {
       id: 'quick-help',
       icon: <HelpCircle className="w-4 h-4" />,
-      label: 'Quick Help',
+      label: t('quickHelp'),
       action: () => {
         setIsMenuOpen(false);
         // Show quick help overlay
@@ -73,7 +78,7 @@ export function ApexAgent() {
     {
       id: 'smart-actions',
       icon: <Zap className="w-4 h-4" />,
-      label: 'Smart Actions',
+      label: t('smartActions'),
       action: () => {
         setIsMenuOpen(false);
         // Show smart actions menu
@@ -84,7 +89,7 @@ export function ApexAgent() {
     {
       id: 'insights',
       icon: <Brain className="w-4 h-4" />,
-      label: 'AI Insights',
+      label: t('aiInsights'),
       action: () => {
         setIsMenuOpen(false);
         // Show AI insights
@@ -180,9 +185,9 @@ export function ApexAgent() {
         className="absolute -top-12 -left-8 glass-card px-3 py-1 text-sm text-glass whitespace-nowrap pointer-events-none transition-all duration-300 spring-in"
       >
         {hasAccess ? (
-          <>Click me! I&apos;m apeX 🤖</>
+          <>{t('clickMe')} 🤖</>
         ) : (
-          <>🔒 CGC tokens required</>
+          <>🔒 {t('cgcRequired')}</>
         )}
         <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-glass" />
       </div>

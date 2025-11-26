@@ -1,21 +1,23 @@
 /**
  * 🤖 AGENT SIDEBAR
  * Sidebar integrado para el asesor técnico DAO
+ * 🌐 i18n: Full translation support for EN/ES
  */
 
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { AgentChat } from '@/components/agent/AgentChat';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge as UIBadge } from '@/components/ui/badge';
-import { 
-  Bot, 
-  ChevronLeft, 
-  ChevronRight, 
-  Activity, 
-  Shield, 
+import {
+  Bot,
+  ChevronLeft,
+  ChevronRight,
+  Activity,
+  Shield,
   Database,
   Zap,
   FileText,
@@ -30,12 +32,15 @@ interface AgentSidebarProps {
   showQuickStats?: boolean;
 }
 
-export function AgentSidebar({ 
-  userId, 
-  defaultCollapsed = false, 
+export function AgentSidebar({
+  userId,
+  defaultCollapsed = false,
   className,
-  showQuickStats = true 
+  showQuickStats = true
 }: AgentSidebarProps) {
+  // 🌐 Translation hooks
+  const t = useTranslations('agent.sidebar');
+
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
   const toggleCollapsed = () => {
@@ -58,9 +63,9 @@ export function AgentSidebar({
 
         {/* Status indicators */}
         <div className="space-y-3 mb-4">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" title="Sistema Online" />
-          <div className="w-2 h-2 bg-blue-500 rounded-full" title="DAO Conectado" />
-          <div className="w-2 h-2 bg-purple-500 rounded-full" title="Contratos OK" />
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" title={t('online')} />
+          <div className="w-2 h-2 bg-blue-500 rounded-full" title={t('daoOk')} />
+          <div className="w-2 h-2 bg-purple-500 rounded-full" title={t('secure')} />
         </div>
 
         <Separator className="w-8 mb-4" />
@@ -71,7 +76,7 @@ export function AgentSidebar({
           size="sm"
           onClick={toggleCollapsed}
           className="p-2 hover:bg-blue-100"
-          title="Expandir Asesor Técnico"
+          title={t('expandAdvisor')}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -94,14 +99,14 @@ export function AgentSidebar({
             </div>
             <div>
               <h3 className="font-semibold text-gray-900 text-sm">
-                Asesor Técnico CryptoGift
+                {t('title')}
               </h3>
               <p className="text-xs text-gray-600">
-                Especialista DAO Operativo
+                {t('subtitle')}
               </p>
             </div>
           </div>
-          
+
           <Button
             variant="ghost"
             size="sm"
@@ -116,15 +121,15 @@ export function AgentSidebar({
         <div className="flex items-center space-x-2 flex-wrap gap-1">
           <UIBadge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">
             <Activity className="h-2 w-2 mr-1" />
-            Online
+            {t('online')}
           </UIBadge>
           <UIBadge variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
             <Database className="h-2 w-2 mr-1" />
-            DAO OK
+            {t('daoOk')}
           </UIBadge>
           <UIBadge variant="outline" className="text-xs bg-purple-50 border-purple-200 text-purple-700">
             <Shield className="h-2 w-2 mr-1" />
-            Seguro
+            {t('secure')}
           </UIBadge>
         </div>
       </div>
@@ -133,25 +138,25 @@ export function AgentSidebar({
       {showQuickStats && (
         <div className="p-4 space-y-3 border-b bg-white/30">
           <h4 className="text-xs font-medium text-gray-700 uppercase tracking-wide">
-            Estado del Sistema
+            {t('systemState')}
           </h4>
-          
+
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="bg-white/60 rounded-lg p-2 text-center">
               <div className="text-green-600 font-semibold">2M CGC</div>
-              <div className="text-gray-600">Total Supply</div>
+              <div className="text-gray-600">{t('totalSupply')}</div>
             </div>
             <div className="bg-white/60 rounded-lg p-2 text-center">
               <div className="text-blue-600 font-semibold">Base</div>
-              <div className="text-gray-600">Mainnet</div>
+              <div className="text-gray-600">{t('mainnet')}</div>
             </div>
             <div className="bg-white/60 rounded-lg p-2 text-center">
-              <div className="text-purple-600 font-semibold">4 Contratos</div>
-              <div className="text-gray-600">Desplegados</div>
+              <div className="text-purple-600 font-semibold">4 {t('contracts')}</div>
+              <div className="text-gray-600">{t('deployed')}</div>
             </div>
             <div className="bg-white/60 rounded-lg p-2 text-center">
               <div className="text-orange-600 font-semibold">Aragon</div>
-              <div className="text-gray-600">DAO Activo</div>
+              <div className="text-gray-600">{t('activeDAO')}</div>
             </div>
           </div>
         </div>
@@ -160,41 +165,41 @@ export function AgentSidebar({
       {/* Quick Actions */}
       <div className="p-4 border-b bg-white/20">
         <h4 className="text-xs font-medium text-gray-700 uppercase tracking-wide mb-3">
-          Acciones Rápidas
+          {t('quickActionsTitle')}
         </h4>
-        
+
         <div className="space-y-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             className="w-full justify-start text-xs h-8 hover:bg-white/60"
           >
             <FileText className="h-3 w-3 mr-2" />
-            Revisar CLAUDE.md
+            {t('reviewClaude')}
           </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             className="w-full justify-start text-xs h-8 hover:bg-white/60"
           >
             <Shield className="h-3 w-3 mr-2" />
-            Auditar Contratos
+            {t('auditContracts')}
           </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             className="w-full justify-start text-xs h-8 hover:bg-white/60"
           >
             <Zap className="h-3 w-3 mr-2" />
-            Estado del DAO
+            {t('daoStatus')}
           </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             className="w-full justify-start text-xs h-8 hover:bg-white/60"
           >
             <Settings className="h-3 w-3 mr-2" />
-            Configurar EAS
+            {t('configureEAS')}
           </Button>
         </div>
       </div>

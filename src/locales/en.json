@@ -406,7 +406,119 @@
     "title": "apeX Assistant",
     "subtitle": "AI-powered help for the DAO",
     "placeholder": "Ask me anything about the DAO...",
-    "send": "Send"
+    "send": "Send",
+    "page": {
+      "accessTitle": "apeX Agent Access",
+      "accessDescription": "The apeX intelligent assistant is exclusively available to CGC token holders. Connect your wallet and hold at least 0.01 CGC tokens to chat with your DAO assistant.",
+      "headerTitle": "CG DAO Agent",
+      "liveReady": "Live & Ready",
+      "gpt5Thinking": "GPT-5 Thinking",
+      "mcpEnabled": "MCP Enabled",
+      "sseStreaming": "SSE Streaming",
+      "interactiveAssistant": "Interactive Assistant",
+      "chatDescription": "Chat with your intelligent DAO assistant powered by GPT-5 with real-time document access"
+    },
+    "features": {
+      "title": "Key Features",
+      "gpt5Thinking": "GPT-5 Thinking Mode",
+      "gpt5ThinkingDesc": "Advanced reasoning with chain-of-thought processing",
+      "documentAccess": "Real-time Document Access",
+      "documentAccessDesc": "Live access to all DAO documentation via MCP",
+      "sseStreaming": "SSE Streaming",
+      "sseStreamingDesc": "Real-time streaming responses for instant feedback",
+      "enterpriseSecurity": "Enterprise Security",
+      "enterpriseSecurityDesc": "Rate limiting, audit logging, and access control"
+    },
+    "contracts": {
+      "title": "Live Contract Data",
+      "cgcToken": "CGC Token",
+      "totalSupply": "2M Total Supply",
+      "aragonDAO": "Aragon DAO",
+      "baseMainnet": "Base Mainnet",
+      "viewAllContracts": "View All Contracts"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "statusReport": "Project Status Report",
+      "analyzeContracts": "Analyze Smart Contracts",
+      "createProposal": "Create DAO Proposal",
+      "reviewTokenomics": "Review Tokenomics",
+      "searchDocs": "Search Documentation"
+    },
+    "systemStatus": {
+      "title": "System Status",
+      "agentApi": "Agent API",
+      "mcpServer": "MCP Server",
+      "documentation": "Documentation",
+      "rateLimits": "Rate Limits",
+      "online": "Online",
+      "connected": "Connected",
+      "synced": "Synced",
+      "normal": "Normal"
+    },
+    "guide": {
+      "title": "Integration Guide",
+      "description": "How to integrate this agent into your application",
+      "step1Title": "1. Install Dependencies",
+      "step2Title": "2. Add API Endpoint",
+      "step3Title": "3. Use React Component",
+      "envVarsTitle": "Environment Variables Required:",
+      "envOpenAI": "Your OpenAI API key",
+      "envRedisUrl": "Redis URL for session storage",
+      "envRedisToken": "Redis token",
+      "envMcpAuth": "Internal auth token for MCP server"
+    },
+    "chat": {
+      "assistant": "CG DAO Assistant",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "exportConversation": "Export conversation",
+      "clearConversation": "Clear conversation",
+      "settingsTitle": "Agent Settings",
+      "model": "Model",
+      "modelDescription": "GPT-5 with Maximum Reasoning (100% Juice)",
+      "featuresTitle": "Features",
+      "featuresList": {
+        "documentAccess": "Real-time document access via MCP",
+        "streaming": "Streaming responses with SSE",
+        "sessionMemory": "Session memory and context",
+        "citations": "Citation-backed answers"
+      },
+      "helloMessage": "Hello! I'm apeX, your CG DAO Assistant.",
+      "askAnything": "Ask me anything about the DAO, contracts, or governance!",
+      "errorTitle": "Error",
+      "retry": "Retry",
+      "askAbout": "Ask about {topic}...",
+      "charactersRemaining": "{count} characters remaining",
+      "reasoningTokens": "{count} reasoning tokens"
+    },
+    "sidebar": {
+      "title": "CryptoGift Technical Advisor",
+      "subtitle": "Operational DAO Specialist",
+      "expandAdvisor": "Expand Technical Advisor",
+      "online": "Online",
+      "daoOk": "DAO OK",
+      "secure": "Secure",
+      "systemState": "System State",
+      "totalSupply": "Total Supply",
+      "mainnet": "Mainnet",
+      "contracts": "Contracts",
+      "deployed": "Deployed",
+      "activeDAO": "Active DAO",
+      "quickActionsTitle": "Quick Actions",
+      "reviewClaude": "Review CLAUDE.md",
+      "auditContracts": "Audit Contracts",
+      "daoStatus": "DAO Status",
+      "configureEAS": "Configure EAS"
+    },
+    "bubble": {
+      "clickMe": "Click me! I'm apeX",
+      "cgcRequired": "CGC tokens required",
+      "chatWithApex": "Chat with apeX",
+      "quickHelp": "Quick Help",
+      "smartActions": "Smart Actions",
+      "aiInsights": "AI Insights"
+    }
   },
   "funding": {
     "title": "Funding",
@@ -431,137 +543,141 @@
     }
   },
   "taskData": {
-    "rc_1155_tokenbone_protocol_reference": {
-      "title": "RC-1155 Tokenbone Protocol & Reference",
-      "description": "Complete protocol specification with registry (6551 style for 1155), accounts/proxies, ERC-1271/165 compatibility, events, tests and examples"
+    "create_web3_authentication_system": {
+      "title": "Create Web3 Authentication System",
+      "description": "Implement wallet authentication using WalletConnect and signature verification for secure DAO access"
     },
-    "academic_integration_lti_13_xapi_eas": {
-      "title": "Academic Integration LTI 1.3 + xAPI + EAS",
-      "description": "SSO, grade passback, deep links, xAPI connector to LRS and EAS attestation emission synchronized with progress"
+    "design_main_dashboard_uiux": {
+      "title": "Design Main Dashboard UI/UX",
+      "description": "Create mockups and prototypes of the DAO dashboard with Figma, including responsive design for all devices"
     },
-    "wireless_connect_swap_20": {
-      "title": "Wireless Connect + Swap 2.0",
-      "description": "Smart routing with 0x + Uniswap v3 + Permit2, fallbacks, fault tolerance, slippage limits, permit2 (approve-less), execution metrics"
+    "integrate_ethereum_attestation_service": {
+      "title": "Integrate Ethereum Attestation Service",
+      "description": "Connect the system with EAS for automatic validation of completed tasks"
     },
-    "multi_chain_indexer_for_1155_6551": {
-      "title": "Multi-chain Indexer for 1155/6551",
-      "description": "Backfill with safe windows, WS live tail, reorg handling, idempotency by tx+logIndex, queues and retries"
+    "configure_discord_bot": {
+      "title": "Configure Discord Bot",
+      "description": "Develop bot to notify tasks, rewards and DAO events on Discord"
     },
-    "anti_fraud_anti_sybil_referral_system": {
-      "title": "Anti-fraud/Anti-sybil Referral System",
-      "description": "EIP-712 rules, cooldowns, eligibility signals (attestations, account age), loop and multi-account detection"
+    "create_technical_documentation": {
+      "title": "Create Technical Documentation",
+      "description": "Write complete docs on architecture, APIs and contribution guidelines"
     },
-    "professional_referral_panel": {
-      "title": "Professional Referral Panel",
-      "description": "End-to-end attribution funnels click→claim→retention, cohorts, export, payout calculation and tier simulator"
+    "implement_voting_system": {
+      "title": "Implement Voting System",
+      "description": "Create interface for proposals and voting using Aragon OSx"
     },
-    "creator_studio_for_academy": {
-      "title": "Creator Studio for Academy",
-      "description": "MDX/blocks editor with preview, versioning, shadow publish, multimedia library, rubrics and templates"
+    "smart_contract_security_audit": {
+      "title": "Smart Contract Security Audit",
+      "description": "Review and audit the DAO system smart contracts"
     },
-    "tokenbone_account_abstraction_4337": {
-      "title": "Tokenbone + Account Abstraction (4337)",
-      "description": "validateUserOp, low-permission session keys, sponsor caps and policy module per account"
+    "setup_cicd_pipeline": {
+      "title": "Setup CI/CD Pipeline",
+      "description": "Configure GitHub Actions for automatic testing and deployment"
     },
-    "wrapper_1155_721_per_unit": {
-      "title": "Wrapper 1155→721 per unit",
-      "description": "Escrow/wrap 1155 units to 721 to enable standard TBA when required (promote to NFT mode)"
+    "create_landing_page": {
+      "title": "Create Landing Page",
+      "description": "Develop main project page with DAO information"
     },
-    "advanced_swap_observability": {
-      "title": "Advanced Swap Observability",
-      "description": "Price impact, quote vs execution, failure tracking by source, alarms (timeouts, 429, bps deviation)"
+    "zealy_integration": {
+      "title": "Zealy Integration",
+      "description": "Connect DAO tasks with the Zealy platform for gamification"
     },
-    "content_marketplace_with_revenue_share": {
-      "title": "Content Marketplace with Revenue Share",
-      "description": "Publishing, review, listing, commissions and attribution to content creators who bring students"
+    "automated_testing": {
+      "title": "Automated Testing",
+      "description": "Write unit and integration tests for the entire system"
     },
-    "circuit_breakers_safe_mode": {
-      "title": "Circuit-breakers & Safe Mode",
-      "description": "Granular pauses for mint/claim/swap, degradation to read-only and gas-paid only under events"
+    "performance_optimization": {
+      "title": "Performance Optimization",
+      "description": "Optimize dashboard and API load and performance"
     },
-    "transactional_notifications_banners": {
-      "title": "Transactional Notifications & Banners",
-      "description": "Context per operation, retries and recovery links with persistent banners"
+    "notification_system": {
+      "title": "Notification System",
+      "description": "Implement push and email notifications for important events"
     },
-    "universal_deep_links_mobile": {
-      "title": "Universal/Deep Links Mobile",
-      "description": "iOS/Android immediate wallet opening and app return; QR fallback"
+    "mobile_responsive_design": {
+      "title": "Mobile Responsive Design",
+      "description": "Adapt entire dashboard to work perfectly on mobile devices"
     },
-    "eip_712_signature_audit": {
-      "title": "EIP-712 Signature Audit",
-      "description": "Telemetry by device/wallet, rejection/error analysis, UX nudges"
+    "analytics_and_metrics": {
+      "title": "Analytics and Metrics",
+      "description": "Implement usage tracking and DAO metrics with dashboards"
     },
-    "eas_schema_catalog": {
-      "title": "EAS Schema Catalog",
-      "description": "Schemas for Courses, Modules, Certificates, Rules with versioning and revocability"
+    "internationalization_i18n": {
+      "title": "Internationalization (i18n)",
+      "description": "Add multi-language support to dashboard (EN/ES)"
     },
-    "swap_fee_management": {
-      "title": "Swap Fee Management",
-      "description": "Transparent calculation, caps per route and opt-out by jurisdiction"
+    "api_rate_limiting": {
+      "title": "API Rate Limiting",
+      "description": "Implement rate limiting and anti-spam protection on APIs"
     },
-    "quick_switch_multi_chain": {
-      "title": "Quick-switch Multi-chain",
-      "description": "Assisted network change and pre-signing validations with reminders"
+    "backup_and_recovery": {
+      "title": "Backup and Recovery",
+      "description": "Setup automatic backup system for database"
     },
-    "gateway_health_checks": {
-      "title": "Gateway Health-checks",
-      "description": "IPFS/0x latency/success monitoring, fallbacks and auto-throttle"
+    "social_media_integration": {
+      "title": "Social Media Integration",
+      "description": "Connect with Twitter/X to share achievements and updates"
     },
-    "gift_bundle_templates": {
-      "title": "Gift Bundle Templates",
-      "description": "Pre-built baskets, art/theme and post-claim upsell for themed campaigns"
+    "improved_error_handling": {
+      "title": "Improved Error Handling",
+      "description": "Implement robust error handling and logging with Sentry"
     },
-    "scorm_xapi_export_import": {
-      "title": "SCORM→xAPI Export/Import",
-      "description": "Basic conversion and attempt validation for courses"
+    "interactive_tutorial": {
+      "title": "Interactive Tutorial",
+      "description": "Create guided tour for new DAO users"
     },
-    "education_metrics_dashboard": {
-      "title": "Education Metrics Dashboard",
-      "description": "Engagement, time in lesson, completion funnels and basic analytics"
+    "api_documentation": {
+      "title": "API Documentation",
+      "description": "Create interactive API documentation with Swagger/OpenAPI"
     },
-    "runbooks_documentation": {
-      "title": "Runbooks Documentation",
-      "description": "Incident playbooks, checklists and internal SLA/SLO documentation"
+    "dark_mode_implementation": {
+      "title": "Dark Mode Implementation",
+      "description": "Implement dark theme for the entire dashboard"
     },
-    "guided_onboarding_with_tooltips": {
-      "title": "Guided Onboarding with Tooltips",
-      "description": "Role-based tasks, visual state and next step guidance"
+    "load_testing": {
+      "title": "Load Testing",
+      "description": "Perform load tests to identify system limits"
     },
-    "key_rotation_policy": {
-      "title": "Key Rotation Policy",
-      "description": "Scheduled rotations, scoping and smoke tests for validators"
+    "multisignature_wallet_integration": {
+      "title": "Multi-signature Wallet Integration",
+      "description": "Integrate support for multi-sig wallets like Gnosis Safe"
     },
-    "nft_metadata_integrity_validation": {
-      "title": "NFT Metadata Integrity Validation",
-      "description": "Hash verification at claim, alerts for inconsistencies"
+    "community_guidelines": {
+      "title": "Community Guidelines",
+      "description": "Write code of conduct and guidelines for contributors"
     },
-    "accessibility_audit": {
-      "title": "Accessibility Audit",
-      "description": "Contrast/keyboard/aria for key views with internal accessibility certification"
+    "nft_rewards_system": {
+      "title": "NFT Rewards System",
+      "description": "Create NFT system as rewards for outstanding contributions"
     },
-    "system_status_dashboard": {
-      "title": "System Status Dashboard",
-      "description": "Basic health panel with ping, queues, indices and latencies"
+    "database_optimization": {
+      "title": "Database Optimization",
+      "description": "Optimize queries and database structure for better performance"
     },
-    "content_backup_rollbacks": {
-      "title": "Content Backup & Rollbacks",
-      "description": "Snapshots + 1-click restoration system"
+    "legal_compliance_review": {
+      "title": "Legal Compliance Review",
+      "description": "Review legal aspects of the DAO and compliance in different jurisdictions"
     },
-    "error_messages_ux_nudges": {
-      "title": "Error Messages & UX Nudges",
-      "description": "Clear messages per case and recovery guidance (ES/EN)"
+    "tokenomics_analysis": {
+      "title": "Tokenomics Analysis",
+      "description": "Analyze and optimize CGC token tokenomics"
     },
-    "module_feature_flags": {
-      "title": "Module Feature Flags",
-      "description": "Runtime on/off switches for Tokenbone, Swap, Referrals, Creator, Academy"
+    "monitoring_and_alerts": {
+      "title": "Monitoring and Alerts",
+      "description": "Setup monitoring system with alerts for system health"
     },
-    "console_logs_cleanup": {
-      "title": "Console/Logs Cleanup",
-      "description": "Remove noise; strict lint-staged in CI"
+    "crosschain_integration": {
+      "title": "Cross-chain Integration",
+      "description": "Research and implement support for other blockchains besides Base"
     },
-    "release_verification_checklist": {
-      "title": "Release Verification Checklist",
-      "description": "Go/No-Go per module with smoke tests"
+    "user_feedback_system": {
+      "title": "User Feedback System",
+      "description": "Implement system to collect and manage user feedback"
+    },
+    "performance_dashboard": {
+      "title": "Performance Dashboard",
+      "description": "Create internal dashboard for DAO performance metrics"
     }
   }
 }

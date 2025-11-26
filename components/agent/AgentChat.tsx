@@ -1,7 +1,8 @@
 /**
  * 🤖 AGENT CHAT WIDGET
  * Main chat interface for CG DAO Agent with GPT-5 Thinking
- * 
+ * 🌐 i18n: Full translation support for EN/ES
+ *
  * Features:
  * - SSE streaming responses
  * - Mode switching (General, Technical, Governance, Operations)
@@ -14,20 +15,21 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  Bot, 
-  User, 
-  Send, 
-  Loader2, 
-  Settings, 
-  Download, 
+import {
+  User,
+  Send,
+  Loader2,
+  Settings,
+  Download,
   RefreshCw,
   AlertCircle,
   Zap,
@@ -66,11 +68,14 @@ export function AgentChat({
   showModeSelector = true,
   maxHeight = 'h-96'
 }: AgentChatProps) {
+  // 🌐 Translation hooks
+  const t = useTranslations('agent.chat');
+
   const [input, setInput] = useState('');
   const [selectedMode, setSelectedMode] = useState<AgentModeId>(initialMode);
   const [showMetrics, setShowMetrics] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
-  
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -157,31 +162,30 @@ export function AgentChat({
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-blue-600 text-white">
-                    <Bot className="h-4 w-4" />
-                  </AvatarFallback>
+                  <AvatarImage src="/apeX-aro.png" alt="apeX" />
+                  <AvatarFallback className="bg-blue-600 text-white">aX</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold text-gray-900">CG DAO Assistant</h3>
+                  <h3 className="font-semibold text-gray-900">apeX</h3>
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
                     <div className={cn(
                       'flex items-center space-x-1',
                       isConnected ? 'text-green-600' : 'text-red-600'
                     )}>
                       <Activity className="h-3 w-3" />
-                      <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
+                      <span>{isConnected ? t('connected') : t('disconnected')}</span>
                     </div>
                     <Separator orientation="vertical" className="h-3" />
                     <span>{AGENT_MODES[selectedMode]?.name || 'General'}</span>
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="sm"
                       onClick={handleExport}
                       disabled={messages.length === 0}
@@ -189,13 +193,13 @@ export function AgentChat({
                       <Download className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Export conversation</TooltipContent>
+                  <TooltipContent>{t('exportConversation')}</TooltipContent>
                 </Tooltip>
-                
+
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="sm"
                       onClick={clearMessages}
                       disabled={messages.length === 0}
@@ -203,7 +207,7 @@ export function AgentChat({
                       <RefreshCw className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Clear conversation</TooltipContent>
+                  <TooltipContent>{t('clearConversation')}</TooltipContent>
                 </Tooltip>
 
                 <Dialog>
@@ -214,20 +218,20 @@ export function AgentChat({
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Agent Settings</DialogTitle>
+                      <DialogTitle>{t('settingsTitle')}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="font-medium mb-2">Model</h4>
-                        <p className="text-sm text-gray-600">GPT-5 with Maximum Reasoning (100% Juice)</p>
+                        <h4 className="font-medium mb-2">{t('model')}</h4>
+                        <p className="text-sm text-gray-600">{t('modelDescription')}</p>
                       </div>
                       <div>
-                        <h4 className="font-medium mb-2">Features</h4>
+                        <h4 className="font-medium mb-2">{t('featuresTitle')}</h4>
                         <ul className="text-sm text-gray-600 space-y-1">
-                          <li>• Real-time document access via MCP</li>
-                          <li>• Streaming responses with SSE</li>
-                          <li>• Session memory and context</li>
-                          <li>• Citation-backed answers</li>
+                          <li>• {t('featuresList.documentAccess')}</li>
+                          <li>• {t('featuresList.streaming')}</li>
+                          <li>• {t('featuresList.sessionMemory')}</li>
+                          <li>• {t('featuresList.citations')}</li>
                         </ul>
                       </div>
                     </div>
@@ -282,9 +286,15 @@ export function AgentChat({
           <div className="space-y-4">
             {messages.length === 0 && (
               <div className="text-center text-gray-500 py-8">
-                <Bot className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p className="mb-2">Hello! I&apos;m your CG DAO Assistant.</p>
-                <p className="text-sm">Ask me anything about the DAO, contracts, or governance!</p>
+                <Image
+                  src="/apeX-aro.png"
+                  alt="apeX"
+                  width={64}
+                  height={64}
+                  className="mx-auto mb-4 rounded-full"
+                />
+                <p className="mb-2 text-gray-700 font-medium">{t('helloMessage')}</p>
+                <p className="text-sm">{t('askAnything')}</p>
               </div>
             )}
 
@@ -294,14 +304,15 @@ export function AgentChat({
                 message={message}
                 onCopy={copyMessage}
                 isCopied={copiedMessageId === message.id}
+                t={t}
               />
             ))}
-            
+
             {error && (
               <div className="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-red-800 font-medium">Error</p>
+                  <p className="text-red-800 font-medium">{t('errorTitle')}</p>
                   <p className="text-red-700 text-sm">{error.message}</p>
                   <Button
                     variant="ghost"
@@ -310,7 +321,7 @@ export function AgentChat({
                     className="mt-2 text-red-700 hover:text-red-800"
                   >
                     <RefreshCw className="h-4 w-4 mr-1" />
-                    Retry
+                    {t('retry')}
                   </Button>
                 </div>
               </div>
@@ -327,13 +338,13 @@ export function AgentChat({
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={`Ask about ${AGENT_MODES[selectedMode]?.name?.toLowerCase() || 'general topics'}...`}
+              placeholder={t('askAbout', { topic: AGENT_MODES[selectedMode]?.name?.toLowerCase() || 'general topics' })}
               disabled={!isConnected}
               className="flex-1"
               maxLength={4000}
             />
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isLoading || !input.trim() || !isConnected}
               size="sm"
             >
@@ -344,10 +355,10 @@ export function AgentChat({
               )}
             </Button>
           </form>
-          
+
           {input.length > 3800 && (
             <p className="text-xs text-gray-500 mt-1">
-              {4000 - input.length} characters remaining
+              {t('charactersRemaining', { count: 4000 - input.length })}
             </p>
           )}
         </div>
@@ -364,9 +375,10 @@ interface MessageBubbleProps {
   message: ChatMessage;
   onCopy: (id: string, content: string) => void;
   isCopied: boolean;
+  t: ReturnType<typeof useTranslations>;
 }
 
-function MessageBubble({ message, onCopy, isCopied }: MessageBubbleProps) {
+function MessageBubble({ message, onCopy, isCopied, t }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
   const isError = message.metadata?.error;
@@ -387,11 +399,12 @@ function MessageBubble({ message, onCopy, isCopied }: MessageBubbleProps) {
       isUser && 'flex-row-reverse space-x-reverse'
     )}>
       <Avatar className="h-8 w-8 flex-shrink-0">
+        {!isUser && <AvatarImage src="/apeX-aro.png" alt="apeX" />}
         <AvatarFallback className={cn(
           isUser ? 'bg-green-600' : 'bg-blue-600',
           'text-white'
         )}>
-          {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+          {isUser ? <User className="h-4 w-4" /> : 'aX'}
         </AvatarFallback>
       </Avatar>
 
@@ -452,7 +465,7 @@ function MessageBubble({ message, onCopy, isCopied }: MessageBubbleProps) {
               <Separator orientation="vertical" className="h-3" />
               <Brain className="h-3 w-3 text-purple-500" />
               <span className="text-purple-600">
-                {message.metadata.reasoning_tokens} reasoning tokens
+                {t('reasoningTokens', { count: message.metadata.reasoning_tokens })}
               </span>
             </>
           )}
