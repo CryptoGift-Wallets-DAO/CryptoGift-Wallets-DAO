@@ -28,6 +28,7 @@ import {
 import type { Task } from '@/lib/supabase/types'
 import { TASK_CLAIM_CONFIG } from '@/lib/tasks/task-service'
 import { TaskClaimModal } from './TaskClaimModal'
+import { useTaskTranslation } from '@/lib/i18n/task-translations'
 
 interface TaskCardProps {
   task: Task
@@ -54,6 +55,10 @@ export function TaskCard({
   const t = useTranslations('tasks.card')
   const tTasks = useTranslations('tasks')
   const tCommon = useTranslations('common')
+  const { translate } = useTaskTranslation()
+
+  // Get translated task content
+  const translatedTask = translate(task.title, task.description)
 
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
   // Get platform icon
@@ -137,13 +142,13 @@ export function TaskCard({
         </div>
         
         <h3 className="font-semibold text-lg text-glass line-clamp-2">
-          {task.title}
+          {translatedTask.title}
         </h3>
       </CardHeader>
 
       <CardContent className="space-y-4">
         <p className="text-sm text-glass-secondary line-clamp-3">
-          {task.description || t('noDescription')}
+          {translatedTask.description || t('noDescription')}
         </p>
 
         <div className="grid grid-cols-2 gap-3">

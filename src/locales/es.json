@@ -429,5 +429,139 @@
       "builtOn": "Construido en",
       "chain": "Base"
     }
+  },
+  "taskData": {
+    "rc_1155_tokenbone_protocol_reference": {
+      "title": "Protocolo y Referencia RC-1155 Tokenbone",
+      "description": "Especificación completa del protocolo con registro (estilo 6551 para 1155), cuentas/proxies, compatibilidad ERC-1271/165, eventos, tests y ejemplos"
+    },
+    "academic_integration_lti_13_xapi_eas": {
+      "title": "Integración Académica LTI 1.3 + xAPI + EAS",
+      "description": "SSO, traspaso de calificaciones, deep links, conector xAPI a LRS y emisión de atestaciones EAS sincronizadas con el progreso"
+    },
+    "wireless_connect_swap_20": {
+      "title": "Conexión Inalámbrica + Swap 2.0",
+      "description": "Enrutamiento inteligente con 0x + Uniswap v3 + Permit2, fallbacks, tolerancia a fallos, límites de slippage, permit2 (sin approve), métricas de ejecución"
+    },
+    "multi_chain_indexer_for_1155_6551": {
+      "title": "Indexador Multi-cadena para 1155/6551",
+      "description": "Relleno con ventanas seguras, cola WS en vivo, manejo de reorganizaciones, idempotencia por tx+logIndex, colas y reintentos"
+    },
+    "anti_fraud_anti_sybil_referral_system": {
+      "title": "Sistema de Referidos Anti-fraude/Anti-sybil",
+      "description": "Reglas EIP-712, cooldowns, señales de elegibilidad (atestaciones, antigüedad de cuenta), detección de bucles y multi-cuentas"
+    },
+    "professional_referral_panel": {
+      "title": "Panel de Referidos Profesional",
+      "description": "Embudos de atribución end-to-end click→reclamo→retención, cohortes, exportación, cálculo de pagos y simulador de niveles"
+    },
+    "creator_studio_for_academy": {
+      "title": "Estudio de Creación para Academia",
+      "description": "Editor MDX/bloques con vista previa, versionado, publicación shadow, biblioteca multimedia, rúbricas y plantillas"
+    },
+    "tokenbone_account_abstraction_4337": {
+      "title": "Tokenbone + Abstracción de Cuentas (4337)",
+      "description": "validateUserOp, claves de sesión con permisos limitados, límites de patrocinio y módulo de políticas por cuenta"
+    },
+    "wrapper_1155_721_per_unit": {
+      "title": "Wrapper 1155→721 por unidad",
+      "description": "Custodia/envolver unidades 1155 a 721 para habilitar TBA estándar cuando se requiera (promoción a modo NFT)"
+    },
+    "advanced_swap_observability": {
+      "title": "Observabilidad Avanzada de Swap",
+      "description": "Impacto de precio, cotización vs ejecución, seguimiento de fallos por fuente, alarmas (timeouts, 429, desviación de bps)"
+    },
+    "content_marketplace_with_revenue_share": {
+      "title": "Marketplace de Contenido con Reparto de Ingresos",
+      "description": "Publicación, revisión, listado, comisiones y atribución a creadores de contenido que traen estudiantes"
+    },
+    "circuit_breakers_safe_mode": {
+      "title": "Disyuntores y Modo Seguro",
+      "description": "Pausas granulares para mint/reclamo/swap, degradación a solo lectura y solo gas pagado bajo eventos"
+    },
+    "transactional_notifications_banners": {
+      "title": "Notificaciones Transaccionales y Banners",
+      "description": "Contexto por operación, reintentos y enlaces de recuperación con banners persistentes"
+    },
+    "universal_deep_links_mobile": {
+      "title": "Links Universales/Profundos Móvil",
+      "description": "Apertura inmediata de wallet en iOS/Android y retorno a la app; fallback QR"
+    },
+    "eip_712_signature_audit": {
+      "title": "Auditoría de Firmas EIP-712",
+      "description": "Telemetría por dispositivo/wallet, análisis de rechazos/errores, sugerencias de UX"
+    },
+    "eas_schema_catalog": {
+      "title": "Catálogo de Esquemas EAS",
+      "description": "Esquemas para Cursos, Módulos, Certificados, Reglas con versionado y revocabilidad"
+    },
+    "swap_fee_management": {
+      "title": "Gestión de Comisiones de Swap",
+      "description": "Cálculo transparente, límites por ruta y exclusión por jurisdicción"
+    },
+    "quick_switch_multi_chain": {
+      "title": "Cambio Rápido Multi-cadena",
+      "description": "Cambio de red asistido y validaciones pre-firma con recordatorios"
+    },
+    "gateway_health_checks": {
+      "title": "Chequeos de Salud de Gateway",
+      "description": "Monitoreo de latencia/éxito de IPFS/0x, fallbacks y auto-throttle"
+    },
+    "gift_bundle_templates": {
+      "title": "Plantillas de Paquetes de Regalo",
+      "description": "Canastas prediseñadas, arte/tema y venta adicional post-reclamo para campañas temáticas"
+    },
+    "scorm_xapi_export_import": {
+      "title": "Exportación/Importación SCORM→xAPI",
+      "description": "Conversión básica y validación de intentos para cursos"
+    },
+    "education_metrics_dashboard": {
+      "title": "Panel de Métricas Educativas",
+      "description": "Engagement, tiempo en lección, embudos de completación y analíticas básicas"
+    },
+    "runbooks_documentation": {
+      "title": "Documentación de Runbooks",
+      "description": "Playbooks de incidentes, checklists y documentación interna de SLA/SLO"
+    },
+    "guided_onboarding_with_tooltips": {
+      "title": "Onboarding Guiado con Tooltips",
+      "description": "Tareas basadas en rol, estado visual y guía del siguiente paso"
+    },
+    "key_rotation_policy": {
+      "title": "Política de Rotación de Claves",
+      "description": "Rotaciones programadas, alcance y pruebas de humo para validadores"
+    },
+    "nft_metadata_integrity_validation": {
+      "title": "Validación de Integridad de Metadatos NFT",
+      "description": "Verificación de hash al reclamar, alertas por inconsistencias"
+    },
+    "accessibility_audit": {
+      "title": "Auditoría de Accesibilidad",
+      "description": "Contraste/teclado/aria para vistas clave con certificación interna de accesibilidad"
+    },
+    "system_status_dashboard": {
+      "title": "Panel de Estado del Sistema",
+      "description": "Panel básico de salud con ping, colas, índices y latencias"
+    },
+    "content_backup_rollbacks": {
+      "title": "Backup y Restauración de Contenido",
+      "description": "Snapshots + sistema de restauración con 1 clic"
+    },
+    "error_messages_ux_nudges": {
+      "title": "Mensajes de Error y Sugerencias UX",
+      "description": "Mensajes claros por caso y guía de recuperación (ES/EN)"
+    },
+    "module_feature_flags": {
+      "title": "Feature Flags por Módulo",
+      "description": "Interruptores on/off en tiempo de ejecución para Tokenbone, Swap, Referidos, Creador, Academia"
+    },
+    "console_logs_cleanup": {
+      "title": "Limpieza de Consola/Logs",
+      "description": "Eliminar ruido; lint-staged estricto en CI"
+    },
+    "release_verification_checklist": {
+      "title": "Lista de Verificación de Lanzamiento",
+      "description": "Go/No-Go por módulo con pruebas de humo"
+    }
   }
 }

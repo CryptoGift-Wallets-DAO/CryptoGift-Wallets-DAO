@@ -34,6 +34,7 @@ import {
 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
 import { TASK_CLAIM_CONFIG } from '@/lib/tasks/task-service'
+import { useTaskTranslation } from '@/lib/i18n/task-translations'
 
 interface TaskClaimModalProps {
   task: Task | null
@@ -53,8 +54,12 @@ export function TaskClaimModal({
   // 🌐 Translation hooks
   const t = useTranslations('tasks.claimModal')
   const tCommon = useTranslations('common')
+  const { translate } = useTaskTranslation()
 
   if (!task) return null
+
+  // Get translated task content
+  const translatedTask = translate(task.title, task.description)
 
   // Get platform icon
   const getPlatformIcon = () => {
@@ -100,7 +105,7 @@ export function TaskClaimModal({
         <div className="space-y-6">
           {/* Task Title and Category */}
           <div>
-            <h3 className="text-lg font-semibold text-glass mb-2">{task.title}</h3>
+            <h3 className="text-lg font-semibold text-glass mb-2">{translatedTask.title}</h3>
             <div className="flex items-center space-x-2 mb-3">
               <Badge className={`border ${getComplexityColor()}`}>
                 {t('complexityLabel')} {task.complexity}/10
@@ -122,11 +127,11 @@ export function TaskClaimModal({
           </div>
 
           {/* Task Description */}
-          {task.description && (
+          {translatedTask.description && (
             <div>
               <h4 className="text-sm font-semibold text-glass-secondary mb-2">{t('descriptionLabel')}</h4>
               <p className="text-sm text-glass leading-relaxed whitespace-pre-wrap">
-                {task.description}
+                {translatedTask.description}
               </p>
             </div>
           )}

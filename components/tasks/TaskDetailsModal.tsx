@@ -40,6 +40,7 @@ import {
   Shield
 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
+import { useTaskTranslation } from '@/lib/i18n/task-translations'
 
 interface TaskDetailsModalProps {
   task: Task
@@ -61,6 +62,10 @@ export function TaskDetailsModal({
   // 🌐 Translation hooks
   const t = useTranslations('tasks.detailsModal')
   const tCommon = useTranslations('common')
+  const { translate } = useTaskTranslation()
+
+  // Get translated task content
+  const translatedTask = translate(task.title, task.description)
 
   // Calculate difficulty visualization
   const getDifficultyStars = (complexity: number) => {
@@ -113,7 +118,7 @@ export function TaskDetailsModal({
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-4">
               <DialogTitle className="text-xl font-bold text-gray-900 mb-2">
-                🎯 {task.title}
+                🎯 {translatedTask.title}
               </DialogTitle>
               <DialogDescription className="text-sm text-gray-600">
                 {t('subtitle', { level: task.complexity, taskId: task.task_id.slice(0, 8) })}
@@ -206,7 +211,7 @@ export function TaskDetailsModal({
               </h3>
               <div className="bg-gray-50 p-4 rounded-lg border">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {task.description || t('noDescriptionProvided')}
+                  {translatedTask.description || t('noDescriptionProvided')}
                 </p>
               </div>
             </div>
