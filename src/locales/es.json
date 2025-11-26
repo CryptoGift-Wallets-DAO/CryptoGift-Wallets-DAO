@@ -61,6 +61,41 @@
       "weekly": "Semanal",
       "monthly": "Mensual",
       "usage": "Uso"
+    },
+    "panels": {
+      "governance": {
+        "title": "Gobernanza y Votación",
+        "description": "Participa en la gobernanza y votación del DAO",
+        "viewProposals": "Ver Propuestas",
+        "createProposal": "Crear Propuesta",
+        "delegateVoting": "Delegar Poder de Voto"
+      },
+      "tokenManagement": {
+        "title": "Gestión de Tokens",
+        "description": "Administra tus tokens CGC y recompensas",
+        "accessTitle": "Acceso a Gestión de Tokens",
+        "accessDescription": "Las funciones avanzadas de gestión de tokens requieren tenencia de tokens CGC. Conecta tu wallet y mantén al menos 0.01 CGC para acceder a liberación de tokens, historial y cronogramas de vesting.",
+        "requestRelease": "Solicitar Liberación",
+        "releasing": "Liberando...",
+        "releaseHistory": "Historial de Liberaciones",
+        "vestingSchedule": "Cronograma de Vesting"
+      },
+      "quests": {
+        "title": "Plataforma de Misiones",
+        "description": "Completa misiones y gana recompensas",
+        "activeQuests": "Misiones Activas",
+        "leaderboard": "Tabla de Líderes",
+        "syncZealy": "Sincronizar Zealy"
+      },
+      "administration": {
+        "title": "Administración",
+        "description": "Administración avanzada del sistema",
+        "accessTitle": "Acceso a Administración",
+        "accessDescription": "Las funciones de administración avanzadas están restringidas a holders significativos de CGC. Necesitas al menos 1.0 CGC para acceder a la gestión multisig y administración de contratos.",
+        "safeMultisig": "Safe Multisig",
+        "contractAdmin": "Admin de Contratos",
+        "systemStatus": "Estado del Sistema"
+      }
     }
   },
   "tasks": {

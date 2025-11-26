@@ -61,6 +61,41 @@
       "weekly": "Weekly",
       "monthly": "Monthly",
       "usage": "Usage"
+    },
+    "panels": {
+      "governance": {
+        "title": "Governance & Voting",
+        "description": "Participate in DAO governance and voting",
+        "viewProposals": "View Proposals",
+        "createProposal": "Create Proposal",
+        "delegateVoting": "Delegate Voting Power"
+      },
+      "tokenManagement": {
+        "title": "Token Management",
+        "description": "Manage your CGC tokens and rewards",
+        "accessTitle": "Token Management Access",
+        "accessDescription": "Advanced token management features require CGC token holdings. Connect your wallet and hold at least 0.01 CGC to access token releases, history, and vesting schedules.",
+        "requestRelease": "Request Token Release",
+        "releasing": "Releasing...",
+        "releaseHistory": "Release History",
+        "vestingSchedule": "Vesting Schedule"
+      },
+      "quests": {
+        "title": "Quest Platform",
+        "description": "Complete quests and earn rewards",
+        "activeQuests": "Active Quests",
+        "leaderboard": "Leaderboard",
+        "syncZealy": "Sync Zealy"
+      },
+      "administration": {
+        "title": "Administration",
+        "description": "Advanced system administration",
+        "accessTitle": "Administration Access",
+        "accessDescription": "Advanced administration features are restricted to significant CGC token holders. You need at least 1.0 CGC tokens to access multisig management and contract administration.",
+        "safeMultisig": "Safe Multisig",
+        "contractAdmin": "Contract Admin",
+        "systemStatus": "System Status"
+      }
     }
   },
   "tasks": {

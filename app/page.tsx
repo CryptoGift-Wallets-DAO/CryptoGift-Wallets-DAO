@@ -306,24 +306,24 @@ export default function CryptoGiftDAODashboard() {
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Governance Panel */}
           <ActionPanel
-            title="Governance & Voting"
-            description="Participate in DAO governance and voting"
+            title={tDashboard('panels.governance.title')}
+            description={tDashboard('panels.governance.description')}
             icon={<Vote className="w-6 h-6 text-purple-500" />}
             actions={[
               {
-                label: "View Proposals",
+                label: tDashboard('panels.governance.viewProposals'),
                 action: () => handleAction('View proposals', 'proposals'),
                 loading: loadingStates.proposals,
                 disabled: !isConnected
               },
               {
-                label: "Create Proposal", 
+                label: tDashboard('panels.governance.createProposal'),
                 action: () => handleAction('Create proposal', 'createProposal'),
                 loading: loadingStates.createProposal,
                 disabled: !isConnected
               },
               {
-                label: "Delegate Voting Power",
+                label: tDashboard('panels.governance.delegateVoting'),
                 action: () => handleAction('Delegate voting power', 'delegate'),
                 loading: loadingStates.delegate,
                 disabled: !isConnected
@@ -335,29 +335,29 @@ export default function CryptoGiftDAODashboard() {
           {/* Token Management Panel - Protected */}
           <CGCAccessGate
             requiredBalance="0.01"
-            title="🪙 Token Management Access"
-            description="Advanced token management features require CGC token holdings. Connect your wallet and hold at least 0.01 CGC to access token releases, history, and vesting schedules."
+            title={`🪙 ${tDashboard('panels.tokenManagement.accessTitle')}`}
+            description={tDashboard('panels.tokenManagement.accessDescription')}
           >
             <ActionPanel
-              title="Token Management"
-              description="Manage your CGC tokens and rewards"
+              title={tDashboard('panels.tokenManagement.title')}
+              description={tDashboard('panels.tokenManagement.description')}
               icon={<Wallet className="w-6 h-6 text-green-500" />}
               actions={[
                 {
-                  label: isReleasePending ? 'Releasing...' : "Request Token Release",
+                  label: isReleasePending ? tDashboard('panels.tokenManagement.releasing') : tDashboard('panels.tokenManagement.requestRelease'),
                   action: () => handleAction('Request token release', 'release'),
                   loading: loadingStates.release || isReleasePending,
                   disabled: !isConnected || isReleasePending,
                   primary: true
                 },
                 {
-                  label: "Release History",
+                  label: tDashboard('panels.tokenManagement.releaseHistory'),
                   action: () => handleAction('View release history', 'history'),
                   loading: loadingStates.history,
                   disabled: !isConnected
                 },
                 {
-                  label: "Vesting Schedule",
+                  label: tDashboard('panels.tokenManagement.vestingSchedule'),
                   action: () => handleAction('Check vesting schedule', 'vesting'),
                   loading: loadingStates.vesting,
                   disabled: !isConnected
@@ -369,23 +369,23 @@ export default function CryptoGiftDAODashboard() {
 
           {/* Quest Platform Panel */}
           <ActionPanel
-            title="Quest Platform"
-            description="Complete quests and earn rewards"
+            title={tDashboard('panels.quests.title')}
+            description={tDashboard('panels.quests.description')}
             icon={<CheckCircle2 className="w-6 h-6 text-blue-500" />}
             actions={[
               {
-                label: `Active Quests (${activeTasks})`,
+                label: `${tDashboard('panels.quests.activeQuests')} (${activeTasks})`,
                 action: () => handleAction('View active quests', 'quests'),
                 loading: loadingStates.quests,
                 disabled: !isConnected
               },
               {
-                label: "Leaderboard",
+                label: tDashboard('panels.quests.leaderboard'),
                 action: () => handleAction('View leaderboard', 'leaderboard'),
                 loading: loadingStates.leaderboard
               },
               {
-                label: "Sync Zealy",
+                label: tDashboard('panels.quests.syncZealy'),
                 action: () => handleAction('Sync with Zealy', 'sync'),
                 loading: loadingStates.sync,
                 disabled: !isConnected,
@@ -398,27 +398,27 @@ export default function CryptoGiftDAODashboard() {
           {/* Administration Panel - Protected */}
           <CGCAccessGate
             requiredBalance="1.0"
-            title="⚙️ Administration Access"
-            description="Advanced administration features are restricted to significant CGC token holders. You need at least 1.0 CGC tokens to access multisig management and contract administration."
+            title={`⚙️ ${tDashboard('panels.administration.accessTitle')}`}
+            description={tDashboard('panels.administration.accessDescription')}
           >
             <ActionPanel
-              title="Administration"
-              description="Advanced system administration"
+              title={tDashboard('panels.administration.title')}
+              description={tDashboard('panels.administration.description')}
               icon={<Settings className="w-6 h-6 text-gray-500" />}
               actions={[
                 {
-                  label: "Safe Multisig",
+                  label: tDashboard('panels.administration.safeMultisig'),
                   action: () => handleAction('Open Safe Multisig', 'safe'),
                   loading: loadingStates.safe
                 },
                 {
-                  label: "Contract Admin",
+                  label: tDashboard('panels.administration.contractAdmin'),
                   action: () => handleAction('Access contract admin', 'admin'),
                   loading: loadingStates.admin,
                   disabled: !isConnected
                 },
                 {
-                  label: "System Status",
+                  label: tDashboard('panels.administration.systemStatus'),
                   action: () => handleAction('Check system status', 'status'),
                   loading: loadingStates.status,
                   secondary: true
