@@ -3,6 +3,7 @@
  * Custom hooks to interact with smart contracts using Wagmi v2
  */
 
+import { useState, useEffect } from 'react'
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi'
 import { formatUnits, parseUnits, keccak256, toHex, pad } from 'viem'
 import {
@@ -67,18 +68,41 @@ export function useCGCBalance(address?: `0x${string}`) {
 }
 
 /**
- * Get total number of CGC token holders
+ * Get total number of CGC token holders from API
+ * Fetches dynamically from BaseScan API, excludes Treasury and Escrow
  */
 export function useCGCHolders() {
-  const { data, isError, isLoading } = useReadContract({
-    address: contracts.cgcToken,
-    abi: CGC_TOKEN_ABI,
-    functionName: 'totalHolders',
-    chainId: targetChainId,
-  })
+  const [holders, setHolders] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isError, setIsError] = useState(false)
+
+  useEffect(() => {
+    async function fetchHolders() {
+      try {
+        setIsLoading(true)
+        const response = await fetch('/api/cgc/stats')
+        const data = await response.json()
+
+        if (data.success && data.data?.holdersCount) {
+          setHolders(data.data.holdersCount)
+        }
+        setIsError(false)
+      } catch (error) {
+        console.error('Error fetching holders:', error)
+        setIsError(true)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchHolders()
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchHolders, 5 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   return {
-    holders: data ? Number(data) : 0,
+    holders,
     isLoading,
     isError,
   }
@@ -512,12 +536,14 @@ export function useTaskValidation() {
 
 /**
  * Get all dashboard stats in one hook
+ * All data is fetched dynamically from blockchain and BaseScan API
  */
 export function useDashboardStats() {
   const { address } = useAccount()
   const { totalSupply } = useCGCTotalSupply()
+  const { holders } = useCGCHolders() // Dynamic from BaseScan API
   const { balance: treasuryBalance } = useCGCBalance(contracts.aragonDAO)
-  // Use CGC balance of escrow contract instead of totalFundsHeld
+  // Use CGC balance of escrow contract (real token balance)
   const { balance: escrowCGCBalance } = useCGCBalance(contracts.milestoneEscrow)
   const { milestonesReleased } = useMilestonesReleased()
   const { proposalCount } = useAragonProposals()
@@ -532,19 +558,12 @@ export function useDashboardStats() {
   const totalNum = parseFloat(totalSupply || '0')
   const circulatingSupply = Math.max(0, totalNum - treasuryNum - escrowNum)
 
-  // Calculate real holders count (exclude treasury and escrow from count)
-  // For now, we use a static count based on known holders - 2 (treasury + escrow)
-  // TODO: Fetch from BaseScan API for accurate count
-  const knownHolders = 5 // From BaseScan token holders page
-  const excludedAddresses = 2 // Treasury + Escrow
-  const realHoldersCount = Math.max(0, knownHolders - excludedAddresses)
-
   return {
     totalSupply,
     circulatingSupply: circulatingSupply.toFixed(2),
     treasuryBalance,
     escrowBalance: escrowCGCBalance,
-    holdersCount: realHoldersCount,
+    holdersCount: holders, // Dynamic from API
     proposalsActive: proposalCount,
     questsCompleted: completedTasks,
     activeTasks,
