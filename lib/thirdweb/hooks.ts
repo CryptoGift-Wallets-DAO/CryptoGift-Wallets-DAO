@@ -89,10 +89,14 @@ export function useBalance() {
   const account = useActiveAccount()
   const client = getClient()
 
+  // SSR-safe: Skip hook if client is not available
   const { data: balance, isLoading } = useWalletBalance({
-    client: client!,
+    client: client || undefined as never, // Wagmi handles undefined gracefully
     chain: base,
     address: account?.address,
+    queryOptions: {
+      enabled: !!client && !!account?.address, // Only run query when client is available
+    },
   })
 
   return {
@@ -104,35 +108,40 @@ export function useBalance() {
           displayValue: balance.displayValue,
         }
       : undefined,
-    isLoading,
+    isLoading: !client ? false : isLoading,
   }
 }
 
 /**
  * Get CGC token balance of connected wallet
+ * SSR-safe: Returns default values when client is not available
  * @returns CGC balance as bigint
  */
 export function useCGCBalance() {
   const account = useActiveAccount()
   const client = getClient()
 
-  const contract = getContract({
-    client: client!,
-    chain: base,
-    address: CGC_TOKEN_ADDRESS,
-  })
+  // SSR-safe: Only create contract when client is available
+  const contract = client
+    ? getContract({
+        client: client,
+        chain: base,
+        address: CGC_TOKEN_ADDRESS,
+      })
+    : null
 
   const { data: balance, isLoading } = useReadContract(balanceOf, {
-    contract,
+    // @ts-expect-error - contract is null during SSR, but query is disabled
+    contract: contract,
     address: account?.address || '0x0000000000000000000000000000000000000000',
     queryOptions: {
-      enabled: !!account?.address,
+      enabled: !!client && !!account?.address && !!contract, // Only run when all deps available
     },
   })
 
   return {
     data: balance,
-    isLoading,
+    isLoading: !client ? false : isLoading,
     formatted: balance ? (Number(balance) / 1e18).toFixed(2) : '0.00',
   }
 }
