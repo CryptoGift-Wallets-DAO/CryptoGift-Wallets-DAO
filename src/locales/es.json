@@ -2,9 +2,12 @@
   "navigation": {
     "dashboard": "Panel",
     "tasks": "Tareas",
+    "tasksRewards": "Tareas y Recompensas",
     "apex": "apeX",
+    "apexAssistant": "Asistente apeX",
     "funding": "Financiamiento",
-    "admin": "Admin"
+    "admin": "Admin",
+    "settings": "Configuración"
   },
   "common": {
     "loading": "Cargando...",

@@ -2,9 +2,12 @@
   "navigation": {
     "dashboard": "Dashboard",
     "tasks": "Tasks",
+    "tasksRewards": "Tasks & Rewards",
     "apex": "apeX",
+    "apexAssistant": "apeX Assistant",
     "funding": "Funding",
-    "admin": "Admin"
+    "admin": "Admin",
+    "settings": "Settings"
   },
   "common": {
     "loading": "Loading...",

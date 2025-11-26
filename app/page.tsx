@@ -1,6 +1,34 @@
 'use client';
 
+/**
+ * ============================================================================
+ * 🌐 I18N PATTERN - INSTRUCCIONES PARA TRADUCCIONES
+ * ============================================================================
+ *
+ * Para agregar traducciones a cualquier componente:
+ *
+ * 1. Importar useTranslations:
+ *    import { useTranslations } from 'next-intl';
+ *
+ * 2. En el componente, usar el hook con el namespace:
+ *    const t = useTranslations('dashboard');  // usa src/locales/{locale}.json -> dashboard
+ *
+ * 3. Usar t() para obtener traducciones:
+ *    <span>{t('title')}</span>  // "Dashboard" en EN, "Panel" en ES
+ *
+ * 4. Para textos anidados:
+ *    t('stats.totalSupply')  // accede a dashboard.stats.totalSupply
+ *
+ * 5. Las traducciones están en:
+ *    - src/locales/en.json (English - default)
+ *    - src/locales/es.json (Spanish)
+ *
+ * 6. Agregar nuevas traducciones: editar AMBOS archivos json
+ * ============================================================================
+ */
+
 import { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Navbar } from '@/components/layout/Navbar';
 import { ApexAgent } from '@/components/agent/ApexAgent';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
@@ -29,6 +57,11 @@ export default function CryptoGiftDAODashboard() {
   const { address, isConnected } = useAccount();
   const { chainId } = useNetwork();
   const { success, error, warning, info } = useToast();
+
+  // 🌐 I18N: Hooks para traducciones de diferentes namespaces
+  const tDashboard = useTranslations('dashboard');
+  const tCommon = useTranslations('common');
+  const tWallet = useTranslations('wallet');
 
   // Auto-switch to Base Mainnet (using Thirdweb hook)
   useAutoSwitchToBase();
@@ -170,19 +203,19 @@ export default function CryptoGiftDAODashboard() {
                   <Wallet className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-glass">Connected Wallet</h3>
+                  <h3 className="text-lg font-semibold text-glass">{tWallet('connected')}</h3>
                   <p className="text-glass-secondary font-mono text-sm">
                     {address.slice(0, 8)}...{address.slice(-6)}
                   </p>
-                  <p className="text-xs text-glass-secondary">Base Network • {chainId === base.id ? 'Correct Network' : 'Wrong Network'}</p>
+                  <p className="text-xs text-glass-secondary">{tWallet('base')} • {chainId === base.id ? tWallet('network') : tWallet('unsupportedNetwork')}</p>
                 </div>
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="text-center">
                   <div className="flex items-center gap-2 justify-center sm:justify-start">
-                    <p className="text-glass-secondary text-sm">CGC Balance</p>
-                    <button 
+                    <p className="text-glass-secondary text-sm">{tWallet('cgcBalance')}</p>
+                    <button
                       onClick={() => setBalanceVisible(!balanceVisible)}
                       className="text-glass-secondary hover:text-glass transition-colors"
                     >
@@ -194,7 +227,7 @@ export default function CryptoGiftDAODashboard() {
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-glass-secondary text-sm">Total Earnings</p>
+                  <p className="text-glass-secondary text-sm">{tDashboard('yourStats.earnings')}</p>
                   <p className="text-2xl font-bold text-green-600">
                     +{formatNumber(userEarnings)} CGC
                   </p>
@@ -207,33 +240,33 @@ export default function CryptoGiftDAODashboard() {
         {/* Main Stats Grid */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
           <StatCard
-            title="Total Supply"
+            title={tDashboard('stats.totalSupply')}
             value={`${formatNumber(totalSupply)} CGC`}
             icon={<TrendingUp className="w-6 h-6 text-blue-500" />}
             loading={!totalSupply || totalSupply === '0'}
             delay="0.2s"
           />
           <StatCard
-            title="Token Holders"
+            title={tDashboard('stats.holders')}
             value={holdersCount.toString()}
             icon={<Users className="w-6 h-6 text-green-500" />}
             loading={holdersCount === 0}
             delay="0.3s"
           />
           <StatCard
-            title="Active Proposals"
+            title={tDashboard('stats.proposals')}
             value={proposalsActive.toString()}
             icon={<Vote className="w-6 h-6 text-purple-500" />}
             delay="0.4s"
           />
           <StatCard
-            title="Quests Completed"
+            title={tDashboard('stats.tasksCompleted')}
             value={questsCompleted.toString()}
             icon={<CheckCircle2 className="w-6 h-6 text-emerald-500" />}
             delay="0.5s"
           />
           <StatCard
-            title="Circulating Supply"
+            title={tDashboard('stats.circulatingSupply')}
             value={`${formatNumber(circulatingSupply)} CGC`}
             icon={<Repeat2 className="w-6 h-6 text-indigo-500" />}
             delay="0.6s"
@@ -243,26 +276,26 @@ export default function CryptoGiftDAODashboard() {
         {/* Secondary Stats */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
-            title="Treasury Balance"
+            title={tDashboard('stats.treasuryBalance')}
             value={`${formatNumber(treasuryBalance)} CGC`}
             icon={<Wallet className="w-6 h-6 text-amber-500" />}
             loading={!treasuryBalance}
             delay="0.7s"
           />
           <StatCard
-            title="Escrow Balance"
+            title={tDashboard('stats.escrowBalance')}
             value={`${formatNumber(escrowBalance)} CGC`}
             icon={<Lock className="w-6 h-6 text-red-500" />}
             delay="0.8s"
           />
           <StatCard
-            title="Active Tasks"
+            title={tDashboard('system.usage')}
             value={activeTasks.toString()}
             icon={<Zap className="w-6 h-6 text-yellow-500" />}
             delay="0.9s"
           />
           <StatCard
-            title="Milestones Released"
+            title={tDashboard('stats.milestonesReleased')}
             value={milestonesReleased.toString()}
             icon={<Target className="w-6 h-6 text-pink-500" />}
             delay="1.0s"
@@ -402,22 +435,22 @@ export default function CryptoGiftDAODashboard() {
             <div className="flex items-center gap-3">
               <div className={`w-3 h-3 rounded-full ${systemActive ? 'bg-green-400 pulse-glow' : 'bg-red-400'}`}></div>
               <span className="text-glass-secondary text-sm">
-                System Status: {systemActive ? 'Operational' : 'Maintenance'}
+                {tDashboard('system.title')}: {systemActive ? tDashboard('system.active') : tDashboard('system.inactive')}
               </span>
             </div>
-            
+
             {!isConnected && (
               <div className="text-center">
                 <p className="text-glass-secondary text-sm">
-                  🔗 Connect your wallet to access all features
+                  {tWallet('connect')}
                 </p>
               </div>
             )}
-            
+
             {isConnected && chainId !== base.id && (
               <div className="text-center">
                 <p className="text-orange-500 text-sm">
-                  🔄 Please switch to Base Network to continue
+                  {tWallet('unsupportedNetwork')}
                 </p>
               </div>
             )}

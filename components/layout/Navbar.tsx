@@ -1,8 +1,36 @@
 'use client';
 
+/**
+ * ============================================================================
+ * 🌐 I18N PATTERN - INSTRUCCIONES PARA TRADUCCIONES
+ * ============================================================================
+ *
+ * Para agregar traducciones a cualquier componente:
+ *
+ * 1. Importar useTranslations:
+ *    import { useTranslations } from 'next-intl';
+ *
+ * 2. En el componente, usar el hook con el namespace:
+ *    const t = useTranslations('navigation');  // usa src/locales/{locale}.json -> navigation
+ *
+ * 3. Usar t() para obtener traducciones:
+ *    <span>{t('dashboard')}</span>  // "Dashboard" en EN, "Panel" en ES
+ *
+ * 4. Para textos anidados:
+ *    t('stats.totalSupply')  // accede a dashboard.stats.totalSupply
+ *
+ * 5. Las traducciones están en:
+ *    - src/locales/en.json (English - default)
+ *    - src/locales/es.json (Spanish)
+ *
+ * 6. Agregar nuevas traducciones: editar AMBOS archivos json
+ * ============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useAccount, useNetwork, useCGCBalance } from '@/lib/thirdweb';
 import { useDisconnect, useActiveWallet } from 'thirdweb/react';
 import { ConnectButtonDAO } from '@/components/thirdweb/ConnectButtonDAO';
@@ -24,6 +52,9 @@ export const Navbar: React.FC = () => {
   const [mounted, setMounted] = useState(false);
   const { address, isConnected } = useAccount();
   const { chainId } = useNetwork();
+
+  // 🌐 I18N: Hook para traducciones del namespace 'navigation'
+  const t = useTranslations('navigation');
 
   // Network is supported if it's Base Mainnet (8453)
   const isSupported = chainId === 8453;
@@ -66,7 +97,7 @@ export const Navbar: React.FC = () => {
               href="/"
               className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-base font-bold"
             >
-              Dashboard
+              {t('dashboard')}
             </Link>
 
             {/* Separator */}
@@ -76,7 +107,7 @@ export const Navbar: React.FC = () => {
               href="/tasks"
               className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-base font-bold"
             >
-              Tasks
+              {t('tasks')}
             </Link>
 
             {/* Separator */}
@@ -86,7 +117,7 @@ export const Navbar: React.FC = () => {
               href="/agent"
               className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-base font-bold flex items-center gap-1"
             >
-              apeX
+              {t('apex')}
               <ExternalLink className="w-3 h-3" />
             </Link>
 
@@ -97,7 +128,7 @@ export const Navbar: React.FC = () => {
               href="/funding"
               className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-base font-bold flex items-center gap-1"
             >
-              Funding
+              {t('funding')}
               <Lock className="w-3 h-3" />
             </Link>
 
@@ -151,7 +182,7 @@ export const Navbar: React.FC = () => {
                 className="block text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors px-4 py-3 font-bold text-base"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Dashboard
+                {t('dashboard')}
               </Link>
 
               {/* Mobile Separator */}
@@ -162,7 +193,7 @@ export const Navbar: React.FC = () => {
                 className="block text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors px-4 py-3 font-bold text-base"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Tasks & Rewards
+                {t('tasksRewards')}
               </Link>
 
               {/* Mobile Separator */}
@@ -173,7 +204,7 @@ export const Navbar: React.FC = () => {
                 className="block text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors px-4 py-3 font-bold text-base"
                 onClick={() => setIsMenuOpen(false)}
               >
-                apeX Assistant
+                {t('apexAssistant')}
               </Link>
 
               {/* Mobile Separator */}
@@ -184,7 +215,7 @@ export const Navbar: React.FC = () => {
                 className="block text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors px-4 py-3 font-bold text-base flex items-center gap-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Funding <Lock className="w-4 h-4" />
+                {t('funding')} <Lock className="w-4 h-4" />
               </Link>
 
               {/* Mobile Separator */}
@@ -192,7 +223,7 @@ export const Navbar: React.FC = () => {
 
               {/* Mobile Language and Theme Toggles */}
               <div className="px-4 py-3 flex items-center justify-between">
-                <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Settings</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t('settings')}</span>
                 <div className="flex items-center gap-2">
                   <LanguageToggle />
                   <ThemeToggle />
@@ -239,9 +270,13 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
   const { chainId } = useNetwork();
   const { formatted } = useCGCBalance();
 
+  // 🌐 I18N: Hooks para traducciones
+  const tCommon = useTranslations('common');
+  const tWallet = useTranslations('wallet');
+
   // Network is supported if it's Base Mainnet (8453)
   const isSupported = chainId === 8453;
-  const chainName = chainId === 8453 ? 'Base' : 'Unsupported Network';
+  const chainName = chainId === 8453 ? tWallet('base') : tWallet('unsupportedNetwork');
   const explorer = 'https://basescan.org';
 
   if (!isConnected || !address) return null;
@@ -317,7 +352,7 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
 
               {/* Balance */}
               <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 mb-4">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">CGC Balance</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{tWallet('cgcBalance')}</div>
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
                   {formattedBalance} <span className="text-sm font-normal text-gray-500">CGC</span>
                 </div>
@@ -335,7 +370,7 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
                     <Copy className="w-4 h-4 text-gray-400" />
                   )}
                   <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {copied ? 'Copied!' : 'Copy Address'}
+                    {copied ? tCommon('copied') : tCommon('copyAddress')}
                   </span>
                 </button>
 
@@ -347,7 +382,7 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
                   onClick={() => setShowDropdown(false)}
                 >
                   <ExternalLink className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">View on Explorer</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{tCommon('viewOnExplorer')}</span>
                 </a>
 
                 <div className="border-t border-gray-200 dark:border-slate-600 my-2"></div>
@@ -360,7 +395,7 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
                   className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left text-red-600 dark:text-red-400"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span className="text-sm font-medium">Disconnect</span>
+                  <span className="text-sm font-medium">{tCommon('disconnect')}</span>
                 </button>
               </div>
             </div>
