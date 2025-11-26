@@ -89,15 +89,20 @@ export function useBalance() {
   const account = useActiveAccount()
   const client = getClient()
 
-  // SSR-safe: Skip hook if client is not available
+  // useWalletBalance doesn't support queryOptions - it handles undefined gracefully
   const { data: balance, isLoading } = useWalletBalance({
-    client: client || undefined as never, // Wagmi handles undefined gracefully
+    client: client || undefined as never,
     chain: base,
     address: account?.address,
-    queryOptions: {
-      enabled: !!client && !!account?.address, // Only run query when client is available
-    },
   })
+
+  // SSR-safe: Return early if no client
+  if (!client) {
+    return {
+      data: undefined,
+      isLoading: false,
+    }
+  }
 
   return {
     data: balance
@@ -108,7 +113,7 @@ export function useBalance() {
           displayValue: balance.displayValue,
         }
       : undefined,
-    isLoading: !client ? false : isLoading,
+    isLoading,
   }
 }
 
