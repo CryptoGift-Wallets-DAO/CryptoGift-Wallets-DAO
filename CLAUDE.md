@@ -2,11 +2,11 @@
 
 ## 🎯 INFORMACIÓN CRÍTICA DEL PROYECTO
 
-### ESTADO ACTUAL (9 ENE 2025) - SISTEMA COMPETITIVO 100% OPERACIONAL ✅
-- **Progreso**: 100% Task System + Competitive Features + Claim Confirmation + Auto-Expiration
-- **Fase actual**: Sistema DAO completamente funcional con mecánicas competitivas
-- **Último Deploy**: Sistema de tareas competitivo con timeouts automáticos
-- **Critical Update**: Sistema completo con confirmación claims y timeouts inteligentes
+### ESTADO ACTUAL (26 NOV 2025) - SISTEMA i18n IMPLEMENTADO ✅
+- **Progreso**: 100% Task System + i18n (EN/ES) + Theme System (Light/Dark/Auto)
+- **Fase actual**: Sistema DAO completamente funcional con soporte multiidioma
+- **Último Deploy**: Sistema i18n completo - Navbar y Dashboard traducidos
+- **Critical Update**: TODA nueva construcción DEBE seguir el patrón i18n obligatorio
 
 ### CONTRATOS DESPLEGADOS ✅ (NUEVOS - 31 ENE 2025)
 ```
@@ -39,6 +39,68 @@ NOTA: Los contratos siguientes fueron reemplazados por el nuevo sistema:
 - **⏰ Competitive Features**: ✅ Countdown timers, auto-expiration, claim confirmation
 - **🏷️ Token Metadata**: ✅ Sistema completo con logos optimizados, APIs CoinGecko
 - **📊 CoinGecko Ready**: ✅ Total Supply + Circulating Supply APIs + whitepaper actualizado
+
+---
+
+## 🌐 SISTEMA I18N OBLIGATORIO - PATRÓN DE DESARROLLO
+
+### ⚠️ REGLA CRÍTICA: TODA CONSTRUCCIÓN DEBE SER BILINGÜE
+**A partir del 26 NOV 2025, TODO nuevo componente, página, o texto visible al usuario DEBE implementarse usando el sistema i18n.**
+
+### 📁 ARCHIVOS DE TRADUCCIÓN
+```
+src/locales/en.json  - Inglés (DEFAULT)
+src/locales/es.json  - Español
+```
+
+### 🔧 PATRÓN OBLIGATORIO PARA COMPONENTES
+
+```typescript
+// 1. IMPORTAR el hook
+import { useTranslations } from 'next-intl';
+
+// 2. USAR el hook con el namespace apropiado
+const t = useTranslations('dashboard');      // Para dashboard
+const tNav = useTranslations('navigation');  // Para navegación
+const tCommon = useTranslations('common');   // Para textos comunes
+
+// 3. USAR t() para TODOS los textos visibles
+<h1>{t('title')}</h1>                    // ❌ NO: <h1>Dashboard</h1>
+<button>{tCommon('confirm')}</button>    // ❌ NO: <button>Confirm</button>
+<span>{t('stats.totalSupply')}</span>    // Acceso anidado
+```
+
+### 📋 NAMESPACES DISPONIBLES
+| Namespace | Uso |
+|-----------|-----|
+| `navigation` | Links de navegación, menús |
+| `common` | Botones, acciones comunes (Confirm, Cancel, Loading) |
+| `wallet` | Conexión wallet, balances |
+| `dashboard` | Página principal, stats, paneles |
+| `tasks` | Sistema de tareas |
+| `admin` | Panel de administración |
+| `agent` | apeX Assistant |
+| `funding` | Página de financiamiento |
+| `theme` | Selector de tema |
+| `footer` | Pie de página |
+
+### 🔄 FLUJO DE TRABAJO i18n
+1. **Antes de crear texto hardcodeado** → Añadir clave a AMBOS archivos JSON
+2. **Crear componente** → Usar `useTranslations()` desde el inicio
+3. **Verificar** → Cambiar idioma y confirmar que todo traduce correctamente
+
+### ⚙️ CONFIGURACIÓN ACTUAL
+```typescript
+// src/i18n/request.ts - Lee cookie NEXT_LOCALE
+// app/api/locale/route.ts - Setea cookie al cambiar idioma
+// app/layout.tsx - NextIntlClientProvider envuelve la app
+// components/ui/LanguageToggle.tsx - Toggle EN|ES
+```
+
+### 🎯 COMMITS RECIENTES i18n (26 NOV 2025)
+- `1b72ff2` - feat(i18n): complete Dashboard translation with all Action Panels
+- `7fa809c` - fix(i18n): read NEXT_LOCALE cookie directly in getRequestConfig
+- `7e5cdf9` - feat(i18n): implement useTranslations for Navbar and Dashboard
 
 ---
 
