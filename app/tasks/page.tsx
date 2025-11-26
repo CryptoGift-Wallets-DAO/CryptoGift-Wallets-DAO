@@ -2,11 +2,13 @@
  * 🎯 Tasks & Rewards Page
  *
  * Complete task management and rewards system
+ * 🌐 i18n: Full translation support for EN/ES
  */
 
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { useAccount } from '@/lib/thirdweb'
 import { useCGCBalance } from '@/lib/web3/hooks'
 import { TaskList } from '@/components/tasks/TaskList'
@@ -34,6 +36,10 @@ import {
 } from 'lucide-react'
 
 export default function TasksPage() {
+  // 🌐 Translation hooks
+  const t = useTranslations('tasks')
+  const tCommon = useTranslations('common')
+
   const { address, isConnected } = useAccount()
   const { balance } = useCGCBalance(address as `0x${string}` | undefined)
   const { success, error, warning, info } = useToast()
@@ -81,7 +87,7 @@ export default function TasksPage() {
       })
     } catch (err) {
       console.error('Error loading statistics:', err)
-      error('Failed to load statistics', 'Please try again later')
+      error(t('toasts.failedToLoadStats'), t('toasts.failedToLoadStatsDesc'))
     } finally {
       setIsLoading(false)
     }
@@ -90,7 +96,7 @@ export default function TasksPage() {
   const handleRefresh = () => {
     setRefreshKey(prev => prev + 1)
     loadStatistics()
-    info('Refreshing data...', 'Updating tasks and leaderboard')
+    info(t('toasts.refreshing'), t('toasts.refreshingDesc'))
   }
 
   const handleInitializeTasks = async () => {
@@ -108,14 +114,17 @@ export default function TasksPage() {
       const data = await response.json()
       
       if (data.success) {
-        success('Tasks initialized!', `All ${data.data.tasksCreated} tasks created. Total rewards: ${data.data.totalRewards} CGC`)
+        success(
+          t('toasts.tasksInitialized'),
+          t('toasts.tasksInitializedDesc', { count: data.data.tasksCreated, rewards: data.data.totalRewards })
+        )
         handleRefresh()
       } else {
-        error('Initialization failed', data.error)
+        error(t('toasts.initFailed'), data.error)
       }
     } catch (err) {
       console.error('Error initializing tasks:', err)
-      error('Error initializing tasks', 'Please try again')
+      error(t('toasts.errorInitializing'), tCommon('pleaseRetry'))
     }
   }
 
@@ -134,10 +143,10 @@ export default function TasksPage() {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
-                Tasks & Rewards
+                {t('title')}
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Complete tasks, earn CGC tokens, and climb the leaderboard
+                {t('subtitle')}
               </p>
             </div>
 
@@ -145,12 +154,12 @@ export default function TasksPage() {
               {address && (
                 <Badge variant="outline" className="glass-bubble px-4 py-2">
                   <Trophy className="w-4 h-4 mr-2" />
-                  Rank #{stats.userRank || '∞'}
+                  {t('page.rankLabel')} #{stats.userRank || '∞'}
                 </Badge>
               )}
               <Badge variant="outline" className="glass-bubble px-4 py-2">
                 <Zap className="w-4 h-4 mr-2" />
-                {balance} CGC
+                {balance} {tCommon('cgc')}
               </Badge>
               <Button
                 onClick={handleRefresh}
@@ -159,7 +168,7 @@ export default function TasksPage() {
                 disabled={isLoading}
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh
+                {tCommon('refresh')}
               </Button>
             </div>
           </div>
@@ -182,19 +191,19 @@ export default function TasksPage() {
           <TabsList className="glass-panel p-1 grid w-full grid-cols-4">
             <TabsTrigger value="available" className="data-[state=active]:glass-bubble">
               <Target className="w-4 h-4 mr-2" />
-              Available
+              {t('tabs.available')}
             </TabsTrigger>
             <TabsTrigger value="progress" className="data-[state=active]:glass-bubble">
               <Clock className="w-4 h-4 mr-2" />
-              In Progress
+              {t('tabs.inProgress')}
             </TabsTrigger>
             <TabsTrigger value="leaderboard" className="data-[state=active]:glass-bubble">
               <Trophy className="w-4 h-4 mr-2" />
-              Leaderboard
+              {t('tabs.leaderboard')}
             </TabsTrigger>
             <TabsTrigger value="propose" className="data-[state=active]:glass-bubble">
               <PlusCircle className="w-4 h-4 mr-2" />
-              Propose
+              {t('tabs.propose')}
             </TabsTrigger>
           </TabsList>
 
@@ -205,22 +214,22 @@ export default function TasksPage() {
                 <CardTitle className="flex items-center justify-between">
                   <span className="flex items-center">
                     <Target className="w-5 h-5 mr-2" />
-                    Available Tasks
+                    {t('page.availableTasksTitle')}
                   </span>
                   <Badge variant="secondary" className="glass-bubble">
-                    {stats.availableTasks} tasks
+                    {t('page.availableTasksCount', { count: stats.availableTasks })}
                   </Badge>
                 </CardTitle>
                 <CardDescription>
-                  Select a task to start earning CGC tokens. Each task has different complexity and rewards.
+                  {t('page.availableTasksDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <TaskList 
+                <TaskList
                   userAddress={address}
                   refreshKey={refreshKey}
                   onTaskClaimed={() => {
-                    success('Task claimed!', 'You can now start working on this task')
+                    success(t('toasts.taskClaimed'), t('toasts.taskClaimedDesc'))
                     handleRefresh()
                   }}
                 />
@@ -234,16 +243,16 @@ export default function TasksPage() {
                   <div className="flex items-start space-x-3">
                     <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <h4 className="font-medium text-amber-900">No tasks available</h4>
+                      <h4 className="font-medium text-amber-900">{t('page.noTasksAvailable')}</h4>
                       <p className="text-sm text-amber-700 mt-1">
-                        The task system needs to be initialized with the initial 34 tasks.
+                        {t('page.noTasksMessage')}
                       </p>
                       <Button
                         onClick={handleInitializeTasks}
                         className="mt-3"
                         variant="default"
                       >
-                        Initialize Tasks (Admin Only)
+                        {t('page.initializeTasks')}
                       </Button>
                     </div>
                   </div>
@@ -259,22 +268,22 @@ export default function TasksPage() {
                 <CardTitle className="flex items-center justify-between">
                   <span className="flex items-center">
                     <Clock className="w-5 h-5 mr-2" />
-                    Tasks In Progress
+                    {t('page.inProgressTitle')}
                   </span>
                   <Badge variant="secondary" className="glass-bubble">
-                    {stats.tasksInProgress} active
+                    {t('page.inProgressCount', { count: stats.tasksInProgress })}
                   </Badge>
                 </CardTitle>
                 <CardDescription>
-                  Monitor ongoing tasks and submit evidence when completed.
+                  {t('page.inProgressDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <TasksInProgress 
+                <TasksInProgress
                   userAddress={address}
                   refreshKey={refreshKey}
                   onTaskSubmitted={() => {
-                    success('Evidence submitted!', 'Your work is now pending validation')
+                    success(t('toasts.evidenceSubmitted'), t('toasts.evidenceSubmittedDesc'))
                     handleRefresh()
                   }}
                 />
@@ -289,18 +298,18 @@ export default function TasksPage() {
                 <CardTitle className="flex items-center justify-between">
                   <span className="flex items-center">
                     <Trophy className="w-5 h-5 mr-2" />
-                    Collaborator Leaderboard
+                    {t('page.leaderboardTitle')}
                   </span>
                   <Badge variant="secondary" className="glass-bubble">
-                    {stats.activeCollaborators} collaborators
+                    {t('page.leaderboardCount', { count: stats.activeCollaborators })}
                   </Badge>
                 </CardTitle>
                 <CardDescription>
-                  Top contributors ranked by total CGC earned through task completions.
+                  {t('page.leaderboardDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <LeaderboardTable 
+                <LeaderboardTable
                   userAddress={address}
                   refreshKey={refreshKey}
                 />
@@ -314,17 +323,17 @@ export default function TasksPage() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <PlusCircle className="w-5 h-5 mr-2" />
-                  Propose New Task
+                  {t('page.proposeTitle')}
                 </CardTitle>
                 <CardDescription>
-                  Submit a task proposal for review. Approved tasks will be added to the available pool.
+                  {t('page.proposeDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <TaskProposal 
+                <TaskProposal
                   userAddress={address}
                   onProposalSubmitted={() => {
-                    success('Proposal submitted!', 'Your task proposal is now under review')
+                    success(t('toasts.proposalSubmitted'), t('toasts.proposalSubmittedDesc'))
                     handleRefresh()
                   }}
                 />
@@ -339,22 +348,22 @@ export default function TasksPage() {
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-green-400 pulse-glow"></div>
               <span className="text-glass-secondary text-sm">
-                Tasks System: Operational
+                {t('page.systemOperational')}
               </span>
             </div>
-            
+
             <div className="flex items-center gap-6 text-sm text-glass-secondary">
               <span className="flex items-center">
                 <CheckCircle2 className="w-4 h-4 mr-1 text-green-500" />
-                {stats.completedTasks} Completed
+                {stats.completedTasks} {t('page.completedLabel')}
               </span>
               <span className="flex items-center">
                 <Award className="w-4 h-4 mr-1 text-amber-500" />
-                {stats.totalRewards.toFixed(0)} CGC Distributed
+                {stats.totalRewards.toFixed(0)} {t('page.cgcDistributed')}
               </span>
               <span className="flex items-center">
                 <Users className="w-4 h-4 mr-1 text-blue-500" />
-                {stats.activeCollaborators} Contributors
+                {stats.activeCollaborators} {t('page.contributorsLabel')}
               </span>
             </div>
           </div>

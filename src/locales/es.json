@@ -23,7 +23,19 @@
     "copyAddress": "Copiar Dirección",
     "copied": "¡Copiado!",
     "viewOnExplorer": "Ver en Explorer",
-    "balance": "Balance"
+    "balance": "Balance",
+    "refresh": "Actualizar",
+    "details": "Detalles",
+    "days": "días",
+    "hours": "horas",
+    "cgc": "CGC",
+    "usd": "USD",
+    "level": "Nivel",
+    "rank": "Posición",
+    "pleaseConnectWallet": "Por favor conecta tu wallet",
+    "transactionCancelled": "La transacción fue cancelada por el usuario.",
+    "insufficientFunds": "Fondos insuficientes para las comisiones de gas.",
+    "pleaseRetry": "Por favor intenta de nuevo."
   },
   "wallet": {
     "connect": "Conectar Wallet",
@@ -99,8 +111,8 @@
     }
   },
   "tasks": {
-    "title": "Tareas DAO",
-    "subtitle": "Completa tareas para ganar tokens CGC",
+    "title": "Tareas y Recompensas",
+    "subtitle": "Completa tareas, gana tokens CGC y sube en la tabla de clasificación",
     "available": "Tareas Disponibles",
     "claimed": "Tareas Reclamadas",
     "completed": "Tareas Completadas",
@@ -111,6 +123,8 @@
     "deadline": "Fecha Límite",
     "timeRemaining": "Tiempo Restante",
     "assignee": "Asignado a",
+    "duration": "Duración",
+    "progress": "Progreso",
     "status": {
       "available": "Disponible",
       "claimed": "Reclamada",
@@ -120,11 +134,260 @@
       "completed": "Completada",
       "expired": "Expirada"
     },
+    "tabs": {
+      "available": "Disponibles",
+      "inProgress": "En Progreso",
+      "leaderboard": "Clasificación",
+      "propose": "Proponer"
+    },
+    "stats": {
+      "availableTasks": "Tareas Disponibles",
+      "inProgress": "En Progreso",
+      "completed": "Completadas",
+      "totalRewards": "Recompensas Totales",
+      "contributors": "Colaboradores"
+    },
+    "card": {
+      "level": "Nivel",
+      "noDescription": "Sin descripción disponible",
+      "claimedBy": "Reclamada por:",
+      "workingOn": "Trabajando:",
+      "expiredOpenToAll": "Expirada - Abierta para todos",
+      "timeRemaining": "Tiempo restante:",
+      "evidenceSubmitted": "Evidencia Enviada",
+      "viewEvidence": "Ver Evidencia",
+      "claiming": "Reclamando...",
+      "claimTask": "Reclamar Tarea",
+      "submitEvidence": "Enviar Evidencia",
+      "pendingValidation": "Pendiente de Validación",
+      "completedBadge": "Completada"
+    },
+    "list": {
+      "searchPlaceholder": "Buscar tareas...",
+      "allComplexities": "Todas las Complejidades",
+      "allPlatforms": "Todas las Plataformas",
+      "github": "GitHub",
+      "discord": "Discord",
+      "manual": "Manual",
+      "custom": "Personalizada",
+      "sortBy": "Ordenar por",
+      "highestReward": "Mayor Recompensa",
+      "lowestComplexity": "Menor Complejidad",
+      "shortestTime": "Menor Duración",
+      "noTasksFound": "No se encontraron tareas con los filtros seleccionados",
+      "taskNotFound": "Tarea no encontrada",
+      "failedToClaim": "Error al reclamar tarea. Por favor intenta de nuevo."
+    },
+    "inProgressTab": {
+      "yourTasks": "Tus Tareas",
+      "otherTasks": "Otras Tareas en Progreso",
+      "assignedTo": "Asignada a:",
+      "noTasksInProgress": "No hay tareas en progreso actualmente"
+    },
+    "evidence": {
+      "dialogTitle": "Enviar Evidencia de Tarea",
+      "dialogDescription": "Proporciona evidencia de que has completado esta tarea",
+      "urlLabel": "URL de Evidencia",
+      "urlPlaceholder": "https://github.com/usuario/repo/pull/123",
+      "urlHelp": "Enlace a tu trabajo completado (PR de GitHub, URL de demo, etc.)",
+      "additionalUrlLabel": "URL Adicional",
+      "additionalUrlPlaceholder": "https://demo.ejemplo.com",
+      "additionalUrlHelp": "Opcional: Enlace de demo, documentación o evidencia adicional",
+      "submitting": "Enviando evidencia...",
+      "failedToSubmit": "Error al enviar evidencia. Por favor intenta de nuevo."
+    },
     "claimModal": {
-      "title": "Reclamar Tarea",
-      "description": "Estás a punto de reclamar esta tarea. Una vez reclamada, tendrás acceso exclusivo para completarla dentro del período de tiempo límite.",
-      "confirm": "Confirmar Reclamo",
-      "cancel": "Cancelar"
+      "title": "Confirmación de Reclamo de Tarea",
+      "description": "Revisa los detalles de la tarea cuidadosamente antes de reclamar. Tendrás acceso exclusivo por tiempo limitado.",
+      "complexityLabel": "Complejidad",
+      "descriptionLabel": "Descripción",
+      "rewardLabel": "Recompensa",
+      "estimatedLabel": "Estimado",
+      "claimTimeLabel": "Tiempo de Reclamo",
+      "requiredSkills": "Habilidades Requeridas",
+      "tags": "Etiquetas",
+      "importantNotice": "Aviso Importante",
+      "exclusiveAccessNotice": "Tendrás {time} de acceso exclusivo para trabajar en esta tarea",
+      "afterTimeoutNotice": "Después del tiempo límite, la tarea estará disponible para todos (incluyéndote)",
+      "canStillCompleteNotice": "Aún puedes completarla después de expirar, pero otros podrán competir",
+      "submitBeforeOthersNotice": "Envía tu evidencia antes que otros para reclamar la recompensa",
+      "cancel": "Cancelar",
+      "claiming": "Reclamando...",
+      "claimTask": "Reclamar Tarea"
+    },
+    "detailsModal": {
+      "subtitle": "Desafío Nivel {level} • ID de Tarea: {taskId}...",
+      "overview": "Resumen",
+      "reward": "Recompensa",
+      "timeline": "Cronograma",
+      "daysEstimated": "días estimados",
+      "difficulty": "Dificultad",
+      "priorityLabel": "Prioridad",
+      "priority": {
+        "critical": "🔴 Crítica",
+        "high": "🟠 Alta",
+        "medium": "🔵 Media",
+        "low": "🟢 Baja",
+        "normal": "⚪ Normal"
+      },
+      "platform": "Plataforma",
+      "description": "Descripción",
+      "noDescriptionProvided": "Aún no se ha proporcionado descripción detallada.",
+      "technicalRequirements": "Requisitos Técnicos",
+      "requiredSkills": "Habilidades Requeridas:",
+      "tags": "Etiquetas:",
+      "successCriteria": {
+        "title": "Criterios de Éxito",
+        "item1": "Implementar una solución funcional según los requisitos",
+        "item2": "Proporcionar evidencia clara de finalización (capturas de pantalla, URLs, videos)",
+        "item3": "Seguir los estándares de código y mejores prácticas del proyecto",
+        "item4": "Pasar la revisión de validación del administrador"
+      },
+      "completionProcess": {
+        "title": "Proceso de Finalización",
+        "step1": {
+          "title": "Reclamar Tarea",
+          "desc": "Reserva la tarea exclusivamente para ti"
+        },
+        "step2": {
+          "title": "Desarrollar Solución",
+          "desc": "Trabaja en tu implementación"
+        },
+        "step3": {
+          "title": "Enviar Evidencia",
+          "desc": "Sube prueba de finalización"
+        },
+        "step4": {
+          "title": "Revisión Admin",
+          "desc": "Espera la validación"
+        },
+        "step5": {
+          "title": "Recibe Pago",
+          "desc": "Pago automático de CGC a tu wallet"
+        }
+      },
+      "claiming": "Reclamando...",
+      "claimThisTask": "Reclamar Esta Tarea",
+      "copyTaskId": "Copiar ID de Tarea",
+      "askQuestions": "Hacer Preguntas"
+    },
+    "proposal": {
+      "guidelinesTitle": "Guías para Proponer Tareas",
+      "guideline1": "Sé específico sobre los entregables y criterios de éxito",
+      "guideline2": "Estima la complejidad en una escala del 1 al 10",
+      "guideline3": "Proporciona estimaciones de tiempo realistas",
+      "guideline4": "Incluye requisitos técnicos si aplica",
+      "taskTitle": "Título de la Tarea",
+      "titlePlaceholder": "ej., Implementar modo oscuro para el panel",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Describe la tarea en detalle, incluyendo requisitos, entregables y criterios de aceptación...",
+      "estimatedComplexity": "Complejidad Estimada",
+      "selectComplexity": "Selecciona nivel de complejidad",
+      "complexity": {
+        "level1": "Nivel 1 - Muy Fácil",
+        "level2": "Nivel 2 - Fácil",
+        "level3": "Nivel 3 - Simple",
+        "level4": "Nivel 4 - Moderada",
+        "level5": "Nivel 5 - Media",
+        "level6": "Nivel 6 - Desafiante",
+        "level7": "Nivel 7 - Difícil",
+        "level8": "Nivel 8 - Muy Difícil",
+        "level9": "Nivel 9 - Experto",
+        "level10": "Nivel 10 - Maestro"
+      },
+      "estimatedDays": "Días Estimados",
+      "daysPlaceholder": "ej., 7",
+      "estimatedReward": "Recompensa estimada: {reward} CGC",
+      "platformOrigin": "Plataforma de Origen",
+      "selectPlatform": "¿Desde dónde propones esto?",
+      "platform": {
+        "manual": "Entrada Manual",
+        "discord": "Discord",
+        "github": "Issue de GitHub",
+        "custom": "Plataforma Personalizada"
+      },
+      "clearForm": "Limpiar Formulario",
+      "submitting": "Enviando...",
+      "submitProposal": "Enviar Propuesta",
+      "pleaseCompleteFields": "Por favor completa todos los campos requeridos",
+      "failedToSubmit": "Error al enviar propuesta",
+      "failedToSubmitRetry": "Error al enviar propuesta. Por favor intenta de nuevo."
+    },
+    "inProgress": {
+      "yourTasks": "Tus Tareas",
+      "otherTasksInProgress": "Otras Tareas en Progreso",
+      "assignedTo": "Asignada a:",
+      "noTasksInProgress": "No hay tareas en progreso actualmente",
+      "failedToSubmit": "Error al enviar evidencia. Por favor intenta de nuevo.",
+      "submitEvidence": {
+        "title": "Enviar Evidencia de Tarea",
+        "description": "Proporciona evidencia de que has completado esta tarea",
+        "evidenceUrlLabel": "URL de Evidencia",
+        "evidenceUrlHint": "Enlace a tu trabajo completado (PR de GitHub, URL de demo, etc.)",
+        "additionalUrlLabel": "URL Adicional",
+        "additionalUrlHint": "Opcional: Enlace de demo, documentación o evidencia adicional",
+        "submitting": "Enviando evidencia...",
+        "submit": "Enviar Evidencia"
+      }
+    },
+    "page": {
+      "rankLabel": "Posición",
+      "availableTasksTitle": "Tareas Disponibles",
+      "availableTasksCount": "{count} tareas",
+      "availableTasksDescription": "Selecciona una tarea para comenzar a ganar tokens CGC. Cada tarea tiene diferente complejidad y recompensa.",
+      "noTasksAvailable": "No hay tareas disponibles",
+      "noTasksMessage": "El sistema de tareas necesita ser inicializado con las 34 tareas iniciales.",
+      "initializeTasks": "Inicializar Tareas (Solo Admin)",
+      "inProgressTitle": "Tareas en Progreso",
+      "inProgressCount": "{count} activas",
+      "inProgressDescription": "Monitorea las tareas en curso y envía evidencia cuando las completes.",
+      "leaderboardTitle": "Tabla de Colaboradores",
+      "leaderboardCount": "{count} colaboradores",
+      "leaderboardDescription": "Mejores colaboradores clasificados por total de CGC ganados a través de tareas completadas.",
+      "proposeTitle": "Proponer Nueva Tarea",
+      "proposeDescription": "Envía una propuesta de tarea para revisión. Las tareas aprobadas serán añadidas al grupo disponible.",
+      "systemOperational": "Sistema de Tareas: Operacional",
+      "completedLabel": "Completadas",
+      "cgcDistributed": "CGC Distribuidos",
+      "contributorsLabel": "Colaboradores"
+    },
+    "toasts": {
+      "taskClaimed": "¡Tarea reclamada!",
+      "taskClaimedDesc": "Ya puedes comenzar a trabajar en esta tarea",
+      "evidenceSubmitted": "¡Evidencia enviada!",
+      "evidenceSubmittedDesc": "Tu trabajo está pendiente de validación",
+      "proposalSubmitted": "¡Propuesta enviada!",
+      "proposalSubmittedDesc": "Tu propuesta de tarea está siendo revisada",
+      "tasksInitialized": "¡Tareas inicializadas!",
+      "tasksInitializedDesc": "Se crearon {count} tareas. Recompensas totales: {rewards} CGC",
+      "initFailed": "Inicialización fallida",
+      "errorInitializing": "Error al inicializar tareas",
+      "failedToLoadStats": "Error al cargar estadísticas",
+      "failedToLoadStatsDesc": "Por favor intenta de nuevo más tarde",
+      "refreshing": "Actualizando datos...",
+      "refreshingDesc": "Actualizando tareas y clasificación"
+    }
+  },
+  "leaderboard": {
+    "title": "Tabla de Colaboradores",
+    "yourPosition": "Tu Posición",
+    "columns": {
+      "rank": "Posición",
+      "address": "Dirección",
+      "cgcEarned": "CGC Ganados",
+      "tasks": "Tareas",
+      "level": "Nivel"
+    },
+    "inProgressLabel": "en progreso",
+    "discord": "Discord:",
+    "approxUsd": "~${amount} USD",
+    "noCollaboratorsYet": "Aún no hay colaboradores. ¡Sé el primero en completar una tarea!",
+    "levels": {
+      "legend": "Leyenda",
+      "master": "Maestro",
+      "expert": "Experto",
+      "contributor": "Colaborador",
+      "novice": "Novato"
     }
   },
   "admin": {

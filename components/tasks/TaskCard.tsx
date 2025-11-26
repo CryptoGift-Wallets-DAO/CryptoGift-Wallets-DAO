@@ -1,20 +1,22 @@
 /**
  * 🎯 Task Card Component
- * 
+ *
  * Individual task display card with details and actions
+ * 🌐 i18n: Full translation support for EN/ES
  */
 
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  Clock, 
-  Coins, 
-  Code, 
-  MessageSquare, 
+import {
+  Clock,
+  Coins,
+  Code,
+  MessageSquare,
   FileText,
   TrendingUp,
   Calendar,
@@ -38,9 +40,9 @@ interface TaskCardProps {
   showClaimModal?: boolean
 }
 
-export function TaskCard({ 
-  task, 
-  onClaim, 
+export function TaskCard({
+  task,
+  onClaim,
   onSubmit,
   onViewDetails,
   canClaim = true,
@@ -48,6 +50,11 @@ export function TaskCard({
   isClaimingTask = false,
   showClaimModal = true
 }: TaskCardProps) {
+  // 🌐 Translation hooks
+  const t = useTranslations('tasks.card')
+  const tTasks = useTranslations('tasks')
+  const tCommon = useTranslations('common')
+
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
   // Get platform icon
   const getPlatformIcon = () => {
@@ -121,7 +128,7 @@ export function TaskCard({
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between mb-2">
           <Badge variant="outline" className={`${getComplexityColor()} border-0`}>
-            Level {task.complexity}
+            {t('level')} {task.complexity}
           </Badge>
           <Badge variant="outline" className="glass-bubble">
             {getPlatformIcon()}
@@ -136,23 +143,23 @@ export function TaskCard({
 
       <CardContent className="space-y-4">
         <p className="text-sm text-glass-secondary line-clamp-3">
-          {task.description || 'No description available'}
+          {task.description || t('noDescription')}
         </p>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="flex items-center space-x-2">
             <Coins className="w-4 h-4 text-amber-500" />
             <div>
-              <p className="text-xs text-glass-secondary">Reward</p>
+              <p className="text-xs text-glass-secondary">{tCommon('balance')}</p>
               <p className="font-semibold text-glass">{task.reward_cgc} CGC</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Calendar className="w-4 h-4 text-blue-500" />
             <div>
-              <p className="text-xs text-glass-secondary">Duration</p>
-              <p className="font-semibold text-glass">{task.estimated_days} days</p>
+              <p className="text-xs text-glass-secondary">{tCommon('days')}</p>
+              <p className="font-semibold text-glass">{task.estimated_days} {tCommon('days')}</p>
             </div>
           </div>
         </div>
@@ -163,7 +170,7 @@ export function TaskCard({
             <div className="flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${task.status === 'claimed' ? 'bg-yellow-500' : 'bg-blue-500'} animate-pulse`} />
               <span className="text-xs text-glass-secondary">
-                {task.status === 'claimed' ? 'Claimed by:' : 'Working on:'}
+                {task.status === 'claimed' ? t('claimedBy') : t('workingOn')}
               </span>
             </div>
             <span className="text-xs font-mono text-glass">
@@ -192,7 +199,7 @@ export function TaskCard({
                 }`} />
               )}
               <span className="text-xs text-glass-secondary">
-                {isExpired ? 'Expired - Open to all' : 'Time remaining:'}
+                {isExpired ? t('expiredOpenToAll') : t('timeRemaining')}
               </span>
             </div>
             <span className={`text-xs font-semibold ${
@@ -211,7 +218,7 @@ export function TaskCard({
         {showProgress && task.status === 'in_progress' && (
           <div className="space-y-2">
             <div className="flex justify-between text-xs text-glass-secondary">
-              <span>Progress</span>
+              <span>{tTasks('progress')}</span>
               <span>{progress}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -226,14 +233,14 @@ export function TaskCard({
         {/* Evidence URLs for in-progress tasks */}
         {task.evidence_url && (
           <div className="pt-2 border-t">
-            <p className="text-xs text-glass-secondary mb-1">Evidence Submitted</p>
-            <a 
+            <p className="text-xs text-glass-secondary mb-1">{t('evidenceSubmitted')}</p>
+            <a
               href={task.evidence_url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-800 text-sm underline"
             >
-              View Evidence
+              {t('viewEvidence')}
             </a>
           </div>
         )}
@@ -248,7 +255,7 @@ export function TaskCard({
               className="flex-1"
             >
               <FileText className="w-4 h-4 mr-2" />
-              Details
+              {tCommon('details')}
             </Button>
             <Button
               onClick={showClaimModal ? () => setIsClaimModalOpen(true) : onClaim}
@@ -259,18 +266,18 @@ export function TaskCard({
               {isClaimingTask ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Claiming...
+                  {t('claiming')}
                 </>
               ) : (
                 <>
                   <TrendingUp className="w-4 h-4 mr-2" />
-                  Claim Task
+                  {t('claimTask')}
                 </>
               )}
             </Button>
           </div>
         )}
-        
+
         {task.status === 'in_progress' && !task.evidence_url && (
           <Button
             onClick={onSubmit}
@@ -278,19 +285,19 @@ export function TaskCard({
             variant="default"
           >
             <Clock className="w-4 h-4 mr-2" />
-            Submit Evidence
+            {t('submitEvidence')}
           </Button>
         )}
-        
+
         {task.status === 'in_progress' && task.evidence_url && (
           <Badge variant="outline" className="w-full justify-center py-2 bg-amber-50">
-            Pending Validation
+            {t('pendingValidation')}
           </Badge>
         )}
-        
+
         {task.status === 'completed' && (
           <Badge variant="outline" className="w-full justify-center py-2 bg-green-50">
-            ✅ Completed
+            ✅ {t('completedBadge')}
           </Badge>
         )}
       </CardFooter>

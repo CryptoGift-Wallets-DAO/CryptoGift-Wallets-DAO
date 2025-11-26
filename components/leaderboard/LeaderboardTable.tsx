@@ -1,12 +1,14 @@
 /**
  * 🏆 Leaderboard Table Component
- * 
+ *
  * Shows collaborator rankings
+ * 🌐 i18n: Full translation support for EN/ES
  */
 
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Trophy, Medal, Award, User } from 'lucide-react'
 import type { Collaborator } from '@/lib/supabase/types'
@@ -21,6 +23,9 @@ interface LeaderboardEntry extends Collaborator {
 }
 
 export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTableProps) {
+  // 🌐 Translation hooks
+  const t = useTranslations('leaderboard')
+
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [userRank, setUserRank] = useState<LeaderboardEntry | null>(null)
@@ -34,7 +39,7 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
       setIsLoading(true)
       const response = await fetch(`/api/leaderboard${userAddress ? `?address=${userAddress}` : ''}`)
       const data = await response.json()
-      
+
       if (data.success) {
         setLeaderboard(data.data.leaderboard || [])
         setUserRank(data.data.userRank || null)
@@ -60,11 +65,11 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
   }
 
   const getLevelBadge = (level: string, cgc: number) => {
-    if (cgc >= 10000) return { label: 'Legend', color: 'bg-purple-100 text-purple-800' }
-    if (cgc >= 5000) return { label: 'Master', color: 'bg-red-100 text-red-800' }
-    if (cgc >= 2000) return { label: 'Expert', color: 'bg-blue-100 text-blue-800' }
-    if (cgc >= 500) return { label: 'Contributor', color: 'bg-green-100 text-green-800' }
-    return { label: 'Novice', color: 'bg-gray-100 text-gray-800' }
+    if (cgc >= 10000) return { label: t('levels.legend'), color: 'bg-purple-100 text-purple-800' }
+    if (cgc >= 5000) return { label: t('levels.master'), color: 'bg-red-100 text-red-800' }
+    if (cgc >= 2000) return { label: t('levels.expert'), color: 'bg-blue-100 text-blue-800' }
+    if (cgc >= 500) return { label: t('levels.contributor'), color: 'bg-green-100 text-green-800' }
+    return { label: t('levels.novice'), color: 'bg-gray-100 text-gray-800' }
   }
 
   if (isLoading) {
@@ -80,7 +85,7 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
       {/* User's Position (if not in top 10) */}
       {userRank && userRank.rank > 10 && (
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h4 className="font-medium text-blue-900 mb-2">Your Position</h4>
+          <h4 className="font-medium text-blue-900 mb-2">{t('yourPosition')}</h4>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               {getRankIcon(userRank.rank)}
@@ -102,19 +107,19 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Rank
+                {t('columns.rank')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Address
+                {t('columns.address')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                CGC Earned
+                {t('columns.cgcEarned')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tasks
+                {t('columns.tasks')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Level
+                {t('columns.level')}
               </th>
             </tr>
           </thead>
@@ -158,7 +163,7 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
                     <div>
                       <p className="font-medium text-gray-900">{collaborator.tasks_completed}</p>
                       <p className="text-xs text-gray-500">
-                        {collaborator.tasks_in_progress || 0} in progress
+                        {collaborator.tasks_in_progress || 0} {t('inProgressLabel')}
                       </p>
                     </div>
                   </td>
@@ -176,7 +181,7 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
 
       {leaderboard.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500">No collaborators yet. Be the first to complete a task!</p>
+          <p className="text-gray-500">{t('noCollaboratorsYet')}</p>
         </div>
       )}
     </div>

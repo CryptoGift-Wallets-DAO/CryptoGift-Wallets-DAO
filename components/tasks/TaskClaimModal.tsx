@@ -1,12 +1,14 @@
 /**
  * 🎯 Task Claim Confirmation Modal
- * 
+ *
  * Shows task details and requires confirmation before claiming
+ * 🌐 i18n: Full translation support for EN/ES
  */
 
 'use client'
 
 import React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -17,11 +19,11 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Clock, 
-  Coins, 
-  Code, 
-  MessageSquare, 
+import {
+  Clock,
+  Coins,
+  Code,
+  MessageSquare,
   FileText,
   Calendar,
   Zap,
@@ -41,13 +43,17 @@ interface TaskClaimModalProps {
   isClaimingTask: boolean
 }
 
-export function TaskClaimModal({ 
-  task, 
-  isOpen, 
-  onClose, 
-  onConfirmClaim, 
-  isClaimingTask 
+export function TaskClaimModal({
+  task,
+  isOpen,
+  onClose,
+  onConfirmClaim,
+  isClaimingTask
 }: TaskClaimModalProps) {
+  // 🌐 Translation hooks
+  const t = useTranslations('tasks.claimModal')
+  const tCommon = useTranslations('common')
+
   if (!task) return null
 
   // Get platform icon
@@ -84,10 +90,10 @@ export function TaskClaimModal({
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-3 text-xl">
             {getPlatformIcon()}
-            <span>Claim Task Confirmation</span>
+            <span>{t('title')}</span>
           </DialogTitle>
           <DialogDescription>
-            Review the task details carefully before claiming. You&apos;ll have exclusive access for a limited time.
+            {t('description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -97,7 +103,7 @@ export function TaskClaimModal({
             <h3 className="text-lg font-semibold text-glass mb-2">{task.title}</h3>
             <div className="flex items-center space-x-2 mb-3">
               <Badge className={`border ${getComplexityColor()}`}>
-                Complexity {task.complexity}/10
+                {t('complexityLabel')} {task.complexity}/10
               </Badge>
               {task.category && (
                 <Badge variant="outline" className="capitalize">
@@ -118,7 +124,7 @@ export function TaskClaimModal({
           {/* Task Description */}
           {task.description && (
             <div>
-              <h4 className="text-sm font-semibold text-glass-secondary mb-2">Description</h4>
+              <h4 className="text-sm font-semibold text-glass-secondary mb-2">{t('descriptionLabel')}</h4>
               <p className="text-sm text-glass leading-relaxed whitespace-pre-wrap">
                 {task.description}
               </p>
@@ -130,23 +136,23 @@ export function TaskClaimModal({
             <div className="flex items-center space-x-2 p-3 bg-amber-50 rounded-lg">
               <Coins className="w-5 h-5 text-amber-500" />
               <div>
-                <p className="text-xs text-glass-secondary">Reward</p>
+                <p className="text-xs text-glass-secondary">{t('rewardLabel')}</p>
                 <p className="font-semibold text-glass">{task.reward_cgc} CGC</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg">
               <Calendar className="w-5 h-5 text-blue-500" />
               <div>
-                <p className="text-xs text-glass-secondary">Estimated</p>
-                <p className="font-semibold text-glass">{task.estimated_days} days</p>
+                <p className="text-xs text-glass-secondary">{t('estimatedLabel')}</p>
+                <p className="font-semibold text-glass">{task.estimated_days} {tCommon('days')}</p>
               </div>
             </div>
 
             <div className="flex items-center space-x-2 p-3 bg-purple-50 rounded-lg">
               <Timer className="w-5 h-5 text-purple-500" />
               <div>
-                <p className="text-xs text-glass-secondary">Claim Time</p>
+                <p className="text-xs text-glass-secondary">{t('claimTimeLabel')}</p>
                 <p className="font-semibold text-glass">{timeoutDisplay}</p>
               </div>
             </div>
@@ -155,7 +161,7 @@ export function TaskClaimModal({
           {/* Required Skills */}
           {task.required_skills && task.required_skills.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-glass-secondary mb-2">Required Skills</h4>
+              <h4 className="text-sm font-semibold text-glass-secondary mb-2">{t('requiredSkills')}</h4>
               <div className="flex flex-wrap gap-2">
                 {task.required_skills.map((skill, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
@@ -169,7 +175,7 @@ export function TaskClaimModal({
           {/* Tags */}
           {task.tags && task.tags.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-glass-secondary mb-2">Tags</h4>
+              <h4 className="text-sm font-semibold text-glass-secondary mb-2">{t('tags')}</h4>
               <div className="flex flex-wrap gap-2">
                 {task.tags.map((tag, index) => (
                   <Badge key={index} variant="secondary" className="text-xs">
@@ -185,12 +191,12 @@ export function TaskClaimModal({
             <div className="flex items-start space-x-3">
               <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
               <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-amber-800">Important Notice</h4>
+                <h4 className="text-sm font-semibold text-amber-800">{t('importantNotice')}</h4>
                 <div className="text-xs text-amber-700 space-y-1">
-                  <p>• You&apos;ll have <strong>{timeoutDisplay}</strong> of exclusive access to work on this task</p>
-                  <p>• After the timeout, the task becomes available to everyone (including you)</p>
-                  <p>• You can still complete it after expiration, but others can compete</p>
-                  <p>• Submit your evidence before others to claim the reward</p>
+                  <p>• {t('exclusiveAccessNotice', { time: timeoutDisplay })}</p>
+                  <p>• {t('afterTimeoutNotice')}</p>
+                  <p>• {t('canStillCompleteNotice')}</p>
+                  <p>• {t('submitBeforeOthersNotice')}</p>
                 </div>
               </div>
             </div>
@@ -203,7 +209,7 @@ export function TaskClaimModal({
             onClick={onClose}
             disabled={isClaimingTask}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             onClick={onConfirmClaim}
@@ -213,12 +219,12 @@ export function TaskClaimModal({
             {isClaimingTask ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Claiming...
+                {t('claiming')}
               </>
             ) : (
               <>
                 <TrendingUp className="w-4 h-4 mr-2" />
-                Claim Task
+                {t('claimTask')}
               </>
             )}
           </Button>

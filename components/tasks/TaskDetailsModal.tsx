@@ -1,13 +1,15 @@
 /**
  * 📋 Task Details Modal
- * 
+ *
  * Comprehensive modal showing detailed information about a specific task
  * Provides in-depth view before user claims the task
+ * 🌐 i18n: Full translation support for EN/ES
  */
 
 'use client'
 
 import React from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -56,7 +58,10 @@ export function TaskDetailsModal({
   canClaim,
   isClaimingTask
 }: TaskDetailsModalProps) {
-  
+  // 🌐 Translation hooks
+  const t = useTranslations('tasks.detailsModal')
+  const tCommon = useTranslations('common')
+
   // Calculate difficulty visualization
   const getDifficultyStars = (complexity: number) => {
     return Array.from({ length: 10 }, (_, i) => (
@@ -70,11 +75,11 @@ export function TaskDetailsModal({
   // Get priority color and icon
   const getPriorityInfo = (priority: string) => {
     switch (priority) {
-      case 'critical': return { color: 'text-red-600 bg-red-50', icon: AlertTriangle, label: '🔴 Critical' }
-      case 'high': return { color: 'text-orange-600 bg-orange-50', icon: TrendingUp, label: '🟠 High' }
-      case 'medium': return { color: 'text-blue-600 bg-blue-50', icon: Clock, label: '🔵 Medium' }
-      case 'low': return { color: 'text-green-600 bg-green-50', icon: CheckCircle2, label: '🟢 Low' }
-      default: return { color: 'text-gray-600 bg-gray-50', icon: Clock, label: '⚪ Normal' }
+      case 'critical': return { color: 'text-red-600 bg-red-50', icon: AlertTriangle, label: t('priority.critical') }
+      case 'high': return { color: 'text-orange-600 bg-orange-50', icon: TrendingUp, label: t('priority.high') }
+      case 'medium': return { color: 'text-blue-600 bg-blue-50', icon: Clock, label: t('priority.medium') }
+      case 'low': return { color: 'text-green-600 bg-green-50', icon: CheckCircle2, label: t('priority.low') }
+      default: return { color: 'text-gray-600 bg-gray-50', icon: Clock, label: t('priority.normal') }
     }
   }
 
@@ -111,7 +116,7 @@ export function TaskDetailsModal({
                 🎯 {task.title}
               </DialogTitle>
               <DialogDescription className="text-sm text-gray-600">
-                Level {task.complexity} Challenge • Task ID: {task.task_id.slice(0, 8)}...
+                {t('subtitle', { level: task.complexity, taskId: task.task_id.slice(0, 8) })}
               </DialogDescription>
             </div>
             <Button
@@ -132,14 +137,14 @@ export function TaskDetailsModal({
             <div className="space-y-4">
               <h3 className="font-semibold text-lg flex items-center">
                 <Target className="w-5 h-5 mr-2 text-blue-600" />
-                📊 Overview
+                📊 {t('overview')}
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Reward */}
                 <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-4 rounded-lg border border-amber-200">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-amber-800">💰 Reward</span>
+                    <span className="text-sm font-medium text-amber-800">💰 {t('reward')}</span>
                     <Coins className="w-4 h-4 text-amber-600" />
                   </div>
                   <div className="text-2xl font-bold text-amber-900">{task.reward_cgc} CGC</div>
@@ -149,11 +154,11 @@ export function TaskDetailsModal({
                 {/* Timeline */}
                 <div className="bg-gradient-to-r from-blue-50 to-sky-50 p-4 rounded-lg border border-blue-200">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-blue-800">⏰ Timeline</span>
+                    <span className="text-sm font-medium text-blue-800">⏰ {t('timeline')}</span>
                     <Calendar className="w-4 h-4 text-blue-600" />
                   </div>
                   <div className="text-2xl font-bold text-blue-900">{task.estimated_days}</div>
-                  <div className="text-xs text-blue-700">days estimated</div>
+                  <div className="text-xs text-blue-700">{t('daysEstimated')}</div>
                 </div>
               </div>
 
@@ -161,19 +166,19 @@ export function TaskDetailsModal({
                 {/* Difficulty */}
                 <div className="bg-gray-50 p-4 rounded-lg border">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">🎯 Difficulty</span>
+                    <span className="text-sm font-medium text-gray-700">🎯 {t('difficulty')}</span>
                     <Zap className="w-4 h-4 text-gray-600" />
                   </div>
                   <div className="flex items-center space-x-1 mb-1">
                     {getDifficultyStars(task.complexity)}
                   </div>
-                  <div className="text-xs text-gray-600">Level {task.complexity}/10</div>
+                  <div className="text-xs text-gray-600">{tCommon('level')} {task.complexity}/10</div>
                 </div>
 
                 {/* Priority */}
                 <div className={`p-4 rounded-lg border ${priorityInfo.color}`}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">🚨 Priority</span>
+                    <span className="text-sm font-medium">🚨 {t('priorityLabel')}</span>
                     <priorityInfo.icon className="w-4 h-4" />
                   </div>
                   <div className="font-semibold">{priorityInfo.label}</div>
@@ -182,7 +187,7 @@ export function TaskDetailsModal({
                 {/* Platform */}
                 <div className="bg-gray-50 p-4 rounded-lg border">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">🔧 Platform</span>
+                    <span className="text-sm font-medium text-gray-700">🔧 {t('platform')}</span>
                     {getPlatformIcon()}
                   </div>
                   <div className="font-semibold capitalize">{task.platform}</div>
@@ -197,11 +202,11 @@ export function TaskDetailsModal({
             <div className="space-y-3">
               <h3 className="font-semibold text-lg flex items-center">
                 <FileText className="w-5 h-5 mr-2 text-green-600" />
-                📝 Description
+                📝 {t('description')}
               </h3>
               <div className="bg-gray-50 p-4 rounded-lg border">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {task.description || 'No detailed description provided yet.'}
+                  {task.description || t('noDescriptionProvided')}
                 </p>
               </div>
             </div>
@@ -212,13 +217,13 @@ export function TaskDetailsModal({
             <div className="space-y-3">
               <h3 className="font-semibold text-lg flex items-center">
                 <Shield className="w-5 h-5 mr-2 text-purple-600" />
-                🛠️ Technical Requirements
+                🛠️ {t('technicalRequirements')}
               </h3>
-              
+
               {/* Required Skills */}
               {task.required_skills && task.required_skills.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Required Skills:</h4>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">{t('requiredSkills')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {task.required_skills.map((skill, index) => (
                       <Badge key={index} variant="secondary" className="bg-purple-100 text-purple-800">
@@ -232,7 +237,7 @@ export function TaskDetailsModal({
               {/* Tags */}
               {task.tags && task.tags.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Tags:</h4>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">{t('tags')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {task.tags.map((tag, index) => (
                       <Badge key={index} variant="outline" className="text-xs">
@@ -250,25 +255,25 @@ export function TaskDetailsModal({
             <div className="space-y-3">
               <h3 className="font-semibold text-lg flex items-center">
                 <CheckCircle2 className="w-5 h-5 mr-2 text-green-600" />
-                ✅ Success Criteria
+                ✅ {t('successCriteria.title')}
               </h3>
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <ul className="space-y-2 text-sm text-green-800">
                   <li className="flex items-center">
                     <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
-                    Implement working solution according to requirements
+                    {t('successCriteria.item1')}
                   </li>
                   <li className="flex items-center">
                     <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
-                    Provide clear evidence of completion (screenshots, URLs, videos)
+                    {t('successCriteria.item2')}
                   </li>
                   <li className="flex items-center">
                     <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
-                    Follow project coding standards and best practices
+                    {t('successCriteria.item3')}
                   </li>
                   <li className="flex items-center">
                     <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
-                    Pass admin validation review
+                    {t('successCriteria.item4')}
                   </li>
                 </ul>
               </div>
@@ -280,29 +285,29 @@ export function TaskDetailsModal({
             <div className="space-y-3">
               <h3 className="font-semibold text-lg flex items-center">
                 <Users className="w-5 h-5 mr-2 text-indigo-600" />
-                🏆 Completion Process
+                🏆 {t('completionProcess.title')}
               </h3>
               <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
                 <ol className="space-y-3 text-sm text-indigo-800">
                   <li className="flex items-start">
                     <span className="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">1</span>
-                    <span><strong>Claim Task</strong> - Reserves the task exclusively for you</span>
+                    <span><strong>{t('completionProcess.step1.title')}</strong> - {t('completionProcess.step1.desc')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">2</span>
-                    <span><strong>Develop Solution</strong> - Work on your implementation</span>
+                    <span><strong>{t('completionProcess.step2.title')}</strong> - {t('completionProcess.step2.desc')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">3</span>
-                    <span><strong>Submit Evidence</strong> - Upload proof of completion</span>
+                    <span><strong>{t('completionProcess.step3.title')}</strong> - {t('completionProcess.step3.desc')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">4</span>
-                    <span><strong>Admin Review</strong> - Wait for validation</span>
+                    <span><strong>{t('completionProcess.step4.title')}</strong> - {t('completionProcess.step4.desc')}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">5</span>
-                    <span><strong>Get Paid</strong> - Automatic CGC payment to your wallet</span>
+                    <span><strong>{t('completionProcess.step5.title')}</strong> - {t('completionProcess.step5.desc')}</span>
                   </li>
                 </ol>
               </div>
@@ -323,26 +328,26 @@ export function TaskDetailsModal({
                 {isClaimingTask ? (
                   <>
                     <div className="w-4 h-4 animate-spin mr-2 border-2 border-white border-t-transparent rounded-full" />
-                    Claiming...
+                    {t('claiming')}
                   </>
                 ) : (
                   <>
                     <TrendingUp className="w-4 h-4 mr-2" />
-                    🚀 Claim This Task
+                    🚀 {t('claimThisTask')}
                   </>
                 )}
               </Button>
             )}
-            
+
             <Button
               onClick={copyTaskId}
               variant="outline"
               className="flex-shrink-0"
             >
               <Copy className="w-4 h-4 mr-2" />
-              📋 Copy Task ID
+              📋 {t('copyTaskId')}
             </Button>
-            
+
             <Button
               variant="outline"
               className="flex-shrink-0"
@@ -352,7 +357,7 @@ export function TaskDetailsModal({
               }}
             >
               <MessageCircle className="w-4 h-4 mr-2" />
-              💬 Ask Questions
+              💬 {t('askQuestions')}
             </Button>
           </div>
         </div>

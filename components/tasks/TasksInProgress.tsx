@@ -1,12 +1,14 @@
 /**
  * ⏳ Tasks In Progress Component
- * 
+ *
  * Shows tasks currently being worked on
+ * 🌐 i18n: Full translation support for EN/ES
  */
 
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { TaskCard } from './TaskCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,11 +25,15 @@ interface TasksInProgressProps {
   onTaskSubmitted?: (taskId: string) => void
 }
 
-export function TasksInProgress({ 
-  userAddress, 
-  refreshKey = 0, 
-  onTaskSubmitted 
+export function TasksInProgress({
+  userAddress,
+  refreshKey = 0,
+  onTaskSubmitted
 }: TasksInProgressProps) {
+  // 🌐 Translation hooks
+  const t = useTranslations('tasks.inProgress')
+  const tCommon = useTranslations('common')
+
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
@@ -104,16 +110,16 @@ export function TasksInProgress({
 
     } catch (error: any) {
       console.error('Error submitting evidence:', error)
-      
-      let errorMessage = 'Failed to submit evidence. Please try again.'
+
+      let errorMessage = t('failedToSubmit')
       if (error.message?.includes('User rejected')) {
-        errorMessage = 'Transaction was cancelled by user.'
+        errorMessage = tCommon('transactionCancelled')
       } else if (error.message?.includes('insufficient funds')) {
-        errorMessage = 'Insufficient funds for gas fees.'
+        errorMessage = tCommon('insufficientFunds')
       } else if (error.message) {
         errorMessage = error.message
       }
-      
+
       alert(errorMessage)
     } finally {
       setIsSubmitting(false)
@@ -136,7 +142,7 @@ export function TasksInProgress({
       {/* User's Tasks */}
       {userAddress && userTasks.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-glass mb-4">Your Tasks</h3>
+          <h3 className="text-lg font-semibold text-glass mb-4">{t('yourTasks')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {userTasks.map((task) => (
               <TaskCard
@@ -155,7 +161,7 @@ export function TasksInProgress({
       {otherTasks.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold text-glass mb-4">
-            Other Tasks In Progress
+            {t('otherTasksInProgress')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {otherTasks.map((task) => (
@@ -167,7 +173,7 @@ export function TasksInProgress({
                 />
                 {task.assignee_address && (
                   <div className="text-xs text-glass-secondary px-4">
-                    Assigned to: {task.assignee_address.slice(0, 8)}...{task.assignee_address.slice(-6)}
+                    {t('assignedTo')} {task.assignee_address.slice(0, 8)}...{task.assignee_address.slice(-6)}
                   </div>
                 )}
               </div>
@@ -179,7 +185,7 @@ export function TasksInProgress({
       {/* No tasks message */}
       {tasks.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-glass-secondary">No tasks currently in progress</p>
+          <p className="text-glass-secondary">{t('noTasksInProgress')}</p>
         </div>
       )}
 
@@ -187,50 +193,50 @@ export function TasksInProgress({
       <Dialog open={!!selectedTask} onOpenChange={() => setSelectedTask(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Submit Task Evidence</DialogTitle>
+            <DialogTitle>{t('submitEvidence.title')}</DialogTitle>
           </DialogHeader>
-          
+
           {selectedTask && (
             <div className="space-y-4">
               <div>
                 <h4 className="font-medium text-sm mb-1">{selectedTask.title}</h4>
                 <p className="text-xs text-glass-secondary">
-                  Provide evidence that you&apos;ve completed this task
+                  {t('submitEvidence.description')}
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="evidenceUrl">Evidence URL *</Label>
+                  <Label htmlFor="evidenceUrl">{t('submitEvidence.evidenceUrlLabel')} *</Label>
                   <Input
                     id="evidenceUrl"
                     type="url"
                     placeholder="https://github.com/user/repo/pull/123"
                     value={evidenceForm.evidenceUrl}
-                    onChange={(e) => setEvidenceForm(prev => ({ 
-                      ...prev, 
-                      evidenceUrl: e.target.value 
+                    onChange={(e) => setEvidenceForm(prev => ({
+                      ...prev,
+                      evidenceUrl: e.target.value
                     }))}
                   />
                   <p className="text-xs text-glass-secondary mt-1">
-                    Link to your completed work (GitHub PR, demo URL, etc.)
+                    {t('submitEvidence.evidenceUrlHint')}
                   </p>
                 </div>
 
                 <div>
-                  <Label htmlFor="prUrl">Additional URL</Label>
+                  <Label htmlFor="prUrl">{t('submitEvidence.additionalUrlLabel')}</Label>
                   <Input
                     id="prUrl"
                     type="url"
                     placeholder="https://demo.example.com"
                     value={evidenceForm.prUrl}
-                    onChange={(e) => setEvidenceForm(prev => ({ 
-                      ...prev, 
-                      prUrl: e.target.value 
+                    onChange={(e) => setEvidenceForm(prev => ({
+                      ...prev,
+                      prUrl: e.target.value
                     }))}
                   />
                   <p className="text-xs text-glass-secondary mt-1">
-                    Optional: Demo link, documentation, or additional evidence
+                    {t('submitEvidence.additionalUrlHint')}
                   </p>
                 </div>
               </div>
@@ -241,7 +247,7 @@ export function TasksInProgress({
                   onClick={() => setSelectedTask(null)}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {tCommon('cancel')}
                 </Button>
                 <Button
                   onClick={handleSubmitEvidence}
@@ -250,12 +256,12 @@ export function TasksInProgress({
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      Submitting evidence...
+                      {t('submitEvidence.submitting')}
                     </>
                   ) : (
                     <>
                       <Upload className="w-4 h-4 mr-2" />
-                      Submit Evidence
+                      {t('submitEvidence.submit')}
                     </>
                   )}
                 </Button>

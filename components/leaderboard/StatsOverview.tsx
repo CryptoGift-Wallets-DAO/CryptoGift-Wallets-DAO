@@ -1,18 +1,20 @@
 /**
  * 📊 Stats Overview Component
- * 
+ *
  * Display key statistics for the tasks system
+ * 🌐 i18n: Full translation support for EN/ES
  */
 
 'use client'
 
 import React from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Target, 
-  Clock, 
-  CheckCircle2, 
+import {
+  Target,
+  Clock,
+  CheckCircle2,
   Award,
   Users,
   TrendingUp,
@@ -31,37 +33,40 @@ interface StatsOverviewProps {
 }
 
 export function StatsOverview({ stats, isLoading = false }: StatsOverviewProps) {
+  // 🌐 Translation hooks
+  const t = useTranslations('tasks.stats')
+
   const statItems = [
     {
-      label: 'Available Tasks',
+      label: t('availableTasks'),
       value: stats.available,
       icon: <Target className="w-5 h-5 text-blue-500" />,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
     },
     {
-      label: 'In Progress',
+      label: t('inProgress'),
       value: stats.inProgress,
       icon: <Clock className="w-5 h-5 text-amber-500" />,
       color: 'text-amber-600',
       bgColor: 'bg-amber-50',
     },
     {
-      label: 'Completed',
+      label: t('completed'),
       value: stats.completed,
       icon: <CheckCircle2 className="w-5 h-5 text-green-500" />,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
     },
     {
-      label: 'Total Rewards',
+      label: t('totalRewards'),
       value: `${stats.totalRewards.toLocaleString()} CGC`,
       icon: <Award className="w-5 h-5 text-purple-500" />,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
     },
     {
-      label: 'Contributors',
+      label: t('contributors'),
       value: stats.collaborators,
       icon: <Users className="w-5 h-5 text-indigo-500" />,
       color: 'text-indigo-600',

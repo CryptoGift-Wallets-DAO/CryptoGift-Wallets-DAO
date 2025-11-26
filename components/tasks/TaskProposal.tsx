@@ -1,12 +1,14 @@
 /**
  * 💡 Task Proposal Component
- * 
+ *
  * Form for proposing new tasks
+ * 🌐 i18n: Full translation support for EN/ES
  */
 
 'use client'
 
 import React, { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -27,6 +29,10 @@ interface TaskProposalProps {
 }
 
 export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalProps) {
+  // 🌐 Translation hooks
+  const t = useTranslations('tasks.proposal')
+  const tCommon = useTranslations('common')
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [form, setForm] = useState({
     title: '',
@@ -38,20 +44,20 @@ export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!userAddress) {
-      alert('Please connect your wallet to propose tasks')
+      alert(tCommon('pleaseConnectWallet'))
       return
     }
 
     if (!form.title || !form.description) {
-      alert('Please fill in all required fields')
+      alert(t('pleaseCompleteFields'))
       return
     }
 
     try {
       setIsSubmitting(true)
-      
+
       const response = await fetch('/api/proposals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,7 +72,7 @@ export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalP
       })
 
       const data = await response.json()
-      
+
       if (data.success) {
         onProposalSubmitted?.()
         setForm({
@@ -77,11 +83,11 @@ export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalP
           platformOrigin: 'manual',
         })
       } else {
-        alert(data.error || 'Failed to submit proposal')
+        alert(data.error || t('failedToSubmit'))
       }
     } catch (error) {
       console.error('Error submitting proposal:', error)
-      alert('Failed to submit proposal. Please try again.')
+      alert(t('failedToSubmitRetry'))
     } finally {
       setIsSubmitting(false)
     }
@@ -105,12 +111,12 @@ export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalP
           <div className="flex items-start space-x-3">
             <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-medium text-blue-900">Task Proposal Guidelines</h4>
+              <h4 className="font-medium text-blue-900">{t('guidelinesTitle')}</h4>
               <ul className="text-sm text-blue-700 mt-2 space-y-1">
-                <li>• Be specific about deliverables and success criteria</li>
-                <li>• Estimate complexity on a scale of 1-10</li>
-                <li>• Provide realistic time estimates</li>
-                <li>• Include technical requirements if applicable</li>
+                <li>• {t('guideline1')}</li>
+                <li>• {t('guideline2')}</li>
+                <li>• {t('guideline3')}</li>
+                <li>• {t('guideline4')}</li>
               </ul>
             </div>
           </div>
@@ -121,10 +127,10 @@ export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalP
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
-            <Label htmlFor="title">Task Title *</Label>
+            <Label htmlFor="title">{t('taskTitle')} *</Label>
             <Input
               id="title"
-              placeholder="e.g., Implement dark mode for dashboard"
+              placeholder={t('titlePlaceholder')}
               value={form.title}
               onChange={(e) => updateForm('title', e.target.value)}
               required
@@ -132,10 +138,10 @@ export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalP
           </div>
 
           <div className="md:col-span-2">
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="description">{t('descriptionLabel')} *</Label>
             <Textarea
               id="description"
-              placeholder="Describe the task in detail, including requirements, deliverables, and acceptance criteria..."
+              placeholder={t('descriptionPlaceholder')}
               value={form.description}
               onChange={(e) => updateForm('description', e.target.value)}
               className="min-h-[120px]"
@@ -144,32 +150,32 @@ export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalP
           </div>
 
           <div>
-            <Label htmlFor="complexity">Estimated Complexity</Label>
+            <Label htmlFor="complexity">{t('estimatedComplexity')}</Label>
             <Select value={form.estimatedComplexity} onValueChange={(v) => updateForm('estimatedComplexity', v)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select complexity level" />
+                <SelectValue placeholder={t('selectComplexity')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">Level 1 - Very Easy</SelectItem>
-                <SelectItem value="2">Level 2 - Easy</SelectItem>
-                <SelectItem value="3">Level 3 - Simple</SelectItem>
-                <SelectItem value="4">Level 4 - Moderate</SelectItem>
-                <SelectItem value="5">Level 5 - Medium</SelectItem>
-                <SelectItem value="6">Level 6 - Challenging</SelectItem>
-                <SelectItem value="7">Level 7 - Hard</SelectItem>
-                <SelectItem value="8">Level 8 - Very Hard</SelectItem>
-                <SelectItem value="9">Level 9 - Expert</SelectItem>
-                <SelectItem value="10">Level 10 - Master</SelectItem>
+                <SelectItem value="1">{t('complexity.level1')}</SelectItem>
+                <SelectItem value="2">{t('complexity.level2')}</SelectItem>
+                <SelectItem value="3">{t('complexity.level3')}</SelectItem>
+                <SelectItem value="4">{t('complexity.level4')}</SelectItem>
+                <SelectItem value="5">{t('complexity.level5')}</SelectItem>
+                <SelectItem value="6">{t('complexity.level6')}</SelectItem>
+                <SelectItem value="7">{t('complexity.level7')}</SelectItem>
+                <SelectItem value="8">{t('complexity.level8')}</SelectItem>
+                <SelectItem value="9">{t('complexity.level9')}</SelectItem>
+                <SelectItem value="10">{t('complexity.level10')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label htmlFor="estimatedDays">Estimated Days</Label>
+            <Label htmlFor="estimatedDays">{t('estimatedDays')}</Label>
             <Input
               id="estimatedDays"
               type="number"
-              placeholder="e.g., 7"
+              placeholder={t('daysPlaceholder')}
               min="1"
               max="60"
               value={form.estimatedDays}
@@ -177,22 +183,22 @@ export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalP
             />
             {estimatedReward > 0 && (
               <p className="text-sm text-green-600 mt-1">
-                Estimated reward: {estimatedReward} CGC
+                {t('estimatedReward', { reward: estimatedReward })}
               </p>
             )}
           </div>
 
           <div>
-            <Label htmlFor="platform">Platform Origin</Label>
+            <Label htmlFor="platform">{t('platformOrigin')}</Label>
             <Select value={form.platformOrigin} onValueChange={(v) => updateForm('platformOrigin', v)}>
               <SelectTrigger>
-                <SelectValue placeholder="Where is this proposed from?" />
+                <SelectValue placeholder={t('selectPlatform')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="manual">Manual Entry</SelectItem>
-                <SelectItem value="discord">Discord</SelectItem>
-                <SelectItem value="github">GitHub Issue</SelectItem>
-                <SelectItem value="custom">Custom Platform</SelectItem>
+                <SelectItem value="manual">{t('platform.manual')}</SelectItem>
+                <SelectItem value="discord">{t('platform.discord')}</SelectItem>
+                <SelectItem value="github">{t('platform.github')}</SelectItem>
+                <SelectItem value="custom">{t('platform.custom')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -210,7 +216,7 @@ export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalP
               platformOrigin: 'manual',
             })}
           >
-            Clear Form
+            {t('clearForm')}
           </Button>
           <Button
             type="submit"
@@ -219,12 +225,12 @@ export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalP
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Submitting...
+                {t('submitting')}
               </>
             ) : (
               <>
                 <PlusCircle className="w-4 h-4 mr-2" />
-                Submit Proposal
+                {t('submitProposal')}
               </>
             )}
           </Button>

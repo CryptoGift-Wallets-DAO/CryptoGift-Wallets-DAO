@@ -1,22 +1,24 @@
 /**
  * 📋 Task List Component
- * 
+ *
  * Displays available tasks with filtering and claiming functionality
+ * 🌐 i18n: Full translation support for EN/ES
  */
 
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { TaskCard } from './TaskCard'
 import { TaskDetailsModal } from './TaskDetailsModal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select'
 import { Search, Filter, Loader2 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
@@ -31,6 +33,10 @@ interface TaskListProps {
 }
 
 export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskListProps) {
+  // 🌐 Translation hooks
+  const t = useTranslations('tasks.list')
+  const tCommon = useTranslations('common')
+
   const [tasks, setTasks] = useState<Task[]>([])
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -113,14 +119,14 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
     const walletAddress = ensureEthereumAddress(address || userAddress)
     
     if (!walletAddress) {
-      alert('Please connect your wallet to claim tasks')
+      alert(tCommon('pleaseConnectWallet'))
       return
     }
 
     // Find the task being claimed
     const task = tasks.find(t => t.task_id === taskId)
     if (!task) {
-      alert('Task not found')
+      alert(t('taskNotFound'))
       return
     }
 
@@ -154,16 +160,16 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
 
     } catch (error: any) {
       console.error('Error claiming task:', error)
-      
-      let errorMessage = 'Failed to claim task. Please try again.'
+
+      let errorMessage = t('failedToClaim')
       if (error.message?.includes('User rejected')) {
-        errorMessage = 'Transaction was cancelled by user.'
+        errorMessage = tCommon('transactionCancelled')
       } else if (error.message?.includes('insufficient funds')) {
-        errorMessage = 'Insufficient funds for gas fees.'
+        errorMessage = tCommon('insufficientFunds')
       } else if (error.message) {
         errorMessage = error.message
       }
-      
+
       alert(errorMessage)
     } finally {
       setClaimingTask(null)
@@ -186,24 +192,24 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder="Search tasks..."
+              placeholder={t('searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
         </div>
-        
+
         <Select value={complexityFilter} onValueChange={setComplexityFilter}>
           <SelectTrigger className="w-[180px]">
             <Filter className="w-4 h-4 mr-2" />
-            <SelectValue placeholder="Complexity" />
+            <SelectValue placeholder={tCommon('level')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Complexities</SelectItem>
+            <SelectItem value="all">{t('allComplexities')}</SelectItem>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(level => (
               <SelectItem key={level} value={level.toString()}>
-                Level {level}
+                {tCommon('level')} {level}
               </SelectItem>
             ))}
           </SelectContent>
@@ -211,25 +217,25 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
 
         <Select value={platformFilter} onValueChange={setPlatformFilter}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Platform" />
+            <SelectValue placeholder={t('allPlatforms')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Platforms</SelectItem>
-            <SelectItem value="github">GitHub</SelectItem>
-            <SelectItem value="discord">Discord</SelectItem>
-            <SelectItem value="manual">Manual</SelectItem>
-            <SelectItem value="custom">Custom</SelectItem>
+            <SelectItem value="all">{t('allPlatforms')}</SelectItem>
+            <SelectItem value="github">{t('github')}</SelectItem>
+            <SelectItem value="discord">{t('discord')}</SelectItem>
+            <SelectItem value="manual">{t('manual')}</SelectItem>
+            <SelectItem value="custom">{t('custom')}</SelectItem>
           </SelectContent>
         </Select>
 
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Sort by" />
+            <SelectValue placeholder={t('sortBy')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="reward">Highest Reward</SelectItem>
-            <SelectItem value="complexity">Lowest Complexity</SelectItem>
-            <SelectItem value="days">Shortest Time</SelectItem>
+            <SelectItem value="reward">{t('highestReward')}</SelectItem>
+            <SelectItem value="complexity">{t('lowestComplexity')}</SelectItem>
+            <SelectItem value="days">{t('shortestTime')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -237,7 +243,7 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
       {/* Task Cards */}
       {filteredTasks.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">No tasks found matching your filters</p>
+          <p className="text-gray-500">{t('noTasksFound')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

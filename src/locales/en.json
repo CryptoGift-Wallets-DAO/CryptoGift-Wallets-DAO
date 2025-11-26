@@ -23,7 +23,19 @@
     "copyAddress": "Copy Address",
     "copied": "Copied!",
     "viewOnExplorer": "View on Explorer",
-    "balance": "Balance"
+    "balance": "Balance",
+    "refresh": "Refresh",
+    "details": "Details",
+    "days": "days",
+    "hours": "hours",
+    "cgc": "CGC",
+    "usd": "USD",
+    "level": "Level",
+    "rank": "Rank",
+    "pleaseConnectWallet": "Please connect your wallet",
+    "transactionCancelled": "Transaction was cancelled by user.",
+    "insufficientFunds": "Insufficient funds for gas fees.",
+    "pleaseRetry": "Please try again."
   },
   "wallet": {
     "connect": "Connect Wallet",
@@ -99,8 +111,8 @@
     }
   },
   "tasks": {
-    "title": "DAO Tasks",
-    "subtitle": "Complete tasks to earn CGC tokens",
+    "title": "Tasks & Rewards",
+    "subtitle": "Complete tasks, earn CGC tokens, and climb the leaderboard",
     "available": "Available Tasks",
     "claimed": "Claimed Tasks",
     "completed": "Completed Tasks",
@@ -111,6 +123,8 @@
     "deadline": "Deadline",
     "timeRemaining": "Time Remaining",
     "assignee": "Assignee",
+    "duration": "Duration",
+    "progress": "Progress",
     "status": {
       "available": "Available",
       "claimed": "Claimed",
@@ -120,11 +134,260 @@
       "completed": "Completed",
       "expired": "Expired"
     },
+    "tabs": {
+      "available": "Available",
+      "inProgress": "In Progress",
+      "leaderboard": "Leaderboard",
+      "propose": "Propose"
+    },
+    "stats": {
+      "availableTasks": "Available Tasks",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "totalRewards": "Total Rewards",
+      "contributors": "Contributors"
+    },
+    "card": {
+      "level": "Level",
+      "noDescription": "No description available",
+      "claimedBy": "Claimed by:",
+      "workingOn": "Working on:",
+      "expiredOpenToAll": "Expired - Open to all",
+      "timeRemaining": "Time remaining:",
+      "evidenceSubmitted": "Evidence Submitted",
+      "viewEvidence": "View Evidence",
+      "claiming": "Claiming...",
+      "claimTask": "Claim Task",
+      "submitEvidence": "Submit Evidence",
+      "pendingValidation": "Pending Validation",
+      "completedBadge": "Completed"
+    },
+    "list": {
+      "searchPlaceholder": "Search tasks...",
+      "allComplexities": "All Complexities",
+      "allPlatforms": "All Platforms",
+      "github": "GitHub",
+      "discord": "Discord",
+      "manual": "Manual",
+      "custom": "Custom",
+      "sortBy": "Sort by",
+      "highestReward": "Highest Reward",
+      "lowestComplexity": "Lowest Complexity",
+      "shortestTime": "Shortest Time",
+      "noTasksFound": "No tasks found matching your filters",
+      "taskNotFound": "Task not found",
+      "failedToClaim": "Failed to claim task. Please try again."
+    },
+    "inProgressTab": {
+      "yourTasks": "Your Tasks",
+      "otherTasks": "Other Tasks In Progress",
+      "assignedTo": "Assigned to:",
+      "noTasksInProgress": "No tasks currently in progress"
+    },
+    "evidence": {
+      "dialogTitle": "Submit Task Evidence",
+      "dialogDescription": "Provide evidence that you've completed this task",
+      "urlLabel": "Evidence URL",
+      "urlPlaceholder": "https://github.com/user/repo/pull/123",
+      "urlHelp": "Link to your completed work (GitHub PR, demo URL, etc.)",
+      "additionalUrlLabel": "Additional URL",
+      "additionalUrlPlaceholder": "https://demo.example.com",
+      "additionalUrlHelp": "Optional: Demo link, documentation, or additional evidence",
+      "submitting": "Submitting evidence...",
+      "failedToSubmit": "Failed to submit evidence. Please try again."
+    },
     "claimModal": {
-      "title": "Claim Task",
-      "description": "You are about to claim this task. Once claimed, you will have exclusive access to complete it within the timeout period.",
-      "confirm": "Confirm Claim",
-      "cancel": "Cancel"
+      "title": "Claim Task Confirmation",
+      "description": "Review the task details carefully before claiming. You'll have exclusive access for a limited time.",
+      "complexityLabel": "Complexity",
+      "descriptionLabel": "Description",
+      "rewardLabel": "Reward",
+      "estimatedLabel": "Estimated",
+      "claimTimeLabel": "Claim Time",
+      "requiredSkills": "Required Skills",
+      "tags": "Tags",
+      "importantNotice": "Important Notice",
+      "exclusiveAccessNotice": "You'll have {time} of exclusive access to work on this task",
+      "afterTimeoutNotice": "After the timeout, the task becomes available to everyone (including you)",
+      "canStillCompleteNotice": "You can still complete it after expiration, but others can compete",
+      "submitBeforeOthersNotice": "Submit your evidence before others to claim the reward",
+      "cancel": "Cancel",
+      "claiming": "Claiming...",
+      "claimTask": "Claim Task"
+    },
+    "detailsModal": {
+      "subtitle": "Level {level} Challenge • Task ID: {taskId}...",
+      "overview": "Overview",
+      "reward": "Reward",
+      "timeline": "Timeline",
+      "daysEstimated": "days estimated",
+      "difficulty": "Difficulty",
+      "priorityLabel": "Priority",
+      "priority": {
+        "critical": "🔴 Critical",
+        "high": "🟠 High",
+        "medium": "🔵 Medium",
+        "low": "🟢 Low",
+        "normal": "⚪ Normal"
+      },
+      "platform": "Platform",
+      "description": "Description",
+      "noDescriptionProvided": "No detailed description provided yet.",
+      "technicalRequirements": "Technical Requirements",
+      "requiredSkills": "Required Skills:",
+      "tags": "Tags:",
+      "successCriteria": {
+        "title": "Success Criteria",
+        "item1": "Implement working solution according to requirements",
+        "item2": "Provide clear evidence of completion (screenshots, URLs, videos)",
+        "item3": "Follow project coding standards and best practices",
+        "item4": "Pass admin validation review"
+      },
+      "completionProcess": {
+        "title": "Completion Process",
+        "step1": {
+          "title": "Claim Task",
+          "desc": "Reserves the task exclusively for you"
+        },
+        "step2": {
+          "title": "Develop Solution",
+          "desc": "Work on your implementation"
+        },
+        "step3": {
+          "title": "Submit Evidence",
+          "desc": "Upload proof of completion"
+        },
+        "step4": {
+          "title": "Admin Review",
+          "desc": "Wait for validation"
+        },
+        "step5": {
+          "title": "Get Paid",
+          "desc": "Automatic CGC payment to your wallet"
+        }
+      },
+      "claiming": "Claiming...",
+      "claimThisTask": "Claim This Task",
+      "copyTaskId": "Copy Task ID",
+      "askQuestions": "Ask Questions"
+    },
+    "proposal": {
+      "guidelinesTitle": "Task Proposal Guidelines",
+      "guideline1": "Be specific about deliverables and success criteria",
+      "guideline2": "Estimate complexity on a scale of 1-10",
+      "guideline3": "Provide realistic time estimates",
+      "guideline4": "Include technical requirements if applicable",
+      "taskTitle": "Task Title",
+      "titlePlaceholder": "e.g., Implement dark mode for dashboard",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe the task in detail, including requirements, deliverables, and acceptance criteria...",
+      "estimatedComplexity": "Estimated Complexity",
+      "selectComplexity": "Select complexity level",
+      "complexity": {
+        "level1": "Level 1 - Very Easy",
+        "level2": "Level 2 - Easy",
+        "level3": "Level 3 - Simple",
+        "level4": "Level 4 - Moderate",
+        "level5": "Level 5 - Medium",
+        "level6": "Level 6 - Challenging",
+        "level7": "Level 7 - Hard",
+        "level8": "Level 8 - Very Hard",
+        "level9": "Level 9 - Expert",
+        "level10": "Level 10 - Master"
+      },
+      "estimatedDays": "Estimated Days",
+      "daysPlaceholder": "e.g., 7",
+      "estimatedReward": "Estimated reward: {reward} CGC",
+      "platformOrigin": "Platform Origin",
+      "selectPlatform": "Where is this proposed from?",
+      "platform": {
+        "manual": "Manual Entry",
+        "discord": "Discord",
+        "github": "GitHub Issue",
+        "custom": "Custom Platform"
+      },
+      "clearForm": "Clear Form",
+      "submitting": "Submitting...",
+      "submitProposal": "Submit Proposal",
+      "pleaseCompleteFields": "Please fill in all required fields",
+      "failedToSubmit": "Failed to submit proposal",
+      "failedToSubmitRetry": "Failed to submit proposal. Please try again."
+    },
+    "inProgress": {
+      "yourTasks": "Your Tasks",
+      "otherTasksInProgress": "Other Tasks In Progress",
+      "assignedTo": "Assigned to:",
+      "noTasksInProgress": "No tasks currently in progress",
+      "failedToSubmit": "Failed to submit evidence. Please try again.",
+      "submitEvidence": {
+        "title": "Submit Task Evidence",
+        "description": "Provide evidence that you've completed this task",
+        "evidenceUrlLabel": "Evidence URL",
+        "evidenceUrlHint": "Link to your completed work (GitHub PR, demo URL, etc.)",
+        "additionalUrlLabel": "Additional URL",
+        "additionalUrlHint": "Optional: Demo link, documentation, or additional evidence",
+        "submitting": "Submitting evidence...",
+        "submit": "Submit Evidence"
+      }
+    },
+    "page": {
+      "rankLabel": "Rank",
+      "availableTasksTitle": "Available Tasks",
+      "availableTasksCount": "{count} tasks",
+      "availableTasksDescription": "Select a task to start earning CGC tokens. Each task has different complexity and rewards.",
+      "noTasksAvailable": "No tasks available",
+      "noTasksMessage": "The task system needs to be initialized with the initial 34 tasks.",
+      "initializeTasks": "Initialize Tasks (Admin Only)",
+      "inProgressTitle": "Tasks In Progress",
+      "inProgressCount": "{count} active",
+      "inProgressDescription": "Monitor ongoing tasks and submit evidence when completed.",
+      "leaderboardTitle": "Collaborator Leaderboard",
+      "leaderboardCount": "{count} collaborators",
+      "leaderboardDescription": "Top contributors ranked by total CGC earned through task completions.",
+      "proposeTitle": "Propose New Task",
+      "proposeDescription": "Submit a task proposal for review. Approved tasks will be added to the available pool.",
+      "systemOperational": "Tasks System: Operational",
+      "completedLabel": "Completed",
+      "cgcDistributed": "CGC Distributed",
+      "contributorsLabel": "Contributors"
+    },
+    "toasts": {
+      "taskClaimed": "Task claimed!",
+      "taskClaimedDesc": "You can now start working on this task",
+      "evidenceSubmitted": "Evidence submitted!",
+      "evidenceSubmittedDesc": "Your work is now pending validation",
+      "proposalSubmitted": "Proposal submitted!",
+      "proposalSubmittedDesc": "Your task proposal is now under review",
+      "tasksInitialized": "Tasks initialized!",
+      "tasksInitializedDesc": "All {count} tasks created. Total rewards: {rewards} CGC",
+      "initFailed": "Initialization failed",
+      "errorInitializing": "Error initializing tasks",
+      "failedToLoadStats": "Failed to load statistics",
+      "failedToLoadStatsDesc": "Please try again later",
+      "refreshing": "Refreshing data...",
+      "refreshingDesc": "Updating tasks and leaderboard"
+    }
+  },
+  "leaderboard": {
+    "title": "Collaborator Leaderboard",
+    "yourPosition": "Your Position",
+    "columns": {
+      "rank": "Rank",
+      "address": "Address",
+      "cgcEarned": "CGC Earned",
+      "tasks": "Tasks",
+      "level": "Level"
+    },
+    "inProgressLabel": "in progress",
+    "discord": "Discord:",
+    "approxUsd": "~${amount} USD",
+    "noCollaboratorsYet": "No collaborators yet. Be the first to complete a task!",
+    "levels": {
+      "legend": "Legend",
+      "master": "Master",
+      "expert": "Expert",
+      "contributor": "Contributor",
+      "novice": "Novice"
     }
   },
   "admin": {
