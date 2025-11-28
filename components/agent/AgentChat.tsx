@@ -155,10 +155,10 @@ export function AgentChat({
 
   return (
     <TooltipProvider>
-      <div className={cn('flex flex-col border rounded-lg bg-white shadow-lg', maxHeight, className)}>
+      <div className={cn('flex flex-col border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 shadow-lg', maxHeight, className)}>
         {/* Header */}
         {showHeader && (
-          <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+          <div className="p-4 border-b border-gray-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <Avatar className="h-8 w-8">
@@ -166,8 +166,8 @@ export function AgentChat({
                   <AvatarFallback className="bg-blue-600 text-white">aX</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold text-gray-900">apeX</h3>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">apeX</h3>
+                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                     <div className={cn(
                       'flex items-center space-x-1',
                       isConnected ? 'text-green-600' : 'text-red-600'
@@ -244,7 +244,7 @@ export function AgentChat({
 
         {/* Mode Selector */}
         {showModeSelector && (
-          <div className="p-3 border-b bg-gray-50">
+          <div className="p-3 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
             <div className="flex space-x-2 overflow-x-auto">
               {Object.entries(AGENT_MODES).map(([id, mode]) => (
                 <Button
@@ -252,25 +252,28 @@ export function AgentChat({
                   variant={selectedMode === id ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => handleModeChange(id as AgentModeId)}
-                  className="flex-shrink-0"
+                  className={cn(
+                    "flex-shrink-0",
+                    selectedMode !== id && "dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-700"
+                  )}
                 >
                   <span className="mr-1">{mode.icon}</span>
                   {mode.name}
                 </Button>
               ))}
             </div>
-            
+
             {/* Quick Actions */}
             {(AGENT_MODES[selectedMode]?.quickActions?.length ?? 0) > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {AGENT_MODES[selectedMode]?.quickActions?.map((action) => (
                   <Button
                     key={action.id}
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => handleQuickAction(action.prompt)}
                     disabled={isLoading}
-                    className="text-xs h-7"
+                    className="text-xs h-7 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-700"
                   >
                     <span className="mr-1">{action.icon}</span>
                     {action.label}
@@ -285,10 +288,10 @@ export function AgentChat({
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
             {messages.length === 0 && (
-              <div className="text-center text-gray-500 py-8">
-                <Bot className="h-16 w-16 mx-auto mb-4 text-blue-500" />
-                <p className="mb-2 text-gray-700 font-medium">{t('helloMessage')}</p>
-                <p className="text-sm">{t('askAnything')}</p>
+              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                <Bot className="h-16 w-16 mx-auto mb-4 text-blue-500 dark:text-blue-400" />
+                <p className="mb-2 text-gray-700 dark:text-white font-medium">{t('helloMessage')}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('askAnything')}</p>
               </div>
             )}
 
@@ -303,11 +306,11 @@ export function AgentChat({
             ))}
 
             {error && (
-              <div className="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div className="flex items-start space-x-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-red-800 font-medium">{t('errorTitle')}</p>
-                  <p className="text-red-700 text-sm">{error.message}</p>
+                  <p className="text-red-800 dark:text-red-300 font-medium">{t('errorTitle')}</p>
+                  <p className="text-red-700 dark:text-red-400 text-sm">{error.message}</p>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -326,7 +329,7 @@ export function AgentChat({
         </ScrollArea>
 
         {/* Input */}
-        <div className="p-4 border-t bg-gray-50">
+        <div className="p-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
           <form onSubmit={handleSubmit} className="flex space-x-2">
             <Input
               ref={inputRef}
@@ -334,7 +337,7 @@ export function AgentChat({
               onChange={(e) => setInput(e.target.value)}
               placeholder={t('askAbout', { topic: AGENT_MODES[selectedMode]?.name?.toLowerCase() || 'general topics' })}
               disabled={!isConnected}
-              className="flex-1"
+              className="flex-1 dark:bg-slate-900 dark:border-slate-600 dark:text-white dark:placeholder:text-gray-400"
               maxLength={4000}
             />
             <Button
@@ -380,7 +383,7 @@ function MessageBubble({ message, onCopy, isCopied, t }: MessageBubbleProps) {
   if (isSystem) {
     return (
       <div className="flex justify-center">
-        <div className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">
+        <div className="px-3 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-sm rounded-full">
           {message.content}
         </div>
       </div>
@@ -408,11 +411,11 @@ function MessageBubble({ message, onCopy, isCopied, t }: MessageBubbleProps) {
       )}>
         <div className={cn(
           'rounded-lg px-4 py-2 max-w-[80%]',
-          isUser 
+          isUser
             ? 'bg-green-600 text-white'
-            : isError 
-            ? 'bg-red-50 border border-red-200'
-            : 'bg-gray-100 text-gray-900'
+            : isError
+            ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50'
+            : 'bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-gray-100'
         )}>
           {isUser ? (
             <p className="whitespace-pre-wrap">{message.content}</p>
