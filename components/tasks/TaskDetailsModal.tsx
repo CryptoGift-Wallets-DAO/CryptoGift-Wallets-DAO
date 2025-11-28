@@ -77,14 +77,14 @@ export function TaskDetailsModal({
     ))
   }
 
-  // Get priority color and icon
+  // Get priority color and icon - Theme aware
   const getPriorityInfo = (priority: string) => {
     switch (priority) {
-      case 'critical': return { color: 'text-red-600 bg-red-50', icon: AlertTriangle, label: t('priority.critical') }
-      case 'high': return { color: 'text-orange-600 bg-orange-50', icon: TrendingUp, label: t('priority.high') }
-      case 'medium': return { color: 'text-blue-600 bg-blue-50', icon: Clock, label: t('priority.medium') }
-      case 'low': return { color: 'text-green-600 bg-green-50', icon: CheckCircle2, label: t('priority.low') }
-      default: return { color: 'text-gray-600 bg-gray-50', icon: Clock, label: t('priority.normal') }
+      case 'critical': return { color: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/30', icon: AlertTriangle, label: t('priority.critical') }
+      case 'high': return { color: 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800/30', icon: TrendingUp, label: t('priority.high') }
+      case 'medium': return { color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800/30', icon: Clock, label: t('priority.medium') }
+      case 'low': return { color: 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/30', icon: CheckCircle2, label: t('priority.low') }
+      default: return { color: 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700', icon: Clock, label: t('priority.normal') }
     }
   }
 
@@ -114,13 +114,13 @@ export function TaskDetailsModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0">
-        <DialogHeader className="px-6 py-4 border-b bg-gradient-to-r from-blue-50 to-purple-50">
+        <DialogHeader className="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-800">
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-4">
-              <DialogTitle className="text-xl font-bold text-gray-900 mb-2">
+              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                 🎯 {translatedTask.title}
               </DialogTitle>
-              <DialogDescription className="text-sm text-gray-600">
+              <DialogDescription className="text-sm text-gray-600 dark:text-gray-400">
                 {t('subtitle', { level: task.complexity, taskId: task.task_id.slice(0, 8) })}
               </DialogDescription>
             </div>
@@ -138,46 +138,46 @@ export function TaskDetailsModal({
         <ScrollArea className="flex-1">
           <div className="px-6 py-4 space-y-6">
             
-            {/* Overview Section */}
+            {/* Overview Section - Theme Aware */}
             <div className="space-y-4">
-              <h3 className="font-semibold text-lg flex items-center">
-                <Target className="w-5 h-5 mr-2 text-blue-600" />
+              <h3 className="font-semibold text-lg flex items-center text-gray-900 dark:text-white">
+                <Target className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
                 📊 {t('overview')}
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Reward */}
-                <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-4 rounded-lg border border-amber-200">
+                <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700/50">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-amber-800">💰 {t('reward')}</span>
-                    <Coins className="w-4 h-4 text-amber-600" />
+                    <span className="text-sm font-medium text-amber-800 dark:text-amber-300">💰 {t('reward')}</span>
+                    <Coins className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   </div>
-                  <div className="text-2xl font-bold text-amber-900">{task.reward_cgc} CGC</div>
-                  <div className="text-xs text-amber-700">~${estimatedUsdValue} USD</div>
+                  <div className="text-2xl font-bold text-amber-900 dark:text-amber-200">{task.reward_cgc} CGC</div>
+                  <div className="text-xs text-amber-700 dark:text-amber-400">~${estimatedUsdValue} USD</div>
                 </div>
 
                 {/* Timeline */}
-                <div className="bg-gradient-to-r from-blue-50 to-sky-50 p-4 rounded-lg border border-blue-200">
+                <div className="bg-gradient-to-r from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700/50">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-blue-800">⏰ {t('timeline')}</span>
-                    <Calendar className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800 dark:text-blue-300">⏰ {t('timeline')}</span>
+                    <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <div className="text-2xl font-bold text-blue-900">{task.estimated_days}</div>
-                  <div className="text-xs text-blue-700">{t('daysEstimated')}</div>
+                  <div className="text-2xl font-bold text-blue-900 dark:text-blue-200">{task.estimated_days}</div>
+                  <div className="text-xs text-blue-700 dark:text-blue-400">{t('daysEstimated')}</div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Difficulty */}
-                <div className="bg-gray-50 p-4 rounded-lg border">
+                <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border border-gray-200 dark:border-slate-700">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">🎯 {t('difficulty')}</span>
-                    <Zap className="w-4 h-4 text-gray-600" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">🎯 {t('difficulty')}</span>
+                    <Zap className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   </div>
                   <div className="flex items-center space-x-1 mb-1">
                     {getDifficultyStars(task.complexity)}
                   </div>
-                  <div className="text-xs text-gray-600">{tCommon('level')} {task.complexity}/10</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">{tCommon('level')} {task.complexity}/10</div>
                 </div>
 
                 {/* Priority */}
@@ -190,48 +190,48 @@ export function TaskDetailsModal({
                 </div>
 
                 {/* Platform */}
-                <div className="bg-gray-50 p-4 rounded-lg border">
+                <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border border-gray-200 dark:border-slate-700">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">🔧 {t('platform')}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">🔧 {t('platform')}</span>
                     {getPlatformIcon()}
                   </div>
-                  <div className="font-semibold capitalize">{task.platform}</div>
-                  <div className="text-xs text-gray-600">{task.category}</div>
+                  <div className="font-semibold text-gray-900 dark:text-white capitalize">{task.platform}</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">{task.category}</div>
                 </div>
               </div>
             </div>
 
             <Separator />
 
-            {/* Description Section */}
+            {/* Description Section - Theme Aware */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-lg flex items-center">
-                <FileText className="w-5 h-5 mr-2 text-green-600" />
+              <h3 className="font-semibold text-lg flex items-center text-gray-900 dark:text-white">
+                <FileText className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
                 📝 {t('description')}
               </h3>
-              <div className="bg-gray-50 p-4 rounded-lg border">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+              <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border border-gray-200 dark:border-slate-700">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                   {translatedTask.description || t('noDescriptionProvided')}
                 </p>
               </div>
             </div>
 
-            <Separator />
+            <Separator className="dark:bg-slate-700" />
 
-            {/* Technical Requirements */}
+            {/* Technical Requirements - Theme Aware */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-lg flex items-center">
-                <Shield className="w-5 h-5 mr-2 text-purple-600" />
+              <h3 className="font-semibold text-lg flex items-center text-gray-900 dark:text-white">
+                <Shield className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
                 🛠️ {t('technicalRequirements')}
               </h3>
 
               {/* Required Skills */}
               {task.required_skills && task.required_skills.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">{t('requiredSkills')}</h4>
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('requiredSkills')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {task.required_skills.map((skill, index) => (
-                      <Badge key={index} variant="secondary" className="bg-purple-100 text-purple-800">
+                      <Badge key={index} variant="secondary" className="bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
                         {skill}
                       </Badge>
                     ))}
@@ -242,10 +242,10 @@ export function TaskDetailsModal({
               {/* Tags */}
               {task.tags && task.tags.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">{t('tags')}</h4>
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('tags')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {task.tags.map((tag, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
+                      <Badge key={index} variant="outline" className="text-xs dark:border-slate-600 dark:text-gray-300">
                         #{tag}
                       </Badge>
                     ))}
@@ -254,64 +254,64 @@ export function TaskDetailsModal({
               )}
             </div>
 
-            <Separator />
+            <Separator className="dark:bg-slate-700" />
 
-            {/* Success Criteria */}
+            {/* Success Criteria - Theme Aware */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-lg flex items-center">
-                <CheckCircle2 className="w-5 h-5 mr-2 text-green-600" />
+              <h3 className="font-semibold text-lg flex items-center text-gray-900 dark:text-white">
+                <CheckCircle2 className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
                 ✅ {t('successCriteria.title')}
               </h3>
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <ul className="space-y-2 text-sm text-green-800">
+              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700/50">
+                <ul className="space-y-2 text-sm text-green-800 dark:text-green-300">
                   <li className="flex items-center">
-                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
                     {t('successCriteria.item1')}
                   </li>
                   <li className="flex items-center">
-                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
                     {t('successCriteria.item2')}
                   </li>
                   <li className="flex items-center">
-                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
                     {t('successCriteria.item3')}
                   </li>
                   <li className="flex items-center">
-                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
                     {t('successCriteria.item4')}
                   </li>
                 </ul>
               </div>
             </div>
 
-            <Separator />
+            <Separator className="dark:bg-slate-700" />
 
-            {/* Completion Process */}
+            {/* Completion Process - Theme Aware */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-lg flex items-center">
-                <Users className="w-5 h-5 mr-2 text-indigo-600" />
+              <h3 className="font-semibold text-lg flex items-center text-gray-900 dark:text-white">
+                <Users className="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" />
                 🏆 {t('completionProcess.title')}
               </h3>
-              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-                <ol className="space-y-3 text-sm text-indigo-800">
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border border-indigo-200 dark:border-indigo-700/50">
+                <ol className="space-y-3 text-sm text-indigo-800 dark:text-indigo-300">
                   <li className="flex items-start">
-                    <span className="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">1</span>
+                    <span className="bg-indigo-600 dark:bg-indigo-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">1</span>
                     <span><strong>{t('completionProcess.step1.title')}</strong> - {t('completionProcess.step1.desc')}</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">2</span>
+                    <span className="bg-indigo-600 dark:bg-indigo-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">2</span>
                     <span><strong>{t('completionProcess.step2.title')}</strong> - {t('completionProcess.step2.desc')}</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">3</span>
+                    <span className="bg-indigo-600 dark:bg-indigo-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">3</span>
                     <span><strong>{t('completionProcess.step3.title')}</strong> - {t('completionProcess.step3.desc')}</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">4</span>
+                    <span className="bg-indigo-600 dark:bg-indigo-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">4</span>
                     <span><strong>{t('completionProcess.step4.title')}</strong> - {t('completionProcess.step4.desc')}</span>
                   </li>
                   <li className="flex items-start">
-                    <span className="bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">5</span>
+                    <span className="bg-green-600 dark:bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">5</span>
                     <span><strong>{t('completionProcess.step5.title')}</strong> - {t('completionProcess.step5.desc')}</span>
                   </li>
                 </ol>
@@ -321,8 +321,8 @@ export function TaskDetailsModal({
           </div>
         </ScrollArea>
 
-        {/* Action Buttons */}
-        <div className="px-6 py-4 border-t bg-gray-50">
+        {/* Action Buttons - Theme Aware */}
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
           <div className="flex flex-col sm:flex-row gap-3">
             {canClaim && (
               <Button

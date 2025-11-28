@@ -75,12 +75,12 @@ export function TaskClaimModal({
     }
   }
 
-  // Get complexity color
+  // Get complexity color - Theme aware
   const getComplexityColor = () => {
-    if (task.complexity <= 3) return 'bg-green-100 text-green-800 border-green-200'
-    if (task.complexity <= 6) return 'bg-amber-100 text-amber-800 border-amber-200'
-    if (task.complexity <= 8) return 'bg-orange-100 text-orange-800 border-orange-200'
-    return 'bg-red-100 text-red-800 border-red-200'
+    if (task.complexity <= 3) return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700/50'
+    if (task.complexity <= 6) return 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700/50'
+    if (task.complexity <= 8) return 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 border-orange-200 dark:border-orange-700/50'
+    return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-200 dark:border-red-700/50'
   }
 
   // Calculate claim timeout info
@@ -136,29 +136,29 @@ export function TaskClaimModal({
             </div>
           )}
 
-          {/* Task Metrics */}
+          {/* Task Metrics - Theme Aware */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="flex items-center space-x-2 p-3 bg-amber-50 rounded-lg">
-              <Coins className="w-5 h-5 text-amber-500" />
+            <div className="flex items-center space-x-2 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800/30">
+              <Coins className="w-5 h-5 text-amber-500 dark:text-amber-400" />
               <div>
-                <p className="text-xs text-glass-secondary">{t('rewardLabel')}</p>
-                <p className="font-semibold text-glass">{task.reward_cgc} CGC</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('rewardLabel')}</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{task.reward_cgc} CGC</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg">
-              <Calendar className="w-5 h-5 text-blue-500" />
+            <div className="flex items-center space-x-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30">
+              <Calendar className="w-5 h-5 text-blue-500 dark:text-blue-400" />
               <div>
-                <p className="text-xs text-glass-secondary">{t('estimatedLabel')}</p>
-                <p className="font-semibold text-glass">{task.estimated_days} {tCommon('days')}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('estimatedLabel')}</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{task.estimated_days} {tCommon('days')}</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 p-3 bg-purple-50 rounded-lg">
-              <Timer className="w-5 h-5 text-purple-500" />
+            <div className="flex items-center space-x-2 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800/30">
+              <Timer className="w-5 h-5 text-purple-500 dark:text-purple-400" />
               <div>
-                <p className="text-xs text-glass-secondary">{t('claimTimeLabel')}</p>
-                <p className="font-semibold text-glass">{timeoutDisplay}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('claimTimeLabel')}</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{timeoutDisplay}</p>
               </div>
             </div>
           </div>
@@ -191,13 +191,13 @@ export function TaskClaimModal({
             </div>
           )}
 
-          {/* Important Notice */}
-          <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          {/* Important Notice - Theme Aware */}
+          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg">
             <div className="flex items-start space-x-3">
-              <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
               <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-amber-800">{t('importantNotice')}</h4>
-                <div className="text-xs text-amber-700 space-y-1">
+                <h4 className="text-sm font-semibold text-amber-800 dark:text-amber-300">{t('importantNotice')}</h4>
+                <div className="text-xs text-amber-700 dark:text-amber-400/90 space-y-1">
                   <p>• {t('exclusiveAccessNotice', { time: timeoutDisplay })}</p>
                   <p>• {t('afterTimeoutNotice')}</p>
                   <p>• {t('canStillCompleteNotice')}</p>

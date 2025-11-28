@@ -75,12 +75,12 @@ export function TaskCard({
     }
   }
 
-  // Get complexity color
+  // Get complexity color - Theme aware
   const getComplexityColor = () => {
-    if (task.complexity <= 3) return 'bg-green-100 text-green-800'
-    if (task.complexity <= 6) return 'bg-amber-100 text-amber-800'
-    if (task.complexity <= 8) return 'bg-orange-100 text-orange-800'
-    return 'bg-red-100 text-red-800'
+    if (task.complexity <= 3) return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+    if (task.complexity <= 6) return 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300'
+    if (task.complexity <= 8) return 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300'
+    return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
   }
 
   // Calculate progress if in progress (SSR-safe)
@@ -169,65 +169,65 @@ export function TaskCard({
           </div>
         </div>
 
-        {/* Show assignee for claimed/in-progress tasks */}
+        {/* Show assignee for claimed/in-progress tasks - Theme Aware */}
         {(task.status === 'claimed' || task.status === 'in_progress') && task.assignee_address && (
-          <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+          <div className="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30">
             <div className="flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${task.status === 'claimed' ? 'bg-yellow-500' : 'bg-blue-500'} animate-pulse`} />
-              <span className="text-xs text-glass-secondary">
+              <span className="text-xs text-gray-600 dark:text-gray-400">
                 {task.status === 'claimed' ? t('claimedBy') : t('workingOn')}
               </span>
             </div>
-            <span className="text-xs font-mono text-glass">
+            <span className="text-xs font-mono text-gray-900 dark:text-white">
               {task.assignee_address.slice(0, 6)}...{task.assignee_address.slice(-4)}
             </span>
           </div>
         )}
 
-        {/* Countdown timer for claimed/in-progress tasks */}
+        {/* Countdown timer for claimed/in-progress tasks - Theme Aware */}
         {(task.status === 'claimed' || task.status === 'in_progress') && task.claimed_at && (
           <div className={`flex items-center justify-between p-2 rounded-lg ${
-            isExpired 
-              ? 'bg-red-50 border border-red-200' 
+            isExpired
+              ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30'
               : remainingTime.includes('h') && !remainingTime.includes('d')
-                ? 'bg-amber-50 border border-amber-200'
-                : 'bg-green-50 border border-green-200'
+                ? 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30'
+                : 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30'
           }`}>
             <div className="flex items-center space-x-2">
               {isExpired ? (
-                <AlertTriangle className="w-4 h-4 text-red-500" />
+                <AlertTriangle className="w-4 h-4 text-red-500 dark:text-red-400" />
               ) : (
                 <Timer className={`w-4 h-4 ${
                   remainingTime.includes('h') && !remainingTime.includes('d')
-                    ? 'text-amber-500'
-                    : 'text-green-500'
+                    ? 'text-amber-500 dark:text-amber-400'
+                    : 'text-green-500 dark:text-green-400'
                 }`} />
               )}
-              <span className="text-xs text-glass-secondary">
+              <span className="text-xs text-gray-600 dark:text-gray-400">
                 {isExpired ? t('expiredOpenToAll') : t('timeRemaining')}
               </span>
             </div>
             <span className={`text-xs font-semibold ${
-              isExpired 
-                ? 'text-red-600' 
+              isExpired
+                ? 'text-red-600 dark:text-red-400'
                 : remainingTime.includes('h') && !remainingTime.includes('d')
-                  ? 'text-amber-600'
-                  : 'text-green-600'
+                  ? 'text-amber-600 dark:text-amber-400'
+                  : 'text-green-600 dark:text-green-400'
             }`}>
               {remainingTime}
             </span>
           </div>
         )}
 
-        {/* Progress bar for in-progress tasks */}
+        {/* Progress bar for in-progress tasks - Theme Aware */}
         {showProgress && task.status === 'in_progress' && (
           <div className="space-y-2">
-            <div className="flex justify-between text-xs text-glass-secondary">
+            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
               <span>{tTasks('progress')}</span>
               <span>{progress}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
+            <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
+              <div
                 className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
                 style={{ width: `${progress}%` }}
               />
@@ -295,13 +295,13 @@ export function TaskCard({
         )}
 
         {task.status === 'in_progress' && task.evidence_url && (
-          <Badge variant="outline" className="w-full justify-center py-2 bg-amber-50">
+          <Badge variant="outline" className="w-full justify-center py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700/50">
             {t('pendingValidation')}
           </Badge>
         )}
 
         {task.status === 'completed' && (
-          <Badge variant="outline" className="w-full justify-center py-2 bg-green-50">
+          <Badge variant="outline" className="w-full justify-center py-2 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700/50">
             ✅ {t('completedBadge')}
           </Badge>
         )}
