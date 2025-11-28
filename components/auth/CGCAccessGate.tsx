@@ -46,7 +46,7 @@ function ApexAvatar({ className = "h-16 w-16" }: { className?: string }) {
     <div className={`${className} rounded-full overflow-hidden border-2 border-purple-500/30 shadow-lg shadow-purple-500/20`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/apeX22.PNG"
+        src="/apeX11.png"
         alt="apeX"
         className="w-full h-full object-cover"
       />
