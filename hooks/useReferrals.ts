@@ -471,8 +471,10 @@ export function useReferralLink(code?: string) {
     );
   }, [links]);
 
+  type LinkVariant = 'default' | 'twitter' | 'telegram' | 'discord' | 'email';
+
   const copyToClipboard = useCallback(
-    async (variant: keyof typeof links = 'default') => {
+    async (variant: LinkVariant = 'default') => {
       if (!links?.[variant]) return false;
       try {
         await navigator.clipboard.writeText(links[variant]);

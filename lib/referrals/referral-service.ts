@@ -377,7 +377,7 @@ export async function activateReferral(referredAddress: string): Promise<void> {
 
   // Award activation bonus to level 1 referrer
   if (referrals && referrals.length > 0) {
-    const level1Referral = referrals.find(r => r.level === 1);
+    const level1Referral = referrals.find((r: Referral) => r.level === 1);
     if (level1Referral) {
       await createReward({
         referrer_address: level1Referral.referrer_address,
@@ -457,7 +457,7 @@ export async function distributeCommissions(
   }
 
   // Update referred user's stats
-  const level1Referral = referrals.find(r => r.level === 1);
+  const level1Referral = referrals.find((r: Referral) => r.level === 1);
   if (level1Referral) {
     await supabase
       .from('referrals')
@@ -471,7 +471,7 @@ export async function distributeCommissions(
   }
 
   // Check for milestone bonuses
-  for (const referral of referrals.filter(r => r.level === 1)) {
+  for (const referral of referrals.filter((r: Referral) => r.level === 1)) {
     await checkAndAwardMilestone(referral.referrer_address);
   }
 
@@ -733,10 +733,10 @@ export async function getReferralStats(walletAddress: string): Promise<{
         .select('level, status')
         .eq('referrer_address', normalizedAddress);
 
-      const level1 = referrals?.filter(r => r.level === 1) || [];
-      const level2 = referrals?.filter(r => r.level === 2) || [];
-      const level3 = referrals?.filter(r => r.level === 3) || [];
-      const active = referrals?.filter(r => r.status === 'active') || [];
+      const level1 = referrals?.filter((r: { level: number }) => r.level === 1) || [];
+      const level2 = referrals?.filter((r: { level: number }) => r.level === 2) || [];
+      const level3 = referrals?.filter((r: { level: number }) => r.level === 3) || [];
+      const active = referrals?.filter((r: { status: string }) => r.status === 'active') || [];
 
       // Get pending rewards
       const { data: pendingRewards } = await supabase
@@ -745,7 +745,7 @@ export async function getReferralStats(walletAddress: string): Promise<{
         .eq('referrer_address', normalizedAddress)
         .eq('status', 'pending');
 
-      const pendingTotal = pendingRewards?.reduce((sum, r) => sum + Number(r.amount), 0) || 0;
+      const pendingTotal = pendingRewards?.reduce((sum: number, r: { amount: number }) => sum + Number(r.amount), 0) || 0;
 
       // Get rank
       const { data: rankData } = await supabase
@@ -829,7 +829,7 @@ export async function getReferralNetwork(
   }
 
   return {
-    referrals: (data || []).map(r => ({
+    referrals: (data || []).map((r: Referral & { username?: string; avatar_url?: string }) => ({
       id: r.id,
       address: r.referred_address,
       level: r.level,
@@ -935,8 +935,19 @@ export async function getLeaderboard(
     throw new Error(`Failed to get leaderboard: ${error.message}`);
   }
 
+  interface LeaderboardRow {
+    earnings_rank: number;
+    wallet_address: string;
+    code: string;
+    total_referrals: number;
+    total_earnings: number;
+    level1_count: number;
+    level2_count: number;
+    level3_count: number;
+  }
+
   return {
-    entries: (data || []).map(entry => ({
+    entries: (data || []).map((entry: LeaderboardRow) => ({
       rank: entry.earnings_rank,
       address: entry.wallet_address,
       code: entry.code,
@@ -1016,33 +1027,33 @@ export async function getClickAnalytics(
   }
 
   // Calculate metrics
-  const uniqueIPs = new Set(clicks.map(c => c.ip_hash).filter(Boolean));
-  const conversions = clicks.filter(c => c.converted).length;
+  const uniqueIPs = new Set(clicks.map((c: ReferralClick) => c.ip_hash).filter(Boolean));
+  const conversions = clicks.filter((c: ReferralClick) => c.converted).length;
 
   // Group by source
   const bySource: Record<string, number> = {};
-  clicks.forEach(c => {
+  clicks.forEach((c: ReferralClick) => {
     const source = c.source || 'direct';
     bySource[source] = (bySource[source] || 0) + 1;
   });
 
   // Group by device
   const byDevice: Record<string, number> = {};
-  clicks.forEach(c => {
+  clicks.forEach((c: ReferralClick) => {
     const device = c.device_type || 'unknown';
     byDevice[device] = (byDevice[device] || 0) + 1;
   });
 
   // Group by country
   const byCountry: Record<string, number> = {};
-  clicks.forEach(c => {
+  clicks.forEach((c: ReferralClick) => {
     const country = c.country || 'Unknown';
     byCountry[country] = (byCountry[country] || 0) + 1;
   });
 
   // Daily aggregation
   const dailyMap = new Map<string, { clicks: number; conversions: number }>();
-  clicks.forEach(c => {
+  clicks.forEach((c: ReferralClick) => {
     const date = new Date(c.created_at).toISOString().split('T')[0];
     const existing = dailyMap.get(date) || { clicks: 0, conversions: 0 };
     existing.clicks++;
@@ -1179,7 +1190,7 @@ export async function getPendingRewards(
     throw new Error(`Failed to get pending rewards: ${error.message}`);
   }
 
-  const totalAmount = (data || []).reduce((sum, r) => sum + Number(r.amount), 0);
+  const totalAmount = (data || []).reduce((sum: number, r: ReferralReward) => sum + Number(r.amount), 0);
 
   return {
     rewards: data || [],

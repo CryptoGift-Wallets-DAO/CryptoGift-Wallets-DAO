@@ -270,6 +270,7 @@ export interface Database {
           total_referrals: number
           total_earnings: number
           click_count: number
+          conversion_rate: number
           created_at: string
           updated_at: string
         }
@@ -282,6 +283,7 @@ export interface Database {
           total_referrals?: number
           total_earnings?: number
           click_count?: number
+          conversion_rate?: number
           created_at?: string
           updated_at?: string
         }
@@ -294,6 +296,7 @@ export interface Database {
           total_referrals?: number
           total_earnings?: number
           click_count?: number
+          conversion_rate?: number
           created_at?: string
           updated_at?: string
         }
@@ -305,7 +308,9 @@ export interface Database {
           referred_address: string
           referral_code: string
           level: 1 | 2 | 3
-          status: 'pending' | 'active' | 'inactive'
+          status: 'pending' | 'active' | 'inactive' | 'banned'
+          source: string | null
+          campaign: string | null
           tasks_completed: number
           cgc_earned: number
           referrer_earnings: number
@@ -319,7 +324,9 @@ export interface Database {
           referred_address: string
           referral_code: string
           level?: 1 | 2 | 3
-          status?: 'pending' | 'active' | 'inactive'
+          status?: 'pending' | 'active' | 'inactive' | 'banned'
+          source?: string | null
+          campaign?: string | null
           tasks_completed?: number
           cgc_earned?: number
           referrer_earnings?: number
@@ -333,7 +340,9 @@ export interface Database {
           referred_address?: string
           referral_code?: string
           level?: 1 | 2 | 3
-          status?: 'pending' | 'active' | 'inactive'
+          status?: 'pending' | 'active' | 'inactive' | 'banned'
+          source?: string | null
+          campaign?: string | null
           tasks_completed?: number
           cgc_earned?: number
           referrer_earnings?: number
@@ -347,12 +356,13 @@ export interface Database {
           id: string
           referrer_address: string
           referred_address: string
-          reward_type: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_bonus'
+          reward_type: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_5' | 'milestone_10' | 'milestone_25' | 'milestone_50' | 'milestone_100' | 'activation_bonus' | 'special_bonus'
           amount: number
           task_id: string | null
           milestone_reached: number | null
-          status: 'pending' | 'processing' | 'paid' | 'failed'
+          status: 'pending' | 'processing' | 'paid' | 'failed' | 'cancelled'
           tx_hash: string | null
+          block_number: number | null
           paid_at: string | null
           created_at: string
         }
@@ -360,12 +370,13 @@ export interface Database {
           id?: string
           referrer_address: string
           referred_address: string
-          reward_type: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_bonus'
+          reward_type: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_5' | 'milestone_10' | 'milestone_25' | 'milestone_50' | 'milestone_100' | 'activation_bonus' | 'special_bonus'
           amount: number
           task_id?: string | null
           milestone_reached?: number | null
-          status?: 'pending' | 'processing' | 'paid' | 'failed'
+          status?: 'pending' | 'processing' | 'paid' | 'failed' | 'cancelled'
           tx_hash?: string | null
+          block_number?: number | null
           paid_at?: string | null
           created_at?: string
         }
@@ -373,12 +384,13 @@ export interface Database {
           id?: string
           referrer_address?: string
           referred_address?: string
-          reward_type?: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_bonus'
+          reward_type?: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_5' | 'milestone_10' | 'milestone_25' | 'milestone_50' | 'milestone_100' | 'activation_bonus' | 'special_bonus'
           amount?: number
           task_id?: string | null
           milestone_reached?: number | null
-          status?: 'pending' | 'processing' | 'paid' | 'failed'
+          status?: 'pending' | 'processing' | 'paid' | 'failed' | 'cancelled'
           tx_hash?: string | null
+          block_number?: number | null
           paid_at?: string | null
           created_at?: string
         }
@@ -390,8 +402,19 @@ export interface Database {
           ip_hash: string | null
           user_agent: string | null
           source: string | null
+          medium: string | null
+          campaign: string | null
+          referer: string | null
+          landing_page: string | null
+          device_type: string | null
+          browser: string | null
+          os: string | null
+          country: string | null
           converted: boolean
           converted_address: string | null
+          converted_at: string | null
+          conversion_time: string | null
+          city: string | null
           created_at: string
         }
         Insert: {
@@ -400,8 +423,19 @@ export interface Database {
           ip_hash?: string | null
           user_agent?: string | null
           source?: string | null
+          medium?: string | null
+          campaign?: string | null
+          referer?: string | null
+          landing_page?: string | null
+          device_type?: string | null
+          browser?: string | null
+          os?: string | null
+          country?: string | null
+          city?: string | null
           converted?: boolean
           converted_address?: string | null
+          converted_at?: string | null
+          conversion_time?: string | null
           created_at?: string
         }
         Update: {
@@ -410,8 +444,19 @@ export interface Database {
           ip_hash?: string | null
           user_agent?: string | null
           source?: string | null
+          medium?: string | null
+          campaign?: string | null
+          referer?: string | null
+          landing_page?: string | null
+          device_type?: string | null
+          browser?: string | null
+          os?: string | null
+          country?: string | null
+          city?: string | null
           converted?: boolean
           converted_address?: string | null
+          converted_at?: string | null
+          conversion_time?: string | null
           created_at?: string
         }
       }
@@ -436,6 +481,20 @@ export interface Database {
           assignee_discord_id: string | null
           estimated_completion: string
           progress_percentage: number
+        }
+      }
+      referral_leaderboard: {
+        Row: {
+          wallet_address: string
+          code: string
+          custom_code: string | null
+          total_referrals: number
+          total_earnings: number
+          level1_count: number
+          level2_count: number
+          level3_count: number
+          earnings_rank: number
+          referrals_rank: number
         }
       }
     }
@@ -526,6 +585,16 @@ export type ReferralClickInsert = Database['public']['Tables']['referral_clicks'
 export type ReferralClickUpdate = Database['public']['Tables']['referral_clicks']['Update']
 
 export type ReferralLevel = 1 | 2 | 3
-export type ReferralStatus = 'pending' | 'active' | 'inactive'
-export type ReferralRewardType = 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_bonus'
-export type ReferralRewardStatus = 'pending' | 'processing' | 'paid' | 'failed'
+export type ReferralStatus = 'pending' | 'active' | 'inactive' | 'banned'
+export type ReferralRewardType =
+  | 'direct_bonus'
+  | 'level2_bonus'
+  | 'level3_bonus'
+  | 'milestone_5'
+  | 'milestone_10'
+  | 'milestone_25'
+  | 'milestone_50'
+  | 'milestone_100'
+  | 'activation_bonus'
+  | 'special_bonus'
+export type ReferralRewardStatus = 'pending' | 'processing' | 'paid' | 'failed' | 'cancelled'
