@@ -6,6 +6,7 @@ import { Web3Provider } from '@/lib/thirdweb/provider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
+import { GlobalWidgets } from '@/components/layout/GlobalWidgets';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -44,6 +45,7 @@ export default async function RootLayout({
                 <main className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
                   {children}
                 </main>
+                <GlobalWidgets />
               </ToastProvider>
             </Web3Provider>
           </NextIntlClientProvider>

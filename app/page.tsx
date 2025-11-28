@@ -31,7 +31,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { ApexAgent } from '@/components/agent/ApexAgent';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { useDashboardStats, useCGCTransfer, useMilestoneRelease } from '@/lib/web3/hooks';
 import { useAccount, useNetwork, useSwitchChain, useAutoSwitchToBase } from '@/lib/thirdweb';
@@ -461,9 +460,6 @@ export default function CryptoGiftDAODashboard() {
 
       {/* Full-width Footer */}
       <Footer />
-
-      {/* apeX Agent Floating Bubble */}
-      <ApexAgent />
     </div>
   );
 }

@@ -512,12 +512,20 @@
       "configureEAS": "Configure EAS"
     },
     "bubble": {
-      "clickMe": "Click me! I'm apeX",
-      "cgcRequired": "CGC tokens required",
+      "needHelp": "Need help?",
+      "cgcRequired": "CGC required",
       "chatWithApex": "Chat with apeX",
       "quickHelp": "Quick Help",
       "smartActions": "Smart Actions",
-      "aiInsights": "AI Insights"
+      "aiInsights": "AI Insights",
+      "moreOptions": "More options",
+      "openFullChat": "Open full chat",
+      "typeMessage": "Type a message...",
+      "send": "Send",
+      "minimize": "Minimize",
+      "clearChat": "Clear chat",
+      "connecting": "Connecting...",
+      "online": "Online"
     }
   },
   "funding": {

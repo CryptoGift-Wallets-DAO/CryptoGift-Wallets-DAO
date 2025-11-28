@@ -512,12 +512,20 @@
       "configureEAS": "Configurar EAS"
     },
     "bubble": {
-      "clickMe": "¡Haz clic! Soy apeX",
-      "cgcRequired": "Se requieren tokens CGC",
+      "needHelp": "¿Necesitas ayuda?",
+      "cgcRequired": "Requiere CGC",
       "chatWithApex": "Chatear con apeX",
       "quickHelp": "Ayuda Rápida",
       "smartActions": "Acciones Inteligentes",
-      "aiInsights": "Insights de IA"
+      "aiInsights": "Insights de IA",
+      "moreOptions": "Más opciones",
+      "openFullChat": "Abrir chat completo",
+      "typeMessage": "Escribe un mensaje...",
+      "send": "Enviar",
+      "minimize": "Minimizar",
+      "clearChat": "Limpiar chat",
+      "connecting": "Conectando...",
+      "online": "En línea"
     }
   },
   "funding": {
