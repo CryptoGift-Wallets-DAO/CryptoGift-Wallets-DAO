@@ -46,7 +46,8 @@
     "cgcBalance": "CGC Balance",
     "network": "Network",
     "base": "Base",
-    "unsupportedNetwork": "Unsupported Network"
+    "unsupportedNetwork": "Unsupported Network",
+    "profile": "Profile"
   },
   "dashboard": {
     "title": "CryptoGift DAO Dashboard",
@@ -938,6 +939,123 @@
       "twitter": "Twitter",
       "email": "Email",
       "github": "GitHub"
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your account and recovery options",
+    "tabs": {
+      "overview": "Overview",
+      "settings": "Settings",
+      "recovery": "Recovery",
+      "activity": "Activity"
+    },
+    "overview": {
+      "memberSince": "Member since",
+      "lastLogin": "Last login",
+      "loginCount": "Total logins",
+      "statsTitle": "Your Statistics",
+      "tasksCompleted": "Tasks Completed",
+      "cgcEarned": "CGC Earned",
+      "referrals": "Referrals",
+      "reputation": "Reputation",
+      "tier": "Tier",
+      "tierProgress": "Progress to next tier"
+    },
+    "form": {
+      "username": "Username",
+      "usernamePlaceholder": "Choose a unique username",
+      "usernameHelp": "3-50 characters, letters, numbers, and underscores only",
+      "usernameAvailable": "Username available",
+      "usernameTaken": "Username taken",
+      "displayName": "Display Name",
+      "displayNamePlaceholder": "Your display name",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us about yourself...",
+      "bioHelp": "Max 500 characters",
+      "socialLinks": "Social Links",
+      "twitter": "Twitter",
+      "twitterPlaceholder": "@username",
+      "telegram": "Telegram",
+      "telegramPlaceholder": "@username",
+      "discord": "Discord",
+      "discordPlaceholder": "username#0000",
+      "website": "Website",
+      "websitePlaceholder": "https://yourwebsite.com",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "saved": "Profile updated successfully"
+    },
+    "avatar": {
+      "title": "Profile Photo",
+      "change": "Change Photo",
+      "remove": "Remove Photo",
+      "upload": "Upload",
+      "uploading": "Uploading...",
+      "maxSize": "Max 2MB, JPG or PNG"
+    },
+    "settings": {
+      "title": "Privacy Settings",
+      "publicProfile": "Public Profile",
+      "publicProfileDesc": "Allow others to see your profile",
+      "showEmail": "Show Email",
+      "showEmailDesc": "Display email on public profile",
+      "showBalance": "Show Balance",
+      "showBalanceDesc": "Display CGC balance on public profile",
+      "notifications": "Notifications",
+      "notificationsDesc": "Receive email notifications"
+    },
+    "recovery": {
+      "title": "Account Recovery",
+      "description": "Set up email and password to recover your account if you lose access to your wallet",
+      "status": {
+        "notConfigured": "Not Configured",
+        "configured": "Configured",
+        "pendingVerification": "Pending Verification"
+      },
+      "setupTitle": "Setup Recovery Credentials",
+      "setupDescription": "Protect your account by adding a recovery email and password",
+      "email": "Recovery Email",
+      "emailPlaceholder": "your@email.com",
+      "emailHelp": "We'll send a verification link to this email",
+      "password": "Recovery Password",
+      "passwordPlaceholder": "Choose a strong password",
+      "passwordHelp": "Minimum 8 characters",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "passwordMismatch": "Passwords do not match",
+      "setupButton": "Setup Recovery",
+      "settingUp": "Setting up...",
+      "verifyEmail": "Verify Email",
+      "verifyEmailDescription": "Check your inbox and click the verification link",
+      "resendVerification": "Resend Verification",
+      "changeEmail": "Change Email",
+      "changePassword": "Change Password",
+      "benefits": {
+        "title": "Why Setup Recovery?",
+        "benefit1": "Recover your account if wallet is lost or compromised",
+        "benefit2": "Keep your progress, stats, and referrals safe",
+        "benefit3": "Transfer to a new wallet securely"
+      },
+      "warning": "Your email and password are encrypted and stored securely"
+    },
+    "activity": {
+      "title": "Recent Activity",
+      "noActivity": "No recent activity",
+      "types": {
+        "profile_created": "Profile Created",
+        "profile_updated": "Profile Updated",
+        "login_wallet": "Wallet Login",
+        "login_email": "Email Login",
+        "recovery_setup": "Recovery Setup",
+        "email_verified": "Email Verified",
+        "password_reset_requested": "Password Reset Requested",
+        "password_reset_completed": "Password Reset Completed"
+      }
+    },
+    "menu": {
+      "profile": "Profile",
+      "viewProfile": "View Profile"
     }
   },
   "taskData": {

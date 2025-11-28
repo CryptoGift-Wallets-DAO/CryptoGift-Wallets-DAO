@@ -46,7 +46,8 @@
     "cgcBalance": "Balance CGC",
     "network": "Red",
     "base": "Base",
-    "unsupportedNetwork": "Red No Soportada"
+    "unsupportedNetwork": "Red No Soportada",
+    "profile": "Perfil"
   },
   "dashboard": {
     "title": "Panel de CryptoGift DAO",
@@ -938,6 +939,123 @@
       "twitter": "Twitter",
       "email": "Email",
       "github": "GitHub"
+    }
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "subtitle": "Administra tu cuenta y opciones de recuperación",
+    "tabs": {
+      "overview": "General",
+      "settings": "Configuración",
+      "recovery": "Recuperación",
+      "activity": "Actividad"
+    },
+    "overview": {
+      "memberSince": "Miembro desde",
+      "lastLogin": "Último acceso",
+      "loginCount": "Total de accesos",
+      "statsTitle": "Tus Estadísticas",
+      "tasksCompleted": "Tareas Completadas",
+      "cgcEarned": "CGC Ganados",
+      "referrals": "Referidos",
+      "reputation": "Reputación",
+      "tier": "Nivel",
+      "tierProgress": "Progreso al siguiente nivel"
+    },
+    "form": {
+      "username": "Nombre de Usuario",
+      "usernamePlaceholder": "Elige un nombre único",
+      "usernameHelp": "3-50 caracteres, letras, números y guiones bajos",
+      "usernameAvailable": "Nombre disponible",
+      "usernameTaken": "Nombre ya en uso",
+      "displayName": "Nombre para Mostrar",
+      "displayNamePlaceholder": "Tu nombre público",
+      "bio": "Biografía",
+      "bioPlaceholder": "Cuéntanos sobre ti...",
+      "bioHelp": "Máximo 500 caracteres",
+      "socialLinks": "Redes Sociales",
+      "twitter": "Twitter",
+      "twitterPlaceholder": "@usuario",
+      "telegram": "Telegram",
+      "telegramPlaceholder": "@usuario",
+      "discord": "Discord",
+      "discordPlaceholder": "usuario#0000",
+      "website": "Sitio Web",
+      "websitePlaceholder": "https://tusitioweb.com",
+      "saveChanges": "Guardar Cambios",
+      "saving": "Guardando...",
+      "saved": "Perfil actualizado exitosamente"
+    },
+    "avatar": {
+      "title": "Foto de Perfil",
+      "change": "Cambiar Foto",
+      "remove": "Eliminar Foto",
+      "upload": "Subir",
+      "uploading": "Subiendo...",
+      "maxSize": "Máx 2MB, JPG o PNG"
+    },
+    "settings": {
+      "title": "Configuración de Privacidad",
+      "publicProfile": "Perfil Público",
+      "publicProfileDesc": "Permitir que otros vean tu perfil",
+      "showEmail": "Mostrar Email",
+      "showEmailDesc": "Mostrar email en perfil público",
+      "showBalance": "Mostrar Balance",
+      "showBalanceDesc": "Mostrar balance CGC en perfil público",
+      "notifications": "Notificaciones",
+      "notificationsDesc": "Recibir notificaciones por email"
+    },
+    "recovery": {
+      "title": "Recuperación de Cuenta",
+      "description": "Configura email y contraseña para recuperar tu cuenta si pierdes acceso a tu wallet",
+      "status": {
+        "notConfigured": "No Configurado",
+        "configured": "Configurado",
+        "pendingVerification": "Verificación Pendiente"
+      },
+      "setupTitle": "Configurar Credenciales de Recuperación",
+      "setupDescription": "Protege tu cuenta agregando un email y contraseña de recuperación",
+      "email": "Email de Recuperación",
+      "emailPlaceholder": "tu@email.com",
+      "emailHelp": "Enviaremos un enlace de verificación a este email",
+      "password": "Contraseña de Recuperación",
+      "passwordPlaceholder": "Elige una contraseña segura",
+      "passwordHelp": "Mínimo 8 caracteres",
+      "confirmPassword": "Confirmar Contraseña",
+      "confirmPasswordPlaceholder": "Confirma tu contraseña",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "setupButton": "Configurar Recuperación",
+      "settingUp": "Configurando...",
+      "verifyEmail": "Verificar Email",
+      "verifyEmailDescription": "Revisa tu bandeja de entrada y haz clic en el enlace de verificación",
+      "resendVerification": "Reenviar Verificación",
+      "changeEmail": "Cambiar Email",
+      "changePassword": "Cambiar Contraseña",
+      "benefits": {
+        "title": "¿Por qué configurar recuperación?",
+        "benefit1": "Recupera tu cuenta si pierdes o comprometen tu wallet",
+        "benefit2": "Mantén tu progreso, estadísticas y referidos seguros",
+        "benefit3": "Transfiere a una nueva wallet de forma segura"
+      },
+      "warning": "Tu email y contraseña están encriptados y almacenados de forma segura"
+    },
+    "activity": {
+      "title": "Actividad Reciente",
+      "noActivity": "Sin actividad reciente",
+      "types": {
+        "profile_created": "Perfil Creado",
+        "profile_updated": "Perfil Actualizado",
+        "login_wallet": "Acceso con Wallet",
+        "login_email": "Acceso con Email",
+        "recovery_setup": "Recuperación Configurada",
+        "email_verified": "Email Verificado",
+        "password_reset_requested": "Restablecimiento de Contraseña Solicitado",
+        "password_reset_completed": "Contraseña Restablecida"
+      }
+    },
+    "menu": {
+      "profile": "Perfil",
+      "viewProfile": "Ver Perfil"
     }
   },
   "taskData": {

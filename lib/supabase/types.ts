@@ -598,3 +598,302 @@ export type ReferralRewardType =
   | 'activation_bonus'
   | 'special_bonus'
 export type ReferralRewardStatus = 'pending' | 'processing' | 'paid' | 'failed' | 'cancelled'
+
+// ============================================
+// 👤 USER PROFILE SYSTEM TYPES
+// ============================================
+
+// Add user_profiles table to Database interface
+declare module './types' {
+  interface DatabaseTables {
+    user_profiles: UserProfilesTable
+    profile_recovery_requests: ProfileRecoveryRequestsTable
+    profile_activity_log: ProfileActivityLogTable
+    profile_avatars: ProfileAvatarsTable
+  }
+}
+
+export interface UserProfilesTable {
+  Row: {
+    id: string
+    wallet_address: string
+    username: string | null
+    display_name: string | null
+    bio: string | null
+    avatar_url: string | null
+    email: string | null
+    email_verified: boolean
+    email_verification_token: string | null
+    email_verification_expires_at: string | null
+    password_hash: string | null
+    password_reset_token: string | null
+    password_reset_expires_at: string | null
+    twitter_handle: string | null
+    telegram_handle: string | null
+    discord_handle: string | null
+    website_url: string | null
+    is_public: boolean
+    show_email: boolean
+    show_balance: boolean
+    notifications_enabled: boolean
+    total_tasks_completed: number
+    total_cgc_earned: number
+    total_referrals: number
+    reputation_score: number
+    last_login_at: string | null
+    login_count: number
+    created_at: string
+    updated_at: string
+  }
+  Insert: {
+    id?: string
+    wallet_address: string
+    username?: string | null
+    display_name?: string | null
+    bio?: string | null
+    avatar_url?: string | null
+    email?: string | null
+    email_verified?: boolean
+    email_verification_token?: string | null
+    email_verification_expires_at?: string | null
+    password_hash?: string | null
+    password_reset_token?: string | null
+    password_reset_expires_at?: string | null
+    twitter_handle?: string | null
+    telegram_handle?: string | null
+    discord_handle?: string | null
+    website_url?: string | null
+    is_public?: boolean
+    show_email?: boolean
+    show_balance?: boolean
+    notifications_enabled?: boolean
+    total_tasks_completed?: number
+    total_cgc_earned?: number
+    total_referrals?: number
+    reputation_score?: number
+    last_login_at?: string | null
+    login_count?: number
+    created_at?: string
+    updated_at?: string
+  }
+  Update: {
+    id?: string
+    wallet_address?: string
+    username?: string | null
+    display_name?: string | null
+    bio?: string | null
+    avatar_url?: string | null
+    email?: string | null
+    email_verified?: boolean
+    email_verification_token?: string | null
+    email_verification_expires_at?: string | null
+    password_hash?: string | null
+    password_reset_token?: string | null
+    password_reset_expires_at?: string | null
+    twitter_handle?: string | null
+    telegram_handle?: string | null
+    discord_handle?: string | null
+    website_url?: string | null
+    is_public?: boolean
+    show_email?: boolean
+    show_balance?: boolean
+    notifications_enabled?: boolean
+    total_tasks_completed?: number
+    total_cgc_earned?: number
+    total_referrals?: number
+    reputation_score?: number
+    last_login_at?: string | null
+    login_count?: number
+    created_at?: string
+    updated_at?: string
+  }
+}
+
+export interface ProfileRecoveryRequestsTable {
+  Row: {
+    id: string
+    user_id: string
+    recovery_type: ProfileRecoveryType
+    token: string
+    status: ProfileRecoveryStatus
+    new_wallet_address: string | null
+    old_wallet_address: string | null
+    ip_address: string | null
+    user_agent: string | null
+    expires_at: string
+    completed_at: string | null
+    created_at: string
+  }
+  Insert: {
+    id?: string
+    user_id: string
+    recovery_type: ProfileRecoveryType
+    token: string
+    status?: ProfileRecoveryStatus
+    new_wallet_address?: string | null
+    old_wallet_address?: string | null
+    ip_address?: string | null
+    user_agent?: string | null
+    expires_at: string
+    completed_at?: string | null
+    created_at?: string
+  }
+  Update: {
+    id?: string
+    user_id?: string
+    recovery_type?: ProfileRecoveryType
+    token?: string
+    status?: ProfileRecoveryStatus
+    new_wallet_address?: string | null
+    old_wallet_address?: string | null
+    ip_address?: string | null
+    user_agent?: string | null
+    expires_at?: string
+    completed_at?: string | null
+    created_at?: string
+  }
+}
+
+export interface ProfileActivityLogTable {
+  Row: {
+    id: string
+    user_id: string
+    action: string
+    description: string | null
+    ip_address: string | null
+    user_agent: string | null
+    metadata: Json
+    created_at: string
+  }
+  Insert: {
+    id?: string
+    user_id: string
+    action: string
+    description?: string | null
+    ip_address?: string | null
+    user_agent?: string | null
+    metadata?: Json
+    created_at?: string
+  }
+  Update: {
+    id?: string
+    user_id?: string
+    action?: string
+    description?: string | null
+    ip_address?: string | null
+    user_agent?: string | null
+    metadata?: Json
+    created_at?: string
+  }
+}
+
+export interface ProfileAvatarsTable {
+  Row: {
+    id: string
+    user_id: string
+    file_name: string
+    file_size: number
+    mime_type: string
+    storage_path: string
+    public_url: string
+    is_active: boolean
+    created_at: string
+  }
+  Insert: {
+    id?: string
+    user_id: string
+    file_name: string
+    file_size: number
+    mime_type: string
+    storage_path: string
+    public_url: string
+    is_active?: boolean
+    created_at?: string
+  }
+  Update: {
+    id?: string
+    user_id?: string
+    file_name?: string
+    file_size?: number
+    mime_type?: string
+    storage_path?: string
+    public_url?: string
+    is_active?: boolean
+    created_at?: string
+  }
+}
+
+// Helper types for user profiles
+export type UserProfile = UserProfilesTable['Row']
+export type UserProfileInsert = UserProfilesTable['Insert']
+export type UserProfileUpdate = UserProfilesTable['Update']
+
+export type ProfileRecoveryRequest = ProfileRecoveryRequestsTable['Row']
+export type ProfileRecoveryRequestInsert = ProfileRecoveryRequestsTable['Insert']
+export type ProfileRecoveryRequestUpdate = ProfileRecoveryRequestsTable['Update']
+
+export type ProfileActivityLog = ProfileActivityLogTable['Row']
+export type ProfileActivityLogInsert = ProfileActivityLogTable['Insert']
+
+export type ProfileAvatar = ProfileAvatarsTable['Row']
+export type ProfileAvatarInsert = ProfileAvatarsTable['Insert']
+
+// Enums for profiles
+export type ProfileRecoveryType = 'email_verify' | 'password_reset' | 'wallet_change'
+export type ProfileRecoveryStatus = 'pending' | 'completed' | 'expired' | 'cancelled'
+
+// Profile tier based on reputation
+export type ProfileTier = 'Starter' | 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond'
+
+// Public profile view type (for display)
+export interface PublicProfile {
+  id: string
+  wallet_address: string
+  username: string | null
+  display_name: string | null
+  bio: string | null
+  avatar_url: string | null
+  twitter_handle: string | null
+  telegram_handle: string | null
+  discord_handle: string | null
+  website_url: string | null
+  total_tasks_completed: number
+  total_cgc_earned: number
+  total_referrals: number
+  reputation_score: number
+  tier: ProfileTier
+  tier_color: string
+  created_at: string
+}
+
+// Profile settings type
+export interface ProfileSettings {
+  is_public: boolean
+  show_email: boolean
+  show_balance: boolean
+  notifications_enabled: boolean
+}
+
+// Profile update request type (for API)
+export interface ProfileUpdateRequest {
+  username?: string
+  display_name?: string
+  bio?: string
+  twitter_handle?: string
+  telegram_handle?: string
+  discord_handle?: string
+  website_url?: string
+  settings?: Partial<ProfileSettings>
+}
+
+// Recovery setup request type
+export interface RecoverySetupRequest {
+  email: string
+  password: string
+}
+
+// Password reset request type
+export interface PasswordResetRequest {
+  token: string
+  new_password: string
+}

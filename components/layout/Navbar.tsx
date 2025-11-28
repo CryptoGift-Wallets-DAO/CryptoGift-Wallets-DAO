@@ -45,7 +45,8 @@ import {
   LogOut,
   Settings,
   Lock,
-  Users
+  Users,
+  User
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -361,6 +362,16 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
 
               {/* Actions */}
               <div className="space-y-2">
+                {/* Profile Link */}
+                <Link
+                  href="/profile"
+                  className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors text-left"
+                  onClick={() => setShowDropdown(false)}
+                >
+                  <User className="w-4 h-4 text-amber-500" />
+                  <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{tWallet('profile') || 'Profile'}</span>
+                </Link>
+
                 <button
                   onClick={handleCopy}
                   className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors text-left"
