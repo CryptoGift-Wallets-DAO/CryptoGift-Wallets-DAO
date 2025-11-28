@@ -1299,15 +1299,15 @@ const crowdfundingPlatforms: CrowdfundingPlatform[] = [
 // ===== COMPONENTE PRINCIPAL =====
 export default function FundingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen theme-gradient-bg">
       {/* Professional Navbar */}
       <Navbar />
 
-      {/* Background effects */}
-      <div className="fixed inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-green-400 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+      {/* Background effects - Theme Aware */}
+      <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
+        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-green-400 dark:bg-green-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8">
