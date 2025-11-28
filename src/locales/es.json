@@ -3,6 +3,8 @@
     "dashboard": "Panel",
     "tasks": "Tareas",
     "tasksRewards": "Tareas y Recompensas",
+    "referrals": "Referidos",
+    "referralsNetwork": "Red de Referidos",
     "apex": "apeX",
     "apexAssistant": "Asistente apeX",
     "funding": "Financiamiento",
@@ -526,6 +528,152 @@
       "clearChat": "Limpiar chat",
       "connecting": "Conectando...",
       "online": "En línea"
+    }
+  },
+  "referrals": {
+    "title": "Red de Referidos",
+    "subtitle": "Crece tu red, gana recompensas CGC",
+    "accessTitle": "Acceso a Referidos",
+    "accessDescription": "El programa de referidos está disponible exclusivamente para holders de CGC. Conecta tu wallet y mantén al menos 0.01 CGC para participar y ganar recompensas.",
+    "stats": {
+      "totalReferrals": "Total Referidos",
+      "activeReferrals": "Referidos Activos",
+      "pendingRewards": "Recompensas Pendientes",
+      "totalEarned": "Total Ganado",
+      "networkSize": "Tamaño de Red",
+      "conversionRate": "Tasa de Conversión",
+      "thisMonth": "Este Mes",
+      "allTime": "Todo el Tiempo",
+      "level1": "Nivel 1",
+      "level2": "Nivel 2",
+      "level3": "Nivel 3"
+    },
+    "code": {
+      "title": "Tu Código de Referido",
+      "description": "Comparte este código con amigos para ganar CGC",
+      "copyCode": "Copiar Código",
+      "copied": "¡Copiado!",
+      "shareTitle": "Comparte Tu Link",
+      "shareDescription": "Comparte tu link único en redes sociales",
+      "generateNew": "Generar Nuevo Código",
+      "customCode": "Código Personalizado",
+      "customCodePlaceholder": "Ingresa código personalizado (mín 4 chars)",
+      "customCodeHelp": "Crea un código memorable para compartir fácilmente",
+      "setCustomCode": "Establecer Código"
+    },
+    "rewards": {
+      "title": "Estructura de Recompensas",
+      "description": "Gana tokens CGC cuando tus referidos completen tareas",
+      "level1Title": "Referidos Directos",
+      "level1Desc": "Gana 10% de las ganancias de tus referidos directos",
+      "level2Title": "Segundo Nivel",
+      "level2Desc": "Gana 5% de los referidos de tus referidos",
+      "level3Title": "Tercer Nivel",
+      "level3Desc": "Gana 2.5% del tercer nivel de tu red",
+      "bonusTitle": "Bonos por Hitos",
+      "bonusDesc": "Recompensas extra por alcanzar hitos de referidos",
+      "milestone5": "5 Referidos: +50 CGC Bonus",
+      "milestone10": "10 Referidos: +150 CGC Bonus",
+      "milestone25": "25 Referidos: +500 CGC Bonus",
+      "milestone50": "50 Referidos: +1500 CGC Bonus",
+      "milestone100": "100 Referidos: +5000 CGC Bonus"
+    },
+    "network": {
+      "title": "Tu Red",
+      "description": "Monitorea el rendimiento de tu red de referidos",
+      "directReferrals": "Referidos Directos",
+      "secondLevel": "Segundo Nivel",
+      "thirdLevel": "Tercer Nivel",
+      "totalNetwork": "Red Total",
+      "noReferrals": "Aún no tienes referidos. ¡Comparte tu código para empezar a ganar!",
+      "viewDetails": "Ver Detalles",
+      "referralDate": "Se unió",
+      "tasksCompleted": "Tareas",
+      "cgcEarned": "CGC Ganados",
+      "status": {
+        "active": "Activo",
+        "inactive": "Inactivo",
+        "pending": "Pendiente"
+      }
+    },
+    "leaderboard": {
+      "title": "Top Referidores",
+      "description": "Mejores participantes del programa de referidos",
+      "rank": "Posición",
+      "referrer": "Referidor",
+      "referrals": "Referidos",
+      "earned": "Ganado",
+      "yourRank": "Tu Posición",
+      "noData": "Aún no hay datos de clasificación"
+    },
+    "history": {
+      "title": "Historial de Recompensas",
+      "description": "Rastrea tus ganancias de referidos a lo largo del tiempo",
+      "date": "Fecha",
+      "type": "Tipo",
+      "referral": "Referido",
+      "amount": "Monto",
+      "status": "Estado",
+      "noHistory": "Aún no hay historial de recompensas",
+      "types": {
+        "directBonus": "Bono Directo",
+        "level2Bonus": "Bono Nivel 2",
+        "level3Bonus": "Bono Nivel 3",
+        "milestoneBonus": "Bono de Hito"
+      },
+      "statuses": {
+        "pending": "Pendiente",
+        "paid": "Pagado",
+        "processing": "Procesando"
+      }
+    },
+    "how": {
+      "title": "Cómo Funciona",
+      "step1": {
+        "title": "Obtén Tu Código",
+        "desc": "Genera tu código único o crea uno personalizado"
+      },
+      "step2": {
+        "title": "Comparte e Invita",
+        "desc": "Comparte tu código en redes sociales o con amigos"
+      },
+      "step3": {
+        "title": "Amigos Se Unen",
+        "desc": "Cuando amigos se registran con tu código, quedan vinculados a ti"
+      },
+      "step4": {
+        "title": "Gana Recompensas",
+        "desc": "Gana CGC cuando tus referidos completen tareas e hitos"
+      }
+    },
+    "analytics": {
+      "title": "Analíticas",
+      "description": "Información detallada sobre el rendimiento de tus referidos",
+      "clicksToday": "Clics Hoy",
+      "conversions": "Conversiones",
+      "avgEarningsPerReferral": "Ganancias Promedio/Referido",
+      "topReferralSource": "Fuente Principal",
+      "performanceChart": "Rendimiento en el Tiempo"
+    },
+    "share": {
+      "twitter": "Compartir en Twitter",
+      "telegram": "Compartir en Telegram",
+      "discord": "Compartir en Discord",
+      "copyLink": "Copiar Link",
+      "qrCode": "Código QR",
+      "downloadQR": "Descargar QR"
+    },
+    "tabs": {
+      "overview": "Resumen",
+      "network": "Red",
+      "rewards": "Recompensas",
+      "analytics": "Analíticas",
+      "leaderboard": "Clasificación"
+    },
+    "notifications": {
+      "newReferral": "¡Nuevo referido se unió!",
+      "rewardEarned": "Ganaste {amount} CGC de referidos",
+      "milestoneReached": "¡Felicidades! Alcanzaste {count} referidos"
     }
   },
   "funding": {

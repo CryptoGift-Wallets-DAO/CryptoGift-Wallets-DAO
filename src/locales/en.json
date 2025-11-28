@@ -3,6 +3,8 @@
     "dashboard": "Dashboard",
     "tasks": "Tasks",
     "tasksRewards": "Tasks & Rewards",
+    "referrals": "Referrals",
+    "referralsNetwork": "Referrals Network",
     "apex": "apeX",
     "apexAssistant": "apeX Assistant",
     "funding": "Funding",
@@ -526,6 +528,152 @@
       "clearChat": "Clear chat",
       "connecting": "Connecting...",
       "online": "Online"
+    }
+  },
+  "referrals": {
+    "title": "Referrals Network",
+    "subtitle": "Grow your network, earn CGC rewards",
+    "accessTitle": "Referrals Access",
+    "accessDescription": "The referral program is exclusively available to CGC token holders. Connect your wallet and hold at least 0.01 CGC to participate and earn referral rewards.",
+    "stats": {
+      "totalReferrals": "Total Referrals",
+      "activeReferrals": "Active Referrals",
+      "pendingRewards": "Pending Rewards",
+      "totalEarned": "Total Earned",
+      "networkSize": "Network Size",
+      "conversionRate": "Conversion Rate",
+      "thisMonth": "This Month",
+      "allTime": "All Time",
+      "level1": "Level 1",
+      "level2": "Level 2",
+      "level3": "Level 3"
+    },
+    "code": {
+      "title": "Your Referral Code",
+      "description": "Share this code with friends to earn CGC rewards",
+      "copyCode": "Copy Code",
+      "copied": "Copied!",
+      "shareTitle": "Share Your Link",
+      "shareDescription": "Share your unique referral link on social media",
+      "generateNew": "Generate New Code",
+      "customCode": "Custom Code",
+      "customCodePlaceholder": "Enter custom code (min 4 chars)",
+      "customCodeHelp": "Create a memorable custom code for easy sharing",
+      "setCustomCode": "Set Custom Code"
+    },
+    "rewards": {
+      "title": "Reward Structure",
+      "description": "Earn CGC tokens when your referrals complete tasks",
+      "level1Title": "Direct Referrals",
+      "level1Desc": "Earn 10% of your direct referrals task earnings",
+      "level2Title": "Second Level",
+      "level2Desc": "Earn 5% from referrals of your referrals",
+      "level3Title": "Third Level",
+      "level3Desc": "Earn 2.5% from third-level network",
+      "bonusTitle": "Milestone Bonuses",
+      "bonusDesc": "Extra rewards for reaching referral milestones",
+      "milestone5": "5 Referrals: +50 CGC Bonus",
+      "milestone10": "10 Referrals: +150 CGC Bonus",
+      "milestone25": "25 Referrals: +500 CGC Bonus",
+      "milestone50": "50 Referrals: +1500 CGC Bonus",
+      "milestone100": "100 Referrals: +5000 CGC Bonus"
+    },
+    "network": {
+      "title": "Your Network",
+      "description": "Track your referral network performance",
+      "directReferrals": "Direct Referrals",
+      "secondLevel": "Second Level",
+      "thirdLevel": "Third Level",
+      "totalNetwork": "Total Network",
+      "noReferrals": "No referrals yet. Share your code to start earning!",
+      "viewDetails": "View Details",
+      "referralDate": "Joined",
+      "tasksCompleted": "Tasks",
+      "cgcEarned": "CGC Earned",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "pending": "Pending"
+      }
+    },
+    "leaderboard": {
+      "title": "Top Referrers",
+      "description": "Top performers in the referral program",
+      "rank": "Rank",
+      "referrer": "Referrer",
+      "referrals": "Referrals",
+      "earned": "Earned",
+      "yourRank": "Your Rank",
+      "noData": "No leaderboard data yet"
+    },
+    "history": {
+      "title": "Reward History",
+      "description": "Track your referral earnings over time",
+      "date": "Date",
+      "type": "Type",
+      "referral": "Referral",
+      "amount": "Amount",
+      "status": "Status",
+      "noHistory": "No reward history yet",
+      "types": {
+        "directBonus": "Direct Bonus",
+        "level2Bonus": "Level 2 Bonus",
+        "level3Bonus": "Level 3 Bonus",
+        "milestoneBonus": "Milestone Bonus"
+      },
+      "statuses": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "processing": "Processing"
+      }
+    },
+    "how": {
+      "title": "How It Works",
+      "step1": {
+        "title": "Get Your Code",
+        "desc": "Generate your unique referral code or create a custom one"
+      },
+      "step2": {
+        "title": "Share & Invite",
+        "desc": "Share your code on social media or directly with friends"
+      },
+      "step3": {
+        "title": "Friends Join",
+        "desc": "When friends sign up using your code, they're linked to you"
+      },
+      "step4": {
+        "title": "Earn Rewards",
+        "desc": "Earn CGC when your referrals complete tasks and milestones"
+      }
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Detailed insights into your referral performance",
+      "clicksToday": "Clicks Today",
+      "conversions": "Conversions",
+      "avgEarningsPerReferral": "Avg. Earnings/Referral",
+      "topReferralSource": "Top Source",
+      "performanceChart": "Performance Over Time"
+    },
+    "share": {
+      "twitter": "Share on Twitter",
+      "telegram": "Share on Telegram",
+      "discord": "Share on Discord",
+      "copyLink": "Copy Link",
+      "qrCode": "QR Code",
+      "downloadQR": "Download QR"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "network": "Network",
+      "rewards": "Rewards",
+      "analytics": "Analytics",
+      "leaderboard": "Leaderboard"
+    },
+    "notifications": {
+      "newReferral": "New referral joined!",
+      "rewardEarned": "You earned {amount} CGC from referrals",
+      "milestoneReached": "Congratulations! You reached {count} referrals"
     }
   },
   "funding": {

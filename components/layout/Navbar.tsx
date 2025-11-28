@@ -44,7 +44,8 @@ import {
   Check,
   LogOut,
   Settings,
-  Lock
+  Lock,
+  Users
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -114,11 +115,11 @@ export const Navbar: React.FC = () => {
             <div className="w-px h-6 bg-gradient-to-b from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-40"></div>
 
             <Link
-              href="/agent"
+              href="/referrals"
               className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-base font-bold flex items-center gap-1"
             >
-              {t('apex')}
-              <ExternalLink className="w-3 h-3" />
+              {t('referrals')}
+              <Users className="w-3 h-3" />
             </Link>
 
             {/* Separator */}
@@ -200,11 +201,11 @@ export const Navbar: React.FC = () => {
               <div className="mx-4 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-30"></div>
 
               <Link
-                href="/agent"
-                className="block text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors px-4 py-3 font-bold text-base"
+                href="/referrals"
+                className="block text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors px-4 py-3 font-bold text-base flex items-center gap-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                {t('apexAssistant')}
+                {t('referralsNetwork')} <Users className="w-4 h-4" />
               </Link>
 
               {/* Mobile Separator */}
