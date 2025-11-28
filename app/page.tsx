@@ -30,6 +30,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
 import { ApexAgent } from '@/components/agent/ApexAgent';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { useDashboardStats, useCGCTransfer, useMilestoneRelease } from '@/lib/web3/hooks';
@@ -457,6 +458,9 @@ export default function CryptoGiftDAODashboard() {
           </div>
         </footer>
       </div>
+
+      {/* Full-width Footer */}
+      <Footer />
 
       {/* apeX Agent Floating Bubble */}
       <ApexAgent />

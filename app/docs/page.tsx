@@ -1,0 +1,715 @@
+/**
+ * 📚 Documentation Page
+ * Complete technical documentation for CryptoGift Wallets DAO
+ * 🌐 i18n: Full translation support for EN/ES
+ */
+
+'use client';
+
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Navbar } from '@/components/layout/Navbar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  FileText,
+  Coins,
+  Code,
+  Vote,
+  Map,
+  ExternalLink,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  Shield,
+  Target,
+  Users,
+  Zap,
+  BookOpen,
+  Globe,
+  Github,
+  MessageCircle,
+  Mail,
+  Twitter,
+  ChevronRight
+} from 'lucide-react';
+
+// Contract addresses
+const CONTRACTS = {
+  cgcToken: '0x5e3a61b550328f3D8C44f60b3e10a49D3d806175',
+  milestoneEscrow: '0x8346CFcaECc90d678d862319449E5a742c03f109',
+  masterController: '0x67D9a01A3F7b5D38694Bb78dD39286Db75D7D869',
+  taskRules: '0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb',
+  aragonDAO: '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31',
+};
+
+// Distribution data
+const DISTRIBUTION = [
+  { key: 'rewards', percentage: 40, amount: '800,000' },
+  { key: 'treasury', percentage: 25, amount: '500,000' },
+  { key: 'contributors', percentage: 15, amount: '300,000' },
+  { key: 'ecosystem', percentage: 10, amount: '200,000' },
+  { key: 'liquidity', percentage: 5, amount: '100,000' },
+  { key: 'reserve', percentage: 5, amount: '100,000' },
+];
+
+// Emission caps
+const CAPS = [
+  { key: 'annual', value: '800,000 CGC' },
+  { key: 'monthly', value: '66,666 CGC' },
+  { key: 'weekly', value: '16,666 CGC' },
+  { key: 'daily', value: '333 CGC' },
+];
+
+export default function DocsPage() {
+  const t = useTranslations('docs');
+  const [activeTab, setActiveTab] = useState('whitepaper');
+
+  const ContractCard = ({
+    title,
+    desc,
+    address,
+    icon: Icon
+  }: {
+    title: string;
+    desc: string;
+    address: string;
+    icon: React.ElementType;
+  }) => (
+    <Card className="glass-panel hover:shadow-lg transition-all duration-300">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+              <Icon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <CardTitle className="text-lg text-gray-900 dark:text-white">{title}</CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400">{desc}</CardDescription>
+            </div>
+          </div>
+          <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-700/50">
+            <CheckCircle2 className="h-3 w-3 mr-1" />
+            {t('contracts.verificationBadge')}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-between">
+          <code className="text-xs font-mono text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+            {address.slice(0, 10)}...{address.slice(-8)}
+          </code>
+          <Button
+            variant="outline"
+            size="sm"
+            className="dark:border-slate-600 dark:text-gray-300"
+            onClick={() => window.open(`https://basescan.org/address/${address}`, '_blank')}
+          >
+            {t('contracts.viewOnBaseScan')}
+            <ExternalLink className="h-3 w-3 ml-1" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const RoadmapQuarter = ({
+    quarterKey,
+    icon: Icon,
+    statusIcon: StatusIcon,
+    statusColor
+  }: {
+    quarterKey: string;
+    icon: React.ElementType;
+    statusIcon: React.ElementType;
+    statusColor: string;
+  }) => (
+    <Card className="glass-panel">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className={`p-2 rounded-lg ${statusColor}`}>
+              <Icon className="h-5 w-5" />
+            </div>
+            <CardTitle className="text-lg text-gray-900 dark:text-white">
+              {t(`roadmap.${quarterKey}.title`)}
+            </CardTitle>
+          </div>
+          <Badge variant="outline" className={statusColor}>
+            <StatusIcon className="h-3 w-3 mr-1" />
+            {t(`roadmap.${quarterKey}.status`)}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-2">
+          {['dao', 'voting', 'token', 'escrow', 'master', 'taskRules', 'tasks', 'admin', 'payments', 'wonderverse', 'quests', 'users', 'integrations', 'mobile', 'partnerships', 'audit', 'multichain', 'defi', 'nft', 'decentralization', 'treasury', 'governance'].map((item) => {
+            const translationKey = `roadmap.${quarterKey}.items.${item}`;
+            try {
+              const text = t(translationKey);
+              if (text && text !== translationKey) {
+                return (
+                  <li key={item} className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
+                    <ChevronRight className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                    <span>{text}</span>
+                  </li>
+                );
+              }
+              return null;
+            } catch {
+              return null;
+            }
+          }).filter(Boolean)}
+        </ul>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <>
+      <Navbar />
+      <div className="min-h-screen theme-gradient-bg">
+        {/* Background effects */}
+        <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">
+          <div className="absolute top-20 left-20 w-72 h-72 bg-indigo-400 dark:bg-indigo-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
+          <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
+        </div>
+
+        <div className="relative z-10 container mx-auto px-4 py-8">
+          {/* Header */}
+          <header className="mb-8">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="p-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500">
+                <BookOpen className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  {t('title')}
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400">{t('subtitle')}</p>
+              </div>
+            </div>
+          </header>
+
+          {/* Navigation Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+            <TabsList className="glass-panel p-1 grid w-full grid-cols-5">
+              <TabsTrigger value="whitepaper" className="data-[state=active]:glass-bubble">
+                <FileText className="h-4 w-4 mr-2" />
+                {t('nav.whitepaper')}
+              </TabsTrigger>
+              <TabsTrigger value="tokenomics" className="data-[state=active]:glass-bubble">
+                <Coins className="h-4 w-4 mr-2" />
+                {t('nav.tokenomics')}
+              </TabsTrigger>
+              <TabsTrigger value="contracts" className="data-[state=active]:glass-bubble">
+                <Code className="h-4 w-4 mr-2" />
+                {t('nav.contracts')}
+              </TabsTrigger>
+              <TabsTrigger value="governance" className="data-[state=active]:glass-bubble">
+                <Vote className="h-4 w-4 mr-2" />
+                {t('nav.governance')}
+              </TabsTrigger>
+              <TabsTrigger value="roadmap" className="data-[state=active]:glass-bubble">
+                <Map className="h-4 w-4 mr-2" />
+                {t('nav.roadmap')}
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Whitepaper Tab */}
+            <TabsContent value="whitepaper" className="space-y-6">
+              {/* Header Card */}
+              <Card className="glass-panel border-l-4 border-l-indigo-500">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl text-gray-900 dark:text-white">
+                      {t('whitepaper.title')}
+                    </CardTitle>
+                    <Badge variant="outline" className="dark:border-slate-600 dark:text-gray-300">
+                      {t('whitepaper.updated')}
+                    </Badge>
+                  </div>
+                </CardHeader>
+              </Card>
+
+              {/* Executive Summary */}
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Target className="h-5 w-5 text-indigo-500" />
+                    <span>{t('whitepaper.executive.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {t('whitepaper.executive.content')}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Vision & Mission */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="glass-panel border-l-4 border-l-blue-500">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                      <Globe className="h-5 w-5 text-blue-500" />
+                      <span>{t('whitepaper.vision.title')}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-xl font-semibold text-blue-600 dark:text-blue-400 italic">
+                      &ldquo;{t('whitepaper.vision.content')}&rdquo;
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="glass-panel border-l-4 border-l-purple-500">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                      <Zap className="h-5 w-5 text-purple-500" />
+                      <span>{t('whitepaper.mission.title')}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {t('whitepaper.mission.content')}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* The Problem */}
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <AlertTriangle className="h-5 w-5 text-amber-500" />
+                    <span>{t('whitepaper.problem.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                      {t('whitepaper.problem.barriers')}
+                    </h4>
+                    <ul className="space-y-2">
+                      {['complexity', 'incentives', 'disconnection', 'noPath'].map((item) => (
+                        <li key={item} className="flex items-start space-x-2">
+                          <ChevronRight className="h-4 w-4 text-amber-500 mt-1 flex-shrink-0" />
+                          <span className="text-gray-700 dark:text-gray-300">
+                            {t(`whitepaper.problem.barriersList.${item}`)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                      {t('whitepaper.problem.limitations')}
+                    </h4>
+                    <ul className="space-y-2">
+                      {['airdrop', 'voteBuying', 'superficial', 'disconnectedEdu'].map((item) => (
+                        <li key={item} className="flex items-start space-x-2">
+                          <ChevronRight className="h-4 w-4 text-red-500 mt-1 flex-shrink-0" />
+                          <span className="text-gray-700 dark:text-gray-300">
+                            {t(`whitepaper.problem.limitationsList.${item}`)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* The Solution */}
+              <Card className="glass-panel border-l-4 border-l-green-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    <span>{t('whitepaper.solution.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                    {t('whitepaper.solution.architecture')}
+                  </h4>
+                  <div className="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg">
+                    <code className="text-sm text-gray-800 dark:text-gray-200">
+                      {t('whitepaper.solution.flow')}
+                    </code>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Tokenomics Tab */}
+            <TabsContent value="tokenomics" className="space-y-6">
+              {/* Token Info */}
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Coins className="h-5 w-5 text-amber-500" />
+                    <span>{t('tokenomics.token.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {['name', 'symbol', 'supply', 'blockchain', 'standard', 'type'].map((key) => (
+                      <div key={key} className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {t(`tokenomics.token.${key}`)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Distribution */}
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Users className="h-5 w-5 text-blue-500" />
+                    <span>{t('tokenomics.distribution.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {DISTRIBUTION.map((item) => (
+                      <div key={item.key} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900 dark:text-white">
+                            {t(`tokenomics.distribution.${item.key}`)}
+                          </h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {t(`tokenomics.distribution.${item.key}Desc`)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                            {item.percentage}%
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {item.amount} CGC
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Emission Caps */}
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Shield className="h-5 w-5 text-green-500" />
+                    <span>{t('tokenomics.caps.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {CAPS.map((cap) => (
+                      <div key={cap.key} className="text-center p-4 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                          {t(`tokenomics.caps.${cap.key}`)}
+                        </p>
+                        <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                          {cap.value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Utility */}
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Zap className="h-5 w-5 text-purple-500" />
+                    <span>{t('tokenomics.utility.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {['governance', 'access', 'boosts'].map((item) => (
+                      <li key={item} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                        <CheckCircle2 className="h-5 w-5 text-purple-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700 dark:text-gray-300">
+                          {t(`tokenomics.utility.${item}`)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Smart Contracts Tab */}
+            <TabsContent value="contracts" className="space-y-6">
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Code className="h-5 w-5 text-blue-500" />
+                    <span>{t('contracts.title')}</span>
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">
+                    {t('contracts.subtitle')}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <ContractCard
+                  title={t('contracts.cgcToken.title')}
+                  desc={t('contracts.cgcToken.desc')}
+                  address={CONTRACTS.cgcToken}
+                  icon={Coins}
+                />
+                <ContractCard
+                  title={t('contracts.milestoneEscrow.title')}
+                  desc={t('contracts.milestoneEscrow.desc')}
+                  address={CONTRACTS.milestoneEscrow}
+                  icon={Shield}
+                />
+                <ContractCard
+                  title={t('contracts.masterController.title')}
+                  desc={t('contracts.masterController.desc')}
+                  address={CONTRACTS.masterController}
+                  icon={Code}
+                />
+                <ContractCard
+                  title={t('contracts.taskRules.title')}
+                  desc={t('contracts.taskRules.desc')}
+                  address={CONTRACTS.taskRules}
+                  icon={CheckCircle2}
+                />
+                <ContractCard
+                  title={t('contracts.aragonDAO.title')}
+                  desc={t('contracts.aragonDAO.desc')}
+                  address={CONTRACTS.aragonDAO}
+                  icon={Vote}
+                />
+              </div>
+            </TabsContent>
+
+            {/* Governance Tab */}
+            <TabsContent value="governance" className="space-y-6">
+              {/* Aragon Info */}
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Vote className="h-5 w-5 text-indigo-500" />
+                    <span>{t('governance.aragon.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
+                      <p className="text-gray-700 dark:text-gray-300">{t('governance.aragon.plugin')}</p>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
+                      <p className="text-gray-700 dark:text-gray-300">{t('governance.aragon.network')}</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="mt-4 dark:border-slate-600 dark:text-gray-300"
+                    onClick={() => window.open(`https://app.aragon.org/#/daos/base/${CONTRACTS.aragonDAO}`, '_blank')}
+                  >
+                    Open Aragon DAO
+                    <ExternalLink className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Proposal Types */}
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <FileText className="h-5 w-5 text-blue-500" />
+                    <span>{t('governance.proposalTypes.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {['tokenRelease', 'paramChanges', 'integrations', 'treasury', 'emergency'].map((item) => (
+                      <li key={item} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                        <ChevronRight className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700 dark:text-gray-300">
+                          {t(`governance.proposalTypes.${item}`)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Voting Parameters */}
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Target className="h-5 w-5 text-green-500" />
+                    <span>{t('governance.votingParams.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {['participation', 'threshold', 'duration', 'proposer'].map((item) => (
+                      <li key={item} className="p-3 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                        <span className="text-gray-700 dark:text-gray-300">
+                          {t(`governance.votingParams.${item}`)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Security */}
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Shield className="h-5 w-5 text-red-500" />
+                    <span>{t('governance.security.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {['audit', 'bounty', 'timelock', 'pause'].map((item) => (
+                      <li key={item} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                        <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700 dark:text-gray-300">
+                          {t(`governance.security.${item}`)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Roadmap Tab */}
+            <TabsContent value="roadmap" className="space-y-6">
+              <Card className="glass-panel">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Map className="h-5 w-5 text-purple-500" />
+                    <span>{t('roadmap.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <RoadmapQuarter
+                  quarterKey="q4_2024"
+                  icon={CheckCircle2}
+                  statusIcon={CheckCircle2}
+                  statusColor="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                />
+                <RoadmapQuarter
+                  quarterKey="q1_2025"
+                  icon={Clock}
+                  statusIcon={Clock}
+                  statusColor="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                />
+                <RoadmapQuarter
+                  quarterKey="q2_2025"
+                  icon={Target}
+                  statusIcon={Target}
+                  statusColor="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                />
+                <RoadmapQuarter
+                  quarterKey="q3_2025"
+                  icon={Zap}
+                  statusIcon={Target}
+                  statusColor="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+                />
+              </div>
+
+              <RoadmapQuarter
+                quarterKey="q4_2025"
+                icon={Globe}
+                statusIcon={Target}
+                statusColor="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400"
+              />
+            </TabsContent>
+          </Tabs>
+
+          {/* Disclaimer */}
+          <Card className="glass-panel mt-8 border-l-4 border-l-amber-500">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
+                <span>{t('disclaimer.title')}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                {t('disclaimer.content')}
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Contact */}
+          <Card className="glass-panel mt-8">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                <MessageCircle className="h-5 w-5 text-blue-500" />
+                <span>{t('contact.title')}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <Button
+                  variant="outline"
+                  className="flex items-center justify-center space-x-2 dark:border-slate-600 dark:text-gray-300"
+                  onClick={() => window.open('https://crypto-gift-wallets-dao.vercel.app', '_blank')}
+                >
+                  <Globe className="h-4 w-4" />
+                  <span>{t('contact.website')}</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex items-center justify-center space-x-2 dark:border-slate-600 dark:text-gray-300"
+                  onClick={() => window.open('https://discord.gg/4zBvZnQB', '_blank')}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <span>{t('contact.discord')}</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex items-center justify-center space-x-2 dark:border-slate-600 dark:text-gray-300"
+                  onClick={() => window.open('https://x.com/giftwalletcoin', '_blank')}
+                >
+                  <Twitter className="h-4 w-4" />
+                  <span>{t('contact.twitter')}</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex items-center justify-center space-x-2 dark:border-slate-600 dark:text-gray-300"
+                  onClick={() => window.open('mailto:admin@mbxart.com', '_blank')}
+                >
+                  <Mail className="h-4 w-4" />
+                  <span>{t('contact.email')}</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex items-center justify-center space-x-2 dark:border-slate-600 dark:text-gray-300"
+                  onClick={() => window.open('https://github.com/CryptoGift-Wallets-DAO', '_blank')}
+                >
+                  <Github className="h-4 w-4" />
+                  <span>{t('contact.github')}</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </>
+  );
+}

@@ -534,12 +534,254 @@
     "brand": {
       "name": "CryptoGift",
       "tagline": "DAO",
-      "description": "Gobernanza descentralizada para el ecosistema CryptoGift."
+      "description": "Gobernanza descentralizada para el ecosistema CryptoGift. Aprende. Gana. Co-gobierna."
+    },
+    "product": {
+      "title": "Producto",
+      "dashboard": "Panel",
+      "tasks": "Tareas y Recompensas",
+      "governance": "Gobernanza",
+      "viewOnChain": "Ver en Blockchain"
+    },
+    "resources": {
+      "title": "Recursos",
+      "documentation": "Documentación",
+      "whitepaper": "Whitepaper",
+      "tokenomics": "Tokenomics",
+      "github": "Código Fuente"
+    },
+    "company": {
+      "title": "Empresa",
+      "contact": "Contacto",
+      "openSource": "Código Abierto",
+      "community": "Comunidad",
+      "platform": "Plataforma Principal"
+    },
+    "stats": {
+      "totalSupply": "Suministro Total",
+      "holders": "Holders Activos",
+      "governance": "Gobernanza",
+      "network": "Red"
     },
     "bottom": {
-      "copyright": "Hecho con amor para el futuro.",
+      "copyright": "© 2025 The Moon in a Box, CryptoGift Wallets DAO. Todos los derechos reservados.",
       "builtOn": "Construido en",
       "chain": "Base"
+    }
+  },
+  "docs": {
+    "title": "Documentación",
+    "subtitle": "Documentación técnica completa del ecosistema CryptoGift Wallets DAO",
+    "nav": {
+      "whitepaper": "Whitepaper",
+      "tokenomics": "Tokenomics",
+      "contracts": "Smart Contracts",
+      "governance": "Gobernanza",
+      "roadmap": "Roadmap"
+    },
+    "whitepaper": {
+      "title": "Whitepaper v1.1",
+      "updated": "Última actualización: 9 de Enero, 2025",
+      "executive": {
+        "title": "Resumen Ejecutivo",
+        "content": "CryptoGift Wallets DAO representa una evolución natural del ecosistema CryptoGift, transformando la educación Web3 en un modelo de gobernanza descentralizada donde el aprendizaje se convierte en poder de decisión. Construido sobre Base (Ethereum L2), el DAO empodera a su comunidad para co-gobernar el protocolo mientras aprenden y ganan."
+      },
+      "vision": {
+        "title": "Visión",
+        "content": "De cero a Web3—juntos. Aprende. Gana. Co-gobierna."
+      },
+      "mission": {
+        "title": "Misión",
+        "content": "Democratizar el acceso a Web3 mediante un sistema donde completar quests educativos genera tokens de gobernanza, convirtiendo el esfuerzo de aprendizaje en voz y voto en el futuro del protocolo."
+      },
+      "problem": {
+        "title": "El Problema",
+        "barriers": "Barreras de Entrada a Web3",
+        "barriersList": {
+          "complexity": "Complejidad técnica: La curva de aprendizaje de blockchain intimida a nuevos usuarios",
+          "incentives": "Falta de incentivos: El proceso educativo tradicional no recompensa el progreso",
+          "disconnection": "Desconexión gobernanza-comunidad: Los protocolos son gobernados por early adopters con capital",
+          "noPath": "Ausencia de camino claro: No existe una ruta estructurada de novato a contribuidor"
+        },
+        "limitations": "Limitaciones de Modelos Actuales",
+        "limitationsList": {
+          "airdrop": "Airdrop farming: Comportamiento mercenario sin compromiso real",
+          "voteBuying": "Vote buying: Concentración de poder en ballenas",
+          "superficial": "Participación superficial: Usuarios que votan sin entender las propuestas",
+          "disconnectedEdu": "Educación desconectada: Cursos que no llevan a participación activa"
+        }
+      },
+      "solution": {
+        "title": "La Solución: CryptoGift Wallets DAO",
+        "architecture": "Arquitectura del Sistema",
+        "flow": "Usuario → Quest Completado → Attestation EAS → MilestoneEscrow → Tokens CGC → Poder de Gobernanza"
+      }
+    },
+    "tokenomics": {
+      "title": "Tokenomics",
+      "token": {
+        "title": "Token de Gobernanza (CGC)",
+        "name": "Nombre: CryptoGift Coin",
+        "symbol": "Símbolo: CGC",
+        "supply": "Suministro Total: 2,000,000 CGC",
+        "blockchain": "Blockchain: Base (Ethereum L2)",
+        "standard": "Estándar: ERC-20",
+        "type": "Tipo: Token de Gobernanza Puro (sin derechos económicos)"
+      },
+      "distribution": {
+        "title": "Distribución Inicial",
+        "rewards": "Recompensas Educativas",
+        "rewardsDesc": "Recompensas por quests, logros educativos, incentivos comunitarios",
+        "treasury": "Tesoro DAO",
+        "treasuryDesc": "Controlado por gobernanza para desarrollo del protocolo",
+        "contributors": "Core Contributors",
+        "contributorsDesc": "2 años vesting, 6 meses cliff",
+        "ecosystem": "Desarrollo Ecosistema",
+        "ecosystemDesc": "Grants y partnerships",
+        "liquidity": "Liquidez",
+        "liquidityDesc": "Pools DEX en Base",
+        "reserve": "Reserva Emergencia",
+        "reserveDesc": "Controlado por multisig 3/5"
+      },
+      "caps": {
+        "title": "Caps de Emisión",
+        "annual": "Cap Anual",
+        "monthly": "Cap Mensual",
+        "weekly": "Cap Semanal",
+        "daily": "Cap Diario Usuario"
+      },
+      "utility": {
+        "title": "Utilidad del Token",
+        "governance": "Gobernanza: Crear y votar propuestas, delegar poder de voto",
+        "access": "Acceso: Contenido premium, features prioritarias, badges NFT",
+        "boosts": "Boosts: Multiplicadores de experiencia, cooldowns reducidos, acceso anticipado"
+      }
+    },
+    "contracts": {
+      "title": "Smart Contracts",
+      "subtitle": "Todos los contratos desplegados y verificados en Base Mainnet",
+      "cgcToken": {
+        "title": "Token CGC",
+        "desc": "Token de gobernanza para el ecosistema DAO"
+      },
+      "milestoneEscrow": {
+        "title": "MilestoneEscrow",
+        "desc": "Custodia y liberación programática de tokens CGC con verificación EIP-712"
+      },
+      "masterController": {
+        "title": "MasterEIP712Controller",
+        "desc": "Control centralizado de autorizaciones para todos los permisos del sistema"
+      },
+      "taskRules": {
+        "title": "TaskRulesEIP712",
+        "desc": "Reglas de validación de tareas y lógica de verificación de completitud"
+      },
+      "aragonDAO": {
+        "title": "Aragon DAO",
+        "desc": "Contrato de gobernanza para propuestas y votación"
+      },
+      "viewOnBaseScan": "Ver en BaseScan",
+      "verificationBadge": "Verificado"
+    },
+    "governance": {
+      "title": "Gobernanza",
+      "aragon": {
+        "title": "Aragon OSx v1.4.0",
+        "plugin": "Plugin: Token Voting v1.3",
+        "network": "Red: Base Mainnet (Chain ID: 8453)"
+      },
+      "proposalTypes": {
+        "title": "Tipos de Propuesta",
+        "tokenRelease": "Liberación de Tokens: Distribución de recompensas vía MilestoneEscrow",
+        "paramChanges": "Cambios de Parámetros: Ajuste de caps, límites, multiplicadores",
+        "integrations": "Integraciones: Nuevas plataformas de quests",
+        "treasury": "Gestión del Tesoro: Uso de fondos del DAO",
+        "emergency": "Emergencias: Pausas, recuperación de fondos"
+      },
+      "votingParams": {
+        "title": "Parámetros de Votación",
+        "participation": "Participación Mínima: 10% del suministro total (200,000 CGC)",
+        "threshold": "Umbral de Soporte: 51% de votos emitidos",
+        "duration": "Duración Mínima: 7 días",
+        "proposer": "Poder Mínimo Proponente: 1,000 CGC"
+      },
+      "security": {
+        "title": "Medidas de Seguridad",
+        "audit": "Auditoría externa pre-lanzamiento",
+        "bounty": "Programa bug bounty (hasta 100,000 CGC)",
+        "timelock": "Timelock de 48h en funciones críticas",
+        "pause": "Mecanismo de pausa de emergencia (multisig 3/5)"
+      }
+    },
+    "roadmap": {
+      "title": "Roadmap",
+      "q4_2024": {
+        "title": "Q4 2024 - Fundación",
+        "status": "Completado",
+        "items": {
+          "dao": "Deploy DAO en Aragon",
+          "voting": "Configurar Token Voting plugin",
+          "token": "Lanzar token CGC (2M supply)",
+          "escrow": "Implementar MilestoneEscrow",
+          "master": "Deploy MasterEIP712Controller",
+          "taskRules": "Deploy TaskRulesEIP712"
+        }
+      },
+      "q1_2025": {
+        "title": "Q1 2025 - Lanzamiento",
+        "status": "En Progreso",
+        "items": {
+          "tasks": "Sistema de tareas competitivo",
+          "admin": "Panel de administración",
+          "payments": "Auto-payments implementados",
+          "wonderverse": "Integración con Wonderverse",
+          "quests": "Primeras 100 quests live",
+          "users": "1,000 usuarios activos"
+        }
+      },
+      "q2_2025": {
+        "title": "Q2 2025 - Crecimiento",
+        "status": "Planificado",
+        "items": {
+          "integrations": "Integración Dework y Zealy",
+          "mobile": "Lanzamiento app móvil",
+          "users": "10,000 usuarios activos",
+          "partnerships": "5 partnerships con protocolos",
+          "audit": "Auditoría de seguridad completa"
+        }
+      },
+      "q3_2025": {
+        "title": "Q3 2025 - Expansión",
+        "status": "Planificado",
+        "items": {
+          "multichain": "Deployment multi-chain",
+          "defi": "Quests avanzados de DeFi",
+          "users": "50,000 usuarios activos",
+          "nft": "Sistema de badges NFT"
+        }
+      },
+      "q4_2025": {
+        "title": "Q4 2025 - Madurez",
+        "status": "Planificado",
+        "items": {
+          "decentralization": "Descentralización completa",
+          "users": "100,000 usuarios activos",
+          "treasury": "Tesoro auto-sostenible",
+          "governance": "Gobernanza v2.0 con mejoras UX"
+        }
+      }
+    },
+    "disclaimer": {
+      "title": "Aviso Legal",
+      "content": "Esta documentación es un documento vivo que evoluciona con el feedback de la comunidad. Los tokens CGC son tokens de gobernanza pura y NO constituyen securities ni otorgan derechos económicos o financieros. No existe 'revenue sharing' asociado al token CGC. El token otorga exclusivamente derechos de gobernanza y acceso a features del protocolo. Participa bajo tu propio riesgo."
+    },
+    "contact": {
+      "title": "Contacto",
+      "website": "Sitio Web",
+      "discord": "Discord",
+      "twitter": "Twitter",
+      "email": "Email",
+      "github": "GitHub"
     }
   },
   "taskData": {
