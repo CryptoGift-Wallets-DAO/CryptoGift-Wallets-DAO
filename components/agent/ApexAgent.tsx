@@ -195,7 +195,7 @@ function ApexAgentInner() {
               <div className="h-8 w-8 rounded-full overflow-hidden border border-purple-500/30">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/apeX-avatar.png"
+                  src="/apeX22.PNG"
                   alt="apeX"
                   className="w-full h-full object-cover"
                 />
@@ -251,7 +251,7 @@ function ApexAgentInner() {
                 <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-purple-500/20 mb-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/apeX-avatar.png"
+                    src="/apeX22.PNG"
                     alt="apeX"
                     className="w-full h-full object-cover"
                   />

@@ -58,7 +58,7 @@ export default function AgentPage() {
                   <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-purple-500/30 shadow-lg shadow-purple-500/20">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src="/apeX-avatar.png"
+                      src="/apeX22.PNG"
                       alt="apeX"
                       className="w-full h-full object-cover"
                     />
