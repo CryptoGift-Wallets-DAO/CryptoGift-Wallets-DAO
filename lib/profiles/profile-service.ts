@@ -50,13 +50,25 @@ const TIER_COLORS: Record<ProfileTier, string> = {
 };
 
 // =====================================================
-// 🔧 SUPABASE CLIENT
+// 🔧 SUPABASE CLIENT (LAZY INITIALIZATION)
 // =====================================================
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+// Lazy initialization to prevent build-time errors when env vars are not set
+let _supabase: ReturnType<typeof createClient> | null = null;
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+function getSupabase() {
+  if (!_supabase) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Supabase environment variables not configured (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)');
+    }
+
+    _supabase = createClient(supabaseUrl, supabaseServiceKey);
+  }
+  return _supabase;
+}
 
 // =====================================================
 // 🎯 HELPER FUNCTIONS
@@ -140,7 +152,7 @@ async function logActivity(
       metadata: metadata ?? null,
     };
 
-    await supabase.from('profile_activity_log').insert(log);
+    await getSupabase().from('profile_activity_log').insert(log);
   } catch (error) {
     console.error('Failed to log activity:', error);
   }
@@ -161,7 +173,7 @@ export async function getOrCreateProfile(walletAddress: string): Promise<UserPro
   const normalizedWallet = walletAddress.toLowerCase();
 
   // Try to get existing profile
-  const { data: existing, error: fetchError } = await supabase
+  const { data: existing, error: fetchError } = await getSupabase()
     .from('user_profiles')
     .select('*')
     .eq('wallet_address', normalizedWallet)
@@ -169,7 +181,7 @@ export async function getOrCreateProfile(walletAddress: string): Promise<UserPro
 
   if (existing) {
     // Update login stats
-    await supabase
+    await getSupabase()
       .from('user_profiles')
       .update({
         last_login_at: new Date().toISOString(),
@@ -187,7 +199,7 @@ export async function getOrCreateProfile(walletAddress: string): Promise<UserPro
     login_count: 1,
   };
 
-  const { data: created, error: createError } = await supabase
+  const { data: created, error: createError } = await getSupabase()
     .from('user_profiles')
     .insert(newProfile)
     .select()
@@ -210,7 +222,7 @@ export async function getProfileByWallet(walletAddress: string): Promise<UserPro
     return null;
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('user_profiles')
     .select('*')
     .eq('wallet_address', walletAddress.toLowerCase())
@@ -227,7 +239,7 @@ export async function getProfileByWallet(walletAddress: string): Promise<UserPro
  * Get profile by username
  */
 export async function getProfileByUsername(username: string): Promise<UserProfile | null> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('user_profiles')
     .select('*')
     .eq('username', username.toLowerCase())
@@ -315,7 +327,7 @@ export async function updateProfile(
   delete safeUpdates.total_referrals;
   delete safeUpdates.reputation_score;
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('user_profiles')
     .update({
       ...safeUpdates,
@@ -376,7 +388,7 @@ export async function setupRecovery(
   }
 
   // Check if email is already used by another account
-  const { data: existingEmail } = await supabase
+  const { data: existingEmail } = await getSupabase()
     .from('user_profiles')
     .select('id')
     .eq('email', email.toLowerCase())
@@ -394,7 +406,7 @@ export async function setupRecovery(
   expiresAt.setHours(expiresAt.getHours() + EMAIL_VERIFY_EXPIRY_HOURS);
 
   // Update profile
-  const { error: updateError } = await supabase
+  const { error: updateError } = await getSupabase()
     .from('user_profiles')
     .update({
       email: email.toLowerCase(),
@@ -411,7 +423,7 @@ export async function setupRecovery(
   }
 
   // Create recovery request record
-  await supabase.from('profile_recovery_requests').insert({
+  await getSupabase().from('profile_recovery_requests').insert({
     user_id: profile.id,
     recovery_type: 'email_verify',
     token: verificationToken,
@@ -433,7 +445,7 @@ export async function setupRecovery(
  */
 export async function verifyEmail(token: string): Promise<{ success: boolean; wallet: string }> {
   // Find request by token
-  const { data: request, error: requestError } = await supabase
+  const { data: request, error: requestError } = await getSupabase()
     .from('profile_recovery_requests')
     .select('*, user_profiles!inner(wallet_address)')
     .eq('token', token)
@@ -447,7 +459,7 @@ export async function verifyEmail(token: string): Promise<{ success: boolean; wa
 
   // Check if expired
   if (new Date(request.expires_at) < new Date()) {
-    await supabase
+    await getSupabase()
       .from('profile_recovery_requests')
       .update({ status: 'expired' })
       .eq('id', request.id);
@@ -455,7 +467,7 @@ export async function verifyEmail(token: string): Promise<{ success: boolean; wa
   }
 
   // Update request status
-  await supabase
+  await getSupabase()
     .from('profile_recovery_requests')
     .update({
       status: 'completed',
@@ -464,7 +476,7 @@ export async function verifyEmail(token: string): Promise<{ success: boolean; wa
     .eq('id', request.id);
 
   // Update profile
-  await supabase
+  await getSupabase()
     .from('user_profiles')
     .update({
       email_verified: true,
@@ -495,7 +507,7 @@ export async function requestPasswordReset(
     return { success: true, message: 'If email exists, reset instructions will be sent' };
   }
 
-  const { data: profile, error } = await supabase
+  const { data: profile, error } = await getSupabase()
     .from('user_profiles')
     .select('*')
     .eq('email', email.toLowerCase())
@@ -508,7 +520,7 @@ export async function requestPasswordReset(
   }
 
   // Cancel existing pending requests
-  await supabase
+  await getSupabase()
     .from('profile_recovery_requests')
     .update({ status: 'cancelled' })
     .eq('user_id', profile.id)
@@ -521,7 +533,7 @@ export async function requestPasswordReset(
   expiresAt.setHours(expiresAt.getHours() + PASSWORD_RESET_EXPIRY_HOURS);
 
   // Update profile
-  await supabase
+  await getSupabase()
     .from('user_profiles')
     .update({
       password_reset_token: resetToken,
@@ -531,7 +543,7 @@ export async function requestPasswordReset(
     .eq('id', profile.id);
 
   // Create recovery request
-  await supabase.from('profile_recovery_requests').insert({
+  await getSupabase().from('profile_recovery_requests').insert({
     user_id: profile.id,
     recovery_type: 'password_reset',
     token: resetToken,
@@ -556,7 +568,7 @@ export async function resetPassword(
   }
 
   // Find request by token
-  const { data: request, error: requestError } = await supabase
+  const { data: request, error: requestError } = await getSupabase()
     .from('profile_recovery_requests')
     .select('*, user_profiles!inner(wallet_address)')
     .eq('token', token)
@@ -570,7 +582,7 @@ export async function resetPassword(
 
   // Check if expired
   if (new Date(request.expires_at) < new Date()) {
-    await supabase
+    await getSupabase()
       .from('profile_recovery_requests')
       .update({ status: 'expired' })
       .eq('id', request.id);
@@ -581,7 +593,7 @@ export async function resetPassword(
   const passwordHash = await hashPassword(newPassword);
 
   // Update request status
-  await supabase
+  await getSupabase()
     .from('profile_recovery_requests')
     .update({
       status: 'completed',
@@ -590,7 +602,7 @@ export async function resetPassword(
     .eq('id', request.id);
 
   // Update profile
-  await supabase
+  await getSupabase()
     .from('user_profiles')
     .update({
       password_hash: passwordHash,
@@ -621,7 +633,7 @@ export async function loginWithCredentials(
     throw new Error('Invalid credentials');
   }
 
-  const { data: profile, error } = await supabase
+  const { data: profile, error } = await getSupabase()
     .from('user_profiles')
     .select('*')
     .eq('email', email.toLowerCase())
@@ -638,7 +650,7 @@ export async function loginWithCredentials(
   }
 
   // Update login stats
-  await supabase
+  await getSupabase()
     .from('user_profiles')
     .update({
       last_login_at: new Date().toISOString(),
@@ -699,7 +711,7 @@ export async function getProfileLeaderboard(options: {
     referrals: 'total_referrals',
   }[sortBy];
 
-  const { data, error, count } = await supabase
+  const { data, error, count } = await getSupabase()
     .from('user_profiles')
     .select('*', { count: 'exact' })
     .eq('is_public', true)
@@ -750,7 +762,7 @@ export async function searchProfiles(
     return [];
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('user_profiles')
     .select('*')
     .eq('is_public', true)
@@ -796,7 +808,7 @@ export async function isUsernameAvailable(
     return false;
   }
 
-  let query = supabase
+  let query = getSupabase()
     .from('user_profiles')
     .select('id')
     .eq('username', username.toLowerCase());
