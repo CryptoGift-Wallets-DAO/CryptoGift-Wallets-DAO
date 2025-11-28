@@ -8,7 +8,6 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
 import {
@@ -19,7 +18,9 @@ import {
   Loader2,
   ChevronUp,
   Trash2,
-  ExternalLink
+  ExternalLink,
+  AlertCircle,
+  RotateCcw
 } from 'lucide-react';
 import { useAccount } from '@/lib/thirdweb';
 import { useCGCBalance } from '@/lib/web3/hooks';
@@ -74,15 +75,16 @@ function ApexAgentInner() {
   const cgcBalance = parseFloat(balance || '0');
   const hasAccess = isConnected && cgcBalance >= 0.01;
 
-  // Agent hook with persistent session
+  // Agent hook with persistent session (shared across all pages)
   const {
     messages,
     isLoading,
     isConnected: agentConnected,
     sendMessage,
     clearMessages,
+    pendingMessage,
+    dismissPendingMessage,
   } = useAgent({
-    sessionId: 'apex-floating-widget',
     mode: 'general',
     stream: true,
   });
@@ -154,6 +156,14 @@ function ApexAgentInner() {
     }
   };
 
+  // Recover pending message
+  const handleRecoverMessage = useCallback(() => {
+    if (pendingMessage) {
+      setInput(pendingMessage);
+      dismissPendingMessage();
+    }
+  }, [pendingMessage, dismissPendingMessage]);
+
   // Navigate to full chat
   const handleOpenFullChat = () => {
     setIsOpen(false);
@@ -183,11 +193,10 @@ function ApexAgentInner() {
           <div className="flex items-center justify-between p-3 border-b border-gray-200/50 dark:border-slate-700/50 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 rounded-full overflow-hidden border border-purple-500/30">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src="/apeX-avatar.png"
                   alt="apeX"
-                  width={32}
-                  height={32}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -240,11 +249,10 @@ function ApexAgentInner() {
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-purple-500/20 mb-3">
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src="/apeX-avatar.png"
                     alt="apeX"
-                    width={48}
-                    height={48}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -267,6 +275,34 @@ function ApexAgentInner() {
 
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Pending message recovery banner */}
+          {pendingMessage && (
+            <div className="px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border-t border-amber-200/50 dark:border-amber-700/30">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2 text-amber-700 dark:text-amber-300">
+                  <AlertCircle className="h-3 w-3" />
+                  <span className="truncate max-w-[150px]">Unsent: &quot;{pendingMessage.slice(0, 30)}...&quot;</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <button
+                    onClick={handleRecoverMessage}
+                    className="p-1 rounded hover:bg-amber-200/50 dark:hover:bg-amber-800/50 text-amber-700 dark:text-amber-300"
+                    title="Recover message"
+                  >
+                    <RotateCcw className="h-3 w-3" />
+                  </button>
+                  <button
+                    onClick={dismissPendingMessage}
+                    className="p-1 rounded hover:bg-amber-200/50 dark:hover:bg-amber-800/50 text-amber-700 dark:text-amber-300"
+                    title="Dismiss"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Input */}
           <div className="p-3 border-t border-gray-200/50 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/80">
@@ -327,13 +363,11 @@ function ApexAgentInner() {
         )}
       >
         {/* apeX Avatar */}
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src="/apeX22.PNG"
           alt="apeX Assistant"
-          width={56}
-          height={56}
           className="w-full h-full object-cover"
-          priority
         />
 
         {/* Overlay when open or no access */}

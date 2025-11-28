@@ -16,7 +16,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -163,13 +162,11 @@ export function AgentChat({
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="h-8 w-8 rounded-full overflow-hidden border border-purple-500/30 shadow-sm shadow-purple-500/20">
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src="/apeX-avatar.png"
                     alt="apeX"
-                    width={32}
-                    height={32}
                     className="w-full h-full object-cover"
-                    priority
                   />
                 </div>
                 <div>
@@ -410,11 +407,10 @@ function MessageBubble({ message, onCopy, isCopied, t }: MessageBubbleProps) {
         </Avatar>
       ) : (
         <div className="h-8 w-8 flex-shrink-0 rounded-full overflow-hidden border border-purple-500/30 shadow-sm shadow-purple-500/20">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/apeX-avatar.png"
             alt="apeX"
-            width={32}
-            height={32}
             className="w-full h-full object-cover"
           />
         </div>

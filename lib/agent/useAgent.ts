@@ -8,15 +8,89 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { nanoid } from 'nanoid';
-import type { 
-  AgentRequest, 
-  AgentResponse, 
-  AgentStreamChunk, 
-  ChatMessage, 
+import type {
+  AgentRequest,
+  AgentResponse,
+  AgentStreamChunk,
+  ChatMessage,
   ChatSession,
   AgentModeId,
-  AgentError 
+  AgentError
 } from './types';
+
+// ===================================================
+// 💾 PERSISTENCE LAYER
+// ===================================================
+
+const STORAGE_KEY = 'apex-agent-conversation';
+const PENDING_KEY = 'apex-agent-pending';
+
+function saveMessagesToStorage(messages: ChatMessage[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    const data = {
+      messages,
+      lastUpdated: Date.now(),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (err) {
+    console.warn('Failed to save messages to storage:', err);
+  }
+}
+
+function loadMessagesFromStorage(): ChatMessage[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const data = JSON.parse(stored);
+      // Only load messages from the last 24 hours
+      const dayAgo = Date.now() - (24 * 60 * 60 * 1000);
+      if (data.lastUpdated > dayAgo && Array.isArray(data.messages)) {
+        return data.messages;
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to load messages from storage:', err);
+  }
+  return [];
+}
+
+function savePendingMessage(message: string) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(PENDING_KEY, JSON.stringify({ message, timestamp: Date.now() }));
+  } catch (err) {
+    console.warn('Failed to save pending message:', err);
+  }
+}
+
+function loadPendingMessage(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = localStorage.getItem(PENDING_KEY);
+    if (stored) {
+      const data = JSON.parse(stored);
+      // Only recover messages from the last hour
+      const hourAgo = Date.now() - (60 * 60 * 1000);
+      if (data.timestamp > hourAgo) {
+        return data.message;
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to load pending message:', err);
+  }
+  return null;
+}
+
+function clearPendingMessage() {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(PENDING_KEY);
+  } catch (err) {
+    console.warn('Failed to clear pending message:', err);
+  }
+}
 
 // ===================================================
 // 🎣 HOOK INTERFACE
@@ -39,17 +113,19 @@ export interface UseAgentReturn {
   isConnected: boolean;
   session: ChatSession | null;
   error: AgentError | null;
-  
-  // Actions  
+  pendingMessage: string | null;
+
+  // Actions
   sendMessage: (message: string, options?: { mode?: AgentModeId }) => Promise<void>;
   clearMessages: () => void;
   changeMode: (mode: AgentModeId) => void;
   retry: () => void;
-  
+  dismissPendingMessage: () => void;
+
   // Session management
   sessionId: string;
   loadSession: (sessionId: string) => Promise<void>;
-  
+
   // Utils
   exportSession: () => string;
   getMetrics: () => Promise<any>;
@@ -70,18 +146,26 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
     onMetrics
   } = options;
 
-  // State
+  // State - Load messages from storage on init
   const [sessionId] = useState(() => initialSessionId || nanoid());
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => loadMessagesFromStorage());
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
   const [session, setSession] = useState<ChatSession | null>(null);
   const [error, setError] = useState<AgentError | null>(null);
   const [currentMode, setCurrentMode] = useState<AgentModeId>(mode);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(() => loadPendingMessage());
 
   // Refs
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastMessageRef = useRef<string>('');
+
+  // Auto-save messages to localStorage when they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      saveMessagesToStorage(messages);
+    }
+  }, [messages]);
 
   // ===================================================
   // 🔄 SESSION MANAGEMENT
@@ -349,14 +433,18 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
   const sendMessage = useCallback(async (message: string, options: { mode?: AgentModeId } = {}) => {
     if (!message.trim()) return;
     if (isLoading) return;
-    
+
     const messageMode: AgentModeId = options.mode || currentMode;
-    
+
+    // Save message as pending before sending (recovery on connection failure)
+    savePendingMessage(message);
+    setPendingMessage(message);
+
     try {
       setIsLoading(true);
       setError(null);
       lastMessageRef.current = message;
-      
+
       // Add user message
       addMessage({
         role: 'user',
@@ -364,7 +452,7 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
         timestamp: Date.now(),
         metadata: { mode: messageMode }
       });
-      
+
       // Prepare request
       const request: AgentRequest = {
         message,
@@ -373,9 +461,13 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
         mode: messageMode,
         stream,
       };
-      
+
       // Handle response (streaming or non-streaming)
       await handleStreamResponse(request);
+
+      // Success - clear pending message
+      clearPendingMessage();
+      setPendingMessage(null);
       
     } catch (err) {
       const agentError: AgentError = {
@@ -399,6 +491,16 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
   const clearMessages = useCallback(() => {
     setMessages([]);
     setError(null);
+    // Also clear from localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, []);
+
+  // Dismiss pending message (user chooses not to recover)
+  const dismissPendingMessage = useCallback(() => {
+    clearPendingMessage();
+    setPendingMessage(null);
   }, []);
 
   const changeMode = useCallback((newMode: AgentModeId) => {
@@ -479,13 +581,15 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentReturn {
     isConnected,
     session,
     error,
-    
+    pendingMessage,
+
     // Actions
     sendMessage,
     clearMessages,
     changeMode,
     retry,
-    
+    dismissPendingMessage,
+
     // Session
     sessionId,
     loadSession,

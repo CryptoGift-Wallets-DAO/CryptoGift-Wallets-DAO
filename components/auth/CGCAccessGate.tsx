@@ -10,7 +10,6 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import { useAccount, useNetwork, useCGCBalance } from '@/lib/thirdweb'
 import { ConnectButtonDAO } from '@/components/thirdweb/ConnectButtonDAO'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -45,13 +44,11 @@ function GateBackground({ children }: { children: React.ReactNode }) {
 function ApexAvatar({ className = "h-16 w-16" }: { className?: string }) {
   return (
     <div className={`${className} rounded-full overflow-hidden border-2 border-purple-500/30 shadow-lg shadow-purple-500/20`}>
-      <Image
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src="/apeX-avatar.png"
         alt="apeX"
-        width={64}
-        height={64}
         className="w-full h-full object-cover"
-        priority
       />
     </div>
   )
