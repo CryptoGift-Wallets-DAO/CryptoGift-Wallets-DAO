@@ -16,10 +16,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -161,10 +162,16 @@ export function AgentChat({
           <div className="p-4 border-b border-gray-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="/apeX-avatar.png" alt="apeX" />
-                  <AvatarFallback className="bg-blue-600 text-white">aX</AvatarFallback>
-                </Avatar>
+                <div className="h-8 w-8 rounded-full overflow-hidden border border-purple-500/30 shadow-sm shadow-purple-500/20">
+                  <Image
+                    src="/apeX-avatar.png"
+                    alt="apeX"
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-cover"
+                    priority
+                  />
+                </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">apeX</h3>
                   <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
@@ -395,15 +402,23 @@ function MessageBubble({ message, onCopy, isCopied, t }: MessageBubbleProps) {
       'flex items-start space-x-3',
       isUser && 'flex-row-reverse space-x-reverse'
     )}>
-      <Avatar className="h-8 w-8 flex-shrink-0">
-        {!isUser && <AvatarImage src="/apeX-avatar.png" alt="apeX" />}
-        <AvatarFallback className={cn(
-          isUser ? 'bg-green-600' : 'bg-blue-600',
-          'text-white'
-        )}>
-          {isUser ? <User className="h-4 w-4" /> : 'aX'}
-        </AvatarFallback>
-      </Avatar>
+      {isUser ? (
+        <Avatar className="h-8 w-8 flex-shrink-0">
+          <AvatarFallback className="bg-green-600 text-white">
+            <User className="h-4 w-4" />
+          </AvatarFallback>
+        </Avatar>
+      ) : (
+        <div className="h-8 w-8 flex-shrink-0 rounded-full overflow-hidden border border-purple-500/30 shadow-sm shadow-purple-500/20">
+          <Image
+            src="/apeX-avatar.png"
+            alt="apeX"
+            width={32}
+            height={32}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
 
       <div className={cn(
         'flex-1 min-w-0',
