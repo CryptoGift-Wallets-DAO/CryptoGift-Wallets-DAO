@@ -9,6 +9,7 @@
 
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm"; -- For trigram-based fuzzy text search
 
 -- ============================================================================
 -- 🗃️ TABLES

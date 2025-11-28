@@ -18,6 +18,7 @@ import type {
   ProfileSettings,
   ProfileTier,
   ProfileActivityLogInsert,
+  Json,
 } from '@/lib/supabase/types';
 
 // =====================================================
@@ -129,14 +130,14 @@ async function logActivity(
   userId: string,
   action: string,
   description?: string,
-  metadata?: Record<string, unknown>
+  metadata?: Json
 ): Promise<void> {
   try {
     const log: ProfileActivityLogInsert = {
       user_id: userId,
       action,
       description,
-      metadata: metadata || {},
+      metadata: metadata ?? null,
     };
 
     await supabase.from('profile_activity_log').insert(log);

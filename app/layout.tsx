@@ -4,6 +4,7 @@ import './globals.css';
 import { ToastProvider } from '@/components/ui/toast';
 import { Web3Provider } from '@/lib/thirdweb/provider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { ReferralTracker } from '@/components/providers/ReferralTracker';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { GlobalWidgets } from '@/components/layout/GlobalWidgets';
@@ -41,12 +42,14 @@ export default async function RootLayout({
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
             <Web3Provider>
-              <ToastProvider>
-                <main className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
-                  {children}
-                </main>
-                <GlobalWidgets />
-              </ToastProvider>
+              <ReferralTracker>
+                <ToastProvider>
+                  <main className="min-h-screen min-h-[100dvh] bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+                    {children}
+                  </main>
+                  <GlobalWidgets />
+                </ToastProvider>
+              </ReferralTracker>
             </Web3Provider>
           </NextIntlClientProvider>
         </ThemeProvider>

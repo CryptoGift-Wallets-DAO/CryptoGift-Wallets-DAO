@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useAccount } from '@/lib/thirdweb';
 import { useProfileManager, useUsernameCheck } from '@/hooks/useProfile';
@@ -112,10 +113,13 @@ export default function ProfilePage() {
             <div className="relative group">
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center overflow-hidden">
                 {profile?.avatar_url ? (
-                  <img
+                  <Image
                     src={profile.avatar_url}
                     alt="Avatar"
+                    width={96}
+                    height={96}
                     className="w-full h-full object-cover"
+                    unoptimized
                   />
                 ) : (
                   <User className="w-12 h-12 text-white" />
