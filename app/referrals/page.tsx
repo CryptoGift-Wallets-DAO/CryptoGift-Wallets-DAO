@@ -16,6 +16,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAccount } from '@/lib/thirdweb';
 import {
+  useReferralDashboard,
+  useReferralLeaderboard,
+  type ReferralStats as HookReferralStats,
+  type LeaderboardEntry as HookLeaderboardEntry,
+} from '@/hooks/useReferrals';
+import {
   Users,
   Copy,
   Check,
@@ -39,7 +45,9 @@ import {
   Target,
   Zap,
   Network,
-  Star
+  Star,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
 
 // ===== TYPES =====
@@ -71,14 +79,15 @@ interface LeaderboardEntry {
   earned: number;
 }
 
-// ===== MOCK DATA (To be replaced with API calls) =====
+// ===== HELPER FUNCTIONS =====
 const generateReferralCode = (address: string): string => {
   if (!address) return 'CGDAO';
   const shortened = address.slice(2, 8).toUpperCase();
   return `CG-${shortened}`;
 };
 
-const mockStats: ReferralStats = {
+// Default stats when API is loading
+const defaultStats: ReferralStats = {
   totalReferrals: 0,
   activeReferrals: 0,
   pendingRewards: 0,
@@ -88,14 +97,6 @@ const mockStats: ReferralStats = {
   level3Count: 0,
   conversionRate: 0
 };
-
-const mockLeaderboard: LeaderboardEntry[] = [
-  { rank: 1, address: '0x742d...F8E2', referrals: 47, earned: 1250 },
-  { rank: 2, address: '0x8B3a...A1C9', referrals: 35, earned: 890 },
-  { rank: 3, address: '0x5F2e...D4B7', referrals: 28, earned: 720 },
-  { rank: 4, address: '0x9E1f...C3A6', referrals: 22, earned: 580 },
-  { rank: 5, address: '0x3D4c...B2E8', referrals: 18, earned: 450 },
-];
 
 // ===== MAIN COMPONENT =====
 export default function ReferralsPage() {
@@ -154,12 +155,27 @@ function ReferralsDashboard() {
   const { address } = useAccount();
   const [activeTab, setActiveTab] = useState<'overview' | 'network' | 'rewards' | 'leaderboard'>('overview');
   const [copied, setCopied] = useState(false);
-  const [stats] = useState<ReferralStats>(mockStats);
 
-  const referralCode = generateReferralCode(address || '');
-  const referralLink = typeof window !== 'undefined'
+  // Use real data from hooks
+  const { code, stats: apiStats, links, isLoading, refetchAll } = useReferralDashboard(address);
+
+  // Map API stats to local format
+  const stats: ReferralStats = apiStats.stats ? {
+    totalReferrals: apiStats.stats.totalReferrals,
+    activeReferrals: apiStats.stats.activeReferrals,
+    pendingRewards: apiStats.stats.pendingRewards,
+    totalEarned: apiStats.stats.totalEarned,
+    level1Count: apiStats.stats.network?.level1 || 0,
+    level2Count: apiStats.stats.network?.level2 || 0,
+    level3Count: apiStats.stats.network?.level3 || 0,
+    conversionRate: apiStats.stats.engagement?.conversionRate || 0,
+  } : defaultStats;
+
+  // Use API-generated code or fallback to generated code
+  const referralCode = code.code || generateReferralCode(address || '');
+  const referralLink = links.links?.default || (typeof window !== 'undefined'
     ? `${window.location.origin}?ref=${referralCode}`
-    : `https://cryptogift-dao.com?ref=${referralCode}`;
+    : `https://cryptogift-dao.com?ref=${referralCode}`);
 
   const handleCopy = useCallback(async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -325,7 +341,7 @@ function ReferralsDashboard() {
       {activeTab === 'overview' && <OverviewTab />}
       {activeTab === 'network' && <NetworkTab stats={stats} />}
       {activeTab === 'rewards' && <RewardsTab />}
-      {activeTab === 'leaderboard' && <LeaderboardTab leaderboard={mockLeaderboard} />}
+      {activeTab === 'leaderboard' && <LeaderboardTabWithData />}
     </div>
   );
 }
@@ -528,7 +544,36 @@ function RewardsTab() {
   );
 }
 
-function LeaderboardTab({ leaderboard }: { leaderboard: LeaderboardEntry[] }) {
+// Wrapper component that fetches leaderboard data from API
+function LeaderboardTabWithData() {
+  const { address } = useAccount();
+  const { leaderboard, isLoading, userPosition, refetch } = useReferralLeaderboard({
+    wallet: address,
+    limit: 20,
+  });
+
+  // Convert API data to local format
+  const formattedLeaderboard: LeaderboardEntry[] = leaderboard.map(entry => ({
+    rank: entry.rank,
+    address: entry.addressShort,
+    referrals: entry.totalReferrals,
+    earned: entry.totalEarnings,
+  }));
+
+  if (isLoading) {
+    return (
+      <Card className="glass-panel">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return <LeaderboardTab leaderboard={formattedLeaderboard} userPosition={userPosition} />;
+}
+
+function LeaderboardTab({ leaderboard, userPosition }: { leaderboard: LeaderboardEntry[]; userPosition?: any }) {
   const t = useTranslations('referrals');
 
   return (
@@ -543,6 +588,20 @@ function LeaderboardTab({ leaderboard }: { leaderboard: LeaderboardEntry[] }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* User Position Banner */}
+        {userPosition && userPosition.rank > 0 && (
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-blue-700 dark:text-blue-300">
+                Your Position: #{userPosition.rank}
+              </span>
+              <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                {userPosition.totalEarnings} CGC earned
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -562,44 +621,52 @@ function LeaderboardTab({ leaderboard }: { leaderboard: LeaderboardEntry[] }) {
               </tr>
             </thead>
             <tbody>
-              {leaderboard.map((entry) => (
-                <tr
-                  key={entry.rank}
-                  className="border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50"
-                >
-                  <td className="py-3 px-4">
-                    <div className="flex items-center space-x-2">
-                      {entry.rank <= 3 && (
-                        <span className={`text-lg ${
-                          entry.rank === 1 ? 'text-amber-500' :
-                          entry.rank === 2 ? 'text-gray-400' :
-                          'text-amber-700'
-                        }`}>
-                          {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : '🥉'}
+              {leaderboard.length > 0 ? (
+                leaderboard.map((entry) => (
+                  <tr
+                    key={entry.rank}
+                    className="border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50"
+                  >
+                    <td className="py-3 px-4">
+                      <div className="flex items-center space-x-2">
+                        {entry.rank <= 3 && (
+                          <span className={`text-lg ${
+                            entry.rank === 1 ? 'text-amber-500' :
+                            entry.rank === 2 ? 'text-gray-400' :
+                            'text-amber-700'
+                          }`}>
+                            {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : '🥉'}
+                          </span>
+                        )}
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          #{entry.rank}
                         </span>
-                      )}
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        #{entry.rank}
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="font-mono text-sm text-gray-700 dark:text-gray-300">
+                        {entry.address}
                       </span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="font-mono text-sm text-gray-700 dark:text-gray-300">
-                      {entry.address}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-                      {entry.referrals}
-                    </Badge>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <span className="font-semibold text-gray-900 dark:text-white">
-                      {entry.earned} CGC
-                    </span>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                        {entry.referrals}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {entry.earned} CGC
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="py-8 text-center text-gray-500 dark:text-gray-400">
+                    No referrers yet. Be the first to start building your network!
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

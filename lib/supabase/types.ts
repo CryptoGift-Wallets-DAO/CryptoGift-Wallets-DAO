@@ -257,6 +257,164 @@ export interface Database {
           created_at?: string
         }
       }
+      // ============================================
+      // 🤝 REFERRAL SYSTEM TABLES
+      // ============================================
+      referral_codes: {
+        Row: {
+          id: string
+          wallet_address: string
+          code: string
+          custom_code: string | null
+          is_active: boolean
+          total_referrals: number
+          total_earnings: number
+          click_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          wallet_address: string
+          code: string
+          custom_code?: string | null
+          is_active?: boolean
+          total_referrals?: number
+          total_earnings?: number
+          click_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          wallet_address?: string
+          code?: string
+          custom_code?: string | null
+          is_active?: boolean
+          total_referrals?: number
+          total_earnings?: number
+          click_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      referrals: {
+        Row: {
+          id: string
+          referrer_address: string
+          referred_address: string
+          referral_code: string
+          level: 1 | 2 | 3
+          status: 'pending' | 'active' | 'inactive'
+          tasks_completed: number
+          cgc_earned: number
+          referrer_earnings: number
+          joined_at: string
+          last_activity: string | null
+          metadata: Json | null
+        }
+        Insert: {
+          id?: string
+          referrer_address: string
+          referred_address: string
+          referral_code: string
+          level?: 1 | 2 | 3
+          status?: 'pending' | 'active' | 'inactive'
+          tasks_completed?: number
+          cgc_earned?: number
+          referrer_earnings?: number
+          joined_at?: string
+          last_activity?: string | null
+          metadata?: Json | null
+        }
+        Update: {
+          id?: string
+          referrer_address?: string
+          referred_address?: string
+          referral_code?: string
+          level?: 1 | 2 | 3
+          status?: 'pending' | 'active' | 'inactive'
+          tasks_completed?: number
+          cgc_earned?: number
+          referrer_earnings?: number
+          joined_at?: string
+          last_activity?: string | null
+          metadata?: Json | null
+        }
+      }
+      referral_rewards: {
+        Row: {
+          id: string
+          referrer_address: string
+          referred_address: string
+          reward_type: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_bonus'
+          amount: number
+          task_id: string | null
+          milestone_reached: number | null
+          status: 'pending' | 'processing' | 'paid' | 'failed'
+          tx_hash: string | null
+          paid_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          referrer_address: string
+          referred_address: string
+          reward_type: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_bonus'
+          amount: number
+          task_id?: string | null
+          milestone_reached?: number | null
+          status?: 'pending' | 'processing' | 'paid' | 'failed'
+          tx_hash?: string | null
+          paid_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          referrer_address?: string
+          referred_address?: string
+          reward_type?: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_bonus'
+          amount?: number
+          task_id?: string | null
+          milestone_reached?: number | null
+          status?: 'pending' | 'processing' | 'paid' | 'failed'
+          tx_hash?: string | null
+          paid_at?: string | null
+          created_at?: string
+        }
+      }
+      referral_clicks: {
+        Row: {
+          id: string
+          referral_code: string
+          ip_hash: string | null
+          user_agent: string | null
+          source: string | null
+          converted: boolean
+          converted_address: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          referral_code: string
+          ip_hash?: string | null
+          user_agent?: string | null
+          source?: string | null
+          converted?: boolean
+          converted_address?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          referral_code?: string
+          ip_hash?: string | null
+          user_agent?: string | null
+          source?: string | null
+          converted?: boolean
+          converted_address?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       leaderboard_view: {
@@ -347,3 +505,27 @@ export type TaskPlatform = Database['public']['Enums']['task_platform']
 export type CollaboratorLevel = Database['public']['Enums']['collaborator_level']
 export type ProposalStatus = Database['public']['Enums']['proposal_status']
 export type TaskAction = Database['public']['Enums']['task_action']
+
+// ============================================
+// 🤝 REFERRAL SYSTEM TYPES
+// ============================================
+export type ReferralCode = Database['public']['Tables']['referral_codes']['Row']
+export type ReferralCodeInsert = Database['public']['Tables']['referral_codes']['Insert']
+export type ReferralCodeUpdate = Database['public']['Tables']['referral_codes']['Update']
+
+export type Referral = Database['public']['Tables']['referrals']['Row']
+export type ReferralInsert = Database['public']['Tables']['referrals']['Insert']
+export type ReferralUpdate = Database['public']['Tables']['referrals']['Update']
+
+export type ReferralReward = Database['public']['Tables']['referral_rewards']['Row']
+export type ReferralRewardInsert = Database['public']['Tables']['referral_rewards']['Insert']
+export type ReferralRewardUpdate = Database['public']['Tables']['referral_rewards']['Update']
+
+export type ReferralClick = Database['public']['Tables']['referral_clicks']['Row']
+export type ReferralClickInsert = Database['public']['Tables']['referral_clicks']['Insert']
+export type ReferralClickUpdate = Database['public']['Tables']['referral_clicks']['Update']
+
+export type ReferralLevel = 1 | 2 | 3
+export type ReferralStatus = 'pending' | 'active' | 'inactive'
+export type ReferralRewardType = 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_bonus'
+export type ReferralRewardStatus = 'pending' | 'processing' | 'paid' | 'failed'

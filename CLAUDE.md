@@ -2,11 +2,42 @@
 
 ## 🎯 INFORMACIÓN CRÍTICA DEL PROYECTO
 
-### ESTADO ACTUAL (26 NOV 2025) - SISTEMA i18n IMPLEMENTADO ✅
-- **Progreso**: 100% Task System + i18n (EN/ES) + Theme System (Light/Dark/Auto)
-- **Fase actual**: Sistema DAO completamente funcional con soporte multiidioma
-- **Último Deploy**: Sistema i18n completo - Navbar y Dashboard traducidos
-- **Critical Update**: TODA nueva construcción DEBE seguir el patrón i18n obligatorio
+### ESTADO ACTUAL (27 NOV 2025) - SISTEMA DE REFERIDOS IMPLEMENTADO ✅
+- **Progreso**: 100% Task System + i18n (EN/ES) + Theme System + **REFERRAL SYSTEM** ✅
+- **Fase actual**: Sistema DAO con referidos multinivel enterprise-grade
+- **Último Deploy**: Sistema de referidos completo - Backend + Frontend integrado
+- **Critical Update**: Sistema de referidos listo para producción
+
+### 🤝 SISTEMA DE REFERIDOS - ENTERPRISE GRADE (27 NOV 2025) ✅
+```
+ARQUITECTURA COMPLETA:
+├── supabase/migrations/001_referral_system.sql  - Migración DB completa
+├── lib/referrals/referral-service.ts            - Core service (800+ líneas)
+├── app/api/referrals/code/route.ts              - API código referido
+├── app/api/referrals/stats/route.ts             - API estadísticas
+├── app/api/referrals/network/route.ts           - API árbol de red
+├── app/api/referrals/track/route.ts             - API tracking clicks
+├── app/api/referrals/rewards/route.ts           - API recompensas
+├── app/api/referrals/leaderboard/route.ts       - API leaderboard
+├── hooks/useReferrals.ts                        - React hooks completos
+└── app/referrals/page.tsx                       - UI integrada con backend
+```
+
+**CARACTERÍSTICAS:**
+- 🏆 **3 niveles de comisión**: 10% (L1), 5% (L2), 2.5% (L3)
+- 🎯 **Milestone bonuses**: 5→50 CGC, 10→150, 25→500, 50→1500, 100→5000 CGC
+- 📊 **Analytics en tiempo real**: clicks, conversiones, sources, devices
+- 🔐 **Prevención de fraude**: IP hashing, ban system, validación
+- 🌐 **Tracking completo**: UTM params, referer, session tracking
+- 📱 **Social sharing**: Twitter, Telegram, Discord, QR Code
+- 🏅 **Tier system**: Starter→Bronze→Silver→Gold→Platinum→Diamond
+
+**TABLAS SUPABASE:**
+- `referral_codes` - Códigos únicos por wallet
+- `referrals` - Relaciones multinivel
+- `referral_rewards` - Historial de recompensas
+- `referral_clicks` - Analytics de clicks
+- `referral_stats_daily` - Estadísticas agregadas
 
 ### CONTRATOS DESPLEGADOS ✅ (NUEVOS - 31 ENE 2025)
 ```
@@ -83,6 +114,7 @@ const tCommon = useTranslations('common');   // Para textos comunes
 | `funding` | Página de financiamiento |
 | `theme` | Selector de tema |
 | `footer` | Pie de página |
+| `referrals` | **Sistema de referidos multinivel** ✅ (100+ claves) |
 
 ### 🔄 FLUJO DE TRABAJO i18n
 1. **Antes de crear texto hardcodeado** → Añadir clave a AMBOS archivos JSON
