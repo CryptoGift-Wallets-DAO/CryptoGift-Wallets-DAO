@@ -26,18 +26,18 @@
   --blur-ultra: blur(32px) saturate(200%) contrast(130%) brightness(115%);
 }
 
-[data-theme="dark"] {
+.dark {
   /* Dark Theme - NFT-Grade Professional */
   --bg-primary: 10 14 21;             /* NFT marketplace dark */
   --bg-secondary: 17 20 29;           /* Slightly lighter */
-  --bg-glass: rgba(15, 23, 42, 0.8);
-  --bg-card: rgba(26, 29, 41, 0.9);
+  --bg-glass: rgba(15, 23, 42, 0.85);
+  --bg-card: rgba(26, 29, 41, 0.92);
   --accent-silver: 148 163 184;       /* Elegant silver */
   --text-primary: 255 255 255;        /* Pure white */
   --text-secondary: 148 163 184;      /* Silver gray */
-  --border-glass: rgba(148, 163, 184, 0.15);
-  --shadow-glass: rgba(0, 0, 0, 0.3);
-  
+  --border-glass: rgba(148, 163, 184, 0.2);
+  --shadow-glass: rgba(0, 0, 0, 0.4);
+
   /* Glass Effects - Dark */
   --blur-subtle: blur(8px) saturate(120%);
   --blur-medium: blur(16px) saturate(150%) contrast(110%);
@@ -362,4 +362,129 @@ body {
   color: rgb(var(--text-primary));
   line-height: 1.5;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ====================================================
+   🌓 SMOOTH THEME TRANSITIONS
+   ==================================================== */
+
+/* Global transition for theme changes */
+*, *::before, *::after {
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+/* Disable transitions on page load to prevent flash */
+.no-transitions * {
+  transition: none !important;
+}
+
+/* ====================================================
+   🎨 THEME-AWARE BACKGROUND GRADIENTS
+   ==================================================== */
+
+/* Light theme gradient background */
+.theme-gradient-bg {
+  background: linear-gradient(135deg,
+    rgb(248 250 252) 0%,           /* slate-50 */
+    rgb(239 246 255) 25%,          /* blue-50 */
+    rgb(238 242 255) 50%,          /* indigo-50 */
+    rgb(245 243 255) 75%,          /* violet-50 */
+    rgb(250 245 255) 100%          /* purple-50 */
+  );
+}
+
+/* Dark theme gradient background */
+.dark .theme-gradient-bg {
+  background: linear-gradient(135deg,
+    rgb(15 23 42) 0%,              /* slate-900 */
+    rgb(17 24 39) 25%,             /* gray-900 */
+    rgb(30 27 75) 50%,             /* indigo-950 */
+    rgb(46 16 101) 75%,            /* purple-950 */
+    rgb(15 23 42) 100%             /* slate-900 */
+  );
+}
+
+/* ====================================================
+   🔮 ENHANCED GLASS EFFECTS FOR DARK MODE
+   ==================================================== */
+
+/* Dark mode specific glass enhancements */
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dark .glass-panel:hover {
+  background: rgba(15, 23, 42, 0.85);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-card {
+  background: rgba(26, 29, 41, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dark .glass-card:hover {
+  background: rgba(26, 29, 41, 0.92);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-button {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: rgb(255 255 255);
+}
+
+.dark .glass-button:hover {
+  background: rgba(51, 65, 85, 0.9);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.dark .glass-bubble {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+/* ====================================================
+   📝 TEXT UTILITIES FOR THEME AWARENESS
+   ==================================================== */
+
+/* These classes adapt to the current theme */
+.text-adaptive {
+  color: rgb(var(--text-primary));
+}
+
+.text-adaptive-secondary {
+  color: rgb(var(--text-secondary));
+}
+
+/* Explicit light/dark text overrides */
+.dark .text-glass {
+  color: rgb(255 255 255);
+}
+
+.dark .text-glass-secondary {
+  color: rgb(148 163 184);
+}
+
+/* Light mode text (default) */
+.text-glass {
+  color: rgb(17 24 39);
+}
+
+.text-glass-secondary {
+  color: rgb(107 114 128);
 }
