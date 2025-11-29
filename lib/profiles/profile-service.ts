@@ -433,11 +433,67 @@ export async function setupRecovery(
 
   await logActivity(profile.id, 'recovery_setup', 'Recovery email and password configured');
 
-  // TODO: Send verification email (integrate with email service)
-  // For now, just return success
+  // Send verification email via Resend
+  let verificationSent = false;
+  try {
+    const apiKey = process.env.RESEND_DAO_API_KEY || process.env.RESEND_API_KEY;
+    if (apiKey) {
+      const { Resend } = await import('resend');
+      const resend = new Resend(apiKey);
+
+      const fromEmail = process.env.RESEND_DAO_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'CryptoGift DAO <onboarding@resend.dev>';
+      const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://crypto-gift-wallets-dao.vercel.app'}/api/profile/verify?token=${verificationToken}`;
+
+      await resend.emails.send({
+        from: fromEmail,
+        to: [email],
+        subject: 'CryptoGift DAO - Verify Your Recovery Email',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border-radius: 20px; padding: 40px; text-align: center;">
+            <h1 style="margin: 0 0 20px 0; font-size: 32px; font-weight: bold;">
+              CryptoGift DAO
+            </h1>
+
+            <div style="background: rgba(255,255,255,0.15); border-radius: 15px; padding: 30px; margin: 20px 0;">
+              <h2 style="margin: 0 0 15px 0; color: white; font-size: 24px;">
+                Verify Your Recovery Email
+              </h2>
+              <p style="margin: 15px 0; font-size: 16px; opacity: 0.9;">
+                Click the button below to verify your email and complete your recovery setup.
+              </p>
+              <a href="${verifyUrl}" style="display: inline-block; background: white; color: #d97706; padding: 15px 40px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 16px; margin: 20px 0;">
+                Verify Email
+              </a>
+              <p style="margin: 15px 0 0 0; font-size: 14px; opacity: 0.7;">
+                This link expires in 24 hours
+              </p>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin: 20px 0;">
+              <p style="margin: 0; font-size: 14px; opacity: 0.9;">
+                <strong>Why verify?</strong> A verified recovery email ensures you can always recover your account, even if you lose access to your wallet.
+              </p>
+            </div>
+
+            <div style="margin-top: 30px; font-size: 14px; opacity: 0.7;">
+              <p style="margin: 5px 0;">If you did not request this, you can safely ignore this email.</p>
+              <p style="margin: 5px 0;">&copy; ${new Date().getFullYear()} CryptoGift DAO</p>
+            </div>
+          </div>
+        `,
+      });
+      verificationSent = true;
+      console.log('✅ Recovery verification email sent to:', email.replace(/(.{2}).*(@.*)/, '$1***$2'));
+    } else {
+      console.warn('⚠️ RESEND_DAO_API_KEY not configured - verification email not sent');
+    }
+  } catch (emailError) {
+    console.error('❌ Failed to send verification email:', emailError);
+  }
+
   return {
     success: true,
-    verificationSent: true,
+    verificationSent,
   };
 }
 
@@ -553,7 +609,59 @@ export async function requestPasswordReset(
 
   await logActivity(profile.id, 'password_reset_requested', 'Password reset requested');
 
-  // TODO: Send reset email
+  // Send password reset email via Resend
+  try {
+    const apiKey = process.env.RESEND_DAO_API_KEY || process.env.RESEND_API_KEY;
+    if (apiKey) {
+      const { Resend } = await import('resend');
+      const resend = new Resend(apiKey);
+
+      const fromEmail = process.env.RESEND_DAO_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'CryptoGift DAO <onboarding@resend.dev>';
+      const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://crypto-gift-wallets-dao.vercel.app'}/api/profile/reset-password?token=${resetToken}`;
+
+      await resend.emails.send({
+        from: fromEmail,
+        to: [email],
+        subject: 'CryptoGift DAO - Password Reset Request',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border-radius: 20px; padding: 40px; text-align: center;">
+            <h1 style="margin: 0 0 20px 0; font-size: 32px; font-weight: bold;">
+              CryptoGift DAO
+            </h1>
+
+            <div style="background: rgba(255,255,255,0.15); border-radius: 15px; padding: 30px; margin: 20px 0;">
+              <h2 style="margin: 0 0 15px 0; color: white; font-size: 24px;">
+                Password Reset Request
+              </h2>
+              <p style="margin: 15px 0; font-size: 16px; opacity: 0.9;">
+                Click the button below to reset your password.
+              </p>
+              <a href="${resetUrl}" style="display: inline-block; background: white; color: #d97706; padding: 15px 40px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 16px; margin: 20px 0;">
+                Reset Password
+              </a>
+              <p style="margin: 15px 0 0 0; font-size: 14px; opacity: 0.7;">
+                This link expires in 1 hour
+              </p>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin: 20px 0;">
+              <p style="margin: 0; font-size: 14px; opacity: 0.9;">
+                <strong>Didnt request this?</strong> If you didnt request a password reset, you can safely ignore this email. Your password will remain unchanged.
+              </p>
+            </div>
+
+            <div style="margin-top: 30px; font-size: 14px; opacity: 0.7;">
+              <p style="margin: 5px 0;">&copy; ${new Date().getFullYear()} CryptoGift DAO</p>
+            </div>
+          </div>
+        `,
+      });
+      console.log('✅ Password reset email sent to:', email.replace(/(.{2}).*(@.*)/, '$1***$2'));
+    }
+  } catch (emailError) {
+    console.error('❌ Failed to send password reset email:', emailError);
+  }
+
   return { success: true, message: 'If email exists, reset instructions will be sent' };
 }
 
