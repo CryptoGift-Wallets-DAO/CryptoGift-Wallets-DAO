@@ -21,8 +21,9 @@ let supabase: ReturnType<typeof createClient> | null = null;
 function getSupabase() {
   if (supabase) return supabase;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Try DAO-prefixed variables first (preferred), then fallback
+  const url = process.env.NEXT_PUBLIC_SUPABASE_DAO_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_DAO_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !key) {
     throw new Error('Supabase environment variables not configured');
