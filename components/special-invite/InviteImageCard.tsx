@@ -1,0 +1,290 @@
+'use client';
+
+import React, { useState } from 'react';
+import Image from 'next/image';
+import { NFTImageModal } from './NFTImageModal';
+
+interface InviteImageCardProps {
+  image: string;
+  name: string;
+  customMessage?: string;
+  referrerCode?: string;
+  inviteCode?: string;
+  expiresAt?: string;
+  status?: 'active' | 'claimed' | 'expired' | 'revoked';
+  className?: string;
+  onRefresh?: () => void;
+}
+
+/**
+ * InviteImageCard - Left panel card displaying the special invite image
+ *
+ * Adapted from EscrowGiftStatus component
+ *
+ * Features:
+ * - Clickable image that opens NFTImageModal
+ * - YugiOh futuristic card style border
+ * - Status badge
+ * - Invite details display
+ * - Custom message from referrer
+ */
+export const InviteImageCard: React.FC<InviteImageCardProps> = ({
+  image,
+  name,
+  customMessage,
+  referrerCode,
+  inviteCode,
+  expiresAt,
+  status = 'active',
+  className = '',
+  onRefresh
+}) => {
+  const [showImageModal, setShowImageModal] = useState(false);
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active': return { icon: '🟢', text: 'ACTIVA' };
+      case 'expired': return { icon: '⏰', text: 'EXPIRADA' };
+      case 'claimed': return { icon: '✅', text: 'RECLAMADA' };
+      case 'revoked': return { icon: '❌', text: 'REVOCADA' };
+      default: return { icon: '❓', text: status.toUpperCase() };
+    }
+  };
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300 dark:border-green-700';
+      case 'expired': return 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 border-orange-300 dark:border-orange-700';
+      case 'claimed': return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700';
+      case 'revoked': return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-300 dark:border-red-700';
+      default: return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300 border-gray-300 dark:border-gray-700';
+    }
+  };
+
+  const statusInfo = getStatusIcon(status);
+
+  // Calculate time remaining if expiresAt is provided
+  const getTimeRemaining = () => {
+    if (!expiresAt) return null;
+    const now = new Date();
+    const expiry = new Date(expiresAt);
+    const diff = expiry.getTime() - now.getTime();
+
+    if (diff <= 0) return 'Expirada';
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+    if (days > 0) return `${days} dia${days > 1 ? 's' : ''} restante${days > 1 ? 's' : ''}`;
+    if (hours > 0) return `${hours} hora${hours > 1 ? 's' : ''} restante${hours > 1 ? 's' : ''}`;
+    return 'Expira pronto';
+  };
+
+  return (
+    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden ${className}`}>
+      {/* YUGI-OH FUTURISTIC CARD HEADER */}
+      <div className="relative overflow-hidden">
+        {image ? (
+          <div
+            className="nft-card-image-container relative cursor-pointer group"
+            onClick={() => setShowImageModal(true)}
+            title="Click para ver imagen completa"
+          >
+            <Image
+              src={image}
+              alt={name}
+              width={500}
+              height={500}
+              className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+              style={{
+                backgroundColor: '#f8fafc',
+                borderRadius: '0.5rem 0.5rem 0 0'
+              }}
+            />
+
+            {/* YUGI-OH STYLE BORDER OVERLAY */}
+            <div className="absolute inset-0 border-2 border-gradient-to-r from-purple-400 via-blue-500 to-cyan-400 rounded-t-lg opacity-60 pointer-events-none" />
+            <div className="absolute inset-0 border border-white/30 rounded-t-lg pointer-events-none" />
+
+            {/* HOLOGRAPHIC EFFECT */}
+            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent opacity-40 pointer-events-none" />
+
+            {/* CLICK HINT */}
+            <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+              </svg>
+              Click para ampliar
+            </div>
+          </div>
+        ) : (
+          <div className="w-full aspect-square min-h-[200px]">
+            <div className="h-full bg-gradient-to-br from-purple-400 via-blue-500 to-cyan-500 flex items-center justify-center relative overflow-hidden">
+              {/* FUTURISTIC PLACEHOLDER DESIGN */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent" />
+              <div className="relative z-10 text-center">
+                <div className="text-8xl mb-4 drop-shadow-lg">🎟️</div>
+                <div className="text-white font-bold text-lg">Invitacion Especial</div>
+                <div className="text-white/80 text-sm">CryptoGift DAO</div>
+              </div>
+
+              {/* GEOMETRIC PATTERNS */}
+              <div className="absolute top-4 left-4 w-8 h-8 border-2 border-white/30 rotate-45" />
+              <div className="absolute bottom-4 right-4 w-6 h-6 border-2 border-white/20 rotate-12" />
+              <div className="absolute top-1/2 left-8 w-4 h-4 bg-white/20 rounded-full" />
+            </div>
+          </div>
+        )}
+
+        {/* Status Badge */}
+        <div className="absolute top-3 right-3">
+          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadgeColor(status)}`}>
+            {statusInfo.icon} {statusInfo.text}
+          </span>
+        </div>
+
+        {/* Quick Actions */}
+        {onRefresh && (
+          <div className="absolute top-3 left-3 flex gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onRefresh();
+              }}
+              className="p-2 bg-white/80 dark:bg-gray-800/80 rounded-full hover:bg-white dark:hover:bg-gray-800 transition-colors"
+              title="Actualizar estado"
+            >
+              <svg className="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-6 space-y-4">
+        {/* Title */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            {name}
+          </h3>
+          {inviteCode && (
+            <p className="text-sm text-gray-600 dark:text-gray-400 font-mono">
+              Codigo: {inviteCode}
+            </p>
+          )}
+          {referrerCode && (
+            <p className="text-xs text-purple-600 dark:text-purple-400 font-medium mt-1">
+              🔗 Referido por: {referrerCode}
+            </p>
+          )}
+        </div>
+
+        {/* Custom Message from Referrer */}
+        {customMessage && (
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-700">
+            <div className="flex items-start">
+              <span className="text-xl mr-2">💬</span>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-purple-800 dark:text-purple-300 mb-1">
+                  Mensaje del Referidor
+                </p>
+                <p className="text-sm text-purple-700 dark:text-purple-400 italic">
+                  &ldquo;{customMessage}&rdquo;
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Time Remaining */}
+        {status === 'active' && expiresAt && (
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Tiempo Restante
+              </span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {getTimeRemaining()}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Invite Details */}
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-600 dark:text-gray-400">Tipo:</span>
+            <span className="text-gray-900 dark:text-white font-medium">
+              Invitacion Especial DAO
+            </span>
+          </div>
+
+          <div className="flex justify-between">
+            <span className="text-gray-600 dark:text-gray-400">Network:</span>
+            <span className="text-gray-900 dark:text-white">
+              Base Mainnet
+            </span>
+          </div>
+
+          {expiresAt && (
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-400">Expira:</span>
+              <span className="text-gray-900 dark:text-white">
+                {new Date(expiresAt).toLocaleDateString('es-ES', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric'
+                })}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Status Messages */}
+        {status === 'claimed' && (
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+            <p className="text-green-800 dark:text-green-300 text-sm font-medium">
+              ✅ Invitacion reclamada exitosamente
+            </p>
+          </div>
+        )}
+
+        {status === 'expired' && (
+          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3">
+            <p className="text-orange-800 dark:text-orange-300 text-sm font-medium">
+              ⏰ Esta invitacion ha expirado
+            </p>
+          </div>
+        )}
+
+        {status === 'revoked' && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+            <p className="text-red-800 dark:text-red-300 text-sm font-medium">
+              ❌ Esta invitacion ha sido revocada
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* NFT IMAGE MODAL */}
+      <NFTImageModal
+        isOpen={showImageModal}
+        onClose={() => setShowImageModal(false)}
+        image={image || '/images/special-invite-placeholder.png'}
+        name={name}
+        tokenId={inviteCode}
+        metadata={{
+          description: customMessage || 'Invitacion especial para unirse a CryptoGift DAO',
+          attributes: [
+            { trait_type: 'Tipo', value: 'Invitacion Especial' },
+            { trait_type: 'Network', value: 'Base Mainnet' },
+            { trait_type: 'Estado', value: statusInfo.text },
+            ...(referrerCode ? [{ trait_type: 'Referidor', value: referrerCode }] : [])
+          ]
+        }}
+      />
+    </div>
+  );
+};

@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
       referrerCode,
       password,
       customMessage,
+      image, // Custom image URL for the invite card
     } = body;
 
     // Validation
@@ -63,8 +64,8 @@ export async function POST(request: NextRequest) {
     const inviteCode = generateInviteCode();
     const normalizedWallet = referrerWallet.toLowerCase();
 
-    // Create special invite record
-    const inviteData = {
+    // Create special invite record - base fields that should always exist
+    const baseInviteData = {
       invite_code: inviteCode,
       referrer_wallet: normalizedWallet,
       referrer_code: referrerCode || null,
@@ -79,9 +80,24 @@ export async function POST(request: NextRequest) {
       wallet_connected: false,
     };
 
-    const { error: insertError } = await db
+    // Try with image_url first (if column exists)
+    const inviteDataWithImage = {
+      ...baseInviteData,
+      image_url: image || null,
+    };
+
+    let { error: insertError } = await db
       .from('special_invites')
-      .insert(inviteData);
+      .insert(inviteDataWithImage);
+
+    // If image_url column doesn't exist, retry without it
+    if (insertError && insertError.message?.includes('image_url')) {
+      console.log('image_url column not found, retrying without it...');
+      const { error: retryError } = await db
+        .from('special_invites')
+        .insert(baseInviteData);
+      insertError = retryError;
+    }
 
     if (insertError) {
       // If table doesn't exist, create it
@@ -101,10 +117,10 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Retry insert
+        // Retry insert without image_url (safer for new table)
         const { error: retryError } = await db
           .from('special_invites')
-          .insert(inviteData);
+          .insert(baseInviteData);
 
         if (retryError) {
           console.error('Retry insert failed:', retryError);
@@ -129,7 +145,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       inviteCode,
-      expiresAt: inviteData.expires_at,
+      expiresAt: baseInviteData.expires_at,
     });
   } catch (error) {
     console.error('Error creating special invite:', error);
@@ -192,6 +208,7 @@ export async function GET(request: NextRequest) {
         hasPassword: !!invite.password_hash,
         createdAt: invite.created_at,
         expiresAt: invite.expires_at,
+        image: invite.image_url ?? null, // Custom image for the invite card (may not exist in DB)
       },
     });
   } catch (error) {
