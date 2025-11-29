@@ -32,7 +32,10 @@ build
 !app/icon.png
 !public/favicon.ico
 !public/apeX.png
+!public/apeX11.png
 !public/apeX22.PNG
+!public/apeX-aro.png
+!public/apeX-avatar.png
 
 # Contracts (not needed for runtime)
 /contracts

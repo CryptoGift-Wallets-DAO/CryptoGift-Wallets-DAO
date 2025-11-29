@@ -18,8 +18,11 @@ import { useAccount } from '@/lib/thirdweb';
 import {
   useReferralDashboard,
   useReferralLeaderboard,
+  useReferralNetwork,
+  useActivateReferral,
   type ReferralStats as HookReferralStats,
   type LeaderboardEntry as HookLeaderboardEntry,
+  type ReferralNetworkMember,
 } from '@/hooks/useReferrals';
 import {
   Users,
@@ -47,7 +50,12 @@ import {
   Network,
   Star,
   RefreshCw,
-  Loader2
+  Loader2,
+  Clock,
+  CheckCircle,
+  XCircle,
+  History,
+  Wallet,
 } from 'lucide-react';
 
 // ===== TYPES =====
@@ -153,7 +161,7 @@ export default function ReferralsPage() {
 function ReferralsDashboard() {
   const t = useTranslations('referrals');
   const { address } = useAccount();
-  const [activeTab, setActiveTab] = useState<'overview' | 'network' | 'rewards' | 'leaderboard'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'network' | 'rewards' | 'leaderboard' | 'history'>('overview');
   const [copied, setCopied] = useState(false);
 
   // Use real data from hooks
@@ -186,6 +194,7 @@ function ReferralsDashboard() {
   const tabs = [
     { id: 'overview', label: t('tabs.overview'), icon: Target },
     { id: 'network', label: t('tabs.network'), icon: Network },
+    { id: 'history', label: t('tabs.history'), icon: History },
     { id: 'rewards', label: t('tabs.rewards'), icon: Gift },
     { id: 'leaderboard', label: t('tabs.leaderboard'), icon: Trophy },
   ] as const;
@@ -340,6 +349,7 @@ function ReferralsDashboard() {
       {/* Tab Content */}
       {activeTab === 'overview' && <OverviewTab />}
       {activeTab === 'network' && <NetworkTab stats={stats} />}
+      {activeTab === 'history' && <DirectReferralsHistoryTab />}
       {activeTab === 'rewards' && <RewardsTab />}
       {activeTab === 'leaderboard' && <LeaderboardTabWithData />}
     </div>
@@ -430,8 +440,47 @@ function OverviewTab() {
 
 function NetworkTab({ stats }: { stats: ReferralStats }) {
   const t = useTranslations('referrals');
+  const { address } = useAccount();
+  const { referrals, isLoading, refetch } = useReferralNetwork(address, { limit: 50 });
+  const { activate, isActivating } = useActivateReferral();
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [activatingWallet, setActivatingWallet] = useState<string | null>(null);
 
   const hasReferrals = stats.totalReferrals > 0;
+
+  const handleCopyAddress = async (addr: string) => {
+    await navigator.clipboard.writeText(addr);
+    setCopiedAddress(addr);
+    setTimeout(() => setCopiedAddress(null), 2000);
+  };
+
+  const handleActivate = async (wallet: string) => {
+    setActivatingWallet(wallet);
+    try {
+      await activate(wallet);
+      refetch();
+    } catch (error) {
+      console.error('Activation failed:', error);
+    } finally {
+      setActivatingWallet(null);
+    }
+  };
+
+  // Group referrals by level
+  const level1Referrals = referrals.filter((r) => r.level === 1);
+  const level2Referrals = referrals.filter((r) => r.level === 2);
+  const level3Referrals = referrals.filter((r) => r.level === 3);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(undefined, {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
 
   return (
     <Card className="glass-panel">
@@ -445,15 +494,435 @@ function NetworkTab({ stats }: { stats: ReferralStats }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {hasReferrals ? (
-          <div className="space-y-4">
-            {/* Network visualization would go here */}
-            <p className="text-gray-600 dark:text-gray-400">Network tree visualization coming soon...</p>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+          </div>
+        ) : hasReferrals ? (
+          <div className="space-y-6">
+            {/* Network Tree Visualization */}
+            <div className="relative">
+              {/* Your Position (Root) */}
+              <div className="flex justify-center mb-8">
+                <div className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg">
+                  {t('network.you')}
+                </div>
+              </div>
+
+              {/* Connection Lines */}
+              <div className="absolute top-12 left-1/2 w-px h-8 bg-gradient-to-b from-amber-500 to-blue-500" />
+
+              {/* Level 1 - Direct Referrals */}
+              {level1Referrals.length > 0 && (
+                <div className="mb-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold">
+                      1
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      {t('network.level1')} ({level1Referrals.length})
+                    </h3>
+                    <span className="text-sm text-blue-600 dark:text-blue-400">10% commission</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {level1Referrals.map((ref) => (
+                      <ReferralCard
+                        key={ref.id}
+                        referral={ref}
+                        level={1}
+                        onCopy={handleCopyAddress}
+                        onActivate={handleActivate}
+                        copiedAddress={copiedAddress}
+                        isActivating={activatingWallet === ref.address}
+                        formatDate={formatDate}
+                        t={t}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Level 2 - Secondary Referrals */}
+              {level2Referrals.length > 0 && (
+                <div className="mb-8 pl-8 border-l-2 border-purple-300 dark:border-purple-700">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                      2
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      {t('network.level2')} ({level2Referrals.length})
+                    </h3>
+                    <span className="text-sm text-purple-600 dark:text-purple-400">5% commission</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {level2Referrals.map((ref) => (
+                      <ReferralCard
+                        key={ref.id}
+                        referral={ref}
+                        level={2}
+                        onCopy={handleCopyAddress}
+                        onActivate={handleActivate}
+                        copiedAddress={copiedAddress}
+                        isActivating={activatingWallet === ref.address}
+                        formatDate={formatDate}
+                        t={t}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Level 3 - Third Level Referrals */}
+              {level3Referrals.length > 0 && (
+                <div className="pl-16 border-l-2 border-cyan-300 dark:border-cyan-700">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-cyan-600 flex items-center justify-center text-white text-sm font-bold">
+                      3
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      {t('network.level3')} ({level3Referrals.length})
+                    </h3>
+                    <span className="text-sm text-cyan-600 dark:text-cyan-400">2.5% commission</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {level3Referrals.map((ref) => (
+                      <ReferralCard
+                        key={ref.id}
+                        referral={ref}
+                        level={3}
+                        onCopy={handleCopyAddress}
+                        onActivate={handleActivate}
+                        copiedAddress={copiedAddress}
+                        isActivating={activatingWallet === ref.address}
+                        formatDate={formatDate}
+                        t={t}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <div className="text-center py-12">
             <Users className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <p className="text-gray-500 dark:text-gray-400">{t('network.noReferrals')}</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// Referral Card Component for Network View
+function ReferralCard({
+  referral,
+  level,
+  onCopy,
+  onActivate,
+  copiedAddress,
+  isActivating,
+  formatDate,
+  t,
+}: {
+  referral: ReferralNetworkMember;
+  level: number;
+  onCopy: (address: string) => void;
+  onActivate: (wallet: string) => void;
+  copiedAddress: string | null;
+  isActivating: boolean;
+  formatDate: (date: string) => string;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const levelColors = {
+    1: 'border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/20',
+    2: 'border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-900/20',
+    3: 'border-cyan-200 dark:border-cyan-800 bg-cyan-50/50 dark:bg-cyan-900/20',
+  };
+
+  const statusColors = {
+    active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    pending: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
+    inactive: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+    banned: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+  };
+
+  return (
+    <div className={`p-4 rounded-xl border ${levelColors[level as keyof typeof levelColors]} transition-all hover:shadow-md`}>
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-bold text-sm">
+            {referral.username ? referral.username.slice(0, 2).toUpperCase() : referral.address.slice(2, 4).toUpperCase()}
+          </div>
+          <div>
+            <p className="font-medium text-gray-900 dark:text-white">
+              {referral.username || referral.addressShort}
+            </p>
+            <Badge className={statusColors[referral.status as keyof typeof statusColors]} variant="secondary">
+              {referral.status === 'active' && <CheckCircle className="w-3 h-3 mr-1" />}
+              {referral.status === 'pending' && <Clock className="w-3 h-3 mr-1" />}
+              {referral.status}
+            </Badge>
+          </div>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onCopy(referral.address)}
+          className="h-8 w-8 p-0"
+        >
+          {copiedAddress === referral.address ? (
+            <Check className="h-4 w-4 text-green-500" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+
+      <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4" />
+          <span>{formatDate(referral.joinedAt)}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Coins className="w-4 h-4" />
+          <span>{referral.cgcEarned} CGC {t('network.earned')}</span>
+        </div>
+      </div>
+
+      {referral.status === 'pending' && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onActivate(referral.address)}
+          disabled={isActivating}
+          className="w-full mt-3 border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-900/30"
+        >
+          {isActivating ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <Zap className="w-4 h-4 mr-2" />
+          )}
+          {t('network.checkActivation')}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+// Direct Referrals History Tab
+function DirectReferralsHistoryTab() {
+  const t = useTranslations('referrals');
+  const { address } = useAccount();
+  const { referrals, isLoading, refetch } = useReferralNetwork(address, { level: 1, limit: 100 });
+  const { activate, isActivating } = useActivateReferral();
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [activatingWallet, setActivatingWallet] = useState<string | null>(null);
+
+  const handleCopyAddress = async (addr: string) => {
+    await navigator.clipboard.writeText(addr);
+    setCopiedAddress(addr);
+    setTimeout(() => setCopiedAddress(null), 2000);
+  };
+
+  const handleActivate = async (wallet: string) => {
+    setActivatingWallet(wallet);
+    try {
+      await activate(wallet);
+      refetch();
+    } catch (error) {
+      console.error('Activation failed:', error);
+    } finally {
+      setActivatingWallet(null);
+    }
+  };
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return {
+      date: date.toLocaleDateString(undefined, {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+      time: date.toLocaleTimeString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    };
+  };
+
+  return (
+    <Card className="glass-panel">
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+          <History className="h-5 w-5 text-blue-500" />
+          <span>{t('history.title')}</span>
+        </CardTitle>
+        <CardDescription className="text-gray-600 dark:text-gray-400">
+          {t('history.description')}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          </div>
+        ) : referrals.length > 0 ? (
+          <div className="space-y-4">
+            {/* Summary Stats */}
+            <div className="grid grid-cols-3 gap-4 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-100 dark:border-blue-800">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{referrals.length}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('history.totalDirect')}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {referrals.filter((r) => r.status === 'active').length}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('history.active')}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                  {referrals.filter((r) => r.status === 'pending').length}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('history.pending')}</p>
+              </div>
+            </div>
+
+            {/* Referral List */}
+            <div className="space-y-3">
+              {referrals.map((referral) => {
+                const { date, time } = formatDateTime(referral.joinedAt);
+                const activatedAt = referral.lastActivity ? formatDateTime(referral.lastActivity) : null;
+
+                return (
+                  <div
+                    key={referral.id}
+                    className="p-4 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between">
+                      {/* User Info */}
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                          {referral.username ? referral.username.slice(0, 2).toUpperCase() : referral.address.slice(2, 4).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-gray-900 dark:text-white">
+                              {referral.username || t('history.anonymous')}
+                            </p>
+                            <Badge
+                              className={
+                                referral.status === 'active'
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                  : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                              }
+                              variant="secondary"
+                            >
+                              {referral.status === 'active' ? (
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                              ) : (
+                                <Clock className="w-3 h-3 mr-1" />
+                              )}
+                              {referral.status === 'active' ? t('history.activated') : t('history.pending')}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <code className="text-sm font-mono text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-slate-700 px-2 py-0.5 rounded">
+                              {referral.address}
+                            </code>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleCopyAddress(referral.address)}
+                              className="h-6 w-6 p-0"
+                            >
+                              {copiedAddress === referral.address ? (
+                                <Check className="h-3 w-3 text-green-500" />
+                              ) : (
+                                <Copy className="h-3 w-3" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      {referral.status === 'pending' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleActivate(referral.address)}
+                          disabled={activatingWallet === referral.address}
+                          className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400"
+                        >
+                          {activatingWallet === referral.address ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Zap className="w-4 h-4 mr-1" />
+                              {t('history.checkCGC')}
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Timeline */}
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                            <Wallet className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <div>
+                            <p className="text-gray-500 dark:text-gray-400">{t('history.connected')}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {date} {time}
+                            </p>
+                          </div>
+                        </div>
+
+                        {referral.status === 'active' && activatedAt && (
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div>
+                              <p className="text-gray-500 dark:text-gray-400">{t('history.activatedAt')}</p>
+                              <p className="font-medium text-gray-900 dark:text-white">
+                                {activatedAt.date} {activatedAt.time}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                            <Coins className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                          </div>
+                          <div>
+                            <p className="text-gray-500 dark:text-gray-400">{t('history.cgcEarned')}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {referral.cgcEarned} CGC
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <Users className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <p className="text-gray-500 dark:text-gray-400">{t('history.noReferrals')}</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+              {t('history.shareLink')}
+            </p>
           </div>
         )}
       </CardContent>

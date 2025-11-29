@@ -6,12 +6,13 @@
  * User profile management with recovery options.
  * Follows i18n pattern and enterprise design standards.
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { Navbar } from '@/components/layout/Navbar';
 import { useAccount } from '@/lib/thirdweb';
 import { useProfileManager, useUsernameCheck } from '@/hooks/useProfile';
 import {
@@ -44,6 +45,8 @@ export default function ProfilePage() {
   const { address, isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [mounted, setMounted] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const {
     profile,
@@ -56,11 +59,49 @@ export default function ProfilePage() {
     setupRecovery,
     isSettingUpRecovery,
     recoveryError,
+    refetch,
   } = useProfileManager(address);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Handle avatar upload
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !address) return;
+
+    setIsUploadingAvatar(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('wallet', address);
+
+      const response = await fetch('/api/profile/avatar', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to upload avatar');
+      }
+
+      // Refresh profile to get updated avatar URL
+      refetch();
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      alert(error instanceof Error ? error.message : 'Failed to upload avatar');
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset input
+      if (avatarInputRef.current) {
+        avatarInputRef.current.value = '';
+      }
+    }
+  };
 
   if (!mounted) {
     return <ProfileSkeleton />;
@@ -96,10 +137,12 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="mb-8">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          {/* Header */}
+          <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
             {t('title')}
           </h1>
@@ -112,7 +155,9 @@ export default function ProfilePage() {
             {/* Avatar */}
             <div className="relative group">
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center overflow-hidden">
-                {profile?.avatar_url ? (
+                {isUploadingAvatar ? (
+                  <Loader2 className="w-8 h-8 text-white animate-spin" />
+                ) : profile?.avatar_url ? (
                   <Image
                     src={profile.avatar_url}
                     alt="Avatar"
@@ -125,7 +170,19 @@ export default function ProfilePage() {
                   <User className="w-12 h-12 text-white" />
                 )}
               </div>
-              <button className="absolute bottom-0 right-0 w-8 h-8 bg-white dark:bg-slate-700 rounded-full shadow-lg flex items-center justify-center border border-slate-200 dark:border-slate-600 opacity-0 group-hover:opacity-100 transition-opacity">
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                onChange={handleAvatarUpload}
+                className="hidden"
+                id="avatar-upload"
+              />
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={isUploadingAvatar}
+                className="absolute bottom-0 right-0 w-8 h-8 bg-white dark:bg-slate-700 rounded-full shadow-lg flex items-center justify-center border border-slate-200 dark:border-slate-600 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-50 dark:hover:bg-slate-600 disabled:opacity-50"
+              >
                 <Camera className="w-4 h-4 text-slate-600 dark:text-slate-300" />
               </button>
             </div>
@@ -201,7 +258,7 @@ export default function ProfilePage() {
         {/* Tab Content */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
           {activeTab === 'overview' && (
-            <OverviewTab profile={profile} t={t} />
+            <OverviewTab profile={profile} t={t} address={address} onProfileUpdate={refetch} />
           )}
           {activeTab === 'settings' && (
             <SettingsTab
@@ -228,13 +285,14 @@ export default function ProfilePage() {
             <ActivityTab t={t} />
           )}
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 // Overview Tab Component
-function OverviewTab({ profile, t }: { profile: any; t: any }) {
+function OverviewTab({ profile, t, address, onProfileUpdate }: { profile: any; t: any; address: string; onProfileUpdate?: () => void }) {
   const stats = [
     { label: t('overview.tasksCompleted'), value: profile?.total_tasks_completed || 0, icon: CheckCircle, color: 'text-green-500' },
     { label: t('overview.cgcEarned'), value: `${(profile?.total_cgc_earned || 0).toLocaleString()} CGC`, icon: Award, color: 'text-amber-500' },
@@ -242,8 +300,21 @@ function OverviewTab({ profile, t }: { profile: any; t: any }) {
     { label: t('overview.reputation'), value: profile?.reputation_score || 0, icon: TrendingUp, color: 'text-purple-500' },
   ];
 
+  // Dynamically import the EmailVerificationCard to avoid circular deps
+  const { EmailVerificationCard } = require('@/components/profile/EmailVerificationCard');
+
   return (
     <div className="p-6">
+      {/* Email Verification Card - Prominent at top if not verified */}
+      <div className="mb-6">
+        <EmailVerificationCard
+          wallet={address}
+          currentEmail={profile?.email}
+          isEmailVerified={profile?.email_verified}
+          onEmailVerified={onProfileUpdate}
+        />
+      </div>
+
       <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
         {t('overview.statsTitle')}
       </h3>
@@ -316,6 +387,22 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
     discord_handle: profile?.discord_handle || '',
     website_url: profile?.website_url || '',
   });
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Sync form data when profile changes
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        username: profile.username || '',
+        display_name: profile.display_name || '',
+        bio: profile.bio || '',
+        twitter_handle: profile.twitter_handle || '',
+        telegram_handle: profile.telegram_handle || '',
+        discord_handle: profile.discord_handle || '',
+        website_url: profile.website_url || '',
+      });
+    }
+  }, [profile]);
 
   const { checkUsername, result: usernameResult, isChecking } = useUsernameCheck(address);
 
@@ -325,7 +412,13 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
   };
 
   const handleSave = () => {
+    setSaveSuccess(false);
     updateProfile(formData);
+    // Show success after a brief delay (mutation will update profile)
+    setTimeout(() => {
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    }, 500);
   };
 
   return (
@@ -438,15 +531,31 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
             </div>
           </div>
 
+          {saveSuccess && (
+            <div className="mt-4 p-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg flex items-center gap-2">
+              <CheckCircle className="w-5 h-5" />
+              {t('form.saveSuccess')}
+            </div>
+          )}
+
           <button
             onClick={handleSave}
             disabled={isUpdating}
-            className="mt-6 w-full py-2 px-4 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+            className={`mt-4 w-full py-2 px-4 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
+              saveSuccess
+                ? 'bg-green-500 hover:bg-green-600 text-white'
+                : 'bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white'
+            }`}
           >
             {isUpdating ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
                 {t('form.saving')}
+              </>
+            ) : saveSuccess ? (
+              <>
+                <CheckCircle className="w-4 h-4" />
+                {t('form.saved')}
               </>
             ) : (
               t('form.saveChanges')

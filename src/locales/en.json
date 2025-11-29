@@ -591,6 +591,12 @@
       "referralDate": "Joined",
       "tasksCompleted": "Tasks",
       "cgcEarned": "CGC Earned",
+      "you": "YOU",
+      "level1": "Level 1 - Direct Referrals",
+      "level2": "Level 2",
+      "level3": "Level 3",
+      "earned": "earned",
+      "checkActivation": "Check CGC & Activate",
       "status": {
         "active": "Active",
         "inactive": "Inactive",
@@ -608,14 +614,25 @@
       "noData": "No leaderboard data yet"
     },
     "history": {
-      "title": "Reward History",
-      "description": "Track your referral earnings over time",
+      "title": "Direct Referrals History",
+      "description": "Complete tracking of your direct referrals",
       "date": "Date",
       "type": "Type",
       "referral": "Referral",
       "amount": "Amount",
       "status": "Status",
       "noHistory": "No reward history yet",
+      "totalDirect": "Total Direct",
+      "active": "Active",
+      "pending": "Pending",
+      "activated": "Activated",
+      "anonymous": "Anonymous User",
+      "checkCGC": "Check CGC",
+      "connected": "Wallet Connected",
+      "activatedAt": "Activated At",
+      "cgcEarned": "CGC Earned",
+      "noReferrals": "No direct referrals yet",
+      "shareLink": "Share your referral link to invite friends",
       "types": {
         "directBonus": "Direct Bonus",
         "level2Bonus": "Level 2 Bonus",
@@ -667,6 +684,7 @@
     "tabs": {
       "overview": "Overview",
       "network": "Network",
+      "history": "History",
       "rewards": "Rewards",
       "analytics": "Analytics",
       "leaderboard": "Leaderboard"
@@ -984,7 +1002,8 @@
       "websitePlaceholder": "https://yourwebsite.com",
       "saveChanges": "Save Changes",
       "saving": "Saving...",
-      "saved": "Profile updated successfully"
+      "saved": "Saved!",
+      "saveSuccess": "Your profile has been updated successfully!"
     },
     "avatar": {
       "title": "Profile Photo",
@@ -1056,6 +1075,27 @@
     "menu": {
       "profile": "Profile",
       "viewProfile": "View Profile"
+    },
+    "email": {
+      "secureAccount": "Secure Your Account",
+      "secureAccountDesc": "Add a recovery email to never lose access to your DAO profile, rewards, and referrals - even if you change wallets.",
+      "benefit1": "Recover access if wallet is lost or compromised",
+      "benefit2": "Receive important DAO notifications",
+      "benefit3": "Keep your progress and rewards safe forever",
+      "label": "Recovery Email",
+      "placeholder": "your@email.com",
+      "sendCode": "Send Code",
+      "invalidEmail": "Please enter a valid email address",
+      "codeSent": "Verification code sent! Check your inbox.",
+      "verifyTitle": "Verify Your Email",
+      "codeSentTo": "We sent a 6-digit code to",
+      "enterCode": "Enter Verification Code",
+      "verify": "Verify",
+      "invalidCode": "Please enter a valid 6-digit code",
+      "changeEmail": "Change Email",
+      "resendCode": "Resend Code",
+      "verifiedSuccess": "Email verified and saved to your profile!",
+      "verified": "Recovery Email Configured"
     }
   },
   "taskData": {

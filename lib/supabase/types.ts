@@ -315,6 +315,7 @@ export interface Database {
           cgc_earned: number
           referrer_earnings: number
           joined_at: string
+          activated_at: string | null
           last_activity: string | null
           metadata: Json | null
         }
@@ -331,6 +332,7 @@ export interface Database {
           cgc_earned?: number
           referrer_earnings?: number
           joined_at?: string
+          activated_at?: string | null
           last_activity?: string | null
           metadata?: Json | null
         }
@@ -347,6 +349,7 @@ export interface Database {
           cgc_earned?: number
           referrer_earnings?: number
           joined_at?: string
+          activated_at?: string | null
           last_activity?: string | null
           metadata?: Json | null
         }

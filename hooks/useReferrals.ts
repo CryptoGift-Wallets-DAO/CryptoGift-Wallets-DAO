@@ -201,6 +201,25 @@ async function registerReferralConversion(wallet: string, code?: string) {
   return res.json();
 }
 
+async function activateReferral(wallet: string) {
+  const res = await fetch('/api/referrals/activate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ wallet }),
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Failed to activate referral');
+  }
+  return res.json();
+}
+
+async function checkActivationStatus(wallet: string) {
+  const res = await fetch(`/api/referrals/activate?wallet=${wallet}`);
+  if (!res.ok) throw new Error('Failed to check activation status');
+  return res.json();
+}
+
 // =====================================================
 // 🎣 HOOKS
 // =====================================================
@@ -416,6 +435,56 @@ export function useRegisterReferralConversion() {
     isRegistering: mutation.isPending,
     result: mutation.data?.data,
     error: mutation.error,
+  };
+}
+
+/**
+ * Hook to activate a referral when they receive CGC tokens
+ */
+export function useActivateReferral() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (wallet: string) => activateReferral(wallet),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['referralStats'] });
+      queryClient.invalidateQueries({ queryKey: ['referralNetwork'] });
+      queryClient.invalidateQueries({ queryKey: ['referralLeaderboard'] });
+    },
+  });
+
+  return {
+    activate: mutation.mutate,
+    activateAsync: mutation.mutateAsync,
+    isActivating: mutation.isPending,
+    result: mutation.data?.data,
+    error: mutation.error,
+    isSuccess: mutation.isSuccess,
+  };
+}
+
+/**
+ * Hook to check activation status of a referral
+ */
+export function useActivationStatus(wallet?: string) {
+  const query = useQuery({
+    queryKey: ['activationStatus', wallet],
+    queryFn: () => checkActivationStatus(wallet!),
+    enabled: !!wallet,
+    staleTime: 30 * 1000, // 30 seconds
+  });
+
+  return {
+    hasReferrer: query.data?.data?.hasReferrer,
+    isActive: query.data?.data?.isActive,
+    status: query.data?.data?.status,
+    activatedAt: query.data?.data?.activatedAt,
+    joinedAt: query.data?.data?.joinedAt,
+    cgcBalance: query.data?.data?.cgcBalance,
+    hasCGC: query.data?.data?.hasCGC,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
   };
 }
 

@@ -591,6 +591,12 @@
       "referralDate": "Se unió",
       "tasksCompleted": "Tareas",
       "cgcEarned": "CGC Ganados",
+      "you": "TÚ",
+      "level1": "Nivel 1 - Referidos Directos",
+      "level2": "Nivel 2",
+      "level3": "Nivel 3",
+      "earned": "ganado",
+      "checkActivation": "Verificar CGC y Activar",
       "status": {
         "active": "Activo",
         "inactive": "Inactivo",
@@ -608,14 +614,25 @@
       "noData": "Aún no hay datos de clasificación"
     },
     "history": {
-      "title": "Historial de Recompensas",
-      "description": "Rastrea tus ganancias de referidos a lo largo del tiempo",
+      "title": "Historial de Referidos Directos",
+      "description": "Seguimiento completo de tus referidos directos",
       "date": "Fecha",
       "type": "Tipo",
       "referral": "Referido",
       "amount": "Monto",
       "status": "Estado",
       "noHistory": "Aún no hay historial de recompensas",
+      "totalDirect": "Total Directos",
+      "active": "Activos",
+      "pending": "Pendientes",
+      "activated": "Activado",
+      "anonymous": "Usuario Anónimo",
+      "checkCGC": "Verificar CGC",
+      "connected": "Wallet Conectada",
+      "activatedAt": "Activado El",
+      "cgcEarned": "CGC Ganados",
+      "noReferrals": "Aún no tienes referidos directos",
+      "shareLink": "Comparte tu enlace de referido para invitar amigos",
       "types": {
         "directBonus": "Bono Directo",
         "level2Bonus": "Bono Nivel 2",
@@ -667,6 +684,7 @@
     "tabs": {
       "overview": "Resumen",
       "network": "Red",
+      "history": "Historial",
       "rewards": "Recompensas",
       "analytics": "Analíticas",
       "leaderboard": "Clasificación"
@@ -984,7 +1002,8 @@
       "websitePlaceholder": "https://tusitioweb.com",
       "saveChanges": "Guardar Cambios",
       "saving": "Guardando...",
-      "saved": "Perfil actualizado exitosamente"
+      "saved": "¡Guardado!",
+      "saveSuccess": "¡Tu perfil ha sido actualizado exitosamente!"
     },
     "avatar": {
       "title": "Foto de Perfil",
@@ -1056,6 +1075,27 @@
     "menu": {
       "profile": "Perfil",
       "viewProfile": "Ver Perfil"
+    },
+    "email": {
+      "secureAccount": "Protege Tu Cuenta",
+      "secureAccountDesc": "Agrega un email de recuperación para nunca perder acceso a tu perfil DAO, recompensas y referidos - incluso si cambias de wallet.",
+      "benefit1": "Recupera acceso si pierdes o comprometen tu wallet",
+      "benefit2": "Recibe notificaciones importantes del DAO",
+      "benefit3": "Mantén tu progreso y recompensas seguros para siempre",
+      "label": "Email de Recuperación",
+      "placeholder": "tu@email.com",
+      "sendCode": "Enviar Código",
+      "invalidEmail": "Por favor ingresa un email válido",
+      "codeSent": "¡Código de verificación enviado! Revisa tu bandeja.",
+      "verifyTitle": "Verifica Tu Email",
+      "codeSentTo": "Enviamos un código de 6 dígitos a",
+      "enterCode": "Ingresa el Código de Verificación",
+      "verify": "Verificar",
+      "invalidCode": "Por favor ingresa un código de 6 dígitos válido",
+      "changeEmail": "Cambiar Email",
+      "resendCode": "Reenviar Código",
+      "verifiedSuccess": "¡Email verificado y guardado en tu perfil!",
+      "verified": "Email de Recuperación Configurado"
     }
   },
   "taskData": {
