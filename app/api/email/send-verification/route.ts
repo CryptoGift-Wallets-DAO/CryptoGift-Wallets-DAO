@@ -177,7 +177,12 @@ export async function POST(request: NextRequest) {
     // Send email via Resend - Try DAO-prefixed variable first
     const fromEmail = process.env.RESEND_DAO_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'CryptoGift DAO <onboarding@resend.dev>';
 
-    await resendClient.emails.send({
+    console.log('📧 Attempting to send email via Resend:', {
+      from: fromEmail,
+      to: email.replace(/(.{2}).*(@.*)/, '$1***$2'),
+    });
+
+    const { data: emailResult, error: emailError } = await resendClient.emails.send({
       from: fromEmail,
       to: [email],
       subject: `CryptoGift DAO - Verification Code: ${otpCode}`,
@@ -213,7 +218,16 @@ export async function POST(request: NextRequest) {
       `,
     });
 
+    if (emailError) {
+      console.error('❌ Resend API error:', emailError);
+      return NextResponse.json(
+        { error: 'Failed to send verification email', success: false, details: emailError.message },
+        { status: 500 }
+      );
+    }
+
     console.log('✅ Email verification sent:', {
+      emailId: emailResult?.id,
       email: email.replace(/(.{2}).*(@.*)/, '$1***$2'),
       wallet: wallet.slice(0, 6) + '...' + wallet.slice(-4),
       code: otpCode.slice(0, 2) + '****',
