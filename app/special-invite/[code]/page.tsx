@@ -435,7 +435,7 @@ export default function SpecialInvitePage() {
             </p>
 
             <div className="flex justify-center">
-              <ConnectButton client={client} />
+              {client && <ConnectButton client={client} />}
             </div>
 
             {isProcessing && (
