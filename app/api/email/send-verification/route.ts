@@ -1,13 +1,15 @@
 /**
  * EMAIL VERIFICATION API - SEND OTP CODE
  * Sends 6-digit OTP code via Resend for CryptoGift DAO profile verification.
- * Rate limiting + Redis storage + validation
+ * Supports both Redis-backed OTP and fallback to database token storage.
  *
  * @endpoint POST /api/email/send-verification
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { validateRedisForEmail } from '@/lib/redis/config';
+import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
 // Rate limiting: 3 attempts per email per 10 minutes
 const RATE_LIMIT = 3;
@@ -17,6 +19,11 @@ const CODE_EXPIRY = 10 * 60; // 10 minutes in seconds
 // Generate 6-digit OTP
 function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Generate secure token for fallback
+function generateToken(): string {
+  return crypto.randomBytes(32).toString('hex');
 }
 
 // Email validation
@@ -44,6 +51,23 @@ async function getResend() {
   const { Resend } = await import('resend');
   resend = new Resend(apiKey);
   return resend;
+}
+
+// Lazy Supabase initialization for fallback token storage
+let supabase: ReturnType<typeof createClient> | null = null;
+
+function getSupabase() {
+  if (supabase) return supabase;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_DAO_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_DAO_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error('Supabase environment variables not configured');
+  }
+
+  supabase = createClient(url, key);
+  return supabase;
 }
 
 export async function POST(request: NextRequest) {
@@ -78,51 +102,77 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get Redis connection
-    const redis = validateRedisForEmail('email_verification_send');
-    if (!redis) {
-      return NextResponse.json(
-        { error: 'Email verification service temporarily unavailable', success: false },
-        { status: 503 }
-      );
-    }
-
-    // Rate limiting check
-    const rateLimitKey = `dao_email_rate:${email.toLowerCase()}`;
-    const attempts = await redis.get(rateLimitKey);
-    const currentAttempts = attempts ? parseInt(String(attempts)) : 0;
-
-    if (currentAttempts >= RATE_LIMIT) {
-      const ttl = await redis.ttl(rateLimitKey);
-      return NextResponse.json(
-        {
-          error: 'Too many attempts. Please try again later.',
-          success: false,
-          rateLimited: true,
-          retryAfter: ttl > 0 ? ttl : 300,
-        },
-        { status: 429 }
-      );
-    }
-
     // Generate OTP
     const otpCode = generateOTP();
-    const verificationKey = `dao_email_verify:${email.toLowerCase()}`;
+    let redisAvailable = false;
 
-    // Store OTP in Redis
-    const verificationData = {
-      code: otpCode,
-      email: email.toLowerCase(),
-      wallet: wallet.toLowerCase(),
-      createdAt: Date.now(),
-      expiresAt: Date.now() + CODE_EXPIRY * 1000,
-      attempts: 0,
-    };
+    // Try to use Redis for rate limiting and OTP storage
+    const redis = validateRedisForEmail('email_verification_send');
 
-    await redis.setex(verificationKey, CODE_EXPIRY, JSON.stringify(verificationData));
+    if (redis) {
+      try {
+        // Rate limiting check
+        const rateLimitKey = `dao_email_rate:${email.toLowerCase()}`;
+        const attempts = await redis.get(rateLimitKey);
+        const currentAttempts = attempts ? parseInt(String(attempts)) : 0;
 
-    // Update rate limiting
-    await redis.setex(rateLimitKey, RATE_WINDOW, (currentAttempts + 1).toString());
+        if (currentAttempts >= RATE_LIMIT) {
+          const ttl = await redis.ttl(rateLimitKey);
+          return NextResponse.json(
+            {
+              error: 'Too many attempts. Please try again later.',
+              success: false,
+              rateLimited: true,
+              retryAfter: ttl > 0 ? ttl : 300,
+            },
+            { status: 429 }
+          );
+        }
+
+        // Store OTP in Redis
+        const verificationKey = `dao_email_verify:${email.toLowerCase()}`;
+        const verificationData = {
+          code: otpCode,
+          email: email.toLowerCase(),
+          wallet: wallet.toLowerCase(),
+          createdAt: Date.now(),
+          expiresAt: Date.now() + CODE_EXPIRY * 1000,
+          attempts: 0,
+        };
+
+        await redis.setex(verificationKey, CODE_EXPIRY, JSON.stringify(verificationData));
+        await redis.setex(rateLimitKey, RATE_WINDOW, (currentAttempts + 1).toString());
+        redisAvailable = true;
+      } catch (redisError) {
+        console.warn('⚠️ Redis operation failed, falling back to Supabase:', redisError);
+      }
+    }
+
+    // Fallback: Store OTP in Supabase user_profiles table
+    if (!redisAvailable) {
+      console.log('📦 Using Supabase fallback for OTP storage');
+      try {
+        const db = getSupabase();
+        const expiresAt = new Date(Date.now() + CODE_EXPIRY * 1000);
+
+        // Store OTP in user_profiles email_verification_token field
+        const { error: updateError } = await db
+          .from('user_profiles')
+          .update({
+            email_verification_token: otpCode,
+            email_verification_expires_at: expiresAt.toISOString(),
+            email: email.toLowerCase(),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('wallet_address', wallet.toLowerCase());
+
+        if (updateError) {
+          console.error('Failed to store OTP in Supabase:', updateError);
+        }
+      } catch (dbError) {
+        console.error('Supabase fallback failed:', dbError);
+      }
+    }
 
     // Send email via Resend - Try DAO-prefixed variable first
     const fromEmail = process.env.RESEND_DAO_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'CryptoGift DAO <onboarding@resend.dev>';

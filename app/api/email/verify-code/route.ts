@@ -52,166 +52,284 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get Redis connection
-    const redis = validateRedisForEmail('email_verification_verify');
-    if (!redis) {
-      return NextResponse.json(
-        { error: 'Verification service temporarily unavailable', success: false },
-        { status: 503 }
-      );
-    }
-
     const normalizedEmail = email.toLowerCase();
-    const verificationKey = `dao_email_verify:${normalizedEmail}`;
-    const lockoutKey = `dao_email_lockout:${normalizedEmail}`;
+    const normalizedWallet = wallet?.toLowerCase();
 
-    // Check if account is locked out
-    const lockout = await redis.get(lockoutKey);
-    if (lockout) {
-      const lockoutData = typeof lockout === 'string' ? JSON.parse(lockout) : lockout;
-      const timeRemaining = Math.ceil((lockoutData.expiresAt - Date.now()) / 1000 / 60);
+    // Try Redis first, fallback to Supabase
+    const redis = validateRedisForEmail('email_verification_verify');
+    let redisAvailable = false;
 
-      return NextResponse.json(
-        {
-          error: `Too many failed attempts. Try again in ${timeRemaining} minutes.`,
-          success: false,
-          rateLimited: true,
-        },
-        { status: 429 }
-      );
+    if (redis) {
+      try {
+        const verificationKey = `dao_email_verify:${normalizedEmail}`;
+        const lockoutKey = `dao_email_lockout:${normalizedEmail}`;
+
+        // Check if account is locked out
+        const lockout = await redis.get(lockoutKey);
+        if (lockout) {
+          const lockoutData = typeof lockout === 'string' ? JSON.parse(lockout) : lockout;
+          const timeRemaining = Math.ceil((lockoutData.expiresAt - Date.now()) / 1000 / 60);
+
+          return NextResponse.json(
+            {
+              error: `Too many failed attempts. Try again in ${timeRemaining} minutes.`,
+              success: false,
+              rateLimited: true,
+            },
+            { status: 429 }
+          );
+        }
+
+        // Get verification data from Redis
+        const verificationData = await redis.get(verificationKey);
+        if (verificationData) {
+          redisAvailable = true;
+          const data = typeof verificationData === 'string' ? JSON.parse(verificationData) : verificationData;
+
+          // Check if code has expired
+          if (Date.now() > data.expiresAt) {
+            await redis.del(verificationKey);
+            return NextResponse.json(
+              {
+                error: 'Code has expired. Please request a new one.',
+                success: false,
+                expired: true,
+              },
+              { status: 400 }
+            );
+          }
+
+          // Check attempts
+          if (data.attempts >= MAX_VERIFICATION_ATTEMPTS) {
+            const lockoutData = {
+              email: normalizedEmail,
+              lockedAt: Date.now(),
+              expiresAt: Date.now() + VERIFICATION_LOCKOUT * 1000,
+              reason: 'too_many_attempts',
+            };
+
+            await redis.setex(lockoutKey, VERIFICATION_LOCKOUT, JSON.stringify(lockoutData));
+            await redis.del(verificationKey);
+
+            return NextResponse.json(
+              {
+                error: 'Too many failed attempts. Account locked for 15 minutes.',
+                success: false,
+                rateLimited: true,
+              },
+              { status: 429 }
+            );
+          }
+
+          // Verify code
+          if (data.code !== code) {
+            const updatedData = {
+              ...data,
+              attempts: data.attempts + 1,
+              lastAttempt: Date.now(),
+            };
+
+            const ttl = await redis.ttl(verificationKey);
+            await redis.setex(verificationKey, ttl > 0 ? ttl : 300, JSON.stringify(updatedData));
+
+            const remainingAttempts = MAX_VERIFICATION_ATTEMPTS - updatedData.attempts;
+
+            return NextResponse.json(
+              {
+                error: `Incorrect code. ${remainingAttempts} attempts remaining.`,
+                success: false,
+                verified: false,
+                remainingAttempts,
+              },
+              { status: 400 }
+            );
+          }
+
+          // Code is correct via Redis - save email to profile
+          const walletToUse = normalizedWallet || data.wallet;
+
+          if (walletToUse) {
+            try {
+              const db = getSupabase();
+              const { error: updateError } = await db
+                .from('user_profiles')
+                .update({
+                  email: normalizedEmail,
+                  email_verified: true,
+                  email_verification_token: null,
+                  email_verification_expires_at: null,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq('wallet_address', walletToUse.toLowerCase());
+
+              if (updateError) {
+                console.error('Failed to update profile with email:', updateError);
+              } else {
+                console.log('✅ Email saved to profile (Redis path):', {
+                  email: normalizedEmail.replace(/(.{2}).*(@.*)/, '$1***$2'),
+                  wallet: walletToUse.slice(0, 6) + '...' + walletToUse.slice(-4),
+                });
+              }
+            } catch (dbError) {
+              console.error('Database error saving email:', dbError);
+            }
+          }
+
+          // Store verified email in Redis (30 days)
+          const verifiedKey = `dao_email_verified:${normalizedEmail}`;
+          const verifiedData = {
+            email: normalizedEmail,
+            wallet: walletToUse,
+            verifiedAt: Date.now(),
+          };
+          await redis.setex(verifiedKey, 30 * 24 * 60 * 60, JSON.stringify(verifiedData));
+
+          // Clean up
+          await redis.del(verificationKey);
+          await redis.del(lockoutKey);
+
+          console.log('✅ Email verification successful (Redis):', {
+            email: normalizedEmail.replace(/(.{2}).*(@.*)/, '$1***$2'),
+            verifiedAt: new Date().toISOString(),
+          });
+
+          return NextResponse.json({
+            success: true,
+            message: 'Email verified successfully!',
+            verified: true,
+          });
+        }
+      } catch (redisError) {
+        console.warn('⚠️ Redis verification failed, trying Supabase fallback:', redisError);
+      }
     }
 
-    // Get verification data
-    const verificationData = await redis.get(verificationKey);
-    if (!verificationData) {
-      return NextResponse.json(
-        {
-          error: 'Verification code not found or expired. Please request a new code.',
-          success: false,
-          expired: true,
-        },
-        { status: 404 }
-      );
-    }
+    // Supabase fallback: Verify OTP stored in user_profiles table
+    if (!redisAvailable) {
+      console.log('📦 Using Supabase fallback for OTP verification');
 
-    const data = typeof verificationData === 'string' ? JSON.parse(verificationData) : verificationData;
+      if (!normalizedWallet) {
+        return NextResponse.json(
+          { error: 'Wallet address is required for verification', success: false },
+          { status: 400 }
+        );
+      }
 
-    // Check if code has expired
-    if (Date.now() > data.expiresAt) {
-      await redis.del(verificationKey);
-      return NextResponse.json(
-        {
-          error: 'Code has expired. Please request a new one.',
-          success: false,
-          expired: true,
-        },
-        { status: 400 }
-      );
-    }
-
-    // Check attempts
-    if (data.attempts >= MAX_VERIFICATION_ATTEMPTS) {
-      // Lock account
-      const lockoutData = {
-        email: normalizedEmail,
-        lockedAt: Date.now(),
-        expiresAt: Date.now() + VERIFICATION_LOCKOUT * 1000,
-        reason: 'too_many_attempts',
-      };
-
-      await redis.setex(lockoutKey, VERIFICATION_LOCKOUT, JSON.stringify(lockoutData));
-      await redis.del(verificationKey);
-
-      return NextResponse.json(
-        {
-          error: 'Too many failed attempts. Account locked for 15 minutes.',
-          success: false,
-          rateLimited: true,
-        },
-        { status: 429 }
-      );
-    }
-
-    // Verify code
-    if (data.code !== code) {
-      // Increment attempts
-      const updatedData = {
-        ...data,
-        attempts: data.attempts + 1,
-        lastAttempt: Date.now(),
-      };
-
-      const ttl = await redis.ttl(verificationKey);
-      await redis.setex(verificationKey, ttl > 0 ? ttl : 300, JSON.stringify(updatedData));
-
-      const remainingAttempts = MAX_VERIFICATION_ATTEMPTS - updatedData.attempts;
-
-      return NextResponse.json(
-        {
-          error: `Incorrect code. ${remainingAttempts} attempts remaining.`,
-          success: false,
-          verified: false,
-          remainingAttempts,
-        },
-        { status: 400 }
-      );
-    }
-
-    // Code is correct - save email to profile
-    const walletToUse = wallet || data.wallet;
-
-    if (walletToUse) {
       try {
         const db = getSupabase();
 
-        // Update user profile with verified email
+        // Get stored OTP from user_profiles
+        const { data: profile, error: fetchError } = await db
+          .from('user_profiles')
+          .select('email_verification_token, email_verification_expires_at, email')
+          .eq('wallet_address', normalizedWallet)
+          .single();
+
+        if (fetchError || !profile) {
+          return NextResponse.json(
+            {
+              error: 'Profile not found. Please request a new verification code.',
+              success: false,
+              expired: true,
+            },
+            { status: 404 }
+          );
+        }
+
+        // Check if OTP exists
+        if (!profile.email_verification_token) {
+          return NextResponse.json(
+            {
+              error: 'Verification code not found or expired. Please request a new code.',
+              success: false,
+              expired: true,
+            },
+            { status: 404 }
+          );
+        }
+
+        // Check if code has expired
+        if (profile.email_verification_expires_at) {
+          const expiresAt = new Date(profile.email_verification_expires_at).getTime();
+          if (Date.now() > expiresAt) {
+            // Clear expired token
+            await db
+              .from('user_profiles')
+              .update({
+                email_verification_token: null,
+                email_verification_expires_at: null,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('wallet_address', normalizedWallet);
+
+            return NextResponse.json(
+              {
+                error: 'Code has expired. Please request a new one.',
+                success: false,
+                expired: true,
+              },
+              { status: 400 }
+            );
+          }
+        }
+
+        // Verify the code
+        if (profile.email_verification_token !== code) {
+          return NextResponse.json(
+            {
+              error: 'Incorrect code. Please try again.',
+              success: false,
+              verified: false,
+            },
+            { status: 400 }
+          );
+        }
+
+        // Code is correct - update profile
         const { error: updateError } = await db
           .from('user_profiles')
           .update({
             email: normalizedEmail,
             email_verified: true,
+            email_verification_token: null,
+            email_verification_expires_at: null,
             updated_at: new Date().toISOString(),
           })
-          .eq('wallet_address', walletToUse.toLowerCase());
+          .eq('wallet_address', normalizedWallet);
 
         if (updateError) {
-          console.error('Failed to update profile with email:', updateError);
-          // Don't fail the verification, just log the error
-        } else {
-          console.log('✅ Email saved to profile:', {
-            email: normalizedEmail.replace(/(.{2}).*(@.*)/, '$1***$2'),
-            wallet: walletToUse.slice(0, 6) + '...' + walletToUse.slice(-4),
-          });
+          console.error('Failed to update profile with verified email:', updateError);
+          return NextResponse.json(
+            { error: 'Failed to save verified email', success: false },
+            { status: 500 }
+          );
         }
+
+        console.log('✅ Email verification successful (Supabase fallback):', {
+          email: normalizedEmail.replace(/(.{2}).*(@.*)/, '$1***$2'),
+          wallet: normalizedWallet.slice(0, 6) + '...' + normalizedWallet.slice(-4),
+          verifiedAt: new Date().toISOString(),
+        });
+
+        return NextResponse.json({
+          success: true,
+          message: 'Email verified successfully!',
+          verified: true,
+        });
       } catch (dbError) {
-        console.error('Database error saving email:', dbError);
-        // Continue anyway - verification was successful
+        console.error('Supabase verification failed:', dbError);
+        return NextResponse.json(
+          { error: 'Verification service temporarily unavailable', success: false },
+          { status: 503 }
+        );
       }
     }
 
-    // Store verified email in Redis (30 days expiry)
-    const verifiedKey = `dao_email_verified:${normalizedEmail}`;
-    const verifiedData = {
-      email: normalizedEmail,
-      wallet: walletToUse,
-      verifiedAt: Date.now(),
-    };
-    await redis.setex(verifiedKey, 30 * 24 * 60 * 60, JSON.stringify(verifiedData));
-
-    // Clean up verification data
-    await redis.del(verificationKey);
-    await redis.del(lockoutKey);
-
-    console.log('✅ Email verification successful:', {
-      email: normalizedEmail.replace(/(.{2}).*(@.*)/, '$1***$2'),
-      verifiedAt: new Date().toISOString(),
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: 'Email verified successfully!',
-      verified: true,
-    });
+    // Should not reach here, but just in case
+    return NextResponse.json(
+      { error: 'Verification service temporarily unavailable', success: false },
+      { status: 503 }
+    );
   } catch (error) {
     console.error('❌ Email verification failed:', error);
     return NextResponse.json(
