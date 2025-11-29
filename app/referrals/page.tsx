@@ -11,6 +11,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Navbar } from '@/components/layout/Navbar';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
+import { SpecialReferralCard } from '@/components/referrals/SpecialReferralCard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -327,6 +328,9 @@ function ReferralsDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Special Referral Link Section */}
+      <SpecialReferralCard referralCode={referralCode} walletAddress={address} />
 
       {/* Tabs */}
       <div className="flex space-x-2 border-b border-gray-200 dark:border-slate-700 pb-2 overflow-x-auto">

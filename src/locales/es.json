@@ -693,6 +693,38 @@
       "newReferral": "¡Nuevo referido se unió!",
       "rewardEarned": "Ganaste {amount} CGC de referidos",
       "milestoneReached": "¡Felicidades! Alcanzaste {count} referidos"
+    },
+    "special": {
+      "title": "Enlace de Invitación Especial",
+      "subtitle": "Incorpora nuevos miembros con contenido educativo",
+      "description": "Crea un enlace de referido especial que guía a los nuevos miembros a través de nuestro Sales Masterclass antes de unirse. Perfecto para atraer miembros comprometidos y educados.",
+      "badge": "Premium",
+      "benefits": {
+        "title": "¿Por qué usar Enlaces Especiales?",
+        "education": "Los destinatarios aprenden sobre CryptoGift antes de unirse",
+        "quality": "Atrae miembros más comprometidos y dedicados",
+        "rewards": "Gana CGC bonus por referidos educados"
+      },
+      "form": {
+        "password": "Contraseña Opcional",
+        "passwordPlaceholder": "Deja vacío para sin contraseña",
+        "passwordHelp": "Añade una contraseña para hacer esta invitación exclusiva",
+        "message": "Mensaje de Bienvenida Personalizado",
+        "messagePlaceholder": "Escribe un mensaje personalizado para tu invitación...",
+        "messageDefault": "¡Has sido invitado a unirte a CryptoGift DAO! Completa el Sales Masterclass para desbloquear tu membresía y comenzar a ganar tokens CGC.",
+        "messageHelp": "Este mensaje se mostrará a los destinatarios"
+      },
+      "generate": "Generar Enlace Especial",
+      "generating": "Generando...",
+      "linkReady": "Tu Enlace de Invitación Especial",
+      "copyLink": "Copiar Enlace",
+      "copied": "¡Copiado!",
+      "createAnother": "Crear Otro",
+      "stats": {
+        "created": "Enlaces Creados",
+        "claimed": "Reclamados Exitosamente",
+        "pending": "Pendientes de Completar"
+      }
     }
   },
   "funding": {

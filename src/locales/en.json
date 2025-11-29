@@ -693,6 +693,38 @@
       "newReferral": "New referral joined!",
       "rewardEarned": "You earned {amount} CGC from referrals",
       "milestoneReached": "Congratulations! You reached {count} referrals"
+    },
+    "special": {
+      "title": "Special Invite Link",
+      "subtitle": "Onboard new members with educational content",
+      "description": "Create a special referral link that guides new members through our Sales Masterclass before joining. Perfect for bringing in committed, educated community members.",
+      "badge": "Premium",
+      "benefits": {
+        "title": "Why Use Special Links?",
+        "education": "Recipients learn about CryptoGift before joining",
+        "quality": "Attract more engaged and committed members",
+        "rewards": "Earn bonus CGC for educated referrals"
+      },
+      "form": {
+        "password": "Optional Password",
+        "passwordPlaceholder": "Leave empty for no password",
+        "passwordHelp": "Add a password to make this invite exclusive",
+        "message": "Custom Welcome Message",
+        "messagePlaceholder": "Enter a personalized message for your invite...",
+        "messageDefault": "You have been invited to join CryptoGift DAO! Complete the Sales Masterclass to unlock your membership and start earning CGC tokens.",
+        "messageHelp": "This message will be shown to recipients"
+      },
+      "generate": "Generate Special Link",
+      "generating": "Generating...",
+      "linkReady": "Your Special Invite Link",
+      "copyLink": "Copy Link",
+      "copied": "Copied!",
+      "createAnother": "Create Another",
+      "stats": {
+        "created": "Links Created",
+        "claimed": "Successfully Claimed",
+        "pending": "Pending Completion"
+      }
     }
   },
   "funding": {
