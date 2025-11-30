@@ -2466,8 +2466,10 @@ const CaptureBlock: React.FC<{
         setEmailVerified(false);
       }
     } else {
-      // If no callback provided, use local modal (educationalMode=false case)
-      setShowEmailVerification(true);
+      // If no callback provided (non-educational mode), mark as verified immediately
+      // The parent component should handle opening modals in this case
+      console.log('⚠️ No onShowEmailVerification callback - marking as verified');
+      setEmailVerified(true);
     }
     setProcessingEmail(false);
   };
@@ -2492,8 +2494,10 @@ const CaptureBlock: React.FC<{
         setCalendarScheduled(false);
       }
     } else {
-      // If no callback provided, use local modal (educationalMode=false case)
-      setShowCalendar(true);
+      // If no callback provided (non-educational mode), mark as scheduled immediately
+      // The parent component should handle opening modals in this case
+      console.log('⚠️ No onShowCalendar callback - marking as scheduled');
+      setCalendarScheduled(true);
     }
     setProcessingCalendar(false);
   };
