@@ -1638,7 +1638,7 @@ interface QuestionType {
 }
 
 const QuestionSection: React.FC<{
-  question: QuestionType;
+  question?: QuestionType;
   onAnswer: (index: number) => void;
   selectedAnswer: number | null;
   showFeedback: boolean;
@@ -1823,9 +1823,9 @@ const NavigationArea: React.FC<{
 );
 
 // Block Components with Questions
-const OpeningBlock: React.FC<{ 
-  content: SalesBlockContent; 
-  question: QuestionType;
+const OpeningBlock: React.FC<{
+  content: SalesBlockContent;
+  question?: QuestionType;
   onAnswer: (idx: number) => void;
   selectedAnswer: number | null;
   showFeedback: boolean;

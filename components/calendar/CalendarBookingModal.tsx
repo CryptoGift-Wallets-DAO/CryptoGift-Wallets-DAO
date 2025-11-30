@@ -17,10 +17,14 @@ import { X, Calendar, CheckCircle, Loader2 } from 'lucide-react';
 interface CalendarBookingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onBooked: () => void;
+  onBooked?: () => void;
+  onAppointmentBooked?: () => void;
   giftId?: string;
   tokenId?: string;
   email?: string;
+  userEmail?: string;
+  userName?: string;
+  source?: string;
 }
 
 export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({

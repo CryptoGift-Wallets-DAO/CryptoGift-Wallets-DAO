@@ -20,6 +20,9 @@ interface EmailVerificationModalProps {
   onVerified: (email: string) => void;
   giftId?: string;
   tokenId?: string;
+  source?: string;
+  title?: string;
+  subtitle?: string;
 }
 
 export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
