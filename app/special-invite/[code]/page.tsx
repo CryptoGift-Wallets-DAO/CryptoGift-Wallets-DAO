@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SpecialInviteFlow } from '@/components/special-invite/SpecialInviteFlow';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { LanguageToggle } from '@/components/ui/LanguageToggle';
 
 interface InviteData {
   code: string;
@@ -168,10 +170,14 @@ export default function SpecialInvitePage() {
               </div>
             </div>
 
-            <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
-              <Star className="h-3 w-3 mr-1" />
-              Premium Invite
-            </Badge>
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <LanguageToggle />
+              <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+                <Star className="h-3 w-3 mr-1" />
+                Premium Invite
+              </Badge>
+            </div>
           </div>
         </div>
       </header>

@@ -24,8 +24,8 @@ import { client } from '@/lib/thirdweb/client';
 import { InviteImageCard } from './InviteImageCard';
 import dynamic from 'next/dynamic';
 
-// Dynamic import for DAOMasterclass to avoid SSR issues
-const DAOMasterclass = dynamic(() => import('../learn/DAOMasterclass'), {
+// Dynamic import for SalesMasterclass to avoid SSR issues
+const SalesMasterclass = dynamic(() => import('../learn/SalesMasterclass'), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center min-h-[400px]">
@@ -228,8 +228,14 @@ export function SpecialInviteFlow({
             {/* Header */}
             <div className="text-center">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center animate-bounce shadow-lg">
-                  <span className="text-4xl">🎟️</span>
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center animate-bounce shadow-lg overflow-hidden">
+                  <Image
+                    src="/apeX.png"
+                    alt="apeX"
+                    width={72}
+                    height={72}
+                    className="object-cover"
+                  />
                 </div>
               </div>
               <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
@@ -394,9 +400,13 @@ export function SpecialInviteFlow({
       case 'education':
         return (
           <div className="fixed inset-0 z-50">
-            <DAOMasterclass
-              onComplete={handleEducationComplete}
-              inviteCode={inviteData.code}
+            <SalesMasterclass
+              educationalMode={true}
+              onEducationComplete={(data) => {
+                handleEducationComplete({
+                  questionsScore: data?.questionsScore || { correct: 0, total: 0 }
+                });
+              }}
             />
           </div>
         );
@@ -537,7 +547,7 @@ export function SpecialInviteFlow({
       {/* Left Panel - Image Card */}
       <div>
         <InviteImageCard
-          image={inviteData.image || '/images/special-invite-default.png'}
+          image={inviteData.image || '/special-referral.jpg'}
           name="Invitacion Especial DAO"
           customMessage={inviteData.customMessage}
           referrerCode={inviteData.referrerCode}
