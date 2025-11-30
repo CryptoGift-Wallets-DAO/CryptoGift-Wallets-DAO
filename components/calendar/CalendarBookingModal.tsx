@@ -47,7 +47,7 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
 
       setIsBooked(true);
       setTimeout(() => {
-        onBooked();
+        onBooked?.();
         onClose();
       }, 1000);
     } catch (err) {
