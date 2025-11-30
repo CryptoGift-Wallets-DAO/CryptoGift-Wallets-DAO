@@ -24,6 +24,10 @@ import { client } from '@/lib/thirdweb/client';
 import { InviteImageCard } from './InviteImageCard';
 import { EmailVerificationModal } from '@/components/email/EmailVerificationModal';
 import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { LanguageToggle } from '@/components/ui/LanguageToggle';
+import { GraduationCap, Star } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import dynamic from 'next/dynamic';
 
 // Dynamic import for SalesMasterclass to avoid SSR issues
@@ -617,11 +621,48 @@ export function SpecialInviteFlow({
     }
   };
 
+  // Header component for reuse (defined here for education step)
+  const HeaderBar = () => (
+    <header className="fixed top-0 left-0 right-0 z-[60] border-b border-gray-200/50 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-600">
+              <GraduationCap className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900 dark:text-white">
+                CryptoGift DAO
+              </h1>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Invitacion Especial
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <LanguageToggle />
+            <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hidden sm:flex">
+              <Star className="h-3 w-3 mr-1" />
+              Premium
+            </Badge>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+
   // If we're in education step, render fullscreen with modals
   if (currentStep === 'education') {
     return (
       <>
-        {renderStepContent()}
+        <HeaderBar />
+
+        {/* Add padding-top to account for fixed header */}
+        <div className="pt-16">
+          {renderStepContent()}
+        </div>
 
         {/* Email Verification Modal - Always available */}
         <EmailVerificationModal
@@ -644,10 +685,12 @@ export function SpecialInviteFlow({
   }
 
   return (
-    <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${className}`}>
-      {/* Left Panel - Image Card */}
-      <div>
-        <InviteImageCard
+    <>
+      <HeaderBar />
+      <div className={`pt-16 grid grid-cols-1 lg:grid-cols-2 gap-8 ${className}`}>
+        {/* Left Panel - Image Card */}
+        <div>
+          <InviteImageCard
           image={inviteData.image || '/special-referral.jpg'}
           name="Invitacion Especial DAO"
           customMessage={inviteData.customMessage}
@@ -747,7 +790,8 @@ export function SpecialInviteFlow({
               </div>
             </div>
           </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

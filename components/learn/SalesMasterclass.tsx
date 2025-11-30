@@ -2585,7 +2585,7 @@ const CaptureBlock: React.FC<{
 
   // UI principal unificada para ambos modos
   return (
-    <div className="py-12">
+    <div className="pt-12 pb-6">
       <h2 className="text-5xl font-bold text-center mb-8">
         {content.title} 🚀
       </h2>

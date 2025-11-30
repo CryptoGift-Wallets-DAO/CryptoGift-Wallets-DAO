@@ -83,12 +83,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!wallet || !/^0x[a-fA-F0-9]{40}$/.test(wallet)) {
-      return NextResponse.json(
-        { error: 'Valid wallet address is required', success: false },
-        { status: 400 }
-      );
-    }
+    // Wallet is optional for educational flow
+    // If wallet is provided and looks like an address, validate it
+    // Otherwise, allow 'pending-verification' or empty wallet for educational mode
+    const isValidWallet = wallet && /^0x[a-fA-F0-9]{40}$/.test(wallet);
+    const isPendingVerification = !wallet || wallet === 'pending-verification';
+
+    // Use email as identifier when no wallet connected (educational flow)
+    const userIdentifier = isValidWallet ? wallet.toLowerCase() : `email:${email.toLowerCase()}`;
 
     // Get Resend client
     let resendClient;
@@ -134,7 +136,7 @@ export async function POST(request: NextRequest) {
         const verificationData = {
           code: otpCode,
           email: email.toLowerCase(),
-          wallet: wallet.toLowerCase(),
+          wallet: userIdentifier, // Uses email as identifier when no wallet connected
           createdAt: Date.now(),
           expiresAt: Date.now() + CODE_EXPIRY * 1000,
           attempts: 0,
@@ -148,8 +150,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Fallback: Store OTP in Supabase user_profiles table
-    if (!redisAvailable) {
+    // Fallback: Store OTP in Supabase user_profiles table (only if valid wallet)
+    if (!redisAvailable && isValidWallet) {
       console.log('📦 Using Supabase fallback for OTP storage');
       try {
         const db = getSupabase();
@@ -172,6 +174,9 @@ export async function POST(request: NextRequest) {
       } catch (dbError) {
         console.error('Supabase fallback failed:', dbError);
       }
+    } else if (!redisAvailable && !isValidWallet) {
+      // Educational flow without wallet - Redis is required
+      console.log('⚠️ Educational flow: OTP stored in email only (Redis required for verification)');
     }
 
     // Send email via Resend - Try DAO-prefixed variable first
@@ -229,7 +234,9 @@ export async function POST(request: NextRequest) {
     console.log('✅ Email verification sent:', {
       emailId: emailResult?.id,
       email: email.replace(/(.{2}).*(@.*)/, '$1***$2'),
-      wallet: wallet.slice(0, 6) + '...' + wallet.slice(-4),
+      identifier: isValidWallet
+        ? wallet.slice(0, 6) + '...' + wallet.slice(-4)
+        : 'educational-flow',
       code: otpCode.slice(0, 2) + '****',
     });
 

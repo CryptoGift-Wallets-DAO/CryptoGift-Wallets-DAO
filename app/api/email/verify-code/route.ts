@@ -147,8 +147,9 @@ export async function POST(request: NextRequest) {
 
           // Code is correct via Redis - save email to profile
           const walletToUse = normalizedWallet || data.wallet;
+          const isRealWallet = walletToUse && /^0x[a-fA-F0-9]{40}$/.test(walletToUse);
 
-          if (walletToUse) {
+          if (isRealWallet) {
             try {
               const db = getSupabase();
               const { error: updateError } = await db
@@ -167,7 +168,9 @@ export async function POST(request: NextRequest) {
               } else {
                 console.log('✅ Email saved to profile (Redis path):', {
                   email: normalizedEmail.replace(/(.{2}).*(@.*)/, '$1***$2'),
-                  wallet: walletToUse.slice(0, 6) + '...' + walletToUse.slice(-4),
+                  identifier: walletToUse.startsWith('email:')
+                    ? 'educational-flow'
+                    : walletToUse.slice(0, 6) + '...' + walletToUse.slice(-4),
                 });
               }
             } catch (dbError) {
