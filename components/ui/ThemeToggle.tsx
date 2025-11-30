@@ -32,11 +32,19 @@ export function ThemeToggle() {
   }
 
   return (
-    <div className="relative z-[60]">
+    <div className="relative">
+      {/* OVERLAY PARA CERRAR - DEBE ESTAR PRIMERO PARA RECIBIR CLICKS */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-[40]"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
       {/* TOGGLE PRINCIPAL - SOLO SILUETAS SIN CONTORNOS */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-1 transition-all duration-300 hover:opacity-80"
+        className="flex items-center space-x-1 transition-all duration-300 hover:opacity-80 relative z-[50]"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
@@ -78,7 +86,7 @@ export function ThemeToggle() {
             exit={{ opacity: 0, y: -10, scale: 0.9 }}
             transition={{ duration: 0.2 }}
             className="absolute top-12 right-0 w-48
-                       bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-2 z-[70] border border-gray-200 dark:border-slate-700"
+                       bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-2 z-[60] border border-gray-200 dark:border-slate-700"
           >
             {/* MODO AUTOMATICO */}
             <motion.button
@@ -180,13 +188,6 @@ export function ThemeToggle() {
         )}
       </AnimatePresence>
 
-      {/* OVERLAY PARA CERRAR */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-[65]"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
     </div>
   );
 }

@@ -11,7 +11,23 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  
+
+  // Image optimization - Allow external images from Supabase Storage
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pwajikcybnicshuqlybo.supabase.co',
+        pathname: '/**',
+      },
+    ],
+  },
+
   // Environment variables - Use consistent NEXT_PUBLIC_ prefixes
   env: {
     NEXT_PUBLIC_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID || '8453', // Base mainnet

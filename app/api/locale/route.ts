@@ -1,5 +1,4 @@
-import { NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,36 +6,29 @@ export async function POST(request: NextRequest) {
 
     // Validate locale
     if (!locale || !['en', 'es'].includes(locale)) {
-      return new Response(JSON.stringify({ error: 'Invalid locale' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return NextResponse.json({ error: 'Invalid locale' }, { status: 400 });
     }
 
-    // Set the locale cookie
-    const cookieStore = await cookies();
-    cookieStore.set('NEXT_LOCALE', locale, {
+    console.log(`[Locale API] Setting locale to: ${locale}`);
+
+    // Create response with cookie set via NextResponse
+    const response = NextResponse.json({ success: true, locale }, { status: 200 });
+
+    // Set the cookie properly using NextResponse
+    response.cookies.set('NEXT_LOCALE', locale, {
       path: '/',
       maxAge: 60 * 60 * 24 * 365, // 1 year
-      httpOnly: false, // Allow client-side access
+      httpOnly: false, // Allow client-side access for reading
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax'
     });
 
-    console.log(`Locale cookie set to: ${locale}`);
+    console.log(`[Locale API] Cookie set successfully for locale: ${locale}`);
 
-    return new Response(null, {
-      status: 204,
-      headers: {
-        'Set-Cookie': `NEXT_LOCALE=${locale}; Path=/; Max-Age=31536000; SameSite=lax${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
-      }
-    });
+    return response;
 
   } catch (error) {
-    console.error('Error setting locale:', error);
-    return new Response(JSON.stringify({ error: 'Failed to set locale' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    console.error('[Locale API] Error setting locale:', error);
+    return NextResponse.json({ error: 'Failed to set locale' }, { status: 500 });
   }
 }
