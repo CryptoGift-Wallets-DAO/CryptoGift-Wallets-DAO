@@ -32,7 +32,7 @@ export function ThemeToggle() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative z-[60]">
       {/* TOGGLE PRINCIPAL - SOLO SILUETAS SIN CONTORNOS */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
@@ -78,7 +78,7 @@ export function ThemeToggle() {
             exit={{ opacity: 0, y: -10, scale: 0.9 }}
             transition={{ duration: 0.2 }}
             className="absolute top-12 right-0 w-48
-                       bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-2 z-50 border border-gray-200 dark:border-slate-700"
+                       bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-2 z-[70] border border-gray-200 dark:border-slate-700"
           >
             {/* MODO AUTOMATICO */}
             <motion.button
@@ -183,7 +183,7 @@ export function ThemeToggle() {
       {/* OVERLAY PARA CERRAR */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40"
+          className="fixed inset-0 z-[65]"
           onClick={() => setIsOpen(false)}
         />
       )}

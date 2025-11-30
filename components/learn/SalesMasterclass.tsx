@@ -697,7 +697,9 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   const account = useActiveAccount();
   
   // State
-  const [showIntroVideo, setShowIntroVideo] = useState(true);
+  // CRITICAL FIX: Only show intro video if URL is configured
+  // When INTRO_VIDEO_URL is null, skip directly to content
+  const [showIntroVideo, setShowIntroVideo] = useState(!!VIDEO_CONFIG.INTRO_VIDEO_URL);
   const [currentBlock, setCurrentBlock] = useState(0);
   const [timeLeft, setTimeLeft] = useState(SALES_BLOCKS[0].duration);
   const [isPaused, setIsPaused] = useState(false);

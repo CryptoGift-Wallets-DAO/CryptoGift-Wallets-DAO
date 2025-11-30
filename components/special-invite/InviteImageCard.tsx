@@ -40,6 +40,10 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
   onRefresh
 }) => {
   const [showImageModal, setShowImageModal] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // Fallback to local image if Supabase image fails
+  const displayImage = imageError || !image ? '/special-referral.jpg' : image;
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -84,14 +88,14 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden ${className}`}>
       {/* YUGI-OH FUTURISTIC CARD HEADER */}
       <div className="relative overflow-hidden">
-        {image ? (
+        {displayImage ? (
           <div
             className="nft-card-image-container relative cursor-pointer group"
             onClick={() => setShowImageModal(true)}
             title="Click para ver imagen completa"
           >
             <Image
-              src={image}
+              src={displayImage}
               alt={name}
               width={500}
               height={500}
@@ -100,6 +104,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
                 backgroundColor: '#f8fafc',
                 borderRadius: '0.5rem 0.5rem 0 0'
               }}
+              onError={() => setImageError(true)}
             />
 
             {/* YUGI-OH STYLE BORDER OVERLAY */}
@@ -272,7 +277,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
       <NFTImageModal
         isOpen={showImageModal}
         onClose={() => setShowImageModal(false)}
-        image={image || '/images/special-invite-placeholder.png'}
+        image={displayImage}
         name={name}
         tokenId={inviteCode}
         metadata={{
