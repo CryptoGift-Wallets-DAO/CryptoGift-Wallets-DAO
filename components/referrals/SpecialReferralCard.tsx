@@ -19,7 +19,7 @@
 
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,6 +45,14 @@ import {
   Eye,
   X,
   Upload,
+  ChevronDown,
+  ChevronUp,
+  History,
+  MessageSquare,
+  Trash2,
+  Calendar,
+  CheckCircle,
+  Clock,
 } from 'lucide-react';
 
 interface SpecialReferralCardProps {
@@ -58,6 +66,22 @@ interface SpecialInviteData {
   customMessage?: string;
   image?: string;
   createdAt: string;
+}
+
+// Interface for stored invites from database
+interface StoredInvite {
+  id: number;
+  inviteCode: string;
+  customMessage: string | null;
+  imageUrl: string | null;
+  hasPassword: boolean;
+  status: 'active' | 'claimed' | 'expired';
+  createdAt: string;
+  expiresAt: string;
+  claimedBy: string | null;
+  claimedAt: string | null;
+  educationCompleted: boolean;
+  walletConnected: boolean;
 }
 
 export function SpecialReferralCard({ referralCode, walletAddress }: SpecialReferralCardProps) {
@@ -76,7 +100,87 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
   const [copiedPassword, setCopiedPassword] = useState(false);
   const [showForm, setShowForm] = useState(true);
 
+  // State for previous invites history
+  const [previousInvites, setPreviousInvites] = useState<StoredInvite[]>([]);
+  const [isLoadingInvites, setIsLoadingInvites] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
+  const [deletingInviteCode, setDeletingInviteCode] = useState<string | null>(null);
+
   const defaultMessage = t('form.messageDefault');
+
+  // Load previous invites on mount and when wallet changes
+  useEffect(() => {
+    const fetchPreviousInvites = async () => {
+      if (!walletAddress) return;
+
+      setIsLoadingInvites(true);
+      try {
+        const response = await fetch(`/api/referrals/special-invite/user?wallet=${walletAddress}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.invites) {
+            setPreviousInvites(data.invites);
+            console.log(`📋 Loaded ${data.invites.length} previous invites`);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching previous invites:', error);
+      } finally {
+        setIsLoadingInvites(false);
+      }
+    };
+
+    fetchPreviousInvites();
+  }, [walletAddress]);
+
+  // Delete an invite
+  const handleDeleteInvite = useCallback(async (inviteCode: string) => {
+    if (!walletAddress) return;
+
+    setDeletingInviteCode(inviteCode);
+    try {
+      const response = await fetch('/api/referrals/special-invite/user', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inviteCode, wallet: walletAddress }),
+      });
+
+      if (response.ok) {
+        // Remove from local state
+        setPreviousInvites(prev => prev.filter(invite => invite.inviteCode !== inviteCode));
+        console.log(`🗑️ Deleted invite ${inviteCode}`);
+      }
+    } catch (error) {
+      console.error('Error deleting invite:', error);
+    } finally {
+      setDeletingInviteCode(null);
+    }
+  }, [walletAddress]);
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  // Get status badge color
+  const getStatusBadge = (status: string, expiresAt: string) => {
+    const isExpired = new Date(expiresAt) < new Date();
+    if (isExpired) {
+      return { color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400', text: 'Expirado' };
+    }
+    if (status === 'claimed') {
+      return { color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300', text: 'Reclamado' };
+    }
+    return { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', text: 'Activo' };
+  };
 
   // Handle image file selection
   const handleImageSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,6 +296,23 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
       if (password) {
         setGeneratedPassword(password);
       }
+
+      // Add the new invite to the beginning of previousInvites list
+      const newInvite: StoredInvite = {
+        id: Date.now(),
+        inviteCode: data.inviteCode,
+        customMessage: customMessage || defaultMessage,
+        imageUrl: imageUrl || null,
+        hasPassword: !!password,
+        status: 'active',
+        createdAt: new Date().toISOString(),
+        expiresAt: data.expiresAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        claimedBy: null,
+        claimedAt: null,
+        educationCompleted: false,
+        walletConnected: false,
+      };
+      setPreviousInvites(prev => [newInvite, ...prev]);
 
       setShowForm(false);
     } catch (error) {
@@ -528,6 +649,151 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
                 <ExternalLink className="h-4 w-4" />
               </Button>
             </div>
+          </div>
+        )}
+
+        {/* PREVIOUS INVITES HISTORY PANEL */}
+        {previousInvites.length > 0 && (
+          <div className="mt-6 pt-6 border-t border-amber-200 dark:border-amber-800">
+            {/* Collapsible Header */}
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className="w-full flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 hover:from-purple-100 hover:to-indigo-100 dark:hover:from-purple-900/30 dark:hover:to-indigo-900/30 transition-colors"
+            >
+              <div className="flex items-center space-x-2">
+                <History className="h-5 w-5 text-purple-500" />
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  Links Especiales Anteriores
+                </span>
+                <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs">
+                  {previousInvites.length}
+                </Badge>
+              </div>
+              {showHistory ? (
+                <ChevronUp className="h-5 w-5 text-gray-500" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-gray-500" />
+              )}
+            </button>
+
+            {/* History List */}
+            {showHistory && (
+              <div className="mt-3 space-y-3 max-h-96 overflow-y-auto">
+                {isLoadingInvites ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-5 w-5 animate-spin text-purple-500" />
+                    <span className="ml-2 text-sm text-gray-500">Cargando...</span>
+                  </div>
+                ) : (
+                  previousInvites.map((invite) => {
+                    const statusBadge = getStatusBadge(invite.status, invite.expiresAt);
+                    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+                    const inviteUrl = `${baseUrl}/special-invite/${invite.inviteCode}`;
+
+                    return (
+                      <div
+                        key={invite.inviteCode}
+                        className="p-4 rounded-xl bg-white/70 dark:bg-slate-800/50 border border-gray-200 dark:border-gray-700 space-y-3"
+                      >
+                        {/* Header with status and date */}
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center space-x-2">
+                            <Badge className={`${statusBadge.color} text-xs`}>
+                              {statusBadge.text}
+                            </Badge>
+                            {invite.hasPassword && (
+                              <Lock className="h-3 w-3 text-amber-500" />
+                            )}
+                          </div>
+                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            {formatDate(invite.createdAt)}
+                          </div>
+                        </div>
+
+                        {/* Invite Code */}
+                        <div className="flex items-center space-x-2">
+                          <code className="flex-1 text-xs bg-gray-100 dark:bg-gray-700 p-2 rounded text-gray-700 dark:text-gray-300 truncate">
+                            {inviteUrl}
+                          </code>
+                          <Button
+                            onClick={async () => {
+                              await navigator.clipboard.writeText(inviteUrl);
+                            }}
+                            variant="ghost"
+                            size="sm"
+                            className="flex-shrink-0"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            onClick={() => window.open(inviteUrl, '_blank')}
+                            variant="ghost"
+                            size="sm"
+                            className="flex-shrink-0"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </Button>
+                        </div>
+
+                        {/* Claimed Info */}
+                        {invite.claimedBy && (
+                          <div className="flex items-center text-xs text-green-600 dark:text-green-400">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Reclamado por: {invite.claimedBy.slice(0, 6)}...{invite.claimedBy.slice(-4)}
+                          </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex items-center space-x-2 pt-2">
+                          {/* View Message Button */}
+                          {invite.customMessage && (
+                            <Button
+                              onClick={() => setSelectedMessage(
+                                selectedMessage === invite.customMessage ? null : invite.customMessage
+                              )}
+                              variant="outline"
+                              size="sm"
+                              className="text-xs"
+                            >
+                              <MessageSquare className="h-3 w-3 mr-1" />
+                              {selectedMessage === invite.customMessage ? 'Ocultar' : 'Ver Mensaje'}
+                            </Button>
+                          )}
+
+                          {/* Delete Button */}
+                          <Button
+                            onClick={() => handleDeleteInvite(invite.inviteCode)}
+                            variant="outline"
+                            size="sm"
+                            disabled={deletingInviteCode === invite.inviteCode}
+                            className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
+                          >
+                            {deletingInviteCode === invite.inviteCode ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <>
+                                <Trash2 className="h-3 w-3 mr-1" />
+                                Eliminar
+                              </>
+                            )}
+                          </Button>
+                        </div>
+
+                        {/* Message Display */}
+                        {selectedMessage === invite.customMessage && invite.customMessage && (
+                          <div className="mt-2 p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+                            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                              {invite.customMessage}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
           </div>
         )}
       </CardContent>
