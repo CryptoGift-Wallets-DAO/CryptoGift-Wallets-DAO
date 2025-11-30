@@ -150,33 +150,54 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Fallback: Store OTP in Supabase user_profiles table (only if valid wallet)
-    if (!redisAvailable && isValidWallet) {
+    // Fallback: Store OTP in Supabase
+    if (!redisAvailable) {
       console.log('📦 Using Supabase fallback for OTP storage');
       try {
         const db = getSupabase();
         const expiresAt = new Date(Date.now() + CODE_EXPIRY * 1000);
 
-        // Store OTP in user_profiles email_verification_token field
-        const { error: updateError } = await db
-          .from('user_profiles')
-          .update({
-            email_verification_token: otpCode,
-            email_verification_expires_at: expiresAt.toISOString(),
-            email: email.toLowerCase(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq('wallet_address', wallet.toLowerCase());
+        if (isValidWallet) {
+          // Store OTP in user_profiles for wallet-connected flow
+          const { error: updateError } = await db
+            .from('user_profiles')
+            .update({
+              email_verification_token: otpCode,
+              email_verification_expires_at: expiresAt.toISOString(),
+              email: email.toLowerCase(),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('wallet_address', wallet.toLowerCase());
 
-        if (updateError) {
-          console.error('Failed to store OTP in Supabase:', updateError);
+          if (updateError) {
+            console.error('Failed to store OTP in user_profiles:', updateError);
+          }
+        } else {
+          // Educational flow: Store OTP in dedicated email_otp_verifications table
+          console.log('📧 Educational flow: Storing OTP by email only');
+
+          // Upsert into email_otp_verifications table
+          const { error: upsertError } = await db
+            .from('email_otp_verifications')
+            .upsert({
+              email: email.toLowerCase(),
+              otp_code: otpCode,
+              expires_at: expiresAt.toISOString(),
+              created_at: new Date().toISOString(),
+            }, {
+              onConflict: 'email'
+            });
+
+          if (upsertError) {
+            console.error('Failed to store OTP in email_otp_verifications:', upsertError);
+            // If table doesn't exist, the error will be logged but email still sends
+          } else {
+            console.log('✅ OTP stored in email_otp_verifications table');
+          }
         }
       } catch (dbError) {
         console.error('Supabase fallback failed:', dbError);
       }
-    } else if (!redisAvailable && !isValidWallet) {
-      // Educational flow without wallet - Redis is required
-      console.log('⚠️ Educational flow: OTP stored in email only (Redis required for verification)');
     }
 
     // Send email via Resend - Try DAO-prefixed variable first

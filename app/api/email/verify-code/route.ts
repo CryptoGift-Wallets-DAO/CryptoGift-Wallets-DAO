@@ -207,118 +207,185 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Supabase fallback: Verify OTP stored in user_profiles table
+    // Supabase fallback: Verify OTP stored in database
     if (!redisAvailable) {
       console.log('📦 Using Supabase fallback for OTP verification');
-
-      if (!normalizedWallet) {
-        return NextResponse.json(
-          { error: 'Wallet address is required for verification', success: false },
-          { status: 400 }
-        );
-      }
 
       try {
         const db = getSupabase();
 
-        // Get stored OTP from user_profiles
-        const { data: profile, error: fetchError } = await db
-          .from('user_profiles')
-          .select('email_verification_token, email_verification_expires_at, email')
-          .eq('wallet_address', normalizedWallet)
-          .single();
+        // Check if this is educational flow (no wallet) or wallet-connected flow
+        if (normalizedWallet && /^0x[a-fA-F0-9]{40}$/.test(normalizedWallet)) {
+          // Wallet-connected flow: Get stored OTP from user_profiles
+          const { data: profile, error: fetchError } = await db
+            .from('user_profiles')
+            .select('email_verification_token, email_verification_expires_at, email')
+            .eq('wallet_address', normalizedWallet)
+            .single();
 
-        if (fetchError || !profile) {
-          return NextResponse.json(
-            {
-              error: 'Profile not found. Please request a new verification code.',
-              success: false,
-              expired: true,
-            },
-            { status: 404 }
-          );
-        }
-
-        // Check if OTP exists
-        if (!profile.email_verification_token) {
-          return NextResponse.json(
-            {
-              error: 'Verification code not found or expired. Please request a new code.',
-              success: false,
-              expired: true,
-            },
-            { status: 404 }
-          );
-        }
-
-        // Check if code has expired
-        if (profile.email_verification_expires_at) {
-          const expiresAt = new Date(profile.email_verification_expires_at).getTime();
-          if (Date.now() > expiresAt) {
-            // Clear expired token
-            await db
-              .from('user_profiles')
-              .update({
-                email_verification_token: null,
-                email_verification_expires_at: null,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('wallet_address', normalizedWallet);
-
+          if (fetchError || !profile) {
             return NextResponse.json(
               {
-                error: 'Code has expired. Please request a new one.',
+                error: 'Profile not found. Please request a new verification code.',
                 success: false,
                 expired: true,
+              },
+              { status: 404 }
+            );
+          }
+
+          // Check if OTP exists
+          if (!profile.email_verification_token) {
+            return NextResponse.json(
+              {
+                error: 'Verification code not found or expired. Please request a new code.',
+                success: false,
+                expired: true,
+              },
+              { status: 404 }
+            );
+          }
+
+          // Check if code has expired
+          if (profile.email_verification_expires_at) {
+            const expiresAt = new Date(profile.email_verification_expires_at).getTime();
+            if (Date.now() > expiresAt) {
+              // Clear expired token
+              await db
+                .from('user_profiles')
+                .update({
+                  email_verification_token: null,
+                  email_verification_expires_at: null,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq('wallet_address', normalizedWallet);
+
+              return NextResponse.json(
+                {
+                  error: 'Code has expired. Please request a new one.',
+                  success: false,
+                  expired: true,
+                },
+                { status: 400 }
+              );
+            }
+          }
+
+          // Verify the code
+          if (profile.email_verification_token !== code) {
+            return NextResponse.json(
+              {
+                error: 'Incorrect code. Please try again.',
+                success: false,
+                verified: false,
               },
               { status: 400 }
             );
           }
+
+          // Code is correct - update profile
+          const { error: updateError } = await db
+            .from('user_profiles')
+            .update({
+              email: normalizedEmail,
+              email_verified: true,
+              email_verification_token: null,
+              email_verification_expires_at: null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('wallet_address', normalizedWallet);
+
+          if (updateError) {
+            console.error('Failed to update profile with verified email:', updateError);
+            return NextResponse.json(
+              { error: 'Failed to save verified email', success: false },
+              { status: 500 }
+            );
+          }
+
+          console.log('✅ Email verification successful (Supabase - wallet flow):', {
+            email: normalizedEmail.replace(/(.{2}).*(@.*)/, '$1***$2'),
+            wallet: normalizedWallet.slice(0, 6) + '...' + normalizedWallet.slice(-4),
+            verifiedAt: new Date().toISOString(),
+          });
+
+          return NextResponse.json({
+            success: true,
+            message: 'Email verified successfully!',
+            verified: true,
+          });
+        } else {
+          // Educational flow (no wallet): Get stored OTP from email_otp_verifications table
+          console.log('📧 Educational flow: Verifying by email only');
+
+          const { data: otpRecord, error: fetchError } = await db
+            .from('email_otp_verifications')
+            .select('otp_code, expires_at')
+            .eq('email', normalizedEmail)
+            .single();
+
+          if (fetchError || !otpRecord) {
+            console.error('OTP record not found:', fetchError);
+            return NextResponse.json(
+              {
+                error: 'Verification code not found. Please request a new code.',
+                success: false,
+                expired: true,
+              },
+              { status: 404 }
+            );
+          }
+
+          // Check if code has expired
+          if (otpRecord.expires_at) {
+            const expiresAt = new Date(otpRecord.expires_at).getTime();
+            if (Date.now() > expiresAt) {
+              // Delete expired record
+              await db
+                .from('email_otp_verifications')
+                .delete()
+                .eq('email', normalizedEmail);
+
+              return NextResponse.json(
+                {
+                  error: 'Code has expired. Please request a new one.',
+                  success: false,
+                  expired: true,
+                },
+                { status: 400 }
+              );
+            }
+          }
+
+          // Verify the code
+          if (otpRecord.otp_code !== code) {
+            return NextResponse.json(
+              {
+                error: 'Incorrect code. Please try again.',
+                success: false,
+                verified: false,
+              },
+              { status: 400 }
+            );
+          }
+
+          // Code is correct - delete OTP record and return success
+          await db
+            .from('email_otp_verifications')
+            .delete()
+            .eq('email', normalizedEmail);
+
+          console.log('✅ Email verification successful (Supabase - educational flow):', {
+            email: normalizedEmail.replace(/(.{2}).*(@.*)/, '$1***$2'),
+            verifiedAt: new Date().toISOString(),
+          });
+
+          return NextResponse.json({
+            success: true,
+            message: 'Email verified successfully!',
+            verified: true,
+          });
         }
-
-        // Verify the code
-        if (profile.email_verification_token !== code) {
-          return NextResponse.json(
-            {
-              error: 'Incorrect code. Please try again.',
-              success: false,
-              verified: false,
-            },
-            { status: 400 }
-          );
-        }
-
-        // Code is correct - update profile
-        const { error: updateError } = await db
-          .from('user_profiles')
-          .update({
-            email: normalizedEmail,
-            email_verified: true,
-            email_verification_token: null,
-            email_verification_expires_at: null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('wallet_address', normalizedWallet);
-
-        if (updateError) {
-          console.error('Failed to update profile with verified email:', updateError);
-          return NextResponse.json(
-            { error: 'Failed to save verified email', success: false },
-            { status: 500 }
-          );
-        }
-
-        console.log('✅ Email verification successful (Supabase fallback):', {
-          email: normalizedEmail.replace(/(.{2}).*(@.*)/, '$1***$2'),
-          wallet: normalizedWallet.slice(0, 6) + '...' + normalizedWallet.slice(-4),
-          verifiedAt: new Date().toISOString(),
-        });
-
-        return NextResponse.json({
-          success: true,
-          message: 'Email verified successfully!',
-          verified: true,
-        });
       } catch (dbError) {
         console.error('Supabase verification failed:', dbError);
         return NextResponse.json(

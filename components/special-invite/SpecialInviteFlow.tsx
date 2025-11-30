@@ -30,8 +30,17 @@ import { GraduationCap, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import dynamic from 'next/dynamic';
 
-// Dynamic import for SalesMasterclass to avoid SSR issues
-const SalesMasterclass = dynamic(() => import('../learn/SalesMasterclass'), {
+// Dynamic imports for SalesMasterclass (Spanish and English versions) to avoid SSR issues
+const SalesMasterclassES = dynamic(() => import('../learn/SalesMasterclass'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+    </div>
+  )
+});
+
+const SalesMasterclassEN = dynamic(() => import('@/components-en/learn/SalesMasterclassEN'), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center min-h-[400px]">
@@ -124,6 +133,9 @@ export function SpecialInviteFlow({
   const [verifiedEmail, setVerifiedEmail] = useState<string | null>(null);
   const [calendarBooked, setCalendarBooked] = useState(false);
 
+  // Language/Locale State for bilingual support
+  const [currentLocale, setCurrentLocale] = useState<'es' | 'en'>('es');
+
   // Promise resolvers for modal callbacks (both resolve and reject)
   const emailResolverRef = useRef<{ resolve: () => void; reject: (error: Error) => void } | null>(null);
   const calendarResolverRef = useRef<{ resolve: () => void; reject: (error: Error) => void } | null>(null);
@@ -134,6 +146,20 @@ export function SpecialInviteFlow({
       setTimeout(() => {
         triggerConfetti();
       }, 500);
+    }
+  }, []);
+
+  // Read locale from cookie on mount
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const cookies = document.cookie.split(';');
+      const localeCookie = cookies.find(c => c.trim().startsWith('NEXT_LOCALE='));
+      if (localeCookie) {
+        const locale = localeCookie.split('=')[1] as 'es' | 'en';
+        if (locale === 'en' || locale === 'es') {
+          setCurrentLocale(locale);
+        }
+      }
     }
   }, []);
 
@@ -479,8 +505,10 @@ export function SpecialInviteFlow({
         );
 
       case 'education':
+        // Select the correct language component based on current locale
+        const SalesMasterclass = currentLocale === 'en' ? SalesMasterclassEN : SalesMasterclassES;
         return (
-          <div className="fixed inset-0 z-50 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 overflow-y-auto">
+          <div className="fixed top-16 inset-x-0 bottom-0 z-50 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 overflow-y-auto overscroll-contain">
             <SalesMasterclass
               educationalMode={true}
               onEducationComplete={(data) => {
@@ -659,10 +687,8 @@ export function SpecialInviteFlow({
       <>
         <HeaderBar />
 
-        {/* Add padding-top to account for fixed header */}
-        <div className="pt-16">
-          {renderStepContent()}
-        </div>
+        {/* Education container already has top-16 offset */}
+        {renderStepContent()}
 
         {/* Email Verification Modal - Always available */}
         <EmailVerificationModal
