@@ -112,7 +112,6 @@ export default function IntroVideoGate({
           shadow-2xl shadow-purple-500/20">
 
           {/* Mux Player with NATIVE CONTROLS ONLY */}
-          {/* @ts-expect-error MuxPlayer accepts track children but types don't reflect it */}
           <MuxPlayer
             playbackId={muxPlaybackId}
             streamType="on-demand"
