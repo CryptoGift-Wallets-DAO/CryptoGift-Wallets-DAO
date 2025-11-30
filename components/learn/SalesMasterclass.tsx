@@ -697,9 +697,9 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   const account = useActiveAccount();
   
   // State
-  // CRITICAL FIX: Only show intro video if URL is configured
-  // When INTRO_VIDEO_URL is null, skip directly to content
-  const [showIntroVideo, setShowIntroVideo] = useState(!!VIDEO_CONFIG.INTRO_VIDEO_URL);
+  // CRITICAL FIX: Always show intro video gate (even without URL, component has placeholder)
+  // This ensures the welcome screen appears before the masterclass content
+  const [showIntroVideo, setShowIntroVideo] = useState(true);
   const [currentBlock, setCurrentBlock] = useState(0);
   const [timeLeft, setTimeLeft] = useState(SALES_BLOCKS[0].duration);
   const [isPaused, setIsPaused] = useState(false);
@@ -1403,10 +1403,10 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
         marginLeft: '-8.82%'
       }}
     >
-      <div className={`sales-masterclass ${educationalMode ? 'h-full' : 'min-h-screen'} 
-        bg-gradient-to-br from-slate-50 to-blue-50 
-        dark:from-gray-900 dark:to-gray-800 
-        text-gray-900 dark:text-white transition-colors duration-300 relative z-10`}>
+      <div className="sales-masterclass min-h-screen
+        bg-gradient-to-br from-slate-50 to-blue-50
+        dark:from-gray-900 dark:to-gray-800
+        text-gray-900 dark:text-white transition-colors duration-300 relative z-10">
         {/* Header - Hidden in educational mode */}
         {!educationalMode && (
           <div className="fixed top-0 left-0 right-0 z-50 
@@ -1472,41 +1472,39 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
     )}
 
       {/* Intro Video Gate - Shows before main content in both modes */}
-      {/* Note: Video intro disabled - no VIDEO_CONFIG.salesMasterclass configured */}
-      {showIntroVideo && VIDEO_CONFIG.INTRO_VIDEO_URL && (
-        <div className={educationalMode ? "h-full flex items-center justify-center px-3" : "pt-20 flex items-center justify-center min-h-screen px-3"}>
-          <IntroVideoGate
-            videoUrl={VIDEO_CONFIG.INTRO_VIDEO_URL}
-            title={VIDEO_CONFIG.INTRO_TITLE}
-            subtitle={VIDEO_CONFIG.INTRO_SUBTITLE}
-            allowSkip={VIDEO_CONFIG.ALLOW_SKIP_INTRO}
-            skipAfterSeconds={VIDEO_CONFIG.SKIP_INTRO_AFTER_SECONDS}
-            onVideoComplete={() => {
-              console.log('📹 Intro video completed');
-              setShowIntroVideo(false);
-              // Force scroll to top when video finishes
+      {/* Always shows the intro gate - component handles null videoUrl with placeholder */}
+      {showIntroVideo && (
+        <IntroVideoGate
+          videoUrl={VIDEO_CONFIG.INTRO_VIDEO_URL || undefined}
+          title={VIDEO_CONFIG.INTRO_TITLE}
+          subtitle={VIDEO_CONFIG.INTRO_SUBTITLE}
+          allowSkip={VIDEO_CONFIG.ALLOW_SKIP_INTRO}
+          skipAfterSeconds={VIDEO_CONFIG.SKIP_INTRO_AFTER_SECONDS}
+          onVideoComplete={() => {
+            console.log('📹 Intro video completed');
+            setShowIntroVideo(false);
+            // Force scroll to top when video finishes
+            setTimeout(() => {
+              const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+              document.documentElement.style.scrollBehavior = 'auto';
+
+              window.scrollTo(0, 0);
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
+
+              const lessonContainer = document.getElementById('lesson-content-scroll-container');
+              if (lessonContainer) {
+                lessonContainer.scrollTop = 0;
+              }
+
               setTimeout(() => {
-                const originalScrollBehavior = document.documentElement.style.scrollBehavior;
-                document.documentElement.style.scrollBehavior = 'auto';
-
-                window.scrollTo(0, 0);
-                document.documentElement.scrollTop = 0;
-                document.body.scrollTop = 0;
-
-                const lessonContainer = document.getElementById('lesson-content-scroll-container');
-                if (lessonContainer) {
-                  lessonContainer.scrollTop = 0;
-                }
-
-                setTimeout(() => {
-                  document.documentElement.style.scrollBehavior = originalScrollBehavior;
-                }, 50);
-              }, 100);
-              // Start the masterclass timer when video finishes
-              setTimeLeft(SALES_BLOCKS[0].duration);
-            }}
-          />
-        </div>
+                document.documentElement.style.scrollBehavior = originalScrollBehavior;
+              }, 50);
+            }, 100);
+            // Start the masterclass timer when video finishes
+            setTimeLeft(SALES_BLOCKS[0].duration);
+          }}
+        />
       )}
 
       {/* Outro Video Gate - Shows after EIP-712 completion and before final claim */}
