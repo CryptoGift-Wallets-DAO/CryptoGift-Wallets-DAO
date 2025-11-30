@@ -1,5 +1,5 @@
 /**
- * VIDEO CONFIGURATION - Centralized video management (SPANISH VERSION)
+ * VIDEO CONFIGURATION - Centralized video management (ENGLISH VERSION)
  * This file makes it extremely easy to replace videos by just changing the IDs
  *
  * Made by mbxarts.com The Moon in a Box property
@@ -16,54 +16,54 @@ export interface VideoConfig {
 }
 
 /**
- * CENTRALIZED VIDEO CONFIGURATION - SPANISH VERSION
+ * CENTRALIZED VIDEO CONFIGURATION - ENGLISH VERSION
  * To replace any video, just update the muxPlaybackId here
  * The lessonId should be changed when you want to force all users to see the new video
  */
 export const VIDEO_CONFIG: Record<string, VideoConfig> = {
-  // Sales Masterclass intro video (Spanish)
+  // Sales Masterclass intro video (English)
   salesMasterclass: {
-    lessonId: "sales-masterclass-es-v3",
-    muxPlaybackId: "3W6iaGGBJN2AyMh37o5Qg3kdNDEFi2JP4UIBRK00QJhE",
-    title: "Presentación Completa",
-    description: "Descubre cómo regalar activos digitales de valor real con CryptoGift\n\nTiempo estimado: 10 minutos",
+    lessonId: "sales-masterclass-en-v4",
+    muxPlaybackId: "3lWAgyukmAHnff02tpTAzYD00DeftIi005YWLmk5AYFs00Y",
+    title: "CryptoGift Project",
+    description: "Learn about our vision. Starts with a brief video with audio, get comfortable to enjoy it\n\nEstimated time: 10 minutes",
   },
 
-  // Presentation CGC - Final video after EIP-712 and before claim (Spanish)
+  // Presentation CGC - Final video after EIP-712 and before claim (English)
   presentationCGC: {
-    lessonId: "presentation-cgc-es-v2",
-    muxPlaybackId: "PBqn7kacf00PoAczsHLk02TyU01OAx4VdUNYJaYdbbasQw",
-    title: "Presentación CryptoGift Club",
-    description: "Descubre las oportunidades exclusivas que te esperan como miembro del CryptoGift Club",
+    lessonId: "presentation-cgc-en-v1",
+    muxPlaybackId: "dsEZYVMpcrkuNvn0200p8C7nz9qEqY3dr7Mx9OiauZSro",
+    title: "CryptoGift Club Presentation",
+    description: "Discover the exclusive opportunities awaiting you as a CryptoGift Club member",
   },
 
   // Example for future lessons
   walletBasics: {
     lessonId: "wallet-basics-v1",
     muxPlaybackId: "YOUR_MUX_PLAYBACK_ID_HERE",
-    title: "Fundamentos de Wallets",
-    description: "Aprende los conceptos básicos de las billeteras digitales",
+    title: "Crypto Wallet Fundamentals",
+    description: "Learn the basic concepts of digital wallets",
   },
 
   gasOptimization: {
     lessonId: "gas-optimization-v1",
     muxPlaybackId: "YOUR_MUX_PLAYBACK_ID_HERE",
-    title: "Optimización de Gas",
-    description: "Estrategias para minimizar costos de transacción",
+    title: "Gas Optimization",
+    description: "Strategies to minimize transaction costs",
   },
 
   nftIntro: {
     lessonId: "nft-intro-v1",
     muxPlaybackId: "YOUR_MUX_PLAYBACK_ID_HERE",
-    title: "Introducción a NFTs",
-    description: "Todo lo que necesitas saber sobre NFTs",
+    title: "Introduction to NFTs",
+    description: "Everything you need to know about NFTs",
   },
 
   defiBasics: {
     lessonId: "defi-basics-v1",
     muxPlaybackId: "YOUR_MUX_PLAYBACK_ID_HERE",
-    title: "DeFi para Principiantes",
-    description: "Descubre el poder de las finanzas descentralizadas",
+    title: "DeFi for Beginners",
+    description: "Discover the power of decentralized finance",
   }
 };
 
@@ -98,7 +98,7 @@ export function updateVideoVersion(key: keyof typeof VIDEO_CONFIG, version: stri
  * 2. Get the new Playback ID from Mux dashboard
  * 3. Update the muxPlaybackId in VIDEO_CONFIG above
  * 4. If you want to force all users to watch the new video, change the lessonId version:
- *    - Example: "sales-masterclass-es-v1" → "sales-masterclass-es-v2"
+ *    - Example: "sales-masterclass-en-v1" → "sales-masterclass-en-v2"
  * 5. Deploy changes
  *
  * That's it! The video will be automatically updated everywhere it's used.

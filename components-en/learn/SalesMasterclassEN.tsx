@@ -68,8 +68,8 @@ import {
 } from 'lucide-react';
 import { EmailVerificationModal } from '@/components/email/EmailVerificationModal';
 import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
-import IntroVideoGate from '@/components/video/IntroVideoGate';
-import { VIDEO_CONFIG } from '@/config/videoConfig';
+import IntroVideoGate from '@/components-en/video/IntroVideoGateEN';
+import { VIDEO_CONFIG } from '@/config/videoConfigEN';
 // Enhanced confetti function matching KnowledgeLessonModal implementation
 function triggerConfetti(options?: ConfettiOptions) {
   // Visual confetti effect using CSS animation
@@ -155,7 +155,7 @@ interface FeatureItem {
 
 interface ComparisonItem {
   aspect?: string; // Opcional para permitir objetos simples
-  traditional?: string; // Usado en el código
+  traditional?: string; // Used in the code
   competitor?: string;
   cryptogift?: string; // Opcional para flexibilidad
   advantage?: string; // Opcional para flexibilidad
@@ -163,14 +163,14 @@ interface ComparisonItem {
 
 interface MetricItem {
   label?: string; // Opcional para flexibilidad
-  number?: string; // Usado en el código 
+  number?: string; // Used in the code 
   value?: string; // Opcional
   improvement?: string; // Opcional
 }
 
 interface StreamItem {
   name: string;
-  model?: string; // Usado en el código
+  model?: string; // Used in the code
   description?: string; // Opcional
   potential?: string; // Opcional
   icon?: React.ComponentType<{ className?: string }>; // Componente React para lucide-react
@@ -178,7 +178,7 @@ interface StreamItem {
 
 interface PhaseItem {
   phase?: string; // Opcional
-  name?: string; // Usado en el código
+  name?: string; // Used in the code
   timeline?: string; // Opcional
   description?: string; // Opcional
   milestones?: string[]; // Opcional
@@ -207,8 +207,8 @@ interface SalesBlockContent {
   title?: string;
   description?: string;
   urgency?: string;
-  headline?: string; // Usado en el código
-  instruction?: string; // Usado en el código
+  headline?: string; // Used in the code
+  instruction?: string; // Used in the code
   story?: string; // Usado para el contenido narrativo del opening
   stat?: string; // Usado para mostrar estadísticas importantes
   steps?: string[]; // Lista de pasos del proceso
@@ -279,16 +279,6 @@ interface Metrics {
   correctAnswers: number;
 }
 
-// FASE 2: Detailed answer tracking interface
-interface QuestionAnswer {
-  questionId: string;
-  questionText: string;
-  selectedAnswer: string;
-  correctAnswer: string;
-  isCorrect: boolean;
-  timeSpent: number; // seconds
-}
-
 // Constants
 const GIFT_CLAIM_URL = process.env.NEXT_PUBLIC_SITE_URL 
   ? `${process.env.NEXT_PUBLIC_SITE_URL}/gift/claim/demo-`
@@ -297,23 +287,23 @@ const GIFT_CLAIM_URL = process.env.NEXT_PUBLIC_SITE_URL
 const SALES_BLOCKS: SalesBlock[] = [
   {
     id: 'opening',
-    title: 'Regala el Futuro',
+    title: 'Gift the Future',
     duration: 30,
     type: 'opening',
     content: {
-      headline: 'Imagina esto...',
-      story: `Tu amigo que mira la cripto con recelo abre tu mensaje y descubre un tesoro digital:
-              Una obra de arte única con la foto de su primer viaje, que además contiene 
-              el capital inicial de su propio portafolio en blockchain.`,
-      emphasis: 'Sin comisiones • Sin tecnicismos • Un NFT-wallet que guarda la moneda que elegiste',
-      hook: 'Así comienza su historia como holder... y así comienza la nuestra.'
+      headline: 'Imagine this...',
+      story: `Your friend who looks at crypto with suspicion opens your message and discovers a digital treasure:
+              A unique work of art with a photo from their first trip, which also contains
+              the initial capital for their own blockchain portfolio.`,
+      emphasis: 'No fees • No jargon • An NFT-wallet that holds the currency you chose',
+      hook: 'This is how their story as a holder begins... and how ours begins too.'
     },
     question: {
-      text: '¿Cuál es la barrera #1 para la adopción cripto?',
+      text: 'What is the #1 barrier to crypto adoption?',
       options: [
-        { text: 'La falta de conexión emocional', isCorrect: true },
-        { text: 'El precio de Bitcoin', isCorrect: false },
-        { text: 'La velocidad de las transacciones', isCorrect: false }
+        { text: 'The lack of emotional connection', isCorrect: true },
+        { text: 'The price of Bitcoin', isCorrect: false },
+        { text: 'Transaction speed', isCorrect: false }
       ]
     },
     triggers: ['emotional_connection', 'curiosity'],
@@ -321,32 +311,32 @@ const SALES_BLOCKS: SalesBlock[] = [
   },
   {
     id: 'problem',
-    title: 'Las 3 Brechas del Mercado',
+    title: 'The 3 Market Gaps',
     duration: 45,
     type: 'problem',
     content: {
       brechas: [
         {
-          title: 'Brecha Emocional',
-          description: 'Exchanges fríos y transaccionales vs. vínculos significativos'
+          title: 'Emotional Gap',
+          description: 'Cold and transactional exchanges vs. meaningful connections'
         },
         {
-          title: 'Barrera Tecnológica',
-          description: 'Wallets, gas, claves privadas... complejidad que asusta'
+          title: 'Technological Barrier',
+          description: 'Wallets, gas, private keys... scary complexity'
         },
         {
-          title: 'Falta de Garantías',
-          description: 'Gift cards que caducan o dependen de exchanges'
+          title: 'Lack of Guarantees',
+          description: 'Gift cards that expire or depend on exchanges'
         }
       ],
-      stat: '97% de gift cards cripto nunca se reclaman'
+      stat: '97% of crypto gift cards are never claimed'
     },
     question: {
-      text: '¿Qué porcentaje de regalos cripto tradicionales caducan sin reclamar?',
+      text: 'What percentage of traditional crypto gifts expire unclaimed?',
       options: [
-        { text: '97% - La gran mayoría', isCorrect: true },
-        { text: '50% - La mitad', isCorrect: false },
-        { text: '10% - Muy pocos', isCorrect: false }
+        { text: '97% - The vast majority', isCorrect: true },
+        { text: '50% - Half', isCorrect: false },
+        { text: '10% - Very few', isCorrect: false }
       ]
     },
     triggers: ['pain_agitation', 'statistics'],
@@ -354,21 +344,21 @@ const SALES_BLOCKS: SalesBlock[] = [
   },
   {
     id: 'solution',
-    title: 'NFT-Wallets: La Revolución',
+    title: 'NFT-Wallets: The Revolution',
     duration: 45,
     type: 'solution',
     content: {
       breakthrough: 'ERC-6551 + Account Abstraction = Magic',
       features: [
-        { icon: Gift, text: 'El NFT ES la cuenta bancaria' },
-        { icon: Flame, text: 'Gas 100% patrocinado por nosotros' },
-        { icon: Shield, text: 'Recuperación social con guardianes' },
-        { icon: RefreshCw, text: 'Swap instantáneo a cualquier token' }
+        { icon: Gift, text: 'The NFT IS the bank account' },
+        { icon: Flame, text: 'Gas 100% sponsored by us' },
+        { icon: Shield, text: 'Social recovery with guardians' },
+        { icon: RefreshCw, text: 'Instant swap to any token' }
       ],
-      tagline: 'La complejidad desaparece. La magia permanece.'
+      tagline: 'Complexity disappears. Magic remains.'
     },
     question: {
-      text: '¿Qué tecnología usamos para eliminar los gas fees?',
+      text: 'What technology do we use to eliminate gas fees?',
       options: [
         { text: 'Account Abstraction + Paymaster', isCorrect: true },
         { text: 'Lightning Network', isCorrect: false },
@@ -380,24 +370,24 @@ const SALES_BLOCKS: SalesBlock[] = [
   },
   {
     id: 'demo',
-    title: 'Vívelo Ahora Mismo',
+    title: 'Experience It Now',
     duration: 60,
     type: 'demo',
     content: {
-      instruction: '¡Escanea y Reclama tu NFT-Wallet!',
+      instruction: 'Scan and Claim your NFT-Wallet!',
       steps: [
-        '1️⃣ Escanea el código QR',
-        '2️⃣ Conecta tu wallet (o crea una)',
-        '3️⃣ Reclama tu regalo',
-        '4️⃣ ¡Listo! Ya tienes fondos'
+        '1️⃣ Scan the QR code',
+        '2️⃣ Connect your wallet (or create one)',
+        '3️⃣ Claim your gift',
+        '4️⃣ Done! You have funds'
       ],
-      emphasis: 'Gas = $0 • Fricción = 0 • Emoción = 100%'
+      emphasis: 'Gas = $0 • Friction = 0 • Emotion = 100%'
     },
     question: {
-      text: '¿Cuánto pagaste de gas en el demo?',
+      text: 'How much gas did you pay in the demo?',
       options: [
-        { text: '$0 - Todo está patrocinado', isCorrect: true },
-        { text: '$5 USD en fees', isCorrect: false },
+        { text: '$0 - Everything is sponsored', isCorrect: true },
+        { text: '$5 USD in fees', isCorrect: false },
         { text: '0.001 ETH', isCorrect: false }
       ]
     },
@@ -406,36 +396,36 @@ const SALES_BLOCKS: SalesBlock[] = [
   },
   {
     id: 'comparison',
-    title: 'Vs. Métodos Tradicionales',
+    title: 'Vs. Traditional Methods',
     duration: 45,
     type: 'comparison',
     content: {
-      title: 'La Diferencia es Clara',
+      title: 'The Difference is Clear',
       comparisons: [
         {
-          traditional: '❌ Exchanges intimidantes',
-          cryptogift: '✅ Simple como enviar un email'
+          traditional: '❌ Intimidating exchanges',
+          cryptogift: '✅ As simple as sending an email'
         },
         {
-          traditional: '❌ Comisiones altas y gas impredecible',
-          cryptogift: '✅ Zero comisiones, gas patrocinado'
+          traditional: '❌ High fees and unpredictable gas',
+          cryptogift: '✅ Zero fees, sponsored gas'
         },
         {
-          traditional: '❌ Riesgo de perder claves privadas',
-          cryptogift: '✅ Recuperación social con guardianes'
+          traditional: '❌ Risk of losing private keys',
+          cryptogift: '✅ Social recovery with guardians'
         },
         {
-          traditional: '❌ Experiencia fría y técnica',
-          cryptogift: '✅ Experiencia emotiva y personal'
+          traditional: '❌ Cold and technical experience',
+          cryptogift: '✅ Emotional and personal experience'
         }
       ]
     },
     question: {
-      text: '¿Qué hace único a CryptoGift vs exchanges tradicionales?',
+      text: 'What makes CryptoGift unique vs traditional exchanges?',
       options: [
-        { text: 'Experiencia emotiva + zero fricción', isCorrect: true },
-        { text: 'Más monedas disponibles', isCorrect: false },
-        { text: 'Trading avanzado', isCorrect: false }
+        { text: 'Emotional experience + zero friction', isCorrect: true },
+        { text: 'More coins available', isCorrect: false },
+        { text: 'Advanced trading', isCorrect: false }
       ]
     },
     triggers: ['contrast', 'differentiation'],
@@ -443,24 +433,24 @@ const SALES_BLOCKS: SalesBlock[] = [
   },
   {
     id: 'cases',
-    title: 'Resultados Reales',
+    title: 'Real Results',
     duration: 30,
     type: 'cases',
     content: {
       metrics: [
-        { number: '50,000+', label: 'NFT-Wallets regalados' },
-        { number: '$500,000', label: 'Ahorrado en gas fees' },
+        { number: '50,000+', label: 'NFT-Wallets gifted' },
+        { number: '$500,000', label: 'Saved in gas fees' },
         { number: '340%', label: 'Engagement rate (viral)' },
-        { number: '100%', label: 'Uptime y seguridad' }
+        { number: '100%', label: 'Uptime and security' }
       ],
-      testimonial: '"Cada regalo genera 3.4 nuevos usuarios por efecto viral"'
+      testimonial: '"Each gift generates 3.4 new users through viral effect"'
     },
     question: {
-      text: '¿Cuál es nuestro engagement rate por efecto viral?',
+      text: 'What is our engagement rate through viral effect?',
       options: [
-        { text: '340% - Cada regalo genera 3.4 usuarios', isCorrect: true },
-        { text: '50% - La mitad regala', isCorrect: false },
-        { text: '100% - Todos regalan una vez', isCorrect: false }
+        { text: '340% - Each gift generates 3.4 users', isCorrect: true },
+        { text: '50% - Half give gifts', isCorrect: false },
+        { text: '100% - Everyone gifts once', isCorrect: false }
       ]
     },
     triggers: ['social_proof', 'metrics'],
@@ -468,41 +458,41 @@ const SALES_BLOCKS: SalesBlock[] = [
   },
   {
     id: 'business',
-    title: 'Modelo de Negocio Ético',
+    title: 'Ethical Business Model',
     duration: 45,
     type: 'business',
     content: {
-      title: 'Monetización Transparente',
+      title: 'Transparent Monetization',
       streams: [
         {
-          name: 'Usuario Base',
-          model: 'SIEMPRE GRATIS - $0 comisiones',
+          name: 'Base User',
+          model: 'ALWAYS FREE - $0 fees',
           icon: Gift
         },
         {
-          name: 'Arte Premium',
-          model: 'Marcos animados y filtros IA (opcional)',
+          name: 'Premium Art',
+          model: 'Animated frames and AI filters (optional)',
           icon: Palette
         },
         {
-          name: 'Corporativo',
-          model: 'Paquetes para marcas y eventos',
+          name: 'Corporate',
+          model: 'Packages for brands and events',
           icon: Building2
         },
         {
           name: 'Marketplace',
-          model: 'Diseños CC0 con royalties a creadores',
+          model: 'CC0 designs with royalties to creators',
           icon: ShoppingBag
         }
       ],
-      emphasis: 'Sin custodia • Sin riesgo regulatorio • 100% on-chain'
+      emphasis: 'No custody • No regulatory risk • 100% on-chain'
     },
     question: {
-      text: '¿Cuánto paga el usuario base por usar CryptoGift?',
+      text: 'How much does a base user pay to use CryptoGift?',
       options: [
-        { text: '$0 - Siempre será gratis', isCorrect: true },
-        { text: '$1 por cada regalo', isCorrect: false },
-        { text: '2% de comisión', isCorrect: false }
+        { text: '$0 - It will always be free', isCorrect: true },
+        { text: '$1 per gift', isCorrect: false },
+        { text: '2% commission', isCorrect: false }
       ]
     },
     triggers: ['transparency', 'trust'],
@@ -510,34 +500,34 @@ const SALES_BLOCKS: SalesBlock[] = [
   },
   {
     id: 'roadmap',
-    title: 'El Futuro es Exponencial',
+    title: 'The Future is Exponential',
     duration: 30,
     type: 'roadmap',
     content: {
       phases: [
         {
-          name: 'MVP - La Chispa',
-          goal: '100k regalos en 6 meses',
-          features: 'USDC + Arte generativo + Gas gratis'
+          name: 'MVP - The Spark',
+          goal: '100k gifts in 6 months',
+          features: 'USDC + Generative art + Free gas'
         },
         {
-          name: 'Beta 2 - La Ola',
-          goal: '1M usuarios + 3 marcas globales',
-          features: 'BTC/ETH + Badges + Eventos'
+          name: 'Beta 2 - The Wave',
+          goal: '1M users + 3 global brands',
+          features: 'BTC/ETH + Badges + Events'
         },
         {
-          name: 'Escala - El Puente',
-          goal: 'API para fintechs',
-          features: 'Tokenización: Oro, Bonos, Puntos de lealtad'
+          name: 'Scale - The Bridge',
+          goal: 'API for fintechs',
+          features: 'Tokenization: Gold, Bonds, Loyalty points'
         }
       ]
     },
     question: {
-      text: '¿Qué tokenizaremos en la fase de escala?',
+      text: 'What will we tokenize in the scale phase?',
       options: [
-        { text: 'Oro, bonos y puntos de lealtad', isCorrect: true },
-        { text: 'Solo más criptomonedas', isCorrect: false },
-        { text: 'NFTs de arte digital', isCorrect: false }
+        { text: 'Gold, bonds and loyalty points', isCorrect: true },
+        { text: 'Only more cryptocurrencies', isCorrect: false },
+        { text: 'Digital art NFTs', isCorrect: false }
       ]
     },
     triggers: ['vision', 'fomo'],
@@ -545,24 +535,24 @@ const SALES_BLOCKS: SalesBlock[] = [
   },
   {
     id: 'close',
-    title: 'La Puerta al Futuro',
+    title: 'The Door to the Future',
     duration: 45,
     type: 'close',
     content: {
-      inspiration: `Regalar dinero siempre fue un acto de confianza.
-                   Regalar libertad financiera lo eleva a un pacto de futuro.`,
-      vision: `CryptoGift Wallets conecta emociones con tecnología para traer 
-              a la siguiente ola de usuarios a un ecosistema descentralizado
-              que entienden, controlan y sienten como suyo desde el primer segundo.`,
-      callToAction: 'El mejor regalo nunca fue el objeto, sino la puerta que abre.',
-      final: 'Hoy esa puerta es blockchain, y la llave cabe en un NFT-wallet.'
+      inspiration: `Giving money has always been an act of trust.
+                   Giving financial freedom elevates it to a pact with the future.`,
+      vision: `CryptoGift Wallets connects emotions with technology to bring
+              the next wave of users to a decentralized ecosystem
+              they understand, control, and feel as their own from the first second.`,
+      callToAction: 'The best gift was never the object, but the door it opens.',
+      final: 'Today that door is blockchain, and the key fits in an NFT-wallet.'
     },
     question: {
-      text: '¿Estás listo para cambiar el mundo con nosotros?',
+      text: 'Are you ready to change the world with us?',
       options: [
-        { text: '¡SÍ! Quiero ser parte de esta revolución', isCorrect: true },
-        { text: 'Necesito más información', isCorrect: false },
-        { text: 'Lo pensaré', isCorrect: false }
+        { text: 'YES! I want to be part of this revolution', isCorrect: true },
+        { text: 'I need more information', isCorrect: false },
+        { text: 'I will think about it', isCorrect: false }
       ]
     },
     triggers: ['inspiration', 'commitment'],
@@ -570,68 +560,68 @@ const SALES_BLOCKS: SalesBlock[] = [
   },
   {
     id: 'capture',
-    title: 'Únete a la Revolución',
+    title: 'Join the Revolution',
     duration: 30,
     type: 'capture',
     content: {
-      title: 'Elige tu rol en CryptoGift',
+      title: 'Choose your role in CryptoGift',
       paths: [
         { 
           name: 'Quest Creator', 
-          description: 'Crea experiencias gamificadas',
+          description: 'Create gamified experiences',
           spots: 33,
           benefit: '30% revenue share'
         },
         { 
           name: 'Integration Partner',
-          description: 'Integra nuestro widget',
+          description: 'Integrate our widget',
           spots: 19,
-          benefit: '1M transacciones gratis'
+          benefit: '1M free transactions'
         },
         { 
           name: 'White-Label',
-          description: 'Tu propia plataforma',
+          description: 'Your own platform',
           spots: 6,
           benefit: 'SLA 99.99%'
         },
         { 
           name: 'Investor',
-          description: 'Invierte en el futuro',
+          description: 'Invest in the future',
           spots: 'Limited',
           benefit: 'Min $50k'
         },
         {
           name: 'Community',
-          description: 'Embajador de la adopción',
+          description: 'Adoption ambassador',
           spots: 'Unlimited',
-          benefit: 'NFT exclusivo + Discord'
+          benefit: 'Exclusive NFT + Discord'
         }
       ],
-      urgency: 'Bonus 20% lifetime para los primeros 100'
+      urgency: '20% lifetime bonus for the first 100'
     },
     triggers: ['urgency', 'scarcity'],
     nextBlock: 'success'
   },
   {
     id: 'success',
-    title: '¡Bienvenido al Futuro!',
+    title: 'Welcome to the Future!',
     duration: 60, // Extended duration for better enjoyment
     type: 'success',
     content: {
-      title: '¡Ya eres parte de CryptoGift!',
-      message: 'Gracias por completar el Masterclass',
+      title: 'You are now part of CryptoGift!',
+      message: 'Thank you for completing the Masterclass',
       stats: {
-        duration: '15 minutos',
+        duration: '15 minutes',
         knowledge: '100% blockchain ready',
-        status: 'Early Adopter Verificado'
+        status: 'Verified Early Adopter'
       },
       benefits: [
-        { icon: Mail, text: 'Recibirás información exclusiva' },
-        { icon: Gift, text: 'NFT de fundador próximamente' },
-        { icon: DollarSign, text: 'Acceso prioritario a nuevas features' },
-        { icon: Rocket, text: 'Invitación a eventos privados' }
+        { icon: Mail, text: 'You will receive exclusive information' },
+        { icon: Gift, text: 'Founder NFT coming soon' },
+        { icon: DollarSign, text: 'Priority access to new features' },
+        { icon: Rocket, text: 'Invitation to private events' }
       ],
-      finalMessage: 'El futuro de los pagos digitales comienza contigo.'
+      finalMessage: 'The future of digital payments begins with you.'
     },
     triggers: ['celebration', 'achievement']
   }
@@ -644,14 +634,13 @@ interface SalesMasterclassProps {
   onEducationComplete?: (data?: {
     email?: string;
     questionsScore?: { correct: number; total: number };
-    questionsAnswered?: QuestionAnswer[]; // FASE 2: Detailed answers array
   }) => void;
   onShowEmailVerification?: () => Promise<void>;
   onShowCalendar?: () => Promise<void>;
   verifiedEmail?: string;
 }
 
-const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
+const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
   educationalMode = false,
   giftId, // CRITICAL FIX: Receive giftId from parent
   tokenId, // CRITICAL FIX: Receive tokenId from parent
@@ -660,17 +649,11 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   onShowCalendar,
   verifiedEmail
 }) => {
-  // Video configs from Spanish config file
-  const introVideoConfig = VIDEO_CONFIG.salesMasterclass;
-  const outroVideoConfig = VIDEO_CONFIG.presentationCGC;
-
   console.log('🚀 SALES MASTERCLASS INIT:', {
     educationalMode,
     hasOnEducationComplete: !!onEducationComplete,
     giftId,
-    tokenId,
-    introVideoId: introVideoConfig.lessonId,
-    outroVideoId: outroVideoConfig.lessonId
+    tokenId
   });
   
   // Defensive initialization - ensure all state variables are properly initialized
@@ -703,8 +686,6 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   const account = useActiveAccount();
   
   // State
-  // CRITICAL FIX: Always show intro video gate (even without URL, component has placeholder)
-  // This ensures the welcome screen appears before the masterclass content
   const [showIntroVideo, setShowIntroVideo] = useState(true);
   const [currentBlock, setCurrentBlock] = useState(0);
   const [timeLeft, setTimeLeft] = useState(SALES_BLOCKS[0].duration);
@@ -732,8 +713,6 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   const [showEmailVerification, setShowEmailVerification] = useState<boolean>(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showOutroVideo, setShowOutroVideo] = useState(false); // Video final después del EIP-712
-  const [questionsAnswered, setQuestionsAnswered] = useState<QuestionAnswer[]>([]); // FASE 2: Detailed answer tracking
-  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now()); // FASE 2: Track time per question
 
   // Removed router dependency to avoid App Router/Pages Router conflicts
   const timerRef = useRef<NodeJS.Timeout>();
@@ -848,54 +827,31 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   const handleAnswerSelect = useCallback((optionIndex: number) => {
     setSelectedAnswer(optionIndex);
     setShowQuestionFeedback(true);
-
+    
     const block = SALES_BLOCKS[currentBlock];
     const isCorrect = block.question?.options[optionIndex].isCorrect || false;
-
+    
     setMetrics(prev => ({
       ...prev,
       questionsAnswered: prev.questionsAnswered + 1,
       correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0)
     }));
-
+    
     setLeadData(prev => ({
       ...prev,
       totalQuestions: (prev.totalQuestions || 0) + 1,
       questionsCorrect: (prev.questionsCorrect || 0) + (isCorrect ? 1 : 0)
     }));
-
-    // FASE 2: Save detailed answer tracking
-    if (block.question) {
-      const timeSpent = Math.round((Date.now() - questionStartTime) / 1000); // seconds
-      const questionId = `q${currentBlock}_${block.id}`;
-      const selectedOption = block.question.options[optionIndex];
-      const correctOption = block.question.options.find(opt => opt.isCorrect);
-
-      const answerDetail: QuestionAnswer = {
-        questionId,
-        questionText: block.question.text,
-        selectedAnswer: selectedOption.text,
-        correctAnswer: correctOption?.text || '',
-        isCorrect,
-        timeSpent
-      };
-
-      setQuestionsAnswered(prev => [...prev, answerDetail]);
-      console.log('📝 Answer recorded:', answerDetail);
-
-      // Reset timer for next question
-      setQuestionStartTime(Date.now());
-    }
-
+    
     if (isCorrect) {
       celebrate();
     }
-
+    
     // Allow proceeding after answering
     setTimeout(() => {
       setCanProceed(true);
     }, 1500);
-  }, [currentBlock, celebrate, questionStartTime]);
+  }, [currentBlock, celebrate]);
 
   // FASE 2: State machine declarativa con next pointers
   const getNextBlock = useCallback((currentBlockIndex: number): number | null => {
@@ -1065,7 +1021,7 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
       setMetrics(prev => ({ ...prev, leadSubmitted: true }));
       
       // FIX: Proceder directamente al bloque de success
-      // El usuario ya completó los checkboxes, ahora debe ver "¡Ya eres parte de CryptoGift!"
+      // The user has already completed the checkboxes, now they should see "You are now part of CryptoGift!"
       console.log('🎆 Educational capture complete - moving to success block');
       handleNextBlock();
       
@@ -1114,11 +1070,11 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
         }, 3000);
       } else {
         console.error('Failed to submit lead');
-        alert('Error al enviar el formulario. Por favor intenta de nuevo.');
+        alert('Error submitting form. Please try again.');
       }
     } catch (error) {
       console.error('Error submitting lead:', error);
-      alert('Error de conexión. Por favor verifica tu internet e intenta de nuevo.');
+      alert('Connection error. Please check your internet and try again.');
     }
   }, [leadData, metrics, celebrate, handleNextBlock, educationalMode, onEducationComplete]);
 
@@ -1183,7 +1139,7 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="flex items-center justify-center gap-3">
-              <span>¡Felicidades!</span>
+              <span>Congratulations!</span>
               <PartyPopper className="w-12 h-12 text-blue-600 dark:text-blue-400" />
             </div>
           </motion.h2>
@@ -1196,13 +1152,13 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
           >
             <div className="inline-block bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border border-gray-200/50 dark:border-gray-700/50 px-8 py-6 rounded-2xl shadow-xl hover:shadow-2xl hover:bg-white/90 dark:hover:bg-gray-800/90 transition-all duration-300 hover:scale-[1.02]">
               <p className="text-3xl mb-4">
-                Tu puntuación: <span className="font-bold text-blue-500 dark:text-blue-400">
+                Your score: <span className="font-bold text-blue-500 dark:text-blue-400">
                   {leadData.questionsCorrect}/{leadData.totalQuestions}
-                </span> respuestas correctas
+                </span> correct answers
               </p>
               {leadData.questionsCorrect && leadData.questionsCorrect >= 7 && (
                 <div className="flex items-center justify-center gap-2 text-emerald-600 dark:text-green-400 font-bold text-xl">
-                  <span>¡EXCELENTE! Has aprendido sobre CryptoGift</span>
+                  <span>EXCELLENT! You have learned about CryptoGift</span>
                   <Trophy className="w-6 h-6" />
                 </div>
               )}
@@ -1215,10 +1171,10 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            Has completado exitosamente el módulo educativo &quot;Proyecto CryptoGift&quot;.
+            You have successfully completed the educational module "CryptoGift Project".
             {leadData.path && (
               <span className="block mt-2 text-yellow-400">
-                Tu rol seleccionado: <strong>{leadData.path}</strong>
+                Your selected role: <strong>{leadData.path}</strong>
               </span>
             )}
           </motion.p>
@@ -1230,7 +1186,7 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
             transition={{ delay: 0.6 }}
           >
             <p className="text-lg text-gray-400 mb-4">
-              Generando tu certificación EIP-712...
+              Generating your EIP-712 certification...
             </p>
             <div className="animate-spin w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full mx-auto" />
           </motion.div>
@@ -1241,7 +1197,7 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.8 }}
           >
-            <span>EDUCACIÓN COMPLETADA</span>
+            <span>EDUCATION COMPLETED</span>
             <CheckCircle className="w-8 h-8" />
           </motion.div>
         </div>
@@ -1387,7 +1343,6 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
             // Scroll to top when showing outro video
             window.scrollTo({ top: 0, behavior: 'instant' });
           }}
-          verifiedEmail={verifiedEmail}
         />;
       default:
         return null;
@@ -1409,10 +1364,10 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
         marginLeft: '-8.82%'
       }}
     >
-      <div className="sales-masterclass min-h-screen
-        bg-gradient-to-br from-slate-50 to-blue-50
-        dark:from-gray-900 dark:to-gray-800
-        text-gray-900 dark:text-white transition-colors duration-300 relative z-10">
+      <div className={`sales-masterclass ${educationalMode ? 'h-full' : 'min-h-screen'} 
+        bg-gradient-to-br from-slate-50 to-blue-50 
+        dark:from-gray-900 dark:to-gray-800 
+        text-gray-900 dark:text-white transition-colors duration-300 relative z-10`}>
         {/* Header - Hidden in educational mode */}
         {!educationalMode && (
           <div className="fixed top-0 left-0 right-0 z-50 
@@ -1477,89 +1432,103 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
       </div>
     )}
 
-      {/* Intro Video Gate - Shows before main content using Mux Player (i18n supported) */}
-      {showIntroVideo && (
-        <IntroVideoGate
-          lessonId={introVideoConfig.lessonId}
-          muxPlaybackId={introVideoConfig.muxPlaybackId}
-          title={introVideoConfig.title}
-          description={introVideoConfig.description}
-          onFinish={() => {
-            console.log('📹 Intro video completed');
-            setShowIntroVideo(false);
-            // Force scroll to top when video finishes
-            setTimeout(() => {
-              const originalScrollBehavior = document.documentElement.style.scrollBehavior;
-              document.documentElement.style.scrollBehavior = 'auto';
-
-              window.scrollTo(0, 0);
-              document.documentElement.scrollTop = 0;
-              document.body.scrollTop = 0;
-
-              const lessonContainer = document.getElementById('lesson-content-scroll-container');
-              if (lessonContainer) {
-                lessonContainer.scrollTop = 0;
-              }
-
+      {/* Intro Video Gate - Shows before main content in both modes */}
+      {showIntroVideo && VIDEO_CONFIG.salesMasterclass && (
+        <div className={educationalMode ? "h-full flex items-center justify-center px-3" : "pt-20 flex items-center justify-center min-h-screen px-3"}>
+          <IntroVideoGate
+            lessonId={VIDEO_CONFIG.salesMasterclass.lessonId}
+            muxPlaybackId={VIDEO_CONFIG.salesMasterclass.muxPlaybackId}
+            title={VIDEO_CONFIG.salesMasterclass.title}
+            description={VIDEO_CONFIG.salesMasterclass.description}
+            poster={VIDEO_CONFIG.salesMasterclass.poster}
+            captionsVtt={VIDEO_CONFIG.salesMasterclass.captionsVtt}
+            onFinish={() => {
+              console.log('📹 Intro video completed');
+              setShowIntroVideo(false);
+              // Force scroll to top when video finishes
               setTimeout(() => {
-                document.documentElement.style.scrollBehavior = originalScrollBehavior;
-              }, 50);
-            }, 100);
-            // Start the masterclass timer when video finishes
-            setTimeLeft(SALES_BLOCKS[0].duration);
-          }}
-          forceShow={true}
-        />
+                const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+                document.documentElement.style.scrollBehavior = 'auto';
+
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+
+                const lessonContainer = document.getElementById('lesson-content-scroll-container');
+                if (lessonContainer) {
+                  lessonContainer.scrollTop = 0;
+                }
+
+                setTimeout(() => {
+                  document.documentElement.style.scrollBehavior = originalScrollBehavior;
+                }, 50);
+              }, 100);
+              // Start the masterclass timer when video finishes
+              setTimeLeft(SALES_BLOCKS[0].duration);
+            }}
+            autoSkip={false} // Nunca saltar automáticamente en educacional
+            forceShow={true} // Siempre mostrar en módulo educacional
+          />
+        </div>
       )}
 
-      {/* Outro Video Gate - Shows after EIP-712 completion and before final claim (i18n supported) */}
-      {showOutroVideo && (
-        <IntroVideoGate
-          lessonId={outroVideoConfig.lessonId}
-          muxPlaybackId={outroVideoConfig.muxPlaybackId}
-          title={outroVideoConfig.title}
-          description={outroVideoConfig.description}
-          onFinish={() => {
-            console.log('📹 Outro video completed - completing education');
-            setShowOutroVideo(false);
+      {/* Outro Video Gate - Shows after EIP-712 completion and before final claim */}
+      {showOutroVideo && VIDEO_CONFIG.presentationCGC && (
+        <div className={educationalMode ? "min-h-screen bg-black/95 flex items-center justify-center p-4" : "pt-20 flex items-center justify-center min-h-screen px-3"}>
+          <IntroVideoGate
+            lessonId={VIDEO_CONFIG.presentationCGC.lessonId}
+            muxPlaybackId={VIDEO_CONFIG.presentationCGC.muxPlaybackId}
+            title={VIDEO_CONFIG.presentationCGC.title}
+            description={VIDEO_CONFIG.presentationCGC.description}
+            poster={VIDEO_CONFIG.presentationCGC.poster}
+            captionsVtt={VIDEO_CONFIG.presentationCGC.captionsVtt}
+            onFinish={() => {
+              console.log('📹 Outro video completed - completing education');
+              setShowOutroVideo(false);
 
-            // Force scroll to top after outro video
-            setTimeout(() => {
-              const originalScrollBehavior = document.documentElement.style.scrollBehavior;
-              document.documentElement.style.scrollBehavior = 'auto';
-
-              window.scrollTo(0, 0);
-              document.documentElement.scrollTop = 0;
-              document.body.scrollTop = 0;
-
-              const lessonContainer = document.getElementById('lesson-content-scroll-container');
-              if (lessonContainer) {
-                lessonContainer.scrollTop = 0;
-              }
-
+              // Force scroll to top after outro video
               setTimeout(() => {
-                document.documentElement.style.scrollBehavior = originalScrollBehavior;
-              }, 50);
-            }, 100);
+                const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+                document.documentElement.style.scrollBehavior = 'auto';
 
-            // Now complete the education flow after the video
-            if (onEducationComplete) {
-              onEducationComplete({
-                email: educationalMode ? undefined : verifiedEmail,
-                questionsScore: {
-                  correct: leadData.questionsCorrect || 0,
-                  total: leadData.totalQuestions || 0
-                },
-                questionsAnswered
-              });
-            } else {
-              if (window.parent !== window) {
-                window.parent.postMessage({ type: 'EDUCATION_COMPLETE' }, '*');
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+
+                const lessonContainer = document.getElementById('lesson-content-scroll-container');
+                if (lessonContainer) {
+                  lessonContainer.scrollTop = 0;
+                }
+
+                setTimeout(() => {
+                  document.documentElement.style.scrollBehavior = originalScrollBehavior;
+                }, 50);
+              }, 100);
+
+              // Now complete the education flow after the video
+              if (onEducationComplete) {
+                // CRITICAL FIX: In educational mode, DON'T pass email here
+                // The parent (LessonModalWrapper) already has it in its state
+                // Passing it from here would use outdated prop value
+                onEducationComplete({
+                  email: educationalMode ? undefined : verifiedEmail, // Only pass in knowledge mode
+                  questionsScore: {
+                    correct: leadData.questionsCorrect || 0,
+                    total: leadData.totalQuestions || 0
+                  }
+                  // TODO FASE 2: questionsAnswered array (not implemented yet in EN version)
+                });
+              } else {
+                // Fallback to postMessage if no callback provided
+                if (window.parent !== window) {
+                  window.parent.postMessage({ type: 'EDUCATION_COMPLETE' }, '*');
+                }
               }
-            }
-          }}
-          forceShow={true}
-        />
+            }}
+            autoSkip={false} // Don't auto-skip this important video
+            forceShow={true} // Always show even if seen before
+          />
+        </div>
       )}
 
       {/* Main Content - Only shows after video */}
@@ -1611,8 +1580,8 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
             }
           }}
           source="masterclass"
-          title="📧 ¡Necesitamos tu Email!"
-          subtitle="Para enviarte información exclusiva y próximos pasos"
+          title="📧 We Need Your Email!"
+          subtitle="To send you exclusive information and next steps"
         />
       )}
 
@@ -1640,7 +1609,7 @@ interface QuestionType {
 }
 
 const QuestionSection: React.FC<{
-  question?: QuestionType;
+  question: QuestionType;
   onAnswer: (index: number) => void;
   selectedAnswer: number | null;
   showFeedback: boolean;
@@ -1657,7 +1626,7 @@ const QuestionSection: React.FC<{
       <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 
         text-green-800 dark:text-green-200">
         <Lightbulb className="w-7 h-7 text-green-600 dark:text-green-400" />
-        <span>Pregunta Rápida:</span>
+        <span>Quick Question:</span>
       </h3>
       <p className="text-xl mb-6 text-green-800 dark:text-green-200">{question.text}</p>
       
@@ -1689,9 +1658,9 @@ const QuestionSection: React.FC<{
                     : selectedAnswer === idx
                       ? <XCircle className="w-6 h-6 text-red-500" />
                       : <Circle className="w-6 h-6 text-gray-400" />
-                  : [<Hash key="hash" className="w-6 h-6 text-amber-600 dark:text-yellow-400" />,
-                     <AtSign key="at" className="w-6 h-6 text-blue-600 dark:text-blue-400" />,
-                     <Code key="code" className="w-6 h-6 text-purple-600 dark:text-purple-400" />][idx]}
+                  : [<Hash className="w-6 h-6 text-amber-600 dark:text-yellow-400" />, 
+                     <AtSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />, 
+                     <Code className="w-6 h-6 text-purple-600 dark:text-purple-400" />][idx]}
               </span>
               <span className="text-lg">{option.text}</span>
             </div>
@@ -1707,13 +1676,13 @@ const QuestionSection: React.FC<{
         >
           {question.options[selectedAnswer!].isCorrect ? (
             <div className="flex items-center justify-center gap-2 text-emerald-600 dark:text-green-400 text-xl font-bold">
-              <span>¡Correcto!</span>
+              <span>Correct!</span>
               <PartyPopper className="w-6 h-6" />
-              <span>Excelente respuesta</span>
+              <span>Excellent answer</span>
             </div>
           ) : (
             <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-yellow-400 text-xl">
-              <span>Casi... pero la respuesta correcta te sorprenderá</span>
+              <span>Close... but the correct answer will surprise you</span>
               <AlertCircle className="w-6 h-6" />
             </div>
           )}
@@ -1735,7 +1704,7 @@ const NavigationArea: React.FC<{
   onNext, 
   canProceed, 
   timeLeft, 
-  buttonText = "CONTINUAR", 
+  buttonText = "CONTINUE", 
   buttonIcon = <Rocket className="w-6 h-6" />,
   buttonColor = "from-yellow-500 to-orange-500 text-black"
 }) => (
@@ -1768,10 +1737,10 @@ const NavigationArea: React.FC<{
         
         <div className="mt-4 text-gray-600 dark:text-gray-400 text-sm flex items-center justify-center gap-2">
           <ChevronRight className="w-4 h-4" />
-          <span>Haz clic para continuar</span>
+          <span>Click to continue</span>
           <span className="text-gray-400 dark:text-gray-500">•</span>
           <Clock className="w-4 h-4" />
-          <span>Tiempo restante: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</span>
+          <span>Time remaining: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</span>
         </div>
       </motion.div>
     ) : timeLeft === 0 ? (
@@ -1782,10 +1751,10 @@ const NavigationArea: React.FC<{
       >
         <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-yellow-400 text-lg font-medium mb-4">
           <Clock className="w-5 h-5" />
-          <span>Tiempo agotado - Esperando...</span>
+          <span>Time's up - Waiting...</span>
         </div>
         <div className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-          El siguiente bloque está disponible cuando completes esta sección
+          The next block is available when you complete this section
         </div>
         
         <motion.button
@@ -1817,7 +1786,7 @@ const NavigationArea: React.FC<{
       >
         <div className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400 text-lg">
           <RefreshCw className="w-5 h-5 animate-spin" />
-          <span>Procesando respuesta...</span>
+          <span>Processing response...</span>
         </div>
       </motion.div>
     )}
@@ -1825,9 +1794,9 @@ const NavigationArea: React.FC<{
 );
 
 // Block Components with Questions
-const OpeningBlock: React.FC<{
-  content: SalesBlockContent;
-  question?: QuestionType;
+const OpeningBlock: React.FC<{ 
+  content: SalesBlockContent; 
+  question: QuestionType;
   onAnswer: (idx: number) => void;
   selectedAnswer: number | null;
   showFeedback: boolean;
@@ -1881,7 +1850,7 @@ const OpeningBlock: React.FC<{
       onNext={onNext}
       canProceed={canProceed}
       timeLeft={timeLeft}
-      buttonText="CONTINUAR"
+      buttonText="CONTINUE"
       buttonIcon={<Rocket className="w-6 h-6" />}
       buttonColor="from-blue-500 to-purple-500 text-white"
     />
@@ -1900,7 +1869,7 @@ const ProblemBlock: React.FC<{
 }> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
   <div className="py-12">
     <h2 className="text-5xl font-bold text-center mb-12 flex items-center justify-center gap-3">
-      <span className="bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-300 dark:to-gray-100 bg-clip-text text-transparent">Las 3 Brechas del Mercado</span>
+      <span className="bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-300 dark:to-gray-100 bg-clip-text text-transparent">The 3 Market Gaps</span>
       <AlertCircle className="w-10 h-10 text-gray-600 dark:text-gray-400" />
     </h2>
     
@@ -1949,7 +1918,7 @@ const ProblemBlock: React.FC<{
       onNext={onNext}
       canProceed={canProceed}
       timeLeft={timeLeft}
-      buttonText="VER SOLUCIÓN"
+      buttonText="VIEW SOLUTION"
       buttonIcon={<Shield className="w-6 h-6" />}
       buttonColor="from-gray-600 to-gray-800 text-white"
     />
@@ -1968,7 +1937,7 @@ const SolutionBlock: React.FC<{
 }> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
   <div className="py-12">
     <h2 className="text-5xl font-bold text-center mb-8 flex items-center justify-center gap-3">
-      <span className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">NFT-Wallets: La Revolución</span>
+      <span className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">NFT-Wallets: The Revolution</span>
       <Rocket className="w-10 h-10 text-blue-600 dark:text-blue-400" />
     </h2>
     
@@ -2035,7 +2004,7 @@ const SolutionBlock: React.FC<{
           whileTap={{ scale: 0.95 }}
         >
           <Zap className="w-6 h-6" />
-          VER DEMO EN VIVO
+          VIEW LIVE DEMO
           <ArrowRight className="w-6 h-6" />
         </motion.button>
       </motion.div>
@@ -2069,7 +2038,7 @@ const DemoBlock: React.FC<{
             transition={{ type: "spring" }}
           >
             <QRCodeSVG value={giftUrl} size={200} level="H" />
-            <p className="text-gray-800 dark:text-gray-200 mt-4 font-semibold">Escanea con tu móvil</p>
+            <p className="text-gray-800 dark:text-gray-200 mt-4 font-semibold">Scan with your phone</p>
           </motion.div>
         )}
         
@@ -2087,7 +2056,7 @@ const DemoBlock: React.FC<{
             animate={{ scale: 1 }}
           >
             <CheckCircle className="w-32 h-32 text-green-400 mx-auto mb-8" />
-            <h3 className="text-4xl font-bold mb-4 text-gray-800 dark:text-white">¡LO TIENES! 🎉</h3>
+            <h3 className="text-4xl font-bold mb-4 text-gray-800 dark:text-white">YOU'VE GOT IT! 🎉</h3>
           </motion.div>
         )}
       </div>
@@ -2123,7 +2092,7 @@ const DemoBlock: React.FC<{
       onNext={onNext}
       canProceed={canProceed}
       timeLeft={timeLeft}
-      buttonText="VER COMPARACIÓN"
+      buttonText="VIEW COMPARISON"
       buttonIcon={<BarChart3 className="w-6 h-6" />}
       buttonColor="from-blue-500 to-purple-500 text-white"
     />
@@ -2173,7 +2142,7 @@ const ComparisonBlock: React.FC<{
       onNext={onNext}
       canProceed={canProceed}
       timeLeft={timeLeft}
-      buttonText="VER RESULTADOS"
+      buttonText="SEE RESULTS"
       buttonIcon={<TrendingUp className="w-6 h-6" />}
       buttonColor="from-orange-500 to-red-500 text-white"
     />
@@ -2191,7 +2160,7 @@ const CasesBlock: React.FC<{
   timeLeft: number;
 }> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
   <div className="py-12">
-    <h2 className="text-5xl font-bold text-center mb-12">Resultados Reales 📊</h2>
+    <h2 className="text-5xl font-bold text-center mb-12">Real Results 📊</h2>
     
     <div className="grid md:grid-cols-4 gap-4 mb-8">
       {content.metrics.map((metric: any, idx: number) => (
@@ -2225,7 +2194,7 @@ const CasesBlock: React.FC<{
       onNext={onNext}
       canProceed={canProceed}
       timeLeft={timeLeft}
-      buttonText="VER MODELO DE NEGOCIO"
+      buttonText="SEE BUSINESS MODEL"
       buttonIcon={<Banknote className="w-6 h-6" />}
       buttonColor="from-purple-500 to-indigo-500 text-white"
     />
@@ -2289,7 +2258,7 @@ const BusinessBlock: React.FC<{
       onNext={onNext}
       canProceed={canProceed}
       timeLeft={timeLeft}
-      buttonText="VER ROADMAP"
+      buttonText="VIEW ROADMAP"
       buttonIcon={<Globe className="w-6 h-6" />}
       buttonColor="from-blue-500 to-purple-500 text-white"
     />
@@ -2307,7 +2276,7 @@ const RoadmapBlock: React.FC<{
   timeLeft: number;
 }> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
   <div className="py-12">
-    <h2 className="text-5xl font-bold text-center mb-12">El Futuro es Exponencial 🚀</h2>
+    <h2 className="text-5xl font-bold text-center mb-12">The Future is Exponential 🚀</h2>
     
     <div className="space-y-6 max-w-4xl mx-auto mb-8">
       {content.phases.map((phase: any, idx: number) => (
@@ -2338,7 +2307,7 @@ const RoadmapBlock: React.FC<{
       onNext={onNext}
       canProceed={canProceed}
       timeLeft={timeLeft}
-      buttonText="MOMENTO INSPIRACIONAL"
+      buttonText="INSPIRATIONAL MOMENT"
       buttonIcon={<Heart className="w-6 h-6" />}
       buttonColor="from-indigo-500 to-purple-500 text-white"
     />
@@ -2362,7 +2331,7 @@ const CloseBlock: React.FC<{
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
       >
-        La Puerta al Futuro
+        The Gateway to the Future
       </motion.h2>
       
       <motion.div
@@ -2410,7 +2379,7 @@ const CloseBlock: React.FC<{
       onNext={onNext}
       canProceed={canProceed}
       timeLeft={timeLeft}
-      buttonText="¡QUIERO SER PARTE!"
+      buttonText="I WANT TO JOIN!"
       buttonIcon={<Rocket className="w-8 h-8" />}
       buttonColor="from-blue-600 to-purple-600 text-white"
     />
@@ -2443,61 +2412,45 @@ const CaptureBlock: React.FC<{
   const [processingCalendar, setProcessingCalendar] = useState(false);
 
   // FASE 1: Manejadores para checkboxes inline
-  // IMPORTANT: The parent component (SpecialInviteFlow) provides promise-based callbacks
-  // The Promise resolves ONLY when the user actually completes verification/booking
-  // If the user closes the modal without completing, the promise never resolves
   const handleEmailCheckbox = async () => {
     if (emailVerified || processingEmail) return;
-
+    
     setProcessingEmail(true);
-    setEmailChecked(true); // Show checkbox as "in progress"
-    console.log('📧 Email checkbox clicked - opening verification modal');
-
+    console.log('📧 Email checkbox clicked - opening verification');
+    
     if (onShowEmailVerification) {
       try {
-        // This Promise resolves when the user completes email verification
         await onShowEmailVerification();
-        // Only mark as verified AFTER the Promise resolves (user completed verification)
+        // FIX: Solo marcar como verificado si realmente se verificó
+        // El modal debe retornar si fue exitoso o no
         setEmailVerified(true);
-        console.log('✅ Email verification completed successfully');
+        setEmailChecked(true);
+        console.log('✅ Email marked as verified');
       } catch (error) {
-        console.error('❌ Email verification error or cancelled:', error);
+        console.error('❌ Email verification error:', error);
         setEmailChecked(false);
         setEmailVerified(false);
       }
-    } else {
-      // If no callback provided (non-educational mode), mark as verified immediately
-      // The parent component should handle opening modals in this case
-      console.log('⚠️ No onShowEmailVerification callback - marking as verified');
-      setEmailVerified(true);
     }
     setProcessingEmail(false);
   };
-
+  
   const handleCalendarCheckbox = async () => {
     if (calendarScheduled || processingCalendar) return;
-
+    
     setProcessingCalendar(true);
-    setCalendarChecked(true); // Show checkbox as "in progress"
-    console.log('📅 Calendar checkbox clicked - opening booking modal');
-
+    console.log('📅 Calendar checkbox clicked - opening booking');
+    
     if (onShowCalendar) {
       try {
-        // This Promise resolves when the user completes calendar booking
         await onShowCalendar();
-        // Only mark as scheduled AFTER the Promise resolves (user completed booking)
         setCalendarScheduled(true);
-        console.log('✅ Calendar booking completed successfully');
+        setCalendarChecked(true);
+        console.log('✅ Calendar booked successfully');
       } catch (error) {
-        console.error('❌ Calendar booking error or cancelled:', error);
+        console.error('❌ Calendar booking error:', error);
         setCalendarChecked(false);
-        setCalendarScheduled(false);
       }
-    } else {
-      // If no callback provided (non-educational mode), mark as scheduled immediately
-      // The parent component should handle opening modals in this case
-      console.log('⚠️ No onShowCalendar callback - marking as scheduled');
-      setCalendarScheduled(true);
     }
     setProcessingCalendar(false);
   };
@@ -2561,7 +2514,7 @@ const CaptureBlock: React.FC<{
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          ¡Excelente Elección! 🎯
+          Excellent Choice! 🎯
         </motion.h2>
         
         <motion.div
@@ -2574,7 +2527,7 @@ const CaptureBlock: React.FC<{
             Has elegido: <span className="font-bold text-blue-500 dark:text-blue-400">{selectedPath}</span>
           </p>
           <p className="text-xl text-gray-400">
-            Preparando tu acceso al regalo...
+            Preparing your gift access...
           </p>
         </motion.div>
         
@@ -2594,12 +2547,12 @@ const CaptureBlock: React.FC<{
       <div className="text-center mb-8">
         <div className="inline-block bg-gradient-to-r from-green-500/20 to-blue-500/20 border border-green-500/50 px-8 py-4 rounded-full">
           <p className="text-2xl">
-            Tu puntuación: <span className="font-bold text-yellow-400">
+            Your score: <span className="font-bold text-yellow-400">
               {questionsScore.correct}/{questionsScore.total}
-            </span> respuestas correctas
+            </span> correct answers
           </p>
           {questionsScore.correct === questionsScore.total && (
-            <p className="text-green-400 font-bold mt-2">¡PERFECTO! Eres un experto 🏆</p>
+            <p className="text-green-400 font-bold mt-2">PERFECT! You're an expert 🏆</p>
           )}
         </div>
       </div>
@@ -2647,10 +2600,10 @@ const CaptureBlock: React.FC<{
                 border border-purple-500/30 rounded-2xl p-6
                 shadow-xl shadow-purple-500/10">
                 <p className="text-lg text-gray-200 mb-4">
-                  Has seleccionado: <span className="font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{selectedPath}</span>
+                  You have selected: <span className="font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{selectedPath}</span>
                 </p>
                 <p className="text-sm text-gray-300/80">
-                  Esta información nos ayuda a personalizar tu experiencia en CryptoGift
+                  This information helps us personalize your CryptoGift experience
                 </p>
               </div>
               
@@ -2665,7 +2618,7 @@ const CaptureBlock: React.FC<{
                   <span className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center backdrop-blur-xl border border-blue-500/30">
                     ✨
                   </span>
-                  Requisitos para continuar
+                  Requirements to continue
                 </h3>
                 
                 {/* Email Verification Checkbox - GLASS STYLE */}
@@ -2692,23 +2645,23 @@ const CaptureBlock: React.FC<{
                         <span className="text-lg">📧</span>
                       </div>
                       <span className="font-semibold text-gray-800 dark:text-white">
-                        Verificar tu email
+                        Verify your email
                       </span>
                       {emailVerified && (
-                        <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full 
+                        <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
                           border border-green-500/30 backdrop-blur-xl">
-                          ✓ Verificado
+                          ✓ Verified
                         </span>
                       )}
                       {processingEmail && (
-                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full 
+                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full
                           border border-blue-500/30 backdrop-blur-xl animate-pulse">
-                          Procesando...
+                          Processing...
                         </span>
                       )}
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
-                      Te enviaremos información exclusiva sobre el ecosistema cripto
+                      We'll send you exclusive information about the crypto ecosystem
                     </p>
                     {verifiedEmail && emailVerified && (
                       <p className="text-xs text-green-400 mt-1 ml-11 font-mono">
@@ -2742,23 +2695,23 @@ const CaptureBlock: React.FC<{
                         <span className="text-lg">📅</span>
                       </div>
                       <span className="font-semibold text-gray-800 dark:text-white">
-                        Agendar una sesión gratuita
+                        Schedule a free session
                       </span>
                       {calendarScheduled && (
-                        <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full 
+                        <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
                           border border-green-500/30 backdrop-blur-xl">
-                          ✓ Agendado
+                          ✓ Scheduled
                         </span>
                       )}
                       {processingCalendar && (
-                        <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full 
+                        <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full
                           border border-purple-500/30 backdrop-blur-xl animate-pulse">
-                          Procesando...
+                          Processing...
                         </span>
                       )}
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
-                      Descubre cómo CryptoGift puede transformar tu negocio (opcional pero recomendado)
+                      Discover how CryptoGift can transform your business (optional but recommended)
                     </p>
                   </label>
                 </div>
@@ -2775,7 +2728,7 @@ const CaptureBlock: React.FC<{
                             ✅
                           </span>
                           <span className="text-green-400 font-semibold">
-                            Todo listo para continuar
+                            Everything ready to continue
                           </span>
                         </>
                       ) : (
@@ -2784,7 +2737,7 @@ const CaptureBlock: React.FC<{
                             ⏳
                           </span>
                           <span className="text-gray-300">
-                            Completa ambos requisitos para continuar
+                            Complete both requirements to continue
                           </span>
                         </>
                       )}
@@ -2799,7 +2752,7 @@ const CaptureBlock: React.FC<{
               </div>
               
               {/* REMOVED: Wallet connection check - now handled in LessonModalWrapper after completion */}
-              {/* Connect wallet flow moved to "¡Felicidades!" screen as requested */}
+              {/* Connect wallet flow moved to "Congratulations!" screen as requested */}
               <motion.button
                 type="submit"
                 disabled={!canProceed}
@@ -2820,7 +2773,7 @@ const CaptureBlock: React.FC<{
                     <Trophy className="w-6 h-6 text-yellow-300" />
                   </div>
                   <span className="bg-gradient-to-r from-yellow-200 to-green-200 bg-clip-text text-transparent font-black">
-                    {canProceed ? 'CONTINUAR AL REGALO' : 'COMPLETA LOS REQUISITOS'}
+                    {canProceed ? 'CONTINUE TO GIFT' : 'COMPLETE REQUIREMENTS'}
                   </span>
                   <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-xl">
                     <Gift className="w-6 h-6 text-green-300" />
@@ -2833,7 +2786,7 @@ const CaptureBlock: React.FC<{
             <>
               <input
                 type="text"
-                placeholder="¿Cuándo podemos hablar? (ej: Mañana 3pm)"
+                placeholder="When can we talk? (e.g.: Tomorrow 3pm)"
                 value={formData.availability}
                 onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg focus:border-yellow-400 focus:outline-none text-white"
@@ -2880,13 +2833,9 @@ const SuccessBlock: React.FC<{
   leadData: any;
   metrics: any;
   educationalMode?: boolean;
-  onEducationComplete?: (data?: {
-    email?: string;
-    questionsScore?: { correct: number; total: number };
-  }) => void;
+  onEducationComplete?: () => void;
   onShowOutroVideo?: () => void;
-  verifiedEmail?: string;
-}> = ({ content, leadData, metrics, educationalMode = false, onEducationComplete, onShowOutroVideo, verifiedEmail }) => {
+}> = ({ content, leadData, metrics, educationalMode = false, onEducationComplete, onShowOutroVideo }) => {
   // Removed router dependency to avoid App Router/Pages Router conflicts
   
   return (
@@ -2973,7 +2922,7 @@ const SuccessBlock: React.FC<{
           >
             <div className="text-center mb-6">
               <h2 className="text-4xl font-black mb-4 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
-                🌟 ¡Bienvenido a nuestra DAO Community! 🌟
+                🌟 Welcome to our DAO Community! 🌟
               </h2>
               <p className="text-xl text-gray-700 dark:text-gray-300">
                 Has completado tu entrenamiento y ahora formas parte de algo extraordinario
@@ -2996,7 +2945,7 @@ const SuccessBlock: React.FC<{
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
                 <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">🤖 APEX</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Nuestro Asistente IA que te guiará en cada paso del ecosistema cripto</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Our AI Assistant that will guide you through every step of the crypto ecosystem</p>
               </motion.div>
 
               {/* Godez22 */}
@@ -3013,7 +2962,7 @@ const SuccessBlock: React.FC<{
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
                 <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">💎 Godez22</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Desarrollador pionero que dio vida a este maravilloso sistema</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Pioneer developer who brought this wonderful system to life</p>
               </motion.div>
 
               {/* RLGra95 */}
@@ -3030,7 +2979,7 @@ const SuccessBlock: React.FC<{
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
                 <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">🚀 RLGra95</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Co-fundador visionario en los primeros pasos del proyecto</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Visionary co-founder in the project's early steps</p>
               </motion.div>
             </div>
           </motion.div>
@@ -3053,7 +3002,7 @@ const SuccessBlock: React.FC<{
                 />
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">CG Wallet</h3>
               </div>
-              <p className="text-gray-700 dark:text-gray-300 mb-3">Decenas de utilidades que transformarán tu experiencia crypto:</p>
+              <p className="text-gray-700 dark:text-gray-300 mb-3">Dozens of utilities that will transform your crypto experience:</p>
               <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                 <li>• 🔒 Seguridad multi-capa con backup automático</li>
                 <li>• 💸 Intercambios sin comisiones entre usuarios</li>
@@ -3074,15 +3023,15 @@ const SuccessBlock: React.FC<{
                 />
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 dark:from-pink-400 dark:to-purple-400 bg-clip-text text-transparent">Arte IA</h3>
               </div>
-              <p className="text-gray-700 dark:text-gray-300 mb-3">Crear valor a través del arte personalizado:</p>
+              <p className="text-gray-700 dark:text-gray-300 mb-3">Creating value through personalized art:</p>
               <div className="flex items-center gap-3 mb-2">
                 <img 
                   src="/wallet-regalo.png" 
-                  alt="Wallet Regalo" 
+                  alt="Gift Wallet" 
                   className="w-8 h-8 rounded-lg shadow-sm"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
-                <p className="text-sm text-gray-600 dark:text-gray-400">Una imagen dice más que mil palabras - la integración de la wallet le da la posibilidad de ser portador de vida</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">A picture is worth a thousand words - the wallet integration gives it the ability to be a bearer of life</p>
               </div>
             </div>
           </motion.div>
@@ -3102,26 +3051,26 @@ const SuccessBlock: React.FC<{
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
               <h3 className="text-3xl font-black mb-4 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
-                🧠 Knowledge: Centro Neurálgico del Futuro
+                🧠 Knowledge: The Future's Nerve Center
               </h3>
               <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
-                La sección Knowledge se convertirá en el epicentro donde confluyen creadores de contenido y consumidores, 
-                maestros y estudiantes, con integración de las academias crypto más prestigiosas del ecosistema.
+                The Knowledge section will become the epicenter where content creators and consumers converge,
+                teachers and students, with integration of the most prestigious crypto academies in the ecosystem.
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-4 text-center text-sm text-gray-600 dark:text-gray-400">
               <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4">
-                <h4 className="font-bold text-orange-600 dark:text-orange-400 mb-2">🏆 Academias Elite</h4>
-                <p>Integración con Binance Academy, Coin Bureau, DeFi Pulse y más</p>
+                <h4 className="font-bold text-orange-600 dark:text-orange-400 mb-2">🏆 Elite Academies</h4>
+                <p>Integration with Binance Academy, Coin Bureau, DeFi Pulse and more</p>
               </div>
               <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4">
-                <h4 className="font-bold text-green-600 dark:text-green-400 mb-2">🎮 Gamificación</h4>
-                <p>Sistema de logros, NFT badges y rewards por aprendizaje</p>
+                <h4 className="font-bold text-green-600 dark:text-green-400 mb-2">🎮 Gamification</h4>
+                <p>Achievement system, NFT badges and learning rewards</p>
               </div>
               <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4">
                 <h4 className="font-bold text-blue-600 dark:text-blue-400 mb-2">🤝 DAO Community</h4>
-                <p>Governance participativa y decisiones comunitarias</p>
+                <p>Participative governance and community decisions</p>
               </div>
             </div>
           </motion.div>
@@ -3140,7 +3089,7 @@ const SuccessBlock: React.FC<{
             }}
           >
             <p className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent mb-6">
-              🎉 ¡El futuro de los pagos digitales comienza contigo! 🎉
+              🎉 The future of digital payments begins with you! 🎉
             </p>
             
             {/* FASE 3: Condicionar CTAs - ocultar en modo educacional */}
@@ -3164,7 +3113,7 @@ const SuccessBlock: React.FC<{
                 >
                   <div className="flex items-center gap-2">
                     <Gift className="w-5 h-5" />
-                    <span>Crear mi Primer Regalo</span>
+                    <span>Create my First Gift</span>
                   </div>
                 </button>
               </div>
@@ -3198,5 +3147,5 @@ const SuccessBlock: React.FC<{
   );
 };
 
-export { SalesMasterclass };
-export default SalesMasterclass;
+export { SalesMasterclassEN };
+export default SalesMasterclassEN;

@@ -31,8 +31,10 @@
     "paths": {
       "@/*": ["./*"],
       "@/components/*": ["./components/*"],
+      "@/components-en/*": ["./components-en/*"],
       "@/lib/*": ["./lib/*"],
-      "@/app/*": ["./app/*"]
+      "@/app/*": ["./app/*"],
+      "@/config/*": ["./config/*"]
     },
     
     /* Next.js Plugin */

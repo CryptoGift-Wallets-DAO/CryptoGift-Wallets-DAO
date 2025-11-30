@@ -127,24 +127,24 @@ export default function SpecialInvitePage() {
           </Card>
         );
 
-      case 'ready':
-        if (!inviteData) return null;
-
-        return (
-          <SpecialInviteFlow
-            inviteData={inviteData}
-            onClaimComplete={handleClaimComplete}
-            className="max-w-6xl mx-auto"
-          />
-        );
-
       default:
         return null;
     }
   };
 
+  // When showing SpecialInviteFlow in 'ready' state, render without header/footer wrapper
+  if (pageState === 'ready' && inviteData) {
+    return (
+      <SpecialInviteFlow
+        inviteData={inviteData}
+        onClaimComplete={handleClaimComplete}
+      />
+    );
+  }
+
+  // For loading/error states, show with header and footer
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-cyan-50 dark:from-slate-900 dark:via-purple-950 dark:to-cyan-950">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-cyan-50 dark:from-slate-900 dark:via-purple-950 dark:to-cyan-950 flex flex-col">
       {/* Background effects */}
       <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">
         <div className="absolute top-20 left-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse" />
@@ -183,12 +183,12 @@ export default function SpecialInvitePage() {
       </header>
 
       {/* Main content */}
-      <main className="relative z-10 container mx-auto px-4 py-8">
+      <main className="relative z-10 container mx-auto px-4 py-8 flex-1 flex items-center justify-center">
         {renderContent()}
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-gray-200/50 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm py-4 mt-8">
+      <footer className="relative z-10 border-t border-gray-200/50 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm py-4">
         <div className="container mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
           <p>Made by mbxarts.com The Moon in a Box property</p>
         </div>

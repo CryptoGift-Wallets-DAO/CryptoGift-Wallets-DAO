@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * SPECIAL INVITE FLOW COMPONENT
+ * SPECIAL INVITE FLOW COMPONENT - ENGLISH VERSION
  *
  * Main flow component for special invites with educational requirements.
  * Based on PreClaimFlow from cryptogift-wallets project.
@@ -21,13 +21,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
 import { client } from '@/lib/thirdweb/client';
-import { InviteImageCard } from './InviteImageCard';
+import { InviteImageCard } from '@/components/special-invite/InviteImageCard';
 import { EmailVerificationModal } from '@/components/email/EmailVerificationModal';
 import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
 import dynamic from 'next/dynamic';
 
-// Dynamic import for SalesMasterclass to avoid SSR issues
-const SalesMasterclass = dynamic(() => import('../learn/SalesMasterclass'), {
+// Dynamic import for SalesMasterclassEN to avoid SSR issues
+const SalesMasterclass = dynamic(() => import('@/components-en/learn/SalesMasterclassEN'), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center min-h-[400px]">
@@ -98,7 +98,7 @@ interface SpecialInviteFlowProps {
 
 type FlowStep = 'welcome' | 'password' | 'education' | 'connect' | 'complete';
 
-export function SpecialInviteFlow({
+export function SpecialInviteFlowEN({
   inviteData,
   onClaimComplete,
   className = ''
@@ -143,7 +143,7 @@ export function SpecialInviteFlow({
   // Handle password validation
   const handlePasswordValidation = async () => {
     if (!password) {
-      setValidationError('Por favor, ingresa la contrasena');
+      setValidationError('Please enter the password');
       return;
     }
 
@@ -166,11 +166,11 @@ export function SpecialInviteFlow({
         // Password correct, move to education
         setCurrentStep('education');
       } else {
-        setValidationError(data.error || 'Contrasena incorrecta');
+        setValidationError(data.error || 'Incorrect password');
       }
     } catch (error) {
       console.error('Error validating password:', error);
-      setValidationError('Error al validar. Intenta de nuevo.');
+      setValidationError('Validation error. Please try again.');
     } finally {
       setIsValidating(false);
     }
@@ -316,10 +316,10 @@ export function SpecialInviteFlow({
                 </div>
               </div>
               <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
-                ¡Felicidades! Has Recibido una Invitacion Especial
+                Congratulations! You Have Received a Special Invitation
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                Alguien especial te ha seleccionado para unirte a CryptoGift DAO
+                Someone special has selected you to join CryptoGift DAO
               </p>
             </div>
 
@@ -329,15 +329,15 @@ export function SpecialInviteFlow({
                 <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                100% Seguro
+                100% Secure
               </span>
               <span className="flex items-center gap-1">
                 <span className="text-yellow-500">⭐</span>
-                +10,000 miembros
+                +10,000 members
               </span>
               <span className="flex items-center gap-1">
                 <span className="text-blue-500">🔒</span>
-                Blockchain verificado
+                Blockchain verified
               </span>
             </div>
 
@@ -349,12 +349,12 @@ export function SpecialInviteFlow({
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-purple-800 dark:text-purple-300 mb-1">
-                    ¡Bienvenido al futuro de las organizaciones!
+                    Welcome to the future of organizations!
                   </h3>
                   <p className="text-sm text-purple-700 dark:text-purple-400">
-                    CryptoGift DAO es una comunidad descentralizada donde los miembros
-                    gobiernan, contribuyen y se benefician juntos. Tu invitacion te da
-                    acceso a tokens CGC, tareas remuneradas y votacion en decisiones.
+                    CryptoGift DAO is a decentralized community where members
+                    govern, contribute, and benefit together. Your invitation gives you
+                    access to CGC tokens, paid tasks, and voting on decisions.
                   </p>
                 </div>
               </div>
@@ -367,7 +367,7 @@ export function SpecialInviteFlow({
             >
               <span className="flex items-center justify-center gap-2">
                 <span>🚀</span>
-                Comenzar Mi Viaje
+                Start My Journey
               </span>
             </button>
 
@@ -375,15 +375,15 @@ export function SpecialInviteFlow({
             <div className="space-y-2">
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                 <span className="text-green-500 mr-2">✓</span>
-                <span>Sin costos - 100% gratis</span>
+                <span>No costs - 100% free</span>
               </div>
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                 <span className="text-green-500 mr-2">✓</span>
-                <span>Tokens CGC de bienvenida</span>
+                <span>Welcome CGC tokens</span>
               </div>
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                 <span className="text-green-500 mr-2">✓</span>
-                <span>Acceso a tareas remuneradas</span>
+                <span>Access to paid tasks</span>
               </div>
             </div>
           </motion.div>
@@ -401,17 +401,17 @@ export function SpecialInviteFlow({
                 <span className="text-3xl">🔐</span>
               </div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                Validacion de Acceso
+                Access Validation
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Ingresa la contrasena que te compartio tu referidor
+                Enter the password shared by your referrer
               </p>
             </div>
 
             {/* Password Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                🔑 Contrasena del Referidor
+                🔑 Referrer Password
               </label>
               <div className="relative">
                 <input
@@ -424,7 +424,7 @@ export function SpecialInviteFlow({
                     }
                   }}
                   className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                  placeholder="Ingresa la contrasena"
+                  placeholder="Enter the password"
                   disabled={isValidating}
                 />
                 <button
@@ -436,7 +436,7 @@ export function SpecialInviteFlow({
                 </button>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                La persona que te invito te debe haber compartido una contrasena
+                The person who invited you should have shared a password with you
               </p>
             </div>
 
@@ -462,12 +462,12 @@ export function SpecialInviteFlow({
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Validando...
+                  Validating...
                 </div>
               ) : (
                 <span className="flex items-center justify-center">
                   <span className="mr-2">🎯</span>
-                  Validar y Continuar
+                  Validate and Continue
                 </span>
               )}
             </button>
@@ -503,10 +503,10 @@ export function SpecialInviteFlow({
                 <span className="text-4xl">🎉</span>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                ¡Educacion Completada!
+                Education Completed!
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                Puntuacion: {questionsScore.correct}/{questionsScore.total} respuestas correctas
+                Score: {questionsScore.correct}/{questionsScore.total} correct answers
               </p>
             </div>
 
@@ -516,10 +516,10 @@ export function SpecialInviteFlow({
                 <span className="text-green-500 text-2xl mr-3">✅</span>
                 <div>
                   <h3 className="font-semibold text-green-800 dark:text-green-300">
-                    Estas listo para unirte
+                    You are ready to join
                   </h3>
                   <p className="text-sm text-green-700 dark:text-green-400 mt-1">
-                    Solo falta conectar tu wallet para completar tu ingreso al DAO
+                    Just connect your wallet to complete your DAO membership
                   </p>
                 </div>
               </div>
@@ -528,7 +528,7 @@ export function SpecialInviteFlow({
             {/* Connect Wallet */}
             <div className="text-center space-y-4">
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                🔗 Conecta tu wallet para finalizar
+                🔗 Connect your wallet to finish
               </p>
 
               <div className="flex justify-center">
@@ -536,7 +536,7 @@ export function SpecialInviteFlow({
                   <ConnectButton
                     client={client}
                     connectButton={{
-                      label: '🔗 Conectar Wallet',
+                      label: '🔗 Connect Wallet',
                       className: 'bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-medium px-8 py-3 rounded-xl shadow-lg'
                     }}
                   />
@@ -544,20 +544,20 @@ export function SpecialInviteFlow({
               </div>
 
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Soportamos MetaMask, WalletConnect, Coinbase Wallet y mas
+                We support MetaMask, WalletConnect, Coinbase Wallet and more
               </p>
             </div>
 
             {/* What you get */}
             <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 space-y-2">
               <h4 className="font-medium text-purple-800 dark:text-purple-300">
-                Al conectar recibiras:
+                Upon connecting you will receive:
               </h4>
               <ul className="text-sm text-purple-700 dark:text-purple-400 space-y-1">
-                <li>✨ Tokens CGC de bienvenida</li>
-                <li>✨ Acceso al panel de tareas</li>
-                <li>✨ Poder de voto en el DAO</li>
-                <li>✨ Badge de miembro fundador</li>
+                <li>✨ Welcome CGC tokens</li>
+                <li>✨ Access to the task panel</li>
+                <li>✨ Voting power in the DAO</li>
+                <li>✨ Founding member badge</li>
               </ul>
             </div>
           </motion.div>
@@ -576,10 +576,10 @@ export function SpecialInviteFlow({
 
             <div>
               <h2 className="text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent mb-2">
-                ¡Bienvenido al DAO!
+                Welcome to the DAO!
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                Tu ingreso ha sido registrado exitosamente
+                Your membership has been successfully registered
               </p>
             </div>
 
@@ -587,15 +587,15 @@ export function SpecialInviteFlow({
               <div className="space-y-3">
                 <div className="flex items-center justify-center gap-2 text-green-800 dark:text-green-300">
                   <span>✅</span>
-                  <span>Wallet conectada</span>
+                  <span>Wallet connected</span>
                 </div>
                 <div className="flex items-center justify-center gap-2 text-green-800 dark:text-green-300">
                   <span>✅</span>
-                  <span>Educacion completada</span>
+                  <span>Education completed</span>
                 </div>
                 <div className="flex items-center justify-center gap-2 text-green-800 dark:text-green-300">
                   <span>✅</span>
-                  <span>Invitacion reclamada</span>
+                  <span>Invitation claimed</span>
                 </div>
               </div>
             </div>
@@ -606,7 +606,7 @@ export function SpecialInviteFlow({
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-cyan-600 text-white px-8 py-3 rounded-xl font-medium hover:from-purple-700 hover:to-cyan-700 transition-all"
               >
                 <span>🚀</span>
-                Ir al Dashboard
+                Go to Dashboard
               </a>
             </div>
           </motion.div>
@@ -649,7 +649,7 @@ export function SpecialInviteFlow({
       <div>
         <InviteImageCard
           image={inviteData.image || '/special-referral.jpg'}
-          name="Invitacion Especial DAO"
+          name="DAO Special Invitation"
           customMessage={inviteData.customMessage}
           referrerCode={inviteData.referrerCode}
           inviteCode={inviteData.code}
@@ -661,7 +661,7 @@ export function SpecialInviteFlow({
         {/* Help Section */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            🎟️ ¡Tu Invitacion Te Esta Esperando!
+            🎟️ Your Invitation Is Waiting!
           </h3>
           <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
             <div className="flex items-start">
@@ -669,8 +669,8 @@ export function SpecialInviteFlow({
                 <span className="text-white font-bold text-xs">💰</span>
               </div>
               <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Tokens CGC</p>
-                <p className="text-xs mt-1">Recibe tokens de gobernanza para participar en el DAO.</p>
+                <p className="font-semibold text-gray-900 dark:text-white">CGC Tokens</p>
+                <p className="text-xs mt-1">Receive governance tokens to participate in the DAO.</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -678,8 +678,8 @@ export function SpecialInviteFlow({
                 <span className="text-white font-bold text-xs">🚀</span>
               </div>
               <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Tareas Remuneradas</p>
-                <p className="text-xs mt-1">Accede a tareas pagadas y gana mas tokens.</p>
+                <p className="font-semibold text-gray-900 dark:text-white">Paid Tasks</p>
+                <p className="text-xs mt-1">Access paid tasks and earn more tokens.</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -687,8 +687,8 @@ export function SpecialInviteFlow({
                 <span className="text-white font-bold text-xs">🎓</span>
               </div>
               <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Comunidad</p>
-                <p className="text-xs mt-1">Unete a miles de pioneros en finanzas descentralizadas.</p>
+                <p className="font-semibold text-gray-900 dark:text-white">Community</p>
+                <p className="text-xs mt-1">Join thousands of pioneers in decentralized finance.</p>
               </div>
             </div>
           </div>
@@ -736,13 +736,13 @@ export function SpecialInviteFlow({
               </svg>
               <div className="flex-1">
                 <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-1">
-                  🏆 ¿Por que CryptoGift DAO?
+                  🏆 Why CryptoGift DAO?
                 </h4>
                 <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
-                  <li>• <strong>Descentralizado:</strong> Sin intermediarios ni jefes</li>
-                  <li>• <strong>Transparente:</strong> Todo en blockchain publico</li>
-                  <li>• <strong>Comunitario:</strong> Gobernado por los miembros</li>
-                  <li>• <strong>Remunerado:</strong> Gana por contribuir</li>
+                  <li>• <strong>Decentralized:</strong> No intermediaries or bosses</li>
+                  <li>• <strong>Transparent:</strong> Everything on public blockchain</li>
+                  <li>• <strong>Community-driven:</strong> Governed by members</li>
+                  <li>• <strong>Rewarding:</strong> Earn by contributing</li>
                 </ul>
               </div>
             </div>

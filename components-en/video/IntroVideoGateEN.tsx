@@ -26,7 +26,7 @@ const MuxPlayer = dynamic(
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent
             rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white/80 text-lg">Cargando video...</p>
+          <p className="text-white/80 text-lg">Loading video...</p>
         </div>
       </div>
     )
@@ -50,7 +50,7 @@ export default function IntroVideoGate({
   muxPlaybackId,
   poster,
   captionsVtt,
-  title = "Video Introductorio",
+  title = "Introductory Video",
   description,
   onFinish,
   autoSkip = true,
@@ -135,10 +135,10 @@ export default function IntroVideoGate({
             {captionsVtt && (
               <track
                 kind="subtitles"
-                srcLang="es"
+                srcLang="en"
                 src={captionsVtt}
                 default
-                label="Español"
+                label="English"
               />
             )}
           </MuxPlayer>
@@ -176,10 +176,10 @@ export default function IntroVideoGate({
                   transition-all hover:scale-105
                   shadow-lg shadow-purple-500/30
                   flex items-center gap-3"
-                aria-label="Saltar introducción"
+                aria-label="Skip intro"
               >
                 <SkipForward className="w-6 h-6" />
-                <span>Saltar intro</span>
+                <span>Skip intro</span>
               </button>
             </div>
           )}

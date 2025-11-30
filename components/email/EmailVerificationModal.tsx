@@ -71,12 +71,9 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
       return;
     }
 
-    // Need wallet address to send verification
-    const wallet = walletAddress || localStorage.getItem('connectedWallet');
-    if (!wallet) {
-      setError('Conecta tu wallet primero');
-      return;
-    }
+    // Wallet is optional for email verification during educational flow
+    // The wallet will be connected AFTER completing the education requirements
+    const wallet = walletAddress || localStorage.getItem('connectedWallet') || 'pending-verification';
 
     setIsLoading(true);
     setError(null);
@@ -213,7 +210,7 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-        onClick={(e) => e.target === e.currentTarget && onClose()}
+        /* Modal only closes via X button or successful verification - not by clicking outside */
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}

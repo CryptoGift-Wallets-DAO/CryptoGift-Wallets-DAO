@@ -127,7 +127,7 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-        onClick={(e) => e.target === e.currentTarget && onClose()}
+        /* Modal only closes via X/Skip button or successful booking - not by clicking outside */
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
