@@ -776,6 +776,76 @@
       "chain": "Base"
     }
   },
+  "specialInvite": {
+    "header": {
+      "title": "CryptoGift DAO",
+      "subtitle": "Invitacion Especial"
+    },
+    "welcome": {
+      "title": "¡Felicidades! Has Recibido una Invitacion Especial",
+      "subtitle": "Alguien especial te ha seleccionado para unirte a CryptoGift DAO",
+      "trustSecure": "100% Seguro",
+      "trustMembers": "+10,000 miembros",
+      "trustVerified": "Blockchain verificado",
+      "bannerTitle": "¡Bienvenido al futuro de las organizaciones!",
+      "bannerDescription": "CryptoGift DAO es una comunidad descentralizada donde los miembros gobiernan, contribuyen y se benefician juntos. Tu invitacion te da acceso a tokens CGC, tareas remuneradas y votacion en decisiones.",
+      "startButton": "Comenzar Mi Viaje",
+      "benefit1": "Sin costos - 100% gratis",
+      "benefit2": "Tokens CGC de bienvenida",
+      "benefit3": "Acceso a tareas remuneradas"
+    },
+    "password": {
+      "title": "Validacion de Acceso",
+      "subtitle": "Ingresa la contrasena que te compartio tu referidor",
+      "label": "Contrasena del Referidor",
+      "placeholder": "Ingresa la contrasena",
+      "hint": "La persona que te invito te debe haber compartido una contrasena",
+      "errorRequired": "Por favor, ingresa la contrasena",
+      "errorIncorrect": "Contrasena incorrecta",
+      "errorGeneric": "Error al validar. Intenta de nuevo.",
+      "validateButton": "Validar y Continuar",
+      "validating": "Validando..."
+    },
+    "connect": {
+      "title": "¡Educacion Completada!",
+      "score": "Puntuacion: {correct}/{total} respuestas correctas",
+      "readyTitle": "Estas listo para unirte",
+      "readyDescription": "Solo falta conectar tu wallet para completar tu ingreso al DAO",
+      "connectPrompt": "Conecta tu wallet para finalizar",
+      "connectButton": "Conectar Wallet",
+      "walletSupport": "Soportamos MetaMask, WalletConnect, Coinbase Wallet y mas",
+      "benefitsTitle": "Al conectar recibiras:",
+      "benefit1": "Tokens CGC de bienvenida",
+      "benefit2": "Acceso al panel de tareas",
+      "benefit3": "Poder de voto en el DAO",
+      "benefit4": "Badge de miembro fundador"
+    },
+    "complete": {
+      "title": "¡Bienvenido al DAO!",
+      "subtitle": "Tu ingreso ha sido registrado exitosamente",
+      "walletConnected": "Wallet conectada",
+      "educationCompleted": "Educacion completada",
+      "inviteClaimed": "Invitacion reclamada",
+      "dashboardButton": "Ir al Dashboard"
+    },
+    "card": {
+      "name": "Invitacion Especial DAO",
+      "tokensTitle": "Tokens CGC",
+      "tokensDesc": "Recibe tokens de gobernanza para participar en el DAO.",
+      "tasksTitle": "Tareas Remuneradas",
+      "tasksDesc": "Accede a tareas pagadas y gana mas tokens.",
+      "communityTitle": "Comunidad",
+      "communityDesc": "Unete a miles de pioneros en finanzas descentralizadas."
+    },
+    "helpSection": {
+      "title": "¡Tu Invitacion Te Esta Esperando!",
+      "whyTitle": "¿Por que CryptoGift DAO?",
+      "decentralized": "Descentralizado: Sin intermediarios ni jefes",
+      "transparent": "Transparente: Todo en blockchain publico",
+      "community": "Comunitario: Gobernado por los miembros",
+      "rewarded": "Remunerado: Gana por contribuir"
+    }
+  },
   "docs": {
     "title": "Documentación",
     "subtitle": "Documentación técnica completa del ecosistema CryptoGift Wallets DAO",
