@@ -11,6 +11,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// Database record type for special_invites table
+interface SpecialInviteRecord {
+  id: number;
+  invite_code: string;
+  referrer_wallet: string;
+  custom_message: string | null;
+  image_url: string | null;
+  password_hash: string | null;
+  status: string;
+  created_at: string;
+  expires_at: string;
+  claimed_by: string | null;
+  claimed_at: string | null;
+  education_completed: boolean;
+  wallet_connected: boolean;
+}
+
 // Lazy Supabase initialization
 let supabase: ReturnType<typeof createClient> | null = null;
 
@@ -62,7 +79,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform invites for frontend consumption
-    const transformedInvites = (invites || []).map((invite) => ({
+    const transformedInvites = (invites || []).map((invite: SpecialInviteRecord) => ({
       id: invite.id,
       inviteCode: invite.invite_code,
       customMessage: invite.custom_message,
