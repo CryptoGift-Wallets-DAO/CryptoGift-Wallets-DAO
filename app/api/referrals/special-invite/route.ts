@@ -90,13 +90,45 @@ export async function POST(request: NextRequest) {
       .from('special_invites')
       .insert(inviteDataWithImage);
 
-    // If image_url column doesn't exist, retry without it
+    // Track if image was saved successfully
+    let imageSaved = !insertError && !!image;
+
+    // If image_url column doesn't exist, try to add it via RPC, then retry
     if (insertError && insertError.message?.includes('image_url')) {
-      console.log('image_url column not found, retrying without it...');
-      const { error: retryError } = await db
-        .from('special_invites')
-        .insert(baseInviteData);
-      insertError = retryError;
+      console.log('⚠️ image_url column not found, attempting to add column...');
+
+      // Try to add the column via RPC (if available)
+      try {
+        await db.rpc('add_image_url_column_to_special_invites');
+        console.log('✅ Column added successfully, retrying insert with image...');
+
+        // Retry with image
+        const { error: retryWithImageError } = await db
+          .from('special_invites')
+          .insert(inviteDataWithImage);
+
+        if (!retryWithImageError) {
+          insertError = null;
+          imageSaved = !!image;
+        } else {
+          // If still fails, insert without image
+          console.log('⚠️ Retry with image failed, inserting without image_url');
+          const { error: retryError } = await db
+            .from('special_invites')
+            .insert(baseInviteData);
+          insertError = retryError;
+          imageSaved = false;
+        }
+      } catch (rpcError) {
+        // RPC not available, insert without image
+        console.log('⚠️ Could not add column (RPC not available), inserting without image_url');
+        console.log('⚠️ IMAGE URL DROPPED:', image);
+        const { error: retryError } = await db
+          .from('special_invites')
+          .insert(baseInviteData);
+        insertError = retryError;
+        imageSaved = false;
+      }
     }
 
     if (insertError) {
@@ -140,12 +172,16 @@ export async function POST(request: NextRequest) {
       code: inviteCode,
       referrer: normalizedWallet.slice(0, 6) + '...' + normalizedWallet.slice(-4),
       hasPassword: !!password,
+      hasImage: !!image,
+      imageSaved,
     });
 
     return NextResponse.json({
       success: true,
       inviteCode,
       expiresAt: baseInviteData.expires_at,
+      imageSaved,
+      imageUrl: imageSaved ? image : null,
     });
   } catch (error) {
     console.error('Error creating special invite:', error);

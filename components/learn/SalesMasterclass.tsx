@@ -2443,45 +2443,57 @@ const CaptureBlock: React.FC<{
   const [processingCalendar, setProcessingCalendar] = useState(false);
 
   // FASE 1: Manejadores para checkboxes inline
+  // IMPORTANT: The parent component (SpecialInviteFlow) provides promise-based callbacks
+  // The Promise resolves ONLY when the user actually completes verification/booking
+  // If the user closes the modal without completing, the promise never resolves
   const handleEmailCheckbox = async () => {
     if (emailVerified || processingEmail) return;
-    
+
     setProcessingEmail(true);
-    console.log('📧 Email checkbox clicked - opening verification');
-    
+    setEmailChecked(true); // Show checkbox as "in progress"
+    console.log('📧 Email checkbox clicked - opening verification modal');
+
     if (onShowEmailVerification) {
       try {
+        // This Promise resolves when the user completes email verification
         await onShowEmailVerification();
-        // FIX: Solo marcar como verificado si realmente se verificó
-        // El modal debe retornar si fue exitoso o no
+        // Only mark as verified AFTER the Promise resolves (user completed verification)
         setEmailVerified(true);
-        setEmailChecked(true);
-        console.log('✅ Email marked as verified');
+        console.log('✅ Email verification completed successfully');
       } catch (error) {
-        console.error('❌ Email verification error:', error);
+        console.error('❌ Email verification error or cancelled:', error);
         setEmailChecked(false);
         setEmailVerified(false);
       }
+    } else {
+      // If no callback provided, use local modal (educationalMode=false case)
+      setShowEmailVerification(true);
     }
     setProcessingEmail(false);
   };
-  
+
   const handleCalendarCheckbox = async () => {
     if (calendarScheduled || processingCalendar) return;
-    
+
     setProcessingCalendar(true);
-    console.log('📅 Calendar checkbox clicked - opening booking');
-    
+    setCalendarChecked(true); // Show checkbox as "in progress"
+    console.log('📅 Calendar checkbox clicked - opening booking modal');
+
     if (onShowCalendar) {
       try {
+        // This Promise resolves when the user completes calendar booking
         await onShowCalendar();
+        // Only mark as scheduled AFTER the Promise resolves (user completed booking)
         setCalendarScheduled(true);
-        setCalendarChecked(true);
-        console.log('✅ Calendar booked successfully');
+        console.log('✅ Calendar booking completed successfully');
       } catch (error) {
-        console.error('❌ Calendar booking error:', error);
+        console.error('❌ Calendar booking error or cancelled:', error);
         setCalendarChecked(false);
+        setCalendarScheduled(false);
       }
+    } else {
+      // If no callback provided, use local modal (educationalMode=false case)
+      setShowCalendar(true);
     }
     setProcessingCalendar(false);
   };

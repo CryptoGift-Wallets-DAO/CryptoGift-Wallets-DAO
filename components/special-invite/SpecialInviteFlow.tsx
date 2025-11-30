@@ -16,12 +16,14 @@
  * Co-Author: Godez22
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
 import { client } from '@/lib/thirdweb/client';
 import { InviteImageCard } from './InviteImageCard';
+import { EmailVerificationModal } from '@/components/email/EmailVerificationModal';
+import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
 import dynamic from 'next/dynamic';
 
 // Dynamic import for SalesMasterclass to avoid SSR issues
@@ -111,6 +113,16 @@ export function SpecialInviteFlow({
   const [validationError, setValidationError] = useState<string | null>(null);
   const [educationCompleted, setEducationCompleted] = useState(false);
   const [questionsScore, setQuestionsScore] = useState({ correct: 0, total: 0 });
+
+  // Modal State for Email/Calendar verification
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [verifiedEmail, setVerifiedEmail] = useState<string | null>(null);
+  const [calendarBooked, setCalendarBooked] = useState(false);
+
+  // Promise resolvers for modal callbacks
+  const emailResolverRef = useRef<(() => void) | null>(null);
+  const calendarResolverRef = useRef<(() => void) | null>(null);
 
   // Trigger confetti on welcome
   useEffect(() => {
@@ -214,6 +226,63 @@ export function SpecialInviteFlow({
   const handleSkipToConnect = () => {
     setCurrentStep('connect');
   };
+
+  // Promise-based callback for showing email verification modal
+  // Returns a Promise that resolves when the user completes email verification
+  const handleShowEmailVerification = useCallback((): Promise<void> => {
+    return new Promise((resolve) => {
+      console.log('📧 Opening email verification modal');
+      emailResolverRef.current = resolve;
+      setShowEmailModal(true);
+    });
+  }, []);
+
+  // Promise-based callback for showing calendar booking modal
+  // Returns a Promise that resolves when the user completes calendar booking
+  const handleShowCalendar = useCallback((): Promise<void> => {
+    return new Promise((resolve) => {
+      console.log('📅 Opening calendar booking modal');
+      calendarResolverRef.current = resolve;
+      setShowCalendarModal(true);
+    });
+  }, []);
+
+  // Handle email verification completion
+  const handleEmailVerified = useCallback((email: string) => {
+    console.log('✅ Email verified:', email);
+    setVerifiedEmail(email);
+    setShowEmailModal(false);
+    // Resolve the promise so SalesMasterclass can continue
+    if (emailResolverRef.current) {
+      emailResolverRef.current();
+      emailResolverRef.current = null;
+    }
+  }, []);
+
+  // Handle calendar booking completion
+  const handleCalendarBooked = useCallback(() => {
+    console.log('✅ Calendar appointment booked');
+    setCalendarBooked(true);
+    setShowCalendarModal(false);
+    // Resolve the promise so SalesMasterclass can continue
+    if (calendarResolverRef.current) {
+      calendarResolverRef.current();
+      calendarResolverRef.current = null;
+    }
+  }, []);
+
+  // Handle modal close without completion (reject or just close)
+  const handleEmailModalClose = useCallback(() => {
+    setShowEmailModal(false);
+    // Don't resolve the promise - this will leave the checkbox unchecked
+    emailResolverRef.current = null;
+  }, []);
+
+  const handleCalendarModalClose = useCallback(() => {
+    setShowCalendarModal(false);
+    // Don't resolve the promise - this will leave the checkbox unchecked
+    calendarResolverRef.current = null;
+  }, []);
 
   // Render content based on current step
   const renderStepContent = () => {
@@ -399,7 +468,7 @@ export function SpecialInviteFlow({
 
       case 'education':
         return (
-          <div className="fixed inset-0 z-50">
+          <div className="fixed inset-0 z-50 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 overflow-y-auto">
             <SalesMasterclass
               educationalMode={true}
               onEducationComplete={(data) => {
@@ -407,6 +476,9 @@ export function SpecialInviteFlow({
                   questionsScore: data?.questionsScore || { correct: 0, total: 0 }
                 });
               }}
+              onShowEmailVerification={handleShowEmailVerification}
+              onShowCalendar={handleShowCalendar}
+              verifiedEmail={verifiedEmail || undefined}
             />
           </div>
         );
@@ -537,9 +609,30 @@ export function SpecialInviteFlow({
     }
   };
 
-  // If we're in education step, render fullscreen
+  // If we're in education step, render fullscreen with modals
   if (currentStep === 'education') {
-    return renderStepContent();
+    return (
+      <>
+        {renderStepContent()}
+
+        {/* Email Verification Modal - Always available */}
+        <EmailVerificationModal
+          isOpen={showEmailModal}
+          onClose={handleEmailModalClose}
+          onVerified={handleEmailVerified}
+          source="special-invite"
+        />
+
+        {/* Calendar Booking Modal - Always available */}
+        <CalendarBookingModal
+          isOpen={showCalendarModal}
+          onClose={handleCalendarModalClose}
+          onBooked={handleCalendarBooked}
+          userEmail={verifiedEmail || undefined}
+          source="special-invite"
+        />
+      </>
+    );
   }
 
   return (
