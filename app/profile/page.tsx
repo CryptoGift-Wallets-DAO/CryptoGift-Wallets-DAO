@@ -269,6 +269,7 @@ export default function ProfilePage() {
               isUpdating={isUpdating}
               t={t}
               address={address}
+              refetch={refetch}
             />
           )}
           {activeTab === 'recovery' && (
@@ -377,7 +378,7 @@ function OverviewTab({ profile, t, address, onProfileUpdate }: { profile: any; t
 }
 
 // Settings Tab Component
-function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdating, t, address }: any) {
+function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdating, t, address, refetch }: any) {
   const [formData, setFormData] = useState({
     username: profile?.username || '',
     display_name: profile?.display_name || '',
@@ -388,6 +389,7 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
     website_url: profile?.website_url || '',
   });
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Sync form data when profile changes
   useEffect(() => {
@@ -411,14 +413,31 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
     checkUsername(value);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaveSuccess(false);
-    updateProfile(formData);
-    // Show success after a brief delay (mutation will update profile)
-    setTimeout(() => {
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    }, 500);
+    setSaveError(null);
+
+    try {
+      // Call the mutation and wait for response
+      await new Promise<void>((resolve, reject) => {
+        updateProfile(formData, {
+          onSuccess: () => {
+            setSaveSuccess(true);
+            // Refetch to ensure data is in sync
+            refetch?.();
+            setTimeout(() => setSaveSuccess(false), 3000);
+            resolve();
+          },
+          onError: (error: Error) => {
+            setSaveError(error.message || 'Failed to save profile');
+            reject(error);
+          },
+        });
+      });
+    } catch (error) {
+      console.error('Profile save error:', error);
+      setSaveError(error instanceof Error ? error.message : 'Failed to save profile');
+    }
   };
 
   return (
@@ -535,6 +554,13 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
             <div className="mt-4 p-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg flex items-center gap-2">
               <CheckCircle className="w-5 h-5" />
               {t('form.saveSuccess')}
+            </div>
+          )}
+
+          {saveError && (
+            <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              {saveError}
             </div>
           )}
 
