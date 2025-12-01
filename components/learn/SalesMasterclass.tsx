@@ -1399,20 +1399,26 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
     return <div className="py-12 text-center">Inicializando...</div>;
   }
 
-  return (
-    <div 
-      className="sales-masterclass-wrapper" 
-      style={{ 
+  // Wrapper styles - simplified in educational mode to prevent overflow
+  const wrapperStyle = educationalMode
+    ? {} // No transform/scale in educational mode - let container handle it
+    : {
         transform: 'scale(0.85)',
         transformOrigin: 'top center',
         width: '117.65%',
         marginLeft: '-8.82%'
-      }}
+      };
+
+  return (
+    <div
+      className={`sales-masterclass-wrapper ${educationalMode ? 'w-full overflow-hidden' : ''}`}
+      style={wrapperStyle}
     >
-      <div className="sales-masterclass min-h-screen
+      <div className={`sales-masterclass ${educationalMode ? 'min-h-0' : 'min-h-screen'}
         bg-gradient-to-br from-slate-50 to-blue-50
         dark:from-gray-900 dark:to-gray-800
-        text-gray-900 dark:text-white transition-colors duration-300 relative z-10">
+        text-gray-900 dark:text-white transition-colors duration-300 relative z-10
+        ${educationalMode ? 'pb-24' : ''}`}>
         {/* Header - Hidden in educational mode */}
         {!educationalMode && (
           <div className="fixed top-0 left-0 right-0 z-50 

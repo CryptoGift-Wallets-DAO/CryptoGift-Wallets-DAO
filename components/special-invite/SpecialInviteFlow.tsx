@@ -508,9 +508,15 @@ export function SpecialInviteFlow({
         // Select the correct language component based on current locale
         const SalesMasterclass = currentLocale === 'en' ? SalesMasterclassEN : SalesMasterclassES;
         return (
-          <div className="fixed top-16 inset-x-0 bottom-0 z-50 bg-slate-900 overflow-hidden">
-            {/* Inner scrollable container with gradient background and top padding for header clearance */}
-            <div className="h-full overflow-y-auto overscroll-none bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 pt-4 pb-8">
+          <div className="fixed top-16 inset-x-0 bottom-0 z-50 bg-slate-900 overflow-hidden overscroll-none">
+            {/* Inner scrollable container with strict overflow control - prevents scrolling beyond content */}
+            <div
+              className="h-full overflow-y-auto overflow-x-hidden overscroll-contain bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900"
+              style={{
+                maxHeight: 'calc(100vh - 64px)', // 64px = top-16 header height
+                overscrollBehavior: 'contain' // Prevents bounce/overscroll
+              }}
+            >
               <SalesMasterclass
                 educationalMode={true}
                 onEducationComplete={(data) => {
