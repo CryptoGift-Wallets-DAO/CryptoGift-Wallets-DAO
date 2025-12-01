@@ -158,11 +158,9 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
       return;
     }
 
-    const wallet = walletAddress || localStorage.getItem('connectedWallet');
-    if (!wallet) {
-      setError('Wallet no encontrada');
-      return;
-    }
+    // Wallet is optional for email verification during educational flow
+    // The wallet will be connected AFTER completing the education requirements
+    const wallet = walletAddress || localStorage.getItem('connectedWallet') || 'pending-verification';
 
     setIsLoading(true);
     setError(null);
