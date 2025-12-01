@@ -25,6 +25,7 @@ import {
   type LeaderboardEntry as HookLeaderboardEntry,
   type ReferralNetworkMember,
 } from '@/hooks/useReferrals';
+import Link from 'next/link';
 import {
   Users,
   Copy,
@@ -57,6 +58,7 @@ import {
   XCircle,
   History,
   Wallet,
+  Eye,
 } from 'lucide-react';
 
 // ===== TYPES =====
@@ -694,6 +696,15 @@ function ReferralCard({
         </div>
       </div>
 
+      {/* View Profile Link */}
+      <Link
+        href={`/user/${referral.address}`}
+        className="w-full mt-3 inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+      >
+        <Eye className="w-4 h-4" />
+        {t('network.viewProfile')}
+      </Link>
+
       {referral.status === 'pending' && (
         <Button
           variant="outline"
@@ -853,24 +864,33 @@ function DirectReferralsHistoryTab() {
                       </div>
 
                       {/* Actions */}
-                      {referral.status === 'pending' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleActivate(referral.address)}
-                          disabled={activatingWallet === referral.address}
-                          className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400"
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/user/${referral.address}`}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                         >
-                          {activatingWallet === referral.address ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <>
-                              <Zap className="w-4 h-4 mr-1" />
-                              {t('history.checkCGC')}
-                            </>
-                          )}
-                        </Button>
-                      )}
+                          <Eye className="w-4 h-4" />
+                          {t('network.viewProfile')}
+                        </Link>
+                        {referral.status === 'pending' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleActivate(referral.address)}
+                            disabled={activatingWallet === referral.address}
+                            className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400"
+                          >
+                            {activatingWallet === referral.address ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <>
+                                <Zap className="w-4 h-4 mr-1" />
+                                {t('history.checkCGC')}
+                              </>
+                            )}
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Timeline */}

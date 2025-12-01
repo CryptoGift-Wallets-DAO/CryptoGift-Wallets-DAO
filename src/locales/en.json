@@ -597,6 +597,7 @@
       "level3": "Level 3",
       "earned": "earned",
       "checkActivation": "Check CGC & Activate",
+      "viewProfile": "View Profile",
       "status": {
         "active": "Active",
         "inactive": "Inactive",
