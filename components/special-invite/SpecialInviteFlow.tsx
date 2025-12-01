@@ -707,6 +707,7 @@ export function SpecialInviteFlow({
           onClose={handleCalendarModalClose}
           onBooked={handleCalendarBooked}
           userEmail={verifiedEmail || undefined}
+          inviteCode={inviteData.code}
           source="special-invite"
         />
       </>

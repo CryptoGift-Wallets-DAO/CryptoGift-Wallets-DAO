@@ -6,25 +6,39 @@
  * Handles calendar booking during the SalesMasterclass flow.
  * Integrates with Calendly for scheduling calls.
  *
+ * Enhanced with:
+ * - Multiple Calendly event detection methods
+ * - Manual confirmation button as fallback
+ * - Database persistence of booking data
+ *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, CheckCircle, Loader2, ExternalLink } from 'lucide-react';
+import { X, Calendar, CheckCircle, Loader2, ExternalLink, Check } from 'lucide-react';
 
 interface CalendarBookingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onBooked?: () => void;
-  onAppointmentBooked?: () => void;
+  onBooked?: (appointmentData?: AppointmentData) => void;
+  onAppointmentBooked?: (appointmentData?: AppointmentData) => void;
   giftId?: string;
   tokenId?: string;
   email?: string;
   userEmail?: string;
   userName?: string;
   source?: string;
+  inviteCode?: string; // For saving to database
+}
+
+// Appointment data structure for callbacks
+export interface AppointmentData {
+  scheduledAt?: string;
+  eventType?: string;
+  inviteeEmail?: string;
+  uri?: string;
 }
 
 // Calendly URL from environment variable with fallback
@@ -37,10 +51,14 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
   onAppointmentBooked,
   email,
   userEmail,
-  userName
+  userName,
+  inviteCode,
+  source
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isBooked, setIsBooked] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Build Calendly URL with prefill data
   const calendlyUrl = useCallback(() => {
@@ -65,40 +83,127 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
     return `${CALENDLY_BASE_URL}${queryString ? `?${queryString}` : ''}`;
   }, [email, userEmail, userName]);
 
-  // Listen for Calendly events
+  // Save booking to database
+  const saveBookingToDatabase = useCallback(async (appointmentData?: AppointmentData) => {
+    if (!inviteCode) {
+      console.log('📅 No invite code provided, skipping database save');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/referrals/special-invite/update-appointment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          inviteCode,
+          appointmentScheduled: true,
+          appointmentData: appointmentData || { scheduledAt: new Date().toISOString() },
+          email: email || userEmail,
+          source: source || 'calendar-modal'
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('✅ Booking saved to database:', data);
+      } else {
+        console.error('❌ Failed to save booking:', data.error);
+      }
+    } catch (error) {
+      console.error('❌ Error saving booking to database:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [inviteCode, email, userEmail, source]);
+
+  // Handle successful booking
+  const handleBookingComplete = useCallback(async (appointmentData?: AppointmentData) => {
+    console.log('📅 Processing booking completion...', appointmentData);
+    setIsBooked(true);
+
+    // Save to database
+    await saveBookingToDatabase(appointmentData);
+
+    // Call callbacks after a short delay for UX
+    setTimeout(() => {
+      onBooked?.(appointmentData);
+      onAppointmentBooked?.(appointmentData);
+      onClose();
+    }, 1500);
+  }, [saveBookingToDatabase, onBooked, onAppointmentBooked, onClose]);
+
+  // Listen for Calendly events - enhanced with multiple event types
   useEffect(() => {
     if (!isOpen) return;
 
     const handleCalendlyEvent = (e: MessageEvent) => {
-      // Calendly sends postMessage events when scheduling is complete
-      if (e.data.event === 'calendly.event_scheduled') {
-        console.log('📅 Calendly: Appointment scheduled!', e.data);
-        setIsBooked(true);
+      // Log all messages for debugging
+      if (e.data && typeof e.data === 'object' && e.data.event) {
+        console.log('📩 Received postMessage event:', e.data.event, e.data);
+      }
 
-        // Call callbacks after a short delay for UX
-        setTimeout(() => {
-          onBooked?.();
-          onAppointmentBooked?.();
-          onClose();
-        }, 1500);
+      // Check for various Calendly event formats
+      const eventName = e.data?.event || e.data?.type;
+
+      // Calendly sends these events when scheduling is complete
+      if (
+        eventName === 'calendly.event_scheduled' ||
+        eventName === 'calendly:event_scheduled' ||
+        eventName === 'event_scheduled' ||
+        (e.data?.calendly && e.data.calendly.event_type === 'invitee.created')
+      ) {
+        console.log('📅 Calendly: Appointment scheduled!', e.data);
+
+        // Extract appointment data from Calendly payload
+        const payload = e.data?.payload || e.data?.data || e.data;
+        const appointmentData: AppointmentData = {
+          scheduledAt: payload?.event?.start_time || payload?.scheduled_event?.start_time,
+          eventType: payload?.event?.name || payload?.event_type?.name || '30 Minute Meeting',
+          inviteeEmail: payload?.invitee?.email || email || userEmail,
+          uri: payload?.uri || payload?.event?.uri
+        };
+
+        handleBookingComplete(appointmentData);
+      }
+
+      // Also detect page navigation within Calendly iframe
+      if (eventName === 'calendly.page_height' && e.data?.payload?.pageHeight > 600) {
+        // Large page height often indicates confirmation page
+        console.log('📏 Calendly page height changed - might be confirmation page');
+        setShowConfirmation(true);
       }
     };
 
     window.addEventListener('message', handleCalendlyEvent);
     return () => window.removeEventListener('message', handleCalendlyEvent);
-  }, [isOpen, onBooked, onAppointmentBooked, onClose]);
+  }, [isOpen, email, userEmail, handleBookingComplete]);
 
   // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
       setIsBooked(false);
       setIsLoading(true);
+      setShowConfirmation(false);
     }
   }, [isOpen]);
 
   // Handle iframe load
   const handleIframeLoad = () => {
     setIsLoading(false);
+    // Show confirmation button after iframe loads (in case events don't fire)
+    setTimeout(() => {
+      setShowConfirmation(true);
+    }, 5000);
+  };
+
+  // Manual confirmation handler
+  const handleManualConfirmation = () => {
+    handleBookingComplete({
+      scheduledAt: new Date().toISOString(),
+      eventType: '30 Minute Meeting',
+      inviteeEmail: email || userEmail
+    });
   };
 
   // Open Calendly in new tab as fallback
@@ -108,12 +213,7 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
     // Show confirmation dialog after opening external link
     setTimeout(() => {
       if (window.confirm('Has agendado tu cita? Haz clic en "Aceptar" para continuar.')) {
-        setIsBooked(true);
-        setTimeout(() => {
-          onBooked?.();
-          onAppointmentBooked?.();
-          onClose();
-        }, 1000);
+        handleManualConfirmation();
       }
     }, 2000);
   };
@@ -207,8 +307,29 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
                 />
               </div>
 
-              {/* Footer with external link option */}
+              {/* Footer with confirmation and external link options */}
               <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                {/* Manual confirmation button - shows after iframe loads */}
+                {showConfirmation && (
+                  <div className="mb-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+                    <p className="text-sm text-green-800 dark:text-green-300 mb-2">
+                      Ya agendaste tu cita en Calendly?
+                    </p>
+                    <button
+                      onClick={handleManualConfirmation}
+                      disabled={isSaving}
+                      className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-colors disabled:opacity-50"
+                    >
+                      {isSaving ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Check className="w-4 h-4" />
+                      )}
+                      Si, confirmar mi cita
+                    </button>
+                  </div>
+                )}
+
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                   <p className="text-xs text-gray-500 dark:text-gray-500">
                     Problemas para ver el calendario?
