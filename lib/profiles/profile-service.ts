@@ -123,6 +123,121 @@ function isValidUsername(username: string): boolean {
 }
 
 /**
+ * Validate telegram handle format (optional @ prefix, alphanumeric + underscore)
+ */
+function isValidTelegramHandle(handle: string): boolean {
+  // Remove @ prefix if present
+  const cleaned = handle.startsWith('@') ? handle.slice(1) : handle;
+  // Telegram usernames: 5-32 chars, alphanumeric and underscores
+  return /^[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(cleaned);
+}
+
+/**
+ * Validate twitter handle format (optional @ prefix, alphanumeric + underscore)
+ */
+function isValidTwitterHandle(handle: string): boolean {
+  // Remove @ prefix if present
+  const cleaned = handle.startsWith('@') ? handle.slice(1) : handle;
+  // Twitter usernames: 1-15 chars, alphanumeric and underscores
+  return /^[a-zA-Z0-9_]{1,15}$/.test(cleaned);
+}
+
+/**
+ * Validate discord handle format (username or username#discriminator)
+ */
+function isValidDiscordHandle(handle: string): boolean {
+  // New Discord format: just username (2-32 chars)
+  // Old format: username#0000
+  return /^[a-zA-Z0-9_.]{2,32}(#\d{4})?$/.test(handle);
+}
+
+/**
+ * Validate website URL format
+ */
+function isValidWebsiteUrl(url: string): boolean {
+  try {
+    // If no protocol, prepend https://
+    const urlWithProtocol = url.match(/^https?:\/\//) ? url : `https://${url}`;
+    new URL(urlWithProtocol);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Sanitize social fields - convert empty strings to null, validate formats
+ * Social fields are OPTIONAL - empty values are allowed
+ */
+function sanitizeSocialFields(updates: UserProfileUpdate): UserProfileUpdate {
+  const sanitized = { ...updates };
+
+  // Helper to clean and validate optional social field
+  const cleanOptionalField = (
+    value: string | null | undefined,
+    validator?: (v: string) => boolean
+  ): string | null | undefined => {
+    // If undefined, don't include in update
+    if (value === undefined) return undefined;
+
+    // If null or empty string, set to null (optional field)
+    if (value === null || value.trim() === '') return null;
+
+    // Clean the value
+    const cleaned = value.trim();
+
+    // If validator exists and value doesn't pass, set to null
+    // We don't throw errors - social fields are optional
+    if (validator && !validator(cleaned)) {
+      console.warn(`Invalid format for social field, setting to null: ${cleaned}`);
+      return null;
+    }
+
+    return cleaned;
+  };
+
+  // Sanitize each social field
+  if ('telegram_handle' in updates) {
+    sanitized.telegram_handle = cleanOptionalField(
+      updates.telegram_handle,
+      isValidTelegramHandle
+    );
+  }
+
+  if ('twitter_handle' in updates) {
+    sanitized.twitter_handle = cleanOptionalField(
+      updates.twitter_handle,
+      isValidTwitterHandle
+    );
+  }
+
+  if ('discord_handle' in updates) {
+    sanitized.discord_handle = cleanOptionalField(
+      updates.discord_handle,
+      isValidDiscordHandle
+    );
+  }
+
+  if ('website_url' in updates) {
+    sanitized.website_url = cleanOptionalField(
+      updates.website_url,
+      isValidWebsiteUrl
+    );
+  }
+
+  // Also sanitize bio and display_name - empty to null
+  if ('bio' in updates) {
+    sanitized.bio = updates.bio?.trim() || null;
+  }
+
+  if ('display_name' in updates) {
+    sanitized.display_name = updates.display_name?.trim() || null;
+  }
+
+  return sanitized;
+}
+
+/**
  * Hash password with bcrypt
  */
 async function hashPassword(password: string): Promise<string> {
@@ -328,10 +443,14 @@ export async function updateProfile(
   delete safeUpdates.total_referrals;
   delete safeUpdates.reputation_score;
 
+  // Sanitize social fields - convert empty strings to null, validate formats
+  // Social fields are OPTIONAL - empty values should not cause constraint errors
+  const sanitizedUpdates = sanitizeSocialFields(safeUpdates);
+
   const { data, error } = await getSupabase()
     .from('user_profiles')
     .update({
-      ...safeUpdates,
+      ...sanitizedUpdates,
       updated_at: new Date().toISOString(),
     })
     .eq('id', profile.id)
@@ -343,7 +462,7 @@ export async function updateProfile(
   }
 
   await logActivity(profile.id, 'profile_updated', 'Profile information updated', {
-    fields: Object.keys(safeUpdates),
+    fields: Object.keys(sanitizedUpdates),
   });
 
   return data;
