@@ -658,11 +658,11 @@ function ReferralCard({
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-bold text-sm">
-            {referral.username ? referral.username.slice(0, 2).toUpperCase() : referral.address.slice(2, 4).toUpperCase()}
+            {(referral.displayName || referral.username) ? (referral.displayName || referral.username)!.slice(0, 2).toUpperCase() : referral.address.slice(2, 4).toUpperCase()}
           </div>
           <div>
             <p className="font-medium text-gray-900 dark:text-white">
-              {referral.username || referral.addressShort}
+              {referral.displayName || referral.username || referral.addressShort}
             </p>
             <Badge className={statusColors[referral.status as keyof typeof statusColors]} variant="secondary">
               {referral.status === 'active' && <CheckCircle className="w-3 h-3 mr-1" />}
@@ -820,12 +820,12 @@ function DirectReferralsHistoryTab() {
                       {/* User Info */}
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                          {referral.username ? referral.username.slice(0, 2).toUpperCase() : referral.address.slice(2, 4).toUpperCase()}
+                          {(referral.displayName || referral.username) ? (referral.displayName || referral.username)!.slice(0, 2).toUpperCase() : referral.address.slice(2, 4).toUpperCase()}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="font-semibold text-gray-900 dark:text-white">
-                              {referral.username || t('history.anonymous')}
+                              {referral.displayName || referral.username || t('history.anonymous')}
                             </p>
                             <Badge
                               className={

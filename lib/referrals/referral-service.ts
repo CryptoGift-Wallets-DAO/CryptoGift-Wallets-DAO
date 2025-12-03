@@ -774,6 +774,7 @@ export async function getReferralStats(walletAddress: string): Promise<{
 
 /**
  * Get referral network (tree) for a wallet
+ * Includes profile data (username, avatar) for each referral
  */
 export async function getReferralNetwork(
   walletAddress: string,
@@ -795,6 +796,7 @@ export async function getReferralNetwork(
     joinedAt: string;
     lastActivity: string | null;
     username?: string;
+    displayName?: string;
     avatar?: string;
   }>;
   total: number;
@@ -828,20 +830,47 @@ export async function getReferralNetwork(
     throw new Error(`Failed to get referral network: ${error.message}`);
   }
 
+  // Get profile data for all referred addresses
+  const referredAddresses = (data || []).map((r: Referral) => r.referred_address.toLowerCase());
+
+  let profileMap: Map<string, { username?: string; display_name?: string; avatar_url?: string }> = new Map();
+
+  if (referredAddresses.length > 0) {
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('wallet_address, username, display_name, avatar_url')
+      .in('wallet_address', referredAddresses);
+
+    if (profiles) {
+      profiles.forEach((p: { wallet_address: string; username?: string; display_name?: string; avatar_url?: string }) => {
+        profileMap.set(p.wallet_address.toLowerCase(), {
+          username: p.username || undefined,
+          display_name: p.display_name || undefined,
+          avatar_url: p.avatar_url || undefined,
+        });
+      });
+    }
+  }
+
   return {
-    referrals: (data || []).map((r: Referral & { username?: string; avatar_url?: string }) => ({
-      id: r.id,
-      address: r.referred_address,
-      level: r.level,
-      status: r.status,
-      tasksCompleted: r.tasks_completed,
-      cgcEarned: Number(r.cgc_earned),
-      referrerEarnings: Number(r.referrer_earnings),
-      joinedAt: r.joined_at,
-      lastActivity: r.last_activity,
-      username: r.username || undefined,
-      avatar: r.avatar_url || undefined,
-    })),
+    referrals: (data || []).map((r: Referral & { username?: string; avatar_url?: string }) => {
+      const profile = profileMap.get(r.referred_address.toLowerCase());
+      return {
+        id: r.id,
+        address: r.referred_address,
+        level: r.level,
+        status: r.status,
+        tasksCompleted: r.tasks_completed,
+        cgcEarned: Number(r.cgc_earned),
+        referrerEarnings: Number(r.referrer_earnings),
+        joinedAt: r.joined_at,
+        lastActivity: r.last_activity,
+        // Prefer profile data over VIEW data (profile data is more up-to-date)
+        username: profile?.username || r.username || undefined,
+        displayName: profile?.display_name || undefined,
+        avatar: profile?.avatar_url || r.avatar_url || undefined,
+      };
+    }),
     total: count || 0,
   };
 }

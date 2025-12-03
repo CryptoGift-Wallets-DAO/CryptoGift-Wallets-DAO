@@ -123,23 +123,86 @@ function isValidUsername(username: string): boolean {
 }
 
 /**
+ * Extract Telegram username from URL or handle
+ * Supports: @username, username, t.me/username, telegram.me/username
+ */
+function extractTelegramUsername(input: string): string | null {
+  if (!input || input.trim() === '') return null;
+
+  const cleaned = input.trim();
+
+  // Check if it's a URL
+  const urlPatterns = [
+    /^(?:https?:\/\/)?(?:www\.)?(?:t\.me|telegram\.me)\/([a-zA-Z][a-zA-Z0-9_]{4,31})\/?(?:\?.*)?$/i,
+  ];
+
+  for (const pattern of urlPatterns) {
+    const match = cleaned.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+
+  // Not a URL, treat as username - remove @ prefix if present
+  const username = cleaned.startsWith('@') ? cleaned.slice(1) : cleaned;
+
+  // Validate username format
+  if (/^[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(username)) {
+    return username;
+  }
+
+  return null;
+}
+
+/**
  * Validate telegram handle format (optional @ prefix, alphanumeric + underscore)
+ * Also accepts full URLs and extracts the username
  */
 function isValidTelegramHandle(handle: string): boolean {
-  // Remove @ prefix if present
-  const cleaned = handle.startsWith('@') ? handle.slice(1) : handle;
-  // Telegram usernames: 5-32 chars, alphanumeric and underscores
-  return /^[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(cleaned);
+  const username = extractTelegramUsername(handle);
+  return username !== null;
+}
+
+/**
+ * Extract Twitter/X username from URL or handle
+ * Supports: @username, username, twitter.com/username, x.com/username
+ */
+function extractTwitterUsername(input: string): string | null {
+  if (!input || input.trim() === '') return null;
+
+  const cleaned = input.trim();
+
+  // Check if it's a URL
+  const urlPatterns = [
+    /^(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/([a-zA-Z0-9_]{1,15})\/?(?:\?.*)?$/i,
+    /^(?:https?:\/\/)?(?:mobile\.)?(?:twitter\.com|x\.com)\/([a-zA-Z0-9_]{1,15})\/?(?:\?.*)?$/i,
+  ];
+
+  for (const pattern of urlPatterns) {
+    const match = cleaned.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+
+  // Not a URL, treat as username - remove @ prefix if present
+  const username = cleaned.startsWith('@') ? cleaned.slice(1) : cleaned;
+
+  // Validate username format
+  if (/^[a-zA-Z0-9_]{1,15}$/.test(username)) {
+    return username;
+  }
+
+  return null;
 }
 
 /**
  * Validate twitter handle format (optional @ prefix, alphanumeric + underscore)
+ * Also accepts full URLs and extracts the username
  */
 function isValidTwitterHandle(handle: string): boolean {
-  // Remove @ prefix if present
-  const cleaned = handle.startsWith('@') ? handle.slice(1) : handle;
-  // Twitter usernames: 1-15 chars, alphanumeric and underscores
-  return /^[a-zA-Z0-9_]{1,15}$/.test(cleaned);
+  const username = extractTwitterUsername(handle);
+  return username !== null;
 }
 
 /**
@@ -168,6 +231,7 @@ function isValidWebsiteUrl(url: string): boolean {
 /**
  * Sanitize social fields - convert empty strings to null, validate formats
  * Social fields are OPTIONAL - empty values are allowed
+ * URLs are normalized to usernames (extracted from full URLs)
  */
 function sanitizeSocialFields(updates: UserProfileUpdate): UserProfileUpdate {
   const sanitized = { ...updates };
@@ -196,21 +260,45 @@ function sanitizeSocialFields(updates: UserProfileUpdate): UserProfileUpdate {
     return cleaned;
   };
 
-  // Sanitize each social field
+  // Helper to extract and normalize username from URL or handle
+  const normalizeUsernameField = (
+    value: string | null | undefined,
+    extractor: (v: string) => string | null
+  ): string | null | undefined => {
+    // If undefined, don't include in update
+    if (value === undefined) return undefined;
+
+    // If null or empty string, set to null (optional field)
+    if (value === null || value.trim() === '') return null;
+
+    // Extract username using the provided extractor (handles URLs and direct usernames)
+    const username = extractor(value.trim());
+
+    if (username === null) {
+      console.warn(`Could not extract username from social field: ${value}`);
+      return null;
+    }
+
+    return username;
+  };
+
+  // Sanitize Telegram - extract username from URL or handle
   if ('telegram_handle' in updates) {
-    sanitized.telegram_handle = cleanOptionalField(
+    sanitized.telegram_handle = normalizeUsernameField(
       updates.telegram_handle,
-      isValidTelegramHandle
+      extractTelegramUsername
     );
   }
 
+  // Sanitize Twitter - extract username from URL or handle
   if ('twitter_handle' in updates) {
-    sanitized.twitter_handle = cleanOptionalField(
+    sanitized.twitter_handle = normalizeUsernameField(
       updates.twitter_handle,
-      isValidTwitterHandle
+      extractTwitterUsername
     );
   }
 
+  // Discord - just validate, no URL extraction needed
   if ('discord_handle' in updates) {
     sanitized.discord_handle = cleanOptionalField(
       updates.discord_handle,
@@ -218,6 +306,7 @@ function sanitizeSocialFields(updates: UserProfileUpdate): UserProfileUpdate {
     );
   }
 
+  // Website URL - just validate
   if ('website_url' in updates) {
     sanitized.website_url = cleanOptionalField(
       updates.website_url,

@@ -57,6 +57,7 @@ export interface ReferralNetworkMember {
   joinedAt: string;
   lastActivity: string | null;
   username?: string;
+  displayName?: string;
   avatar?: string;
 }
 
