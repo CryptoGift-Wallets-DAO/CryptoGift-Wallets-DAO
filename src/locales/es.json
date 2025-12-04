@@ -1338,5 +1338,18 @@
       "title": "Dashboard de Performance",
       "description": "Crear dashboard interno para métricas de performance del DAO"
     }
+  },
+  "socialVerification": {
+    "title": "Verificación Social",
+    "description": "Verifica tus cuentas sociales para generar confianza con la comunidad",
+    "notConnected": "No conectado",
+    "connect": "Conectar",
+    "connecting": "Conectando...",
+    "verified": "Verificado",
+    "verifiedOn": "Verificado el",
+    "whyVerify": "¿Por qué verificar tus cuentas?",
+    "benefit1": "Genera confianza con otros miembros de la comunidad",
+    "benefit2": "Colaboración y comunicación más fáciles",
+    "benefit3": "Acceso a funciones exclusivas y recompensas"
   }
 }

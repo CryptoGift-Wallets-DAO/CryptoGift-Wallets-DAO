@@ -632,8 +632,17 @@ export interface UserProfilesTable {
     password_reset_token: string | null
     password_reset_expires_at: string | null
     twitter_handle: string | null
+    twitter_verified: boolean
+    twitter_verified_at: string | null
+    twitter_id: string | null
     telegram_handle: string | null
+    telegram_verified: boolean
+    telegram_verified_at: string | null
+    telegram_id: string | null
     discord_handle: string | null
+    discord_verified: boolean
+    discord_verified_at: string | null
+    discord_id: string | null
     website_url: string | null
     is_public: boolean
     show_email: boolean
@@ -663,8 +672,17 @@ export interface UserProfilesTable {
     password_reset_token?: string | null
     password_reset_expires_at?: string | null
     twitter_handle?: string | null
+    twitter_verified?: boolean
+    twitter_verified_at?: string | null
+    twitter_id?: string | null
     telegram_handle?: string | null
+    telegram_verified?: boolean
+    telegram_verified_at?: string | null
+    telegram_id?: string | null
     discord_handle?: string | null
+    discord_verified?: boolean
+    discord_verified_at?: string | null
+    discord_id?: string | null
     website_url?: string | null
     is_public?: boolean
     show_email?: boolean
@@ -694,8 +712,17 @@ export interface UserProfilesTable {
     password_reset_token?: string | null
     password_reset_expires_at?: string | null
     twitter_handle?: string | null
+    twitter_verified?: boolean
+    twitter_verified_at?: string | null
+    twitter_id?: string | null
     telegram_handle?: string | null
+    telegram_verified?: boolean
+    telegram_verified_at?: string | null
+    telegram_id?: string | null
     discord_handle?: string | null
+    discord_verified?: boolean
+    discord_verified_at?: string | null
+    discord_id?: string | null
     website_url?: string | null
     is_public?: boolean
     show_email?: boolean

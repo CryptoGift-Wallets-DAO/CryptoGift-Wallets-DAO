@@ -1338,5 +1338,18 @@
       "title": "Performance Dashboard",
       "description": "Create internal dashboard for DAO performance metrics"
     }
+  },
+  "socialVerification": {
+    "title": "Social Verification",
+    "description": "Verify your social accounts to build trust with the community",
+    "notConnected": "Not connected",
+    "connect": "Connect",
+    "connecting": "Connecting...",
+    "verified": "Verified",
+    "verifiedOn": "Verified on",
+    "whyVerify": "Why verify your accounts?",
+    "benefit1": "Build trust with other community members",
+    "benefit2": "Easier collaboration and communication",
+    "benefit3": "Access to exclusive features and rewards"
   }
 }
