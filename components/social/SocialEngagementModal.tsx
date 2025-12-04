@@ -79,7 +79,9 @@ export function SocialEngagementModal({
     }
 
     // Open in new tab
-    const url = isTwitter ? config.followUrl : config.joinUrl;
+    const url = isTwitter
+      ? SOCIAL_ENGAGEMENT_CONFIG.twitter.followUrl
+      : SOCIAL_ENGAGEMENT_CONFIG.discord.joinUrl;
     window.open(url, '_blank', 'noopener,noreferrer');
 
     // After short delay, show confirm step

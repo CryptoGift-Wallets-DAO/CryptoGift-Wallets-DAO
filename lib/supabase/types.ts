@@ -359,7 +359,7 @@ export interface Database {
           id: string
           referrer_address: string
           referred_address: string
-          reward_type: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_5' | 'milestone_10' | 'milestone_25' | 'milestone_50' | 'milestone_100' | 'activation_bonus' | 'special_bonus'
+          reward_type: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_5' | 'milestone_10' | 'milestone_25' | 'milestone_50' | 'milestone_100' | 'activation_bonus' | 'special_bonus' | 'signup_bonus' | 'signup_commission_l1' | 'signup_commission_l2' | 'signup_commission_l3'
           amount: number
           task_id: string | null
           milestone_reached: number | null
@@ -367,13 +367,14 @@ export interface Database {
           tx_hash: string | null
           block_number: number | null
           paid_at: string | null
+          notes: string | null
           created_at: string
         }
         Insert: {
           id?: string
           referrer_address: string
           referred_address: string
-          reward_type: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_5' | 'milestone_10' | 'milestone_25' | 'milestone_50' | 'milestone_100' | 'activation_bonus' | 'special_bonus'
+          reward_type: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_5' | 'milestone_10' | 'milestone_25' | 'milestone_50' | 'milestone_100' | 'activation_bonus' | 'special_bonus' | 'signup_bonus' | 'signup_commission_l1' | 'signup_commission_l2' | 'signup_commission_l3'
           amount: number
           task_id?: string | null
           milestone_reached?: number | null
@@ -381,13 +382,14 @@ export interface Database {
           tx_hash?: string | null
           block_number?: number | null
           paid_at?: string | null
+          notes?: string | null
           created_at?: string
         }
         Update: {
           id?: string
           referrer_address?: string
           referred_address?: string
-          reward_type?: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_5' | 'milestone_10' | 'milestone_25' | 'milestone_50' | 'milestone_100' | 'activation_bonus' | 'special_bonus'
+          reward_type?: 'direct_bonus' | 'level2_bonus' | 'level3_bonus' | 'milestone_5' | 'milestone_10' | 'milestone_25' | 'milestone_50' | 'milestone_100' | 'activation_bonus' | 'special_bonus' | 'signup_bonus' | 'signup_commission_l1' | 'signup_commission_l2' | 'signup_commission_l3'
           amount?: number
           task_id?: string | null
           milestone_reached?: number | null
@@ -395,6 +397,7 @@ export interface Database {
           tx_hash?: string | null
           block_number?: number | null
           paid_at?: string | null
+          notes?: string | null
           created_at?: string
         }
       }
@@ -600,6 +603,11 @@ export type ReferralRewardType =
   | 'milestone_100'
   | 'activation_bonus'
   | 'special_bonus'
+  // Signup bonus reward types
+  | 'signup_bonus'           // 200 CGC for new user
+  | 'signup_commission_l1'   // 20 CGC for level 1 referrer
+  | 'signup_commission_l2'   // 10 CGC for level 2 referrer
+  | 'signup_commission_l3'   // 5 CGC for level 3 referrer
 export type ReferralRewardStatus = 'pending' | 'processing' | 'paid' | 'failed' | 'cancelled'
 
 // ============================================

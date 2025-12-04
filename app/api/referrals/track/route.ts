@@ -15,6 +15,7 @@ import {
   registerReferral,
   markClickConverted,
 } from '@/lib/referrals/referral-service';
+import { distributeSignupBonus } from '@/lib/referrals/signup-bonus-service';
 
 // Helper to detect device type from user agent
 function detectDeviceType(userAgent: string): 'desktop' | 'mobile' | 'tablet' | 'unknown' {
@@ -226,6 +227,21 @@ export async function PUT(request: NextRequest) {
       await markClickConverted(ipHash, wallet);
     }
 
+    // 🎁 Automatically distribute signup bonus (200 CGC) and referral commissions
+    let bonusResult = null;
+    try {
+      console.log(`[TrackAPI] Distributing signup bonus for ${wallet} via ${refCode}`);
+      bonusResult = await distributeSignupBonus(wallet, refCode);
+      if (!bonusResult.success) {
+        console.error('[TrackAPI] Bonus distribution had errors:', bonusResult.errors);
+      } else {
+        console.log(`[TrackAPI] Bonus distributed: ${bonusResult.totalDistributed} CGC`);
+      }
+    } catch (bonusError) {
+      console.error('[TrackAPI] Failed to distribute bonus:', bonusError);
+      // Don't fail the registration if bonus fails - it can be retried
+    }
+
     // Clear referral cookies
     const response = NextResponse.json({
       success: true,
@@ -233,6 +249,13 @@ export async function PUT(request: NextRequest) {
         registered: true,
         referrer: referral.referrer_address,
         level: referral.level,
+        bonus: bonusResult ? {
+          distributed: bonusResult.success,
+          totalAmount: bonusResult.totalDistributed,
+          newUserBonus: bonusResult.newUserBonus,
+          referrerCommissions: bonusResult.referrerCommissions,
+          errors: bonusResult.errors.length > 0 ? bonusResult.errors : undefined,
+        } : null,
       },
     });
 

@@ -956,9 +956,216 @@ function DirectReferralsHistoryTab() {
 
 function RewardsTab() {
   const t = useTranslations('referrals');
+  const tBonus = useTranslations('referrals.signupBonus');
+  const { address } = useAccount();
+  const [bonusStatus, setBonusStatus] = useState<{
+    eligible: boolean;
+    received: boolean;
+    amount: number;
+    txHash?: string;
+  } | null>(null);
+  const [commissions, setCommissions] = useState<{
+    totalSignupCommissions: number;
+    level1Earnings: number;
+    level2Earnings: number;
+    level3Earnings: number;
+  } | null>(null);
+  const [isLoadingBonus, setIsLoadingBonus] = useState(false);
+
+  // Fetch signup bonus status
+  useEffect(() => {
+    if (!address) return;
+
+    const fetchBonusData = async () => {
+      setIsLoadingBonus(true);
+      try {
+        // Fetch bonus status
+        const statusRes = await fetch(`/api/referrals/bonus?wallet=${address}`);
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+          if (statusData.success) {
+            setBonusStatus({
+              eligible: statusData.data.eligible,
+              received: statusData.data.received,
+              amount: statusData.data.bonusAmount || 200,
+              txHash: statusData.data.txHash,
+            });
+          }
+        }
+
+        // Fetch commission summary
+        const commRes = await fetch(`/api/referrals/bonus?wallet=${address}&type=commissions`);
+        if (commRes.ok) {
+          const commData = await commRes.json();
+          if (commData.success) {
+            setCommissions(commData.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching bonus data:', error);
+      } finally {
+        setIsLoadingBonus(false);
+      }
+    };
+
+    fetchBonusData();
+  }, [address]);
 
   return (
     <div className="space-y-6">
+      {/* Signup Bonus Section */}
+      <Card className="glass-panel border-2 border-green-200 dark:border-green-800">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+            <Sparkles className="h-5 w-5 text-green-500" />
+            <span>{tBonus('title')}</span>
+            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+              NEW
+            </Badge>
+          </CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">
+            {tBonus('description')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* New User Bonus Info */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+                <Gift className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white">{tBonus('newUserBonus')}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{tBonus('newUserBonusDesc')}</p>
+              </div>
+              <div className="ml-auto text-right">
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">200 CGC</p>
+              </div>
+            </div>
+
+            {/* User's Bonus Status */}
+            {isLoadingBonus ? (
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading status...
+              </div>
+            ) : bonusStatus && (
+              <div className="mt-3 pt-3 border-t border-green-200 dark:border-green-700">
+                <div className="flex items-center gap-2">
+                  {bonusStatus.received ? (
+                    <>
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                        {tBonus('bonusReceived')}
+                      </span>
+                      {bonusStatus.txHash && (
+                        <a
+                          href={`https://basescan.org/tx/${bonusStatus.txHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ml-auto text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                        >
+                          {tBonus('viewOnExplorer')}
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
+                    </>
+                  ) : bonusStatus.eligible ? (
+                    <>
+                      <Clock className="h-5 w-5 text-amber-500" />
+                      <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                        {tBonus('bonusPending')}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-5 w-5 text-gray-400" />
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {tBonus('bonusNotEligible')}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Referrer Commissions */}
+          <div>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-purple-500" />
+              {tBonus('commissions')}
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{tBonus('commissionsDesc')}</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center">1</div>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">{tBonus('level1Commission')}</span>
+                </div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">{tBonus('level1Desc')}</p>
+                {commissions && (
+                  <p className="mt-2 text-lg font-bold text-blue-600 dark:text-blue-400">
+                    {commissions.level1Earnings} CGC
+                  </p>
+                )}
+              </div>
+
+              <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-purple-500 text-white text-xs font-bold flex items-center justify-center">2</div>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">{tBonus('level2Commission')}</span>
+                </div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">{tBonus('level2Desc')}</p>
+                {commissions && (
+                  <p className="mt-2 text-lg font-bold text-purple-600 dark:text-purple-400">
+                    {commissions.level2Earnings} CGC
+                  </p>
+                )}
+              </div>
+
+              <div className="p-3 rounded-lg bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-6 h-6 rounded-full bg-cyan-500 text-white text-xs font-bold flex items-center justify-center">3</div>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">{tBonus('level3Commission')}</span>
+                </div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">{tBonus('level3Desc')}</p>
+                {commissions && (
+                  <p className="mt-2 text-lg font-bold text-cyan-600 dark:text-cyan-400">
+                    {commissions.level3Earnings} CGC
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Total Commissions */}
+            {commissions && commissions.totalSignupCommissions > 0 && (
+              <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Coins className="h-5 w-5 text-amber-500" />
+                    <span className="font-medium text-gray-900 dark:text-white">{tBonus('totalEarned')}</span>
+                  </div>
+                  <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                    {commissions.totalSignupCommissions} CGC
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Total Distribution Info */}
+          <div className="p-3 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">{tBonus('totalDistribution')}</span>
+              <span className="font-medium text-gray-900 dark:text-white">235 CGC max</span>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{tBonus('totalDistributionDesc')}</p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Reward Structure */}
       <Card className="glass-panel">
         <CardHeader>
