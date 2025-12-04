@@ -2,11 +2,40 @@
 
 ## 🎯 INFORMACIÓN CRÍTICA DEL PROYECTO
 
-### ESTADO ACTUAL (27 NOV 2025) - SISTEMA DE REFERIDOS IMPLEMENTADO ✅
-- **Progreso**: 100% Task System + i18n (EN/ES) + Theme System + **REFERRAL SYSTEM** ✅
-- **Fase actual**: Sistema DAO con referidos multinivel enterprise-grade
-- **Último Deploy**: Sistema de referidos completo - Backend + Frontend integrado
-- **Critical Update**: Sistema de referidos listo para producción
+### ESTADO ACTUAL (4 DIC 2025) - SISTEMA DE BONOS AUTOMÁTICOS IMPLEMENTADO ✅
+- **Progreso**: 100% Task System + i18n + Referrals + **AUTOMATIC SIGNUP BONUS SYSTEM** ✅
+- **Fase actual**: Sistema DAO con bonos automáticos on-chain enterprise-grade
+- **Último Deploy**: Sistema de bonos automáticos con distribución multinivel
+- **Critical Update**: Nuevo usuario recibe 200 CGC + comisiones a 3 niveles automáticamente
+- **Último Commit**: `3b5bcf1` - feat: implement automatic referral signup bonus system
+
+### 💰 SISTEMA DE BONOS AUTOMÁTICOS - ON-CHAIN (4 DIC 2025) ✅
+```
+DISTRIBUCIÓN AUTOMÁTICA POR SIGNUP:
+├── Nuevo Usuario:        200 CGC  (Bono de bienvenida)
+├── Referidor Nivel 1:     20 CGC  (10% comisión)
+├── Referidor Nivel 2:     10 CGC  (5% comisión)
+├── Referidor Nivel 3:      5 CGC  (2.5% comisión)
+└── TOTAL MÁXIMO:         235 CGC  (4 transacciones on-chain)
+
+ARCHIVOS CLAVE:
+├── lib/web3/token-transfer-service.ts      - Servicio de transferencias viem
+├── lib/referrals/signup-bonus-service.ts   - Lógica de distribución multinivel
+├── app/api/referrals/bonus/route.ts        - API status y distribución manual
+└── app/api/referrals/track/route.ts        - Trigger automático al registrar
+```
+
+**CONFIGURACIÓN REQUERIDA (Vercel):**
+```bash
+PRIVATE_KEY_DAO_DEPLOYER=0x...  # Private key del deployer
+CGC_TOKEN_ADDRESS=0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
+BASE_RPC_URL=https://mainnet.base.org
+```
+
+**TREASURY WALLET:**
+- Dirección: `0xc655BF2Bd9AfA997c757Bef290A9Bb6ca41c5dE6`
+- Debe tener CGC tokens suficientes para bonos
+- Debe tener ETH para gas (~0.001 ETH por batch)
 
 ### 🤝 SISTEMA DE REFERIDOS - ENTERPRISE GRADE (27 NOV 2025) ✅
 ```
