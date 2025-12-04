@@ -927,3 +927,80 @@ export interface PasswordResetRequest {
   token: string
   new_password: string
 }
+
+// ============================================
+// 🎯 SOCIAL ENGAGEMENT REWARDS TYPES
+// ============================================
+
+export type SocialEngagementPlatform = 'twitter' | 'discord'
+export type SocialEngagementAction = 'follow' | 'join'
+export type SocialEngagementStatus = 'pending' | 'claimed' | 'verified' | 'rejected'
+
+export interface SocialEngagementRewardsTable {
+  Row: {
+    id: string
+    wallet_address: string
+    platform: SocialEngagementPlatform
+    action: SocialEngagementAction
+    reward_amount: number
+    status: SocialEngagementStatus
+    platform_user_id: string | null
+    platform_username: string | null
+    clicked_at: string | null
+    claimed_at: string | null
+    verified_at: string | null
+    tx_hash: string | null
+    created_at: string
+    updated_at: string
+  }
+  Insert: {
+    id?: string
+    wallet_address: string
+    platform: SocialEngagementPlatform
+    action: SocialEngagementAction
+    reward_amount?: number
+    status?: SocialEngagementStatus
+    platform_user_id?: string | null
+    platform_username?: string | null
+    clicked_at?: string | null
+    claimed_at?: string | null
+    verified_at?: string | null
+    tx_hash?: string | null
+    created_at?: string
+    updated_at?: string
+  }
+  Update: {
+    id?: string
+    wallet_address?: string
+    platform?: SocialEngagementPlatform
+    action?: SocialEngagementAction
+    reward_amount?: number
+    status?: SocialEngagementStatus
+    platform_user_id?: string | null
+    platform_username?: string | null
+    clicked_at?: string | null
+    claimed_at?: string | null
+    verified_at?: string | null
+    tx_hash?: string | null
+    created_at?: string
+    updated_at?: string
+  }
+}
+
+export type SocialEngagementReward = SocialEngagementRewardsTable['Row']
+export type SocialEngagementRewardInsert = SocialEngagementRewardsTable['Insert']
+export type SocialEngagementRewardUpdate = SocialEngagementRewardsTable['Update']
+
+// Social engagement configuration
+export const SOCIAL_ENGAGEMENT_CONFIG = {
+  twitter: {
+    followUrl: 'https://twitter.com/intent/follow?screen_name=CryptoGiftDAO',
+    rewardAmount: 100, // CGC
+    action: 'follow' as SocialEngagementAction,
+  },
+  discord: {
+    joinUrl: 'https://discord.gg/cryptogiftdao', // Replace with actual invite code
+    rewardAmount: 100, // CGC
+    action: 'join' as SocialEngagementAction,
+  },
+} as const

@@ -48,9 +48,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Success! Redirect with success parameters
+    // Success! Redirect with success parameters and engagement trigger
     return NextResponse.redirect(
-      `${redirectUrl}&verification=success&platform=discord&username=${encodeURIComponent(result.username)}`
+      `${redirectUrl}&verification=success&platform=discord&username=${encodeURIComponent(result.username)}&showEngagement=true`
     );
   } catch (err) {
     console.error('Discord callback error:', err);

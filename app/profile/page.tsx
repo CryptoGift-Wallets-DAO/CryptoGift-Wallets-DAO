@@ -11,10 +11,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Navbar } from '@/components/layout/Navbar';
 import { useAccount } from '@/lib/thirdweb';
 import { useProfileManager, useUsernameCheck } from '@/hooks/useProfile';
+import { SocialEngagementModal } from '@/components/social/SocialEngagementModal';
+import { SocialEngagementPlatform } from '@/lib/supabase/types';
 import {
   User,
   Settings,
@@ -60,11 +63,17 @@ type TabId = 'overview' | 'settings' | 'recovery' | 'activity';
 export default function ProfilePage() {
   const t = useTranslations('profile');
   const tCommon = useTranslations('common');
+  const searchParams = useSearchParams();
   const { address, isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [mounted, setMounted] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // Social Engagement Modal state
+  const [showEngagementModal, setShowEngagementModal] = useState(false);
+  const [engagementPlatform, setEngagementPlatform] = useState<SocialEngagementPlatform>('twitter');
+  const [engagementUsername, setEngagementUsername] = useState<string>('');
 
   const {
     profile,
@@ -83,6 +92,34 @@ export default function ProfilePage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Handle social engagement modal trigger from OAuth callback
+  useEffect(() => {
+    if (!mounted || !address) return;
+
+    const showEngagement = searchParams.get('showEngagement');
+    const platform = searchParams.get('platform');
+    const username = searchParams.get('username');
+    const verification = searchParams.get('verification');
+
+    // Only show modal on successful verification with showEngagement flag
+    if (showEngagement === 'true' && verification === 'success' && platform && username) {
+      // Validate platform is twitter or discord
+      if (platform === 'twitter' || platform === 'discord') {
+        setEngagementPlatform(platform as SocialEngagementPlatform);
+        setEngagementUsername(decodeURIComponent(username));
+        setShowEngagementModal(true);
+
+        // Clean up URL parameters to prevent re-triggering on refresh
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('showEngagement');
+        newUrl.searchParams.delete('verification');
+        newUrl.searchParams.delete('platform');
+        newUrl.searchParams.delete('username');
+        window.history.replaceState({}, '', newUrl.toString());
+      }
+    }
+  }, [mounted, address, searchParams]);
 
   // Handle avatar upload
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,6 +194,16 @@ export default function ProfilePage() {
   return (
     <>
       <Navbar />
+
+      {/* Social Engagement Modal - Triggered after OAuth connection */}
+      <SocialEngagementModal
+        isOpen={showEngagementModal}
+        onClose={() => setShowEngagementModal(false)}
+        platform={engagementPlatform}
+        username={engagementUsername}
+        walletAddress={address}
+      />
+
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           {/* Header */}

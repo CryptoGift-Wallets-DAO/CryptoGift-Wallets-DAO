@@ -1351,5 +1351,29 @@
     "benefit1": "Genera confianza con otros miembros de la comunidad",
     "benefit2": "Colaboración y comunicación más fáciles",
     "benefit3": "Acceso a funciones exclusivas y recompensas"
+  },
+  "socialEngagement": {
+    "title": "¡Gana {amount} CGC!",
+    "connectedAs": "Conectado como {username}",
+    "follow": "seguir",
+    "join": "unirte",
+    "earnReward": "¡{action}nos en {platform} y gana {amount} CGC al instante!",
+    "followButton": "Seguir en Twitter/X",
+    "joinButton": "Unirse a Discord",
+    "termsNote": "La recompensa se reclama una vez por cuenta. Debes tener cuenta social verificada.",
+    "opening": "Abriendo {platform}...",
+    "didYouFollow": "¿Nos seguiste en Twitter/X?",
+    "didYouJoin": "¿Te uniste a nuestro Discord?",
+    "confirmToEarn": "Confirma para reclamar tu recompensa de {amount} CGC",
+    "tryAgain": "Intentar de Nuevo",
+    "claimReward": "Reclamar Recompensa",
+    "claimingReward": "Reclamando tu recompensa...",
+    "congratulations": "¡Felicitaciones!",
+    "rewardEarned": "¡Has ganado {amount} CGC por tu participación!",
+    "done": "Listo",
+    "alreadyClaimed": "Ya Reclamado",
+    "alreadyClaimedMessage": "Ya has reclamado esta recompensa de {platform}.",
+    "claimError": "Error al reclamar. Por favor intenta de nuevo.",
+    "networkError": "Error de red. Verifica tu conexión."
   }
 }

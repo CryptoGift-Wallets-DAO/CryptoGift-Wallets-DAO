@@ -1351,5 +1351,29 @@
     "benefit1": "Build trust with other community members",
     "benefit2": "Easier collaboration and communication",
     "benefit3": "Access to exclusive features and rewards"
+  },
+  "socialEngagement": {
+    "title": "Earn {amount} CGC!",
+    "connectedAs": "Connected as {username}",
+    "follow": "follow",
+    "join": "join",
+    "earnReward": "{action} us on {platform} and earn {amount} CGC instantly!",
+    "followButton": "Follow on Twitter/X",
+    "joinButton": "Join Discord",
+    "termsNote": "Reward is claimed once per account. Must have verified social account.",
+    "opening": "Opening {platform}...",
+    "didYouFollow": "Did you follow us on Twitter/X?",
+    "didYouJoin": "Did you join our Discord?",
+    "confirmToEarn": "Confirm to claim your {amount} CGC reward",
+    "tryAgain": "Try Again",
+    "claimReward": "Claim Reward",
+    "claimingReward": "Claiming your reward...",
+    "congratulations": "Congratulations!",
+    "rewardEarned": "You have earned {amount} CGC for your engagement!",
+    "done": "Done",
+    "alreadyClaimed": "Already Claimed",
+    "alreadyClaimedMessage": "You have already claimed this {platform} engagement reward.",
+    "claimError": "Failed to claim reward. Please try again.",
+    "networkError": "Network error. Please check your connection."
   }
 }
