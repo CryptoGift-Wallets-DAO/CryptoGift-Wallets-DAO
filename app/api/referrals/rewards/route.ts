@@ -31,6 +31,11 @@ function formatRewardType(type: ReferralRewardType): string {
     milestone_100: 'Milestone Bonus: 100 Referrals',
     activation_bonus: 'Activation Bonus',
     special_bonus: 'Special Bonus',
+    // Signup bonus system rewards
+    signup_bonus: 'Signup Welcome Bonus (200 CGC)',
+    signup_commission_l1: 'Signup Commission L1 (20 CGC)',
+    signup_commission_l2: 'Signup Commission L2 (10 CGC)',
+    signup_commission_l3: 'Signup Commission L3 (5 CGC)',
   };
   return typeLabels[type] || type;
 }

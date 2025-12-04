@@ -151,7 +151,7 @@ export async function getDeployerCGCBalance(): Promise<{
     abi: ERC20_ABI,
     functionName: 'balanceOf',
     args: [deployerAddress],
-  });
+  }) as bigint;
 
   const balanceFormatted = formatUnits(balance, CGC_DECIMALS);
   const balanceNumber = parseFloat(balanceFormatted);
@@ -236,7 +236,7 @@ export async function transferCGC(
       abi: ERC20_ABI,
       functionName: 'balanceOf',
       args: [walletClient.account.address],
-    });
+    }) as bigint;
 
     if (deployerBalance < amountWei) {
       console.error(`[TokenTransfer] Insufficient CGC balance. Need ${amount}, have ${formatUnits(deployerBalance, CGC_DECIMALS)}`);
