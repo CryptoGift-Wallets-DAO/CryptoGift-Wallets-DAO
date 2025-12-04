@@ -14,8 +14,12 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get('state');
   const error = searchParams.get('error');
 
-  // Base URL for redirects
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  // Base URL for redirects - sanitize to prevent double protocol
+  let baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  baseUrl = baseUrl.replace(/\/+$/, '').replace(/^https?:\/\/https?:\/\//, 'https://');
+  if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+    baseUrl = `https://${baseUrl}`;
+  }
   const redirectUrl = `${baseUrl}/profile?tab=social`;
 
   // Handle OAuth errors
