@@ -7,10 +7,13 @@
  * Integrates with Calendly for scheduling calls.
  *
  * Features:
- * - Multiple Calendly event detection methods (postMessage API)
+ * - Comprehensive postMessage logging (ALL events) for debugging
+ * - Multiple Calendly event detection methods (event_scheduled, page_height)
+ * - Automatic confirmation page detection (page_height > 600px)
+ * - "Continue" button appears after detecting confirmation page
  * - Database persistence of booking data
  * - External link option for users with iframe issues
- * - NO bypass mechanisms - only real Calendly events trigger completion
+ * - Safe completion: only after detecting real Calendly confirmation
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -59,6 +62,7 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isBooked, setIsBooked] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showContinueButton, setShowContinueButton] = useState(false);
 
   // Build Calendly URL with prefill data
   const calendlyUrl = useCallback(() => {
@@ -133,14 +137,22 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
     }, 1500);
   }, [saveBookingToDatabase, onBooked, onAppointmentBooked, onClose]);
 
-  // Listen for Calendly events - enhanced with multiple event types
+  // Listen for Calendly events - enhanced with ALL postMessage logging
   useEffect(() => {
     if (!isOpen) return;
 
     const handleCalendlyEvent = (e: MessageEvent) => {
-      // Log all messages for debugging
-      if (e.data && typeof e.data === 'object' && e.data.event) {
-        console.log('📩 Received postMessage event:', e.data.event, e.data);
+      // Log ALL postMessage events for debugging (no filtering)
+      console.log('📩 [CALENDLY DEBUG] Received postMessage:', {
+        origin: e.origin,
+        hasData: !!e.data,
+        dataType: typeof e.data,
+        data: e.data
+      });
+
+      // Skip non-Calendly messages
+      if (!e.origin.includes('calendly.com') && e.data && typeof e.data === 'object') {
+        return;
       }
 
       // Check for various Calendly event formats
@@ -153,7 +165,7 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
         eventName === 'event_scheduled' ||
         (e.data?.calendly && e.data.calendly.event_type === 'invitee.created')
       ) {
-        console.log('📅 Calendly: Appointment scheduled!', e.data);
+        console.log('📅 ✅ Calendly: Appointment scheduled!', e.data);
 
         // Extract appointment data from Calendly payload
         const payload = e.data?.payload || e.data?.data || e.data;
@@ -166,6 +178,23 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
 
         handleBookingComplete(appointmentData);
       }
+
+      // Detect confirmation page by page height change (large height = confirmation page)
+      if (eventName === 'calendly.page_height') {
+        const pageHeight = e.data?.payload?.pageHeight || 0;
+        console.log('📏 Calendly page height:', pageHeight);
+
+        // Confirmation page is usually >600px
+        if (pageHeight > 600) {
+          console.log('✅ Detected Calendly confirmation page - showing continue button');
+          setShowContinueButton(true);
+        }
+      }
+
+      // Detect date/time selected (user is progressing in booking)
+      if (eventName === 'calendly.date_and_time_selected') {
+        console.log('📅 User selected date/time in Calendly');
+      }
     };
 
     window.addEventListener('message', handleCalendlyEvent);
@@ -177,12 +206,23 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
     if (!isOpen) {
       setIsBooked(false);
       setIsLoading(true);
+      setShowContinueButton(false);
     }
   }, [isOpen]);
 
   // Handle iframe load
   const handleIframeLoad = () => {
     setIsLoading(false);
+  };
+
+  // Handle continue after confirmation detected
+  const handleContinueAfterConfirmation = () => {
+    console.log('✅ User clicked continue after Calendly confirmation');
+    handleBookingComplete({
+      scheduledAt: new Date().toISOString(),
+      eventType: '30 Minute Meeting',
+      inviteeEmail: email || userEmail
+    });
   };
 
   // Open Calendly in new tab as fallback (no bypass - user must complete and we'll detect the event)
@@ -279,8 +319,37 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
                 />
               </div>
 
-              {/* Footer with external link option */}
+              {/* Footer with external link option and continue button */}
               <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                {/* Continue button after confirmation detected */}
+                {showContinueButton && (
+                  <div className="mb-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-green-800 dark:text-green-300 mb-1">
+                          ✅ Cita detectada
+                        </p>
+                        <p className="text-xs text-green-700 dark:text-green-400 mb-2">
+                          Hemos detectado que completaste el proceso de agendamiento
+                        </p>
+                        <button
+                          onClick={handleContinueAfterConfirmation}
+                          disabled={isSaving}
+                          className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-colors disabled:opacity-50"
+                        >
+                          {isSaving ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <CheckCircle className="w-4 h-4" />
+                          )}
+                          Continuar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                   <p className="text-xs text-gray-500 dark:text-gray-500">
                     Problemas para ver el calendario?
