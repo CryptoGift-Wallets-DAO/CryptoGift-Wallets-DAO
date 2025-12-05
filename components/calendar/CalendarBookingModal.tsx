@@ -147,16 +147,19 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
         origin: e.origin,
         hasData: !!e.data,
         dataType: typeof e.data,
-        data: e.data
+        eventName: e.data?.event || e.data?.type,
+        data: JSON.stringify(e.data)
       });
 
       // Skip non-Calendly messages
       if (!e.origin.includes('calendly.com') && e.data && typeof e.data === 'object') {
+        console.log('⏭️ [CALENDLY DEBUG] Skipping non-Calendly message from:', e.origin);
         return;
       }
 
       // Check for various Calendly event formats
       const eventName = e.data?.event || e.data?.type;
+      console.log('🔍 [CALENDLY DEBUG] Checking event:', eventName);
 
       // Calendly sends these events when scheduling is complete
       if (
