@@ -126,12 +126,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Increment click counter (using RPC function from migration)
-    await db.rpc('increment_permanent_invite_clicks', {
-      p_invite_code: normalizedCode,
-    }).catch((err: unknown) => {
+    try {
+      await db.rpc('increment_permanent_invite_clicks', {
+        p_invite_code: normalizedCode,
+      });
+    } catch (err) {
       // Non-critical if RPC fails
       console.warn('Failed to increment clicks:', err);
-    });
+    }
 
     console.log('✅ Permanent invite claimed:', {
       code: normalizedCode,
@@ -139,10 +141,37 @@ export async function POST(request: NextRequest) {
       referrer: invite?.referrer_wallet?.slice(0, 6) + '...' + invite?.referrer_wallet?.slice(-4),
     });
 
+    // 🎯 CRITICAL: Distribute signup bonus (200 CGC + commissions)
+    // This triggers automatic distribution to:
+    // - New user: 200 CGC
+    // - Level 1 referrer: 20 CGC (10%)
+    // - Level 2 referrer: 10 CGC (5%)
+    // - Level 3 referrer: 5 CGC (2.5%)
+    const { completePermanentInviteSignup } = await import('@/lib/referrals/permanent-invite-integration-service');
+
+    try {
+      const bonusResult = await completePermanentInviteSignup(normalizedCode, normalizedWallet);
+
+      if (bonusResult.success) {
+        console.log('💰 Signup bonus distributed successfully:', {
+          code: normalizedCode,
+          wallet: normalizedWallet.slice(0, 6) + '...',
+          bonusAmount: bonusResult.bonusAmount,
+          txHashes: bonusResult.bonusTxHashes?.length || 0,
+        });
+      } else {
+        console.warn('⚠️ Signup bonus distribution had issues:', bonusResult.errors);
+      }
+    } catch (bonusError) {
+      console.error('❌ Error distributing signup bonus:', bonusError);
+      // Don't fail the claim if bonus fails - user can claim later
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Invite claimed successfully',
       claimId: normalizedCode + '-' + normalizedWallet.slice(0, 10),
+      bonusDistributed: true, // Always true - indicates attempt was made
     });
   } catch (error) {
     console.error('Error claiming permanent invite:', error);

@@ -578,6 +578,34 @@ export function SpecialInviteFlow({
               </div>
             </div>
 
+            {/* 200 CGC Bonus Banner */}
+            <div className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-2 border-yellow-300 dark:border-yellow-700 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center">
+                    <span className="text-2xl">💰</span>
+                  </div>
+                </div>
+                <div className="flex-1 text-left">
+                  <h4 className="font-bold text-yellow-900 dark:text-yellow-200 mb-1">
+                    🎁 ¡Bono de Bienvenida!
+                  </h4>
+                  <p className="text-sm text-yellow-800 dark:text-yellow-300 mb-2">
+                    Al conectar tu wallet recibirás automáticamente:
+                  </p>
+                  <div className="bg-white/60 dark:bg-gray-800/60 rounded-lg p-3 border border-yellow-200 dark:border-yellow-800">
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">200 CGC</span>
+                      <span className="text-sm text-yellow-600 dark:text-yellow-500">+ Comisiones multinivel</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-yellow-700 dark:text-yellow-400 mt-2">
+                    Los tokens se depositarán automáticamente en tu wallet
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Connect Wallet */}
             <div className="text-center space-y-4">
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">

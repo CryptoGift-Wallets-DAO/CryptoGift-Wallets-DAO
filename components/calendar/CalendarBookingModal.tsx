@@ -6,10 +6,11 @@
  * Handles calendar booking during the SalesMasterclass flow.
  * Integrates with Calendly for scheduling calls.
  *
- * Enhanced with:
- * - Multiple Calendly event detection methods
- * - Manual confirmation button as fallback
+ * Features:
+ * - Multiple Calendly event detection methods (postMessage API)
  * - Database persistence of booking data
+ * - External link option for users with iframe issues
+ * - NO bypass mechanisms - only real Calendly events trigger completion
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -17,7 +18,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, CheckCircle, Loader2, ExternalLink, Check } from 'lucide-react';
+import { X, Calendar, CheckCircle, Loader2, ExternalLink } from 'lucide-react';
 
 interface CalendarBookingModalProps {
   isOpen: boolean;
@@ -58,7 +59,6 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isBooked, setIsBooked] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Build Calendly URL with prefill data
   const calendlyUrl = useCallback(() => {
@@ -166,13 +166,6 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
 
         handleBookingComplete(appointmentData);
       }
-
-      // Also detect page navigation within Calendly iframe
-      if (eventName === 'calendly.page_height' && e.data?.payload?.pageHeight > 600) {
-        // Large page height often indicates confirmation page
-        console.log('📏 Calendly page height changed - might be confirmation page');
-        setShowConfirmation(true);
-      }
     };
 
     window.addEventListener('message', handleCalendlyEvent);
@@ -184,38 +177,17 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
     if (!isOpen) {
       setIsBooked(false);
       setIsLoading(true);
-      setShowConfirmation(false);
     }
   }, [isOpen]);
 
   // Handle iframe load
   const handleIframeLoad = () => {
     setIsLoading(false);
-    // Show confirmation button after iframe loads (in case events don't fire)
-    setTimeout(() => {
-      setShowConfirmation(true);
-    }, 5000);
   };
 
-  // Manual confirmation handler
-  const handleManualConfirmation = () => {
-    handleBookingComplete({
-      scheduledAt: new Date().toISOString(),
-      eventType: '30 Minute Meeting',
-      inviteeEmail: email || userEmail
-    });
-  };
-
-  // Open Calendly in new tab as fallback
+  // Open Calendly in new tab as fallback (no bypass - user must complete and we'll detect the event)
   const handleOpenExternal = () => {
     window.open(calendlyUrl(), '_blank');
-
-    // Show confirmation dialog after opening external link
-    setTimeout(() => {
-      if (window.confirm('Has agendado tu cita? Haz clic en "Aceptar" para continuar.')) {
-        handleManualConfirmation();
-      }
-    }, 2000);
   };
 
   if (!isOpen) return null;
@@ -307,29 +279,8 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
                 />
               </div>
 
-              {/* Footer with confirmation and external link options */}
+              {/* Footer with external link option */}
               <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-                {/* Manual confirmation button - shows after iframe loads */}
-                {showConfirmation && (
-                  <div className="mb-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-                    <p className="text-sm text-green-800 dark:text-green-300 mb-2">
-                      Ya agendaste tu cita en Calendly?
-                    </p>
-                    <button
-                      onClick={handleManualConfirmation}
-                      disabled={isSaving}
-                      className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-colors disabled:opacity-50"
-                    >
-                      {isSaving ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Check className="w-4 h-4" />
-                      )}
-                      Si, confirmar mi cita
-                    </button>
-                  </div>
-                )}
-
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                   <p className="text-xs text-gray-500 dark:text-gray-500">
                     Problemas para ver el calendario?
