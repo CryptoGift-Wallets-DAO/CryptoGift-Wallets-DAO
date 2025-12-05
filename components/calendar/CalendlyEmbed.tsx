@@ -30,7 +30,9 @@ interface CalendlyEmbedProps {
     utmTerm?: string;
   };
   // Props para manejar el evento de cita agendada
-  inviteCode?: string;
+  inviteCode?: string; // For special invites
+  giftId?: string; // For knowledge mode
+  tokenId?: string; // For knowledge mode
   onAppointmentScheduled?: (data: any) => void;
 }
 
@@ -41,6 +43,8 @@ export const CalendlyEmbed: React.FC<CalendlyEmbedProps> = ({
   prefill = {},
   utm = {},
   inviteCode,
+  giftId,
+  tokenId,
   onAppointmentScheduled
 }) => {
   // Función para procesar la cita cuando se agenda
@@ -100,7 +104,7 @@ export const CalendlyEmbed: React.FC<CalendlyEmbedProps> = ({
     } catch (error) {
       console.error('❌ Error processing appointment:', error);
     }
-  }, [inviteCode, prefill, onAppointmentScheduled]);
+  }, [inviteCode, giftId, tokenId, prefill, onAppointmentScheduled]);
 
   useEffect(() => {
     console.log('📅 Initializing Calendly Embed with SDK...');

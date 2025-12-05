@@ -29,7 +29,9 @@ interface CalendarBookingModalProps {
   userEmail?: string;
   userName?: string;
   source?: string;
-  inviteCode?: string; // For saving to database
+  inviteCode?: string; // For saving to database (special invites)
+  giftId?: string; // For knowledge mode tracking
+  tokenId?: string; // For knowledge mode tracking
 }
 
 // Appointment data structure for callbacks
@@ -52,6 +54,8 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
   userEmail,
   userName,
   inviteCode,
+  giftId,
+  tokenId,
   source = 'special-invite'
 }) => {
   const [isBooked, setIsBooked] = useState(false);
@@ -183,6 +187,8 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
                     utmContent: source
                   }}
                   inviteCode={inviteCode}
+                  giftId={giftId}
+                  tokenId={tokenId}
                   onAppointmentScheduled={handleAppointmentScheduled}
                 />
               </div>
