@@ -843,19 +843,19 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                         <div className="grid grid-cols-4 gap-2">
                           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 text-center">
                             <div className="text-xs text-blue-600 dark:text-blue-400 mb-1">Clicks</div>
-                            <div className="text-lg font-bold text-blue-700 dark:text-blue-300">{invite.totalClicks}</div>
+                            <div className="text-lg font-bold text-blue-700 dark:text-blue-300">{invite.totalClicks || 0}</div>
                           </div>
                           <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2 text-center">
                             <div className="text-xs text-green-600 dark:text-green-400 mb-1">Reclamados</div>
-                            <div className="text-lg font-bold text-green-700 dark:text-green-300">{invite.totalClaims}</div>
+                            <div className="text-lg font-bold text-green-700 dark:text-green-300">{invite.totalClaims || 0}</div>
                           </div>
                           <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-2 text-center">
                             <div className="text-xs text-purple-600 dark:text-purple-400 mb-1">Completados</div>
-                            <div className="text-lg font-bold text-purple-700 dark:text-purple-300">{invite.totalCompleted}</div>
+                            <div className="text-lg font-bold text-purple-700 dark:text-purple-300">{invite.totalCompleted || 0}</div>
                           </div>
                           <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2 text-center">
                             <div className="text-xs text-amber-600 dark:text-amber-400 mb-1">Conversion</div>
-                            <div className="text-lg font-bold text-amber-700 dark:text-amber-300">{invite.conversionRate.toFixed(0)}%</div>
+                            <div className="text-lg font-bold text-amber-700 dark:text-amber-300">{(invite.conversionRate || 0).toFixed(0)}%</div>
                           </div>
                         </div>
 
