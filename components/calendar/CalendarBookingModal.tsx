@@ -142,14 +142,28 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
     if (!isOpen) return;
 
     const handleCalendlyEvent = (e: MessageEvent) => {
-      // Log ALL postMessage events for debugging (no filtering)
-      console.log('📩 [CALENDLY DEBUG] Received postMessage:', {
-        origin: e.origin,
-        hasData: !!e.data,
-        dataType: typeof e.data,
-        eventName: e.data?.event || e.data?.type,
-        data: JSON.stringify(e.data)
-      });
+      // ULTRA-DETAILED LOGGING: Show exact structure of Calendly events
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📩 [CALENDLY DEBUG] NEW postMessage received');
+      console.log('Origin:', e.origin);
+      console.log('Data type:', typeof e.data);
+
+      // Log ALL properties of e.data
+      if (typeof e.data === 'object' && e.data !== null) {
+        console.log('Properties in e.data:', Object.keys(e.data));
+        console.log('Full e.data object:');
+        console.dir(e.data, { depth: 5 }); // Deep inspection
+
+        // Try different property access methods
+        console.log('e.data.event:', e.data.event);
+        console.log('e.data.type:', e.data.type);
+        console.log('e.data.eventName:', (e.data as any).eventName);
+        console.log('e.data.name:', (e.data as any).name);
+        console.log('e.data.payload:', e.data.payload);
+      } else {
+        console.log('e.data (raw):', e.data);
+      }
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
       // Skip non-Calendly messages
       if (!e.origin.includes('calendly.com') && e.data && typeof e.data === 'object') {
@@ -158,8 +172,8 @@ export const CalendarBookingModal: React.FC<CalendarBookingModalProps> = ({
       }
 
       // Check for various Calendly event formats
-      const eventName = e.data?.event || e.data?.type;
-      console.log('🔍 [CALENDLY DEBUG] Checking event:', eventName);
+      const eventName = e.data?.event || e.data?.type || (e.data as any)?.eventName;
+      console.log('🔍 [CALENDLY DEBUG] Extracted eventName:', eventName);
 
       // Calendly sends these events when scheduling is complete
       if (
