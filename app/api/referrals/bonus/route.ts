@@ -5,9 +5,13 @@
  * GET - Check bonus status for a wallet
  *
  * @endpoint /api/referrals/bonus
+ *
+ * SECURITY: POST requires wallet authentication via x-wallet-address header
+ * and verifies the authenticated wallet matches the request body wallet.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authHelpers, type AuthContext } from '@/lib/auth/middleware';
 import {
   distributeSignupBonus,
   getSignupBonusStatus,
@@ -84,7 +88,8 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/referrals/bonus - Distribute signup bonus
-export async function POST(request: NextRequest) {
+// SECURITY: Requires wallet authentication and ownership verification
+export const POST = authHelpers.protected(async (request: NextRequest, context: AuthContext) => {
   try {
     const body = await request.json();
     const { wallet, referralCode } = body;
@@ -107,6 +112,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Invalid wallet address format' },
         { status: 400 }
+      );
+    }
+
+    // SECURITY: Verify the authenticated wallet matches the request wallet
+    // This prevents attackers from claiming bonus for other wallets
+    const authenticatedWallet = context.address?.toLowerCase();
+    const requestedWallet = wallet.toLowerCase();
+
+    if (authenticatedWallet !== requestedWallet) {
+      console.warn(`[BonusAPI] SECURITY: Wallet mismatch - Auth: ${authenticatedWallet}, Request: ${requestedWallet}`);
+      return NextResponse.json(
+        { error: 'Unauthorized: You can only claim bonus for your own wallet' },
+        { status: 403 }
       );
     }
 
@@ -165,4 +183,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

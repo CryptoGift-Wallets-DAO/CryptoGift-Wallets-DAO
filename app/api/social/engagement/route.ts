@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authHelpers, type AuthContext } from '@/lib/auth/middleware';
 import {
   getEngagementStatus,
   claimEngagementReward,
@@ -53,9 +54,10 @@ export async function GET(request: NextRequest) {
 
 // ============================================
 // POST - Claim reward or record click
+// SECURITY: Requires wallet authentication and ownership verification
 // ============================================
 
-export async function POST(request: NextRequest) {
+export const POST = authHelpers.protected(async (request: NextRequest, context: AuthContext) => {
   try {
     const body = await request.json();
     const { walletAddress, platform, action } = body;
@@ -74,6 +76,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // SECURITY: Verify the authenticated wallet matches the request wallet
+    // This prevents attackers from claiming rewards for other wallets
+    const authenticatedWallet = context.address?.toLowerCase();
+    const requestedWallet = walletAddress.toLowerCase();
+
+    if (authenticatedWallet !== requestedWallet) {
+      console.warn(`[EngagementAPI] SECURITY: Wallet mismatch - Auth: ${authenticatedWallet}, Request: ${requestedWallet}`);
+      return NextResponse.json(
+        { error: 'Unauthorized: You can only claim rewards for your own wallet' },
+        { status: 403 }
+      );
+    }
+
     const platformType = platform as SocialEngagementPlatform;
 
     // Handle different actions
@@ -89,6 +104,7 @@ export async function POST(request: NextRequest) {
 
     if (action === 'claim') {
       // Claim the reward
+      console.log(`[EngagementAPI] Processing claim for ${walletAddress} on ${platform}`);
       const result = await claimEngagementReward(walletAddress, platformType);
 
       if (!result.success) {
@@ -121,4 +137,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

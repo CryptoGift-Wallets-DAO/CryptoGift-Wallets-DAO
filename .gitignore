@@ -165,3 +165,12 @@ METRICAS/
 DELIVERABLES/
 TEMPLATES/
 **/videos e informacion para las presentaciones/
+
+# ========================================
+# SECURITY - Test files with potential secrets
+# ========================================
+test-openai*.js
+test-final*.js
+test-*.js
+!test-*.spec.js
+!test-*.test.js
