@@ -139,7 +139,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
 
       setIsLoadingInvites(true);
       try {
-        const response = await fetch(`/api/referrals/permanent-invite?wallet=${walletAddress}`);
+        const response = await fetch(`/api/referrals/permanent-invite/user?wallet=${walletAddress}`);
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.invites) {
@@ -179,14 +179,15 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
   const handleToggleInviteStatus = useCallback(async (inviteCode: string, currentStatus: string) => {
     if (!walletAddress) return;
 
-    const newStatus = currentStatus === 'active' ? 'paused' : 'active';
+    const action = currentStatus === 'active' ? 'pause' : 'resume';
+    const newStatus = action === 'pause' ? 'paused' : 'active';
     setPausingInviteCode(inviteCode);
 
     try {
-      const response = await fetch('/api/referrals/permanent-invite', {
+      const response = await fetch('/api/referrals/permanent-invite/user', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inviteCode, wallet: walletAddress, status: newStatus }),
+        body: JSON.stringify({ inviteCode, wallet: walletAddress, action }),
       });
 
       if (response.ok) {
@@ -202,6 +203,52 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
       }
     } catch (error) {
       console.error('Error toggling invite status:', error);
+    } finally {
+      setPausingInviteCode(null);
+    }
+  }, [walletAddress]);
+
+  // Delete a permanent invite permanently
+  const handleDeleteInvite = useCallback(async (inviteCode: string) => {
+    if (!walletAddress) return;
+
+    const confirmed = window.confirm(
+      '¿Estás seguro de que quieres eliminar este enlace permanente?\n\n' +
+      'Esta acción NO se puede deshacer. Se eliminarán todos los datos asociados:\n' +
+      '- El enlace dejará de funcionar\n' +
+      '- Se perderá el historial de usuarios\n' +
+      '- Se eliminarán las estadísticas\n\n' +
+      'Si solo quieres pausar el enlace temporalmente, usa el botón "Pausar" en su lugar.'
+    );
+
+    if (!confirmed) return;
+
+    setPausingInviteCode(inviteCode);
+
+    try {
+      const response = await fetch('/api/referrals/permanent-invite/user', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inviteCode, wallet: walletAddress }),
+      });
+
+      if (response.ok) {
+        // Remove from local state
+        setPermanentInvites(prev => prev.filter(invite => invite.inviteCode !== inviteCode));
+        // Clear claim history for this invite
+        setClaimHistory(prev => {
+          const newHistory = { ...prev };
+          delete newHistory[inviteCode];
+          return newHistory;
+        });
+        console.log(`🗑️ Deleted permanent invite ${inviteCode}`);
+      } else {
+        const data = await response.json();
+        alert(`Error al eliminar: ${data.error || 'Error desconocido'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting invite:', error);
+      alert('Error al eliminar el enlace. Por favor intenta de nuevo.');
     } finally {
       setPausingInviteCode(null);
     }
@@ -878,6 +925,24 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                               <>
                                 <Play className="h-3 w-3 mr-1" />
                                 Reanudar
+                              </>
+                            )}
+                          </Button>
+
+                          {/* Delete Button */}
+                          <Button
+                            onClick={() => handleDeleteInvite(invite.inviteCode)}
+                            variant="outline"
+                            size="sm"
+                            disabled={pausingInviteCode === invite.inviteCode}
+                            className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                          >
+                            {pausingInviteCode === invite.inviteCode ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <>
+                                <X className="h-3 w-3 mr-1" />
+                                Eliminar
                               </>
                             )}
                           </Button>
