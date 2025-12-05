@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
     // Increment click counter (using RPC function from migration)
     await db.rpc('increment_permanent_invite_clicks', {
       p_invite_code: normalizedCode,
-    }).catch(err => {
+    }).catch((err: unknown) => {
       // Non-critical if RPC fails
       console.warn('Failed to increment clicks:', err);
     });

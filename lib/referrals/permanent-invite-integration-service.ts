@@ -291,7 +291,7 @@ export async function getPermanentInviteReferrals(
 
     if (!claims) return [];
 
-    return claims.map(claim => ({
+    return claims.map((claim: any) => ({
       wallet: claim.claimed_by_wallet,
       claimedAt: claim.claimed_at,
       completedAt: claim.completed_at,

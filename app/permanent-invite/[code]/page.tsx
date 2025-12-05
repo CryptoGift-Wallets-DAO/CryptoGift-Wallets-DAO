@@ -226,7 +226,7 @@ export default function PermanentInvitePage() {
           customMessage: inviteData.customMessage,
           hasPassword: inviteData.hasPassword,
           createdAt: inviteData.createdAt,
-          expiresAt: inviteData.expiresAt,
+          expiresAt: inviteData.expiresAt || undefined,
           image: inviteData.image,
         }}
         onClaimComplete={handleClaimComplete}

@@ -76,19 +76,19 @@ export async function GET(request: NextRequest) {
 
     // Calculate analytics
     const totalClaims = claims?.length || 0;
-    const completedClaims = claims?.filter(c => c.completed_at !== null).length || 0;
-    const bonusClaimedCount = claims?.filter(c => c.signup_bonus_claimed).length || 0;
-    const totalBonusDistributed = claims?.reduce((sum, c) => sum + (c.bonus_amount || 0), 0) || 0;
+    const completedClaims = claims?.filter((c: any) => c.completed_at !== null).length || 0;
+    const bonusClaimedCount = claims?.filter((c: any) => c.signup_bonus_claimed).length || 0;
+    const totalBonusDistributed = claims?.reduce((sum: number, c: any) => sum + (c.bonus_amount || 0), 0) || 0;
 
     // Get source breakdown
-    const sourceBreakdown = claims?.reduce((acc: Record<string, number>, claim) => {
+    const sourceBreakdown = claims?.reduce((acc: Record<string, number>, claim: any) => {
       const source = claim.source || 'direct';
       acc[source] = (acc[source] || 0) + 1;
       return acc;
     }, {}) || {};
 
     // Format claims for response
-    const formattedClaims = claims?.map(claim => ({
+    const formattedClaims = claims?.map((claim: any) => ({
       wallet: claim.claimed_by_wallet,
       claimedAt: claim.claimed_at,
       completedAt: claim.completed_at,
