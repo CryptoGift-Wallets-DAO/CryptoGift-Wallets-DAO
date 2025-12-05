@@ -107,6 +107,7 @@ interface InviteData {
 interface SpecialInviteFlowProps {
   inviteData: InviteData;
   onClaimComplete: (walletAddress: string) => void;
+  isPermanent?: boolean; // Flag to use permanent invite APIs instead of special invite APIs
   className?: string;
 }
 
@@ -115,6 +116,7 @@ type FlowStep = 'welcome' | 'password' | 'education' | 'connect' | 'complete';
 export function SpecialInviteFlow({
   inviteData,
   onClaimComplete,
+  isPermanent = false,
   className = ''
 }: SpecialInviteFlowProps) {
   const account = useActiveAccount();
@@ -183,7 +185,12 @@ export function SpecialInviteFlow({
     setValidationError(null);
 
     try {
-      const response = await fetch('/api/referrals/special-invite/verify-password', {
+      // Use appropriate API endpoint based on invite type
+      const endpoint = isPermanent
+        ? '/api/referrals/permanent-invite/verify-password'
+        : '/api/referrals/special-invite/verify-password';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -223,8 +230,13 @@ export function SpecialInviteFlow({
     if (!account?.address) return;
 
     try {
+      // Use appropriate API endpoint based on invite type
+      const endpoint = isPermanent
+        ? '/api/referrals/permanent-invite/claim'
+        : '/api/referrals/special-invite/claim';
+
       // Claim the invite
-      const response = await fetch('/api/referrals/special-invite/claim', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -243,7 +255,7 @@ export function SpecialInviteFlow({
     } catch (error) {
       console.error('Error claiming invite:', error);
     }
-  }, [account?.address, inviteData.code, onClaimComplete]);
+  }, [account?.address, inviteData.code, onClaimComplete, isPermanent]);
 
   // Start flow
   const handleStartFlow = () => {

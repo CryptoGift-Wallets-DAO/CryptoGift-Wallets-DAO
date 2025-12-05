@@ -12,6 +12,7 @@ import { useTranslations } from 'next-intl';
 import { Navbar } from '@/components/layout/Navbar';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { SpecialReferralCard } from '@/components/referrals/SpecialReferralCard';
+import { PermanentReferralCard } from '@/components/referrals/PermanentReferralCard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -331,7 +332,10 @@ function ReferralsDashboard() {
         </Card>
       </div>
 
-      {/* Special Referral Link Section */}
+      {/* Permanent Referral Link Section (FEATURED - Multi-use, never expires) */}
+      <PermanentReferralCard referralCode={referralCode} walletAddress={address} />
+
+      {/* Special Referral Link Section (Limited - one-time use, minimized) */}
       <SpecialReferralCard referralCode={referralCode} walletAddress={address} />
 
       {/* Tabs */}

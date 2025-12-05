@@ -1,0 +1,154 @@
+/**
+ * 🎯 CLAIM PERMANENT INVITE
+ *
+ * Marks a permanent invite as claimed by a user.
+ * Creates a claim record in permanent_special_invite_claims table.
+ *
+ * MULTI-USER TRACKING:
+ * - Each user gets their own claim record
+ * - Same wallet can only claim once per invite
+ * - Invite stays active for other users
+ *
+ * @endpoint POST /api/referrals/permanent-invite/claim
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import type { PermanentSpecialInviteClaimInsert } from '@/lib/supabase/types';
+
+// Lazy Supabase initialization
+let supabase: ReturnType<typeof createClient> | null = null;
+
+function getSupabase() {
+  if (supabase) return supabase;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_DAO_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_DAO_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error('Supabase environment variables not configured');
+  }
+
+  supabase = createClient(url, key);
+  return supabase;
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      code,
+      claimedBy,
+      source,
+      campaign,
+      ipHash,
+      userAgent,
+    } = body;
+
+    if (!code || !claimedBy) {
+      return NextResponse.json(
+        { error: 'Code and claimedBy wallet are required', success: false },
+        { status: 400 }
+      );
+    }
+
+    if (!/^0x[a-fA-F0-9]{40}$/.test(claimedBy)) {
+      return NextResponse.json(
+        { error: 'Invalid wallet address', success: false },
+        { status: 400 }
+      );
+    }
+
+    const db = getSupabase();
+    const normalizedWallet = claimedBy.toLowerCase();
+    const normalizedCode = code.toUpperCase();
+
+    // Check if wallet already claimed this invite
+    const { data: existingClaim } = await db
+      .from('permanent_special_invite_claims')
+      .select('id')
+      .eq('invite_code', normalizedCode)
+      .eq('claimed_by_wallet', normalizedWallet)
+      .single();
+
+    if (existingClaim) {
+      return NextResponse.json({
+        success: true,
+        alreadyClaimed: true,
+        message: 'You have already claimed this invite',
+      });
+    }
+
+    // Get invite details for referrer info
+    const { data: invite } = await db
+      .from('permanent_special_invites')
+      .select('referrer_wallet, referrer_code')
+      .eq('invite_code', normalizedCode)
+      .single();
+
+    // Create claim record
+    const claimData: PermanentSpecialInviteClaimInsert = {
+      invite_code: normalizedCode,
+      claimed_by_wallet: normalizedWallet,
+      referrer_wallet: invite?.referrer_wallet || null,
+      referrer_code: invite?.referrer_code || null,
+      education_completed: false,
+      wallet_connected: true,
+      profile_created: false,
+      signup_bonus_claimed: false,
+      ip_hash: ipHash || null,
+      user_agent: userAgent || null,
+      source: source || null,
+      campaign: campaign || null,
+      claimed_at: new Date().toISOString(),
+    };
+
+    const { error: claimError } = await db
+      .from('permanent_special_invite_claims')
+      .insert(claimData);
+
+    if (claimError) {
+      // Unique constraint violation (wallet already claimed)
+      if (claimError.code === '23505') {
+        return NextResponse.json({
+          success: true,
+          alreadyClaimed: true,
+          message: 'You have already claimed this invite',
+        });
+      }
+
+      console.error('Error creating claim:', claimError);
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to create claim record',
+        warning: 'User may have already onboarded successfully',
+      }, { status: 500 });
+    }
+
+    // Increment click counter (using RPC function from migration)
+    await db.rpc('increment_permanent_invite_clicks', {
+      p_invite_code: normalizedCode,
+    }).catch(err => {
+      // Non-critical if RPC fails
+      console.warn('Failed to increment clicks:', err);
+    });
+
+    console.log('✅ Permanent invite claimed:', {
+      code: normalizedCode,
+      claimedBy: normalizedWallet.slice(0, 6) + '...' + normalizedWallet.slice(-4),
+      referrer: invite?.referrer_wallet?.slice(0, 6) + '...' + invite?.referrer_wallet?.slice(-4),
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Invite claimed successfully',
+      claimId: normalizedCode + '-' + normalizedWallet.slice(0, 10),
+    });
+  } catch (error) {
+    console.error('Error claiming permanent invite:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Internal server error',
+    }, { status: 500 });
+  }
+}

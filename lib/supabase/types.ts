@@ -311,6 +311,7 @@ export interface Database {
           status: 'pending' | 'active' | 'inactive' | 'banned'
           source: string | null
           campaign: string | null
+          source_permanent_invite: string | null
           tasks_completed: number
           cgc_earned: number
           referrer_earnings: number
@@ -328,6 +329,7 @@ export interface Database {
           status?: 'pending' | 'active' | 'inactive' | 'banned'
           source?: string | null
           campaign?: string | null
+          source_permanent_invite?: string | null
           tasks_completed?: number
           cgc_earned?: number
           referrer_earnings?: number
@@ -345,6 +347,7 @@ export interface Database {
           status?: 'pending' | 'active' | 'inactive' | 'banned'
           source?: string | null
           campaign?: string | null
+          source_permanent_invite?: string | null
           tasks_completed?: number
           cgc_earned?: number
           referrer_earnings?: number
@@ -464,6 +467,145 @@ export interface Database {
           converted_at?: string | null
           conversion_time?: string | null
           created_at?: string
+        }
+      }
+      // ============================================
+      // 🔗 PERMANENT SPECIAL INVITES SYSTEM
+      // ============================================
+      permanent_special_invites: {
+        Row: {
+          id: string
+          invite_code: string
+          referrer_wallet: string
+          referrer_code: string | null
+          custom_message: string | null
+          custom_title: string | null
+          image_url: string | null
+          password_hash: string | null
+          status: 'active' | 'paused' | 'disabled'
+          never_expires: boolean
+          expires_at: string | null
+          max_claims: number | null
+          total_clicks: number
+          total_claims: number
+          total_completed: number
+          conversion_rate: number
+          metadata: Json | null
+          created_at: string
+          updated_at: string
+          last_claimed_at: string | null
+        }
+        Insert: {
+          id?: string
+          invite_code: string
+          referrer_wallet: string
+          referrer_code?: string | null
+          custom_message?: string | null
+          custom_title?: string | null
+          image_url?: string | null
+          password_hash?: string | null
+          status?: 'active' | 'paused' | 'disabled'
+          never_expires?: boolean
+          expires_at?: string | null
+          max_claims?: number | null
+          total_clicks?: number
+          total_claims?: number
+          total_completed?: number
+          conversion_rate?: number
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+          last_claimed_at?: string | null
+        }
+        Update: {
+          id?: string
+          invite_code?: string
+          referrer_wallet?: string
+          referrer_code?: string | null
+          custom_message?: string | null
+          custom_title?: string | null
+          image_url?: string | null
+          password_hash?: string | null
+          status?: 'active' | 'paused' | 'disabled'
+          never_expires?: boolean
+          expires_at?: string | null
+          max_claims?: number | null
+          total_clicks?: number
+          total_claims?: number
+          total_completed?: number
+          conversion_rate?: number
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+          last_claimed_at?: string | null
+        }
+      }
+      permanent_special_invite_claims: {
+        Row: {
+          id: string
+          invite_code: string
+          claimed_by_wallet: string
+          referrer_wallet: string | null
+          referrer_code: string | null
+          education_completed: boolean
+          wallet_connected: boolean
+          profile_created: boolean
+          signup_bonus_claimed: boolean
+          bonus_amount: number
+          bonus_tx_hash: string | null
+          bonus_claimed_at: string | null
+          ip_hash: string | null
+          user_agent: string | null
+          source: string | null
+          campaign: string | null
+          clicked_at: string | null
+          claimed_at: string
+          completed_at: string | null
+          metadata: Json | null
+        }
+        Insert: {
+          id?: string
+          invite_code: string
+          claimed_by_wallet: string
+          referrer_wallet?: string | null
+          referrer_code?: string | null
+          education_completed?: boolean
+          wallet_connected?: boolean
+          profile_created?: boolean
+          signup_bonus_claimed?: boolean
+          bonus_amount?: number
+          bonus_tx_hash?: string | null
+          bonus_claimed_at?: string | null
+          ip_hash?: string | null
+          user_agent?: string | null
+          source?: string | null
+          campaign?: string | null
+          clicked_at?: string | null
+          claimed_at?: string
+          completed_at?: string | null
+          metadata?: Json | null
+        }
+        Update: {
+          id?: string
+          invite_code?: string
+          claimed_by_wallet?: string
+          referrer_wallet?: string | null
+          referrer_code?: string | null
+          education_completed?: boolean
+          wallet_connected?: boolean
+          profile_created?: boolean
+          signup_bonus_claimed?: boolean
+          bonus_amount?: number
+          bonus_tx_hash?: string | null
+          bonus_claimed_at?: string | null
+          ip_hash?: string | null
+          user_agent?: string | null
+          source?: string | null
+          campaign?: string | null
+          clicked_at?: string | null
+          claimed_at?: string
+          completed_at?: string | null
+          metadata?: Json | null
         }
       }
     }
@@ -589,6 +731,16 @@ export type ReferralRewardUpdate = Database['public']['Tables']['referral_reward
 export type ReferralClick = Database['public']['Tables']['referral_clicks']['Row']
 export type ReferralClickInsert = Database['public']['Tables']['referral_clicks']['Insert']
 export type ReferralClickUpdate = Database['public']['Tables']['referral_clicks']['Update']
+
+export type PermanentSpecialInvite = Database['public']['Tables']['permanent_special_invites']['Row']
+export type PermanentSpecialInviteInsert = Database['public']['Tables']['permanent_special_invites']['Insert']
+export type PermanentSpecialInviteUpdate = Database['public']['Tables']['permanent_special_invites']['Update']
+
+export type PermanentSpecialInviteClaim = Database['public']['Tables']['permanent_special_invite_claims']['Row']
+export type PermanentSpecialInviteClaimInsert = Database['public']['Tables']['permanent_special_invite_claims']['Insert']
+export type PermanentSpecialInviteClaimUpdate = Database['public']['Tables']['permanent_special_invite_claims']['Update']
+
+export type PermanentInviteStatus = 'active' | 'paused' | 'disabled'
 
 export type ReferralLevel = 1 | 2 | 3
 export type ReferralStatus = 'pending' | 'active' | 'inactive' | 'banned'
