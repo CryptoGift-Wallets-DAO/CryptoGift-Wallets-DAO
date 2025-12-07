@@ -176,43 +176,41 @@ node scripts/generate-whitepaper-html.js
 
 ---
 
-## 🎯 SIGUIENTE PASO: EXPORTAR PDF
+## ⚠️ NOTA SOBRE PDF DEL WHITEPAPER
 
-### Instrucciones para Generar el PDF Final
+**IMPORTANTE**: CoinGecko acepta whitepaper en formato HTML perfectamente. NO es necesario generar PDF.
 
-1. **Abrir el archivo HTML en el navegador**:
-   ```
-   Ubicación: C:\Users\rafae\cryptogift-wallets-DAO\public\CRYPTOGIFT_WHITEPAPER_v1.2.html
-   ```
+El whitepaper HTML está optimizado para:
+- ✅ Visualización web directa
+- ✅ Print-to-PDF si necesario (Ctrl+P en navegador)
+- ✅ Styling profesional y responsive
+- ✅ Links funcionando correctamente
 
-   - **Opción A**: Doble clic en el archivo
-   - **Opción B**: Arrastrar el archivo al navegador
-   - **Opción C**: `Ctrl+O` en el navegador y seleccionar el archivo
+**URL del Whitepaper para CoinGecko**:
+```
+https://crypto-gift-wallets-dao.vercel.app/CRYPTOGIFT_WHITEPAPER_v1.2.html
+```
 
-2. **Configurar Impresión a PDF**:
+### Si necesitas PDF (opcional):
+
+1. **Abrir el HTML en navegador**:
+   - Ir a: https://crypto-gift-wallets-dao.vercel.app/CRYPTOGIFT_WHITEPAPER_v1.2.html
+
+2. **Imprimir a PDF**:
    - Presionar: `Ctrl+P` (Windows) o `Cmd+P` (Mac)
-   - **Destino**: Seleccionar "Guardar como PDF" o "Microsoft Print to PDF"
+   - **Destino**: "Guardar como PDF" o "Microsoft Print to PDF"
    - **Tamaño de papel**: A4 o Letter
-   - **Márgenes**: Predeterminado
-   - **Gráficos de fondo**: ✅ ACTIVADO (importante para logos y estilos)
+   - **Gráficos de fondo**: ✅ ACTIVADO
    - **Orientación**: Vertical
 
-3. **Guardar**:
-   - Nombre sugerido: `CRYPTOGIFT_WHITEPAPER_v1.2.pdf`
-   - Ubicación: `public/CRYPTOGIFT_WHITEPAPER_v1.2.pdf`
-
-4. **Verificar**:
-   - Abrir el PDF generado
-   - Verificar que todos los estilos se vean correctos
-   - Verificar que las tablas estén formateadas
-   - Verificar que los links sean visibles
+3. **Guardar**: `CRYPTOGIFT_WHITEPAPER_v1.2.pdf`
 
 ---
 
 ## 📊 CHECKLIST COINGECKO (100% COMPLETO)
 
 ### ✅ Documentación Requerida
-- [x] **Whitepaper**: ✅ Markdown + HTML + (PDF cuando lo exportes)
+- [x] **Whitepaper**: ✅ Markdown + HTML (disponible en línea)
 - [x] **Total Supply API**: ✅ `/api/token/total-supply`
 - [x] **Circulating Supply API**: ✅ `/api/token/circulating-supply`
 - [x] **Contract Verification**: ✅ Verificado en BaseScan

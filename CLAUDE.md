@@ -99,6 +99,7 @@ NOTA: Los contratos siguientes fueron reemplazados por el nuevo sistema:
 - **⏰ Competitive Features**: ✅ Countdown timers, auto-expiration, claim confirmation
 - **🏷️ Token Metadata**: ✅ Sistema completo con logos optimizados, APIs CoinGecko
 - **📊 CoinGecko Ready**: ✅ Total Supply + Circulating Supply APIs + whitepaper actualizado
+- **🤖 Automated Minting**: 📋 Sistema diseñado (ver `docs/AUTOMATED_MINTING_SYSTEM.md`) - OBJETIVO A CORTO PLAZO
 
 ---
 
