@@ -1,11 +1,22 @@
 import { NextResponse } from 'next/server';
 
+/**
+ * ⚠️ DEPRECATED: This endpoint is deprecated in favor of /api/token/total-supply
+ * Please use the new CoinGecko-compliant endpoint for accurate supply information.
+ *
+ * CGC Token Emission Model: Progressive Milestone-Based Minting
+ * - Initial Supply: 2,000,000 CGC (current minted)
+ * - Max Supply: 22,000,000 CGC (theoretical maximum via milestone achievements)
+ * - Authorized Minter: MilestoneEscrow (0x8346CFcaECc90d678d862319449E5a742c03f109)
+ * - Emission Mechanism: DAO completes verified milestones → New tokens minted
+ */
+
 // CGC Token details for CoinGecko API
 const CGC_TOKEN_CONFIG = {
   token_address: '0x5e3a61b550328f3D8C44f60b3e10a49D3d806175',
   chain_id: 8453, // Base Mainnet
   decimals: 18,
-  total_supply: '2000000000000000000000000', // 2M CGC with 18 decimals
+  total_supply: '2000000000000000000000000', // 2M CGC initial (22M max via milestones)
   symbol: 'CGC',
   name: 'CryptoGift Coin'
 };

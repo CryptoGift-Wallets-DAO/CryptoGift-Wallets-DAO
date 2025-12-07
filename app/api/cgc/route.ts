@@ -1,5 +1,13 @@
 import { NextResponse } from 'next/server';
 
+/**
+ * ⚠️ DEPRECATED: This endpoint is deprecated in favor of /api/token/total-supply
+ * Please use the new CoinGecko-compliant endpoint for accurate supply information.
+ *
+ * CGC uses milestone-based progressive emission:
+ * Initial: 2M CGC → Max: 22M CGC (via verified milestone achievements)
+ */
+
 // Simple CGC Token API for CoinGecko
 export async function GET() {
   try {

@@ -2,9 +2,18 @@
 
 ## 🎯 INFORMACIÓN CRÍTICA DEL PROYECTO
 
-**Estado Actual**: ✅ PRODUCTION READY - Base Mainnet  
-**Progreso**: 100% Core Deployment Completado  
-**Fase**: Sistema completamente operacional con máxima excelencia  
+**Estado Actual**: ✅ PRODUCTION READY - Base Mainnet
+**Progreso**: 100% Core Deployment Completado
+**Fase**: Sistema completamente operacional con máxima excelencia
+
+## ⚠️ NOTA IMPORTANTE - TOKENOMICS UPDATE (7 DIC 2025)
+
+**MODELO DE EMISIÓN ACTUALIZADO:**
+- **Anterior**: 2,000,000 CGC como supply fijo
+- **Actual**: 2,000,000 CGC initial supply → 22,000,000 CGC max supply
+- **Modelo**: Progressive Milestone-Based Emission
+
+Todas las referencias históricas a "2M CGC" en este documento se refieren ahora al **supply inicial** del modelo de emisión progresiva. Ver `CRYPTOGIFT_WHITEPAPER_v1.2.md` para detalles completos del modelo de emisión por milestones.
 
 ---
 

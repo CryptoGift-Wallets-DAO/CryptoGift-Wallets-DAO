@@ -22,12 +22,12 @@ node scripts/emergency-toolkit.js status
 
 ## 📋 Estado del Proyecto
 
-**Fase**: ✅ PRODUCTION READY - Sistema Competitivo + Token Metadata Completamente Operacional  
-**Red**: Base Mainnet (Chain ID: 8453)  
-**DAO Desplegado**: ✅ `0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31`  
-**Token**: CGC (CryptoGift Coin) - ✅ 2,000,000 supply con logo GitHub + CoinGecko APIs  
-**Framework**: Aragon OSx v1.4.0 + Sistema EIP-712 personalizado  
-**Última Actualización**: 9 Enero 2025 - Token metadata system + CoinGecko integration + BaseScan ready
+**Fase**: ✅ PRODUCTION READY - Sistema Competitivo + Token Metadata Completamente Operacional
+**Red**: Base Mainnet (Chain ID: 8453)
+**DAO Desplegado**: ✅ `0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31`
+**Token**: CGC (CryptoGift Coin) - ✅ 2M initial supply (22M max via milestone-based emission) + logo GitHub + CoinGecko APIs
+**Framework**: Aragon OSx v1.4.0 + Sistema EIP-712 personalizado
+**Última Actualización**: 7 Diciembre 2025 - Milestone-based progressive emission model implemented
 
 ## 🚀 Quick Start
 
@@ -163,7 +163,9 @@ cryptogift-wallets-DAO/
 
 ### CGC Token
 - **Tipo**: ERC-20 with Votes & Permit
-- **Supply**: 2,000,000 CGC (actualizado)
+- **Initial Supply**: 2,000,000 CGC (current circulating)
+- **Max Supply**: 22,000,000 CGC (via milestone-based progressive emission)
+- **Emission Model**: Progressive minting tied to verified DAO milestone achievements
 - **Logo**: GitHub CDN integrado + BaseScan compatible
 - **Metadata**: Logos optimizados (64x64, 256x256, 512x512), SVG, tokenlist
 - **APIs**: Total Supply + Circulating Supply (CoinGecko compliant)
@@ -210,7 +212,9 @@ cryptogift-wallets-DAO/
 - ✅ **Componente React**: Integración plug-and-play
 - ✅ **API RESTful**: Endpoints para integraciones custom
 
-## 📊 Tokenomics (ACTUALIZADO - 2M CGC Supply)
+## 📊 Tokenomics - Milestone-Based Progressive Emission Model
+
+### Initial Distribution (2M CGC)
 
 | Categoría | % | Cantidad |
 |-----------|---|----------|
@@ -221,8 +225,13 @@ cryptogift-wallets-DAO/
 | Liquidez | 5% | 100,000 CGC |
 | Reserva Emergencia | 5% | 100,000 CGC |
 
-**Total Supply**: 2,000,000 CGC (actualizado desde 1M)  
-**Estado Actual**: 2M CGC minteados al deployer, listos para distribución según tokenomics
+**Initial Supply**: 2,000,000 CGC (current circulating)
+**Max Supply**: 22,000,000 CGC (theoretical maximum via milestone completion)
+**Emission Model**: Progressive Milestone-Based Minting
+- New tokens minted ONLY when DAO completes verified milestones
+- Supply growth tied to actual value creation (platform development, community growth, revenue milestones)
+- Authorized Minter: MilestoneEscrow contract (`0x8346CFcaECc90d678d862319449E5a742c03f109`)
+- Prevents arbitrary dilution while enabling sustainable ecosystem growth
 
 ## 🏛️ Gobernanza
 

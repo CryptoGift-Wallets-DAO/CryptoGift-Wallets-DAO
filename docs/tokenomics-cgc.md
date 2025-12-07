@@ -1,10 +1,25 @@
 # CryptoGift Coin (CGC) — Tokenomics & Distribution (Base Mainnet)
 
-**Max Supply:** 2,000,000 CGC  
-**Decimals:** 18  
-**Contract:** [0x5e3a61b550328f3D8C44f60b3e10a49D3d806175](https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175) (Base Chain ID: 8453)  
-**TGE (UTC):** 2025-01-31 (Token Generation Event)  
+**Initial Supply:** 2,000,000 CGC (current circulating)
+**Max Supply:** 22,000,000 CGC (theoretical maximum via milestone-based emission)
+**Emission Model:** Progressive Milestone-Based Minting
+**Decimals:** 18
+**Contract:** [0x5e3a61b550328f3D8C44f60b3e10a49D3d806175](https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175) (Base Chain ID: 8453)
+**TGE (UTC):** 2025-01-31 (Token Generation Event)
 **Type:** Pure Governance Token (no economic rights)
+
+## Emission Model Overview
+
+CGC uses a **milestone-based progressive emission model** where new tokens are minted ONLY when the DAO creates measurable value through verified milestone completion:
+
+- **Platform Development Milestones** → New tokens minted (target: 8M CGC)
+- **Community Growth Milestones** → New tokens minted (target: 7M CGC)
+- **Revenue & Sustainability Milestones** → New tokens minted (target: 5M CGC)
+- **DAO Governance Decisions** → Can trigger strategic emissions
+
+**Authorized Minter:** MilestoneEscrow contract (`0x8346CFcaECc90d678d862319449E5a742c03f109`)
+
+This ensures token supply expansion is always backed by real value creation, preventing dilution while allowing sustainable growth.
 
 ## Initial Allocation (100%)
 
