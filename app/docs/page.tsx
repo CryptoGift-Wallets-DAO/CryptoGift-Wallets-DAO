@@ -274,6 +274,35 @@ export default function DocsPage() {
                 </CardContent>
               </Card>
 
+              {/* Download Whitepaper */}
+              <Card className="glass-panel bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border-2 border-indigo-200 dark:border-indigo-800">
+                <CardContent className="pt-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center space-x-3">
+                      <Download className="h-10 w-10 text-indigo-600 dark:text-indigo-400" />
+                      <div>
+                        <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-100">
+                          {t('whitepaper.download.title')}
+                        </h3>
+                        <p className="text-sm text-indigo-700 dark:text-indigo-300">
+                          {t('whitepaper.download.description')}
+                        </p>
+                      </div>
+                    </div>
+                    <a
+                      href="/CRYPTOGIFT_WHITEPAPER_v1.2.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl"
+                    >
+                      <FileText className="h-5 w-5" />
+                      <span>{t('whitepaper.download.button')}</span>
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Vision & Mission */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="glass-panel border-l-4 border-l-blue-500">
@@ -800,8 +829,9 @@ export default function DocsPage() {
                 <CardContent>
                   <div className="grid md:grid-cols-3 gap-4">
                     <a
-                      href="/CRYPTOGIFT_WHITEPAPER_v1.2.pdf"
-                      download
+                      href="/CRYPTOGIFT_WHITEPAPER_v1.2.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center space-x-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
                     >
                       <FileText className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
@@ -809,11 +839,11 @@ export default function DocsPage() {
                         <h4 className="font-semibold text-indigo-900 dark:text-indigo-100 text-sm">
                           {t('verification.downloads.whitepaper')}
                         </h4>
-                        <p className="text-xs text-indigo-700 dark:text-indigo-300">PDF</p>
+                        <p className="text-xs text-indigo-700 dark:text-indigo-300">HTML (view/print to PDF)</p>
                       </div>
                     </a>
                     <a
-                      href="/Logo200.PNG"
+                      href="/cgc-logo-200x200.png"
                       download
                       className="flex items-center space-x-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
                     >
@@ -826,7 +856,7 @@ export default function DocsPage() {
                       </div>
                     </a>
                     <a
-                      href="/logo32.png"
+                      href="/cgc-logo-32x32.png"
                       download
                       className="flex items-center space-x-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
                     >

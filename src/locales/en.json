@@ -825,6 +825,11 @@
     "whitepaper": {
       "title": "Whitepaper v1.1",
       "updated": "Last updated: January 9, 2025",
+      "download": {
+        "title": "Download Complete Whitepaper",
+        "description": "Access the full technical documentation",
+        "button": "View Whitepaper"
+      },
       "executive": {
         "title": "Executive Summary",
         "content": "CryptoGift Wallets DAO represents a natural evolution of the CryptoGift ecosystem, transforming Web3 education into a decentralized governance model where learning becomes decision-making power. Built on Base (Ethereum L2), the DAO empowers its community to co-govern the protocol while learning and earning."
