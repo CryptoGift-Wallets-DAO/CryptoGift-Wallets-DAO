@@ -21,7 +21,8 @@
     "deploy:master": "bash scripts/DEPLOY_MASTER.sh",
     "eas:register": "hardhat run scripts/deploy/register-eas-schema.ts",
     "aragon:setup": "hardhat run scripts/deploy/setup-aragon-permissions.ts",
-    "verify": "hardhat verify"
+    "verify": "hardhat verify",
+    "generate:whitepaper": "node scripts/generate-whitepaper-html.js"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.23",

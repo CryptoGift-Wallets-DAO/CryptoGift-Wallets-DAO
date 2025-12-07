@@ -196,7 +196,7 @@ export default function DocsPage() {
 
           {/* Navigation Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <TabsList className="glass-panel p-1 grid w-full grid-cols-5">
+            <TabsList className="glass-panel p-1 grid w-full grid-cols-6">
               <TabsTrigger value="whitepaper" className="data-[state=active]:glass-bubble">
                 <FileText className="h-4 w-4 mr-2" />
                 {t('nav.whitepaper')}
@@ -216,6 +216,10 @@ export default function DocsPage() {
               <TabsTrigger value="roadmap" className="data-[state=active]:glass-bubble">
                 <Map className="h-4 w-4 mr-2" />
                 {t('nav.roadmap')}
+              </TabsTrigger>
+              <TabsTrigger value="verification" className="data-[state=active]:glass-bubble">
+                <Shield className="h-4 w-4 mr-2" />
+                {t('nav.verification')}
               </TabsTrigger>
             </TabsList>
 
@@ -637,6 +641,402 @@ export default function DocsPage() {
                 statusIcon={Target}
                 statusColor="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400"
               />
+            </TabsContent>
+
+            {/* Token Verification Tab */}
+            <TabsContent value="verification" className="space-y-6">
+              {/* Page Header */}
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+                  {t('verification.title')}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                  {t('verification.subtitle')}
+                </p>
+              </div>
+
+              {/* Current Status Card */}
+              <Card className="glass-panel border-l-4 border-l-blue-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Shield className="h-5 w-5 text-blue-500" />
+                    <span>{t('verification.status.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        <h4 className="font-semibold text-amber-900 dark:text-amber-100">
+                          {t('verification.status.coinGeckoStatus')}
+                        </h4>
+                      </div>
+                      <p className="text-sm text-amber-700 dark:text-amber-300">
+                        {t('verification.status.coinGeckoNote')}
+                      </p>
+                    </div>
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        <h4 className="font-semibold text-green-900 dark:text-green-100">
+                          {t('verification.status.baseScanStatus')}
+                        </h4>
+                      </div>
+                      <a
+                        href="https://basescan.org/address/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-green-700 dark:text-green-300 hover:underline flex items-center space-x-1"
+                      >
+                        <span>{t('verification.status.viewOnBaseScan')}</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('verification.status.lastUpdated')}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Token Information Card */}
+              <Card className="glass-panel border-l-4 border-l-purple-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Coins className="h-5 w-5 text-purple-500" />
+                    <span>{t('verification.tokenInfo.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-4">
+                    {/* Contract Address - Most Prominent */}
+                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border-2 border-purple-300 dark:border-purple-700">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold text-purple-900 dark:text-purple-100">
+                          {t('verification.tokenInfo.contractAddress')}
+                        </h4>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText('0x5e3a61b550328f3D8C44f60b3e10a49D3d806175');
+                          }}
+                          className="p-1 hover:bg-purple-100 dark:hover:bg-purple-800 rounded"
+                        >
+                          <Copy className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        </button>
+                      </div>
+                      <code className="text-sm font-mono text-purple-700 dark:text-purple-300 break-all">
+                        0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
+                      </code>
+                    </div>
+
+                    {/* Other Token Details */}
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                          {t('verification.tokenInfo.totalSupply')}
+                        </h4>
+                        <p className="text-gray-900 dark:text-white font-mono">
+                          {t('verification.tokenInfo.totalSupplyValue')}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                          {t('verification.tokenInfo.decimals')}
+                        </h4>
+                        <p className="text-gray-900 dark:text-white font-mono">
+                          {t('verification.tokenInfo.decimalsValue')}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                          {t('verification.tokenInfo.blockchain')}
+                        </h4>
+                        <p className="text-gray-900 dark:text-white">
+                          {t('verification.tokenInfo.blockchainValue')}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                          {t('verification.tokenInfo.tokenStandard')}
+                        </h4>
+                        <p className="text-gray-900 dark:text-white">
+                          {t('verification.tokenInfo.tokenStandardValue')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Downloads Card */}
+              <Card className="glass-panel border-l-4 border-l-indigo-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Download className="h-5 w-5 text-indigo-500" />
+                    <span>{t('verification.downloads.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <a
+                      href="/CRYPTOGIFT_WHITEPAPER_v1.2.pdf"
+                      download
+                      className="flex items-center space-x-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
+                    >
+                      <FileText className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                      <div>
+                        <h4 className="font-semibold text-indigo-900 dark:text-indigo-100 text-sm">
+                          {t('verification.downloads.whitepaper')}
+                        </h4>
+                        <p className="text-xs text-indigo-700 dark:text-indigo-300">PDF</p>
+                      </div>
+                    </a>
+                    <a
+                      href="/Logo200.PNG"
+                      download
+                      className="flex items-center space-x-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
+                    >
+                      <Image className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                      <div>
+                        <h4 className="font-semibold text-indigo-900 dark:text-indigo-100 text-sm">
+                          {t('verification.downloads.logo200')}
+                        </h4>
+                        <p className="text-xs text-indigo-700 dark:text-indigo-300">200x200 PNG</p>
+                      </div>
+                    </a>
+                    <a
+                      href="/logo32.png"
+                      download
+                      className="flex items-center space-x-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
+                    >
+                      <Image className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                      <div>
+                        <h4 className="font-semibold text-indigo-900 dark:text-indigo-100 text-sm">
+                          {t('verification.downloads.logo32')}
+                        </h4>
+                        <p className="text-xs text-indigo-700 dark:text-indigo-300">32x32 PNG</p>
+                      </div>
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* CoinGecko Requirements Card */}
+              <Card className="glass-panel border-l-4 border-l-amber-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <TrendingUp className="h-5 w-5 text-amber-500" />
+                    <span>{t('verification.coingecko.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                      {t('verification.coingecko.statusTitle')}
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                      {t('verification.coingecko.previousRequest')}
+                    </p>
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      {t('verification.coingecko.rejectionReason')}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                      {t('verification.coingecko.requirementsTitle')}
+                    </h4>
+                    <ul className="space-y-2">
+                      <li className="flex items-start space-x-2">
+                        <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {t('verification.coingecko.req1')}
+                        </span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {t('verification.coingecko.req2')}
+                        </span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {t('verification.coingecko.req3')}
+                        </span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <Clock className="h-5 w-5 text-amber-500 mt-0.5" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {t('verification.coingecko.req4')}
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
+                      {t('verification.coingecko.nextStepsTitle')}
+                    </h4>
+                    <ol className="space-y-2 list-decimal list-inside">
+                      <li className="text-sm text-gray-700 dark:text-gray-300">
+                        {t('verification.coingecko.step1')}
+                      </li>
+                      <li className="text-sm text-gray-700 dark:text-gray-300">
+                        {t('verification.coingecko.step2')}
+                      </li>
+                      <li className="text-sm text-gray-700 dark:text-gray-300">
+                        {t('verification.coingecko.step3')}
+                      </li>
+                    </ol>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Links Card */}
+              <Card className="glass-panel border-l-4 border-l-blue-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Link2 className="h-5 w-5 text-blue-500" />
+                    <span>{t('verification.links.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <a
+                      href="https://basescan.org/address/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                    >
+                      <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                        BaseScan
+                      </span>
+                      <ExternalLink className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </a>
+                    <a
+                      href="https://github.com/mbxarts/cryptogift-wallets-DAO"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                    >
+                      <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                        GitHub
+                      </span>
+                      <ExternalLink className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </a>
+                    <a
+                      href="https://x.com/CryptoGiftDAO"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                    >
+                      <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                        Twitter/X
+                      </span>
+                      <ExternalLink className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </a>
+                    <a
+                      href="https://discord.gg/cryptogift"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                    >
+                      <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                        Discord
+                      </span>
+                      <ExternalLink className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* API Endpoints Card */}
+              <Card className="glass-panel border-l-4 border-l-green-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Code className="h-5 w-5 text-green-500" />
+                    <span>{t('verification.api.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <h4 className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">
+                      {t('verification.api.totalSupply')}
+                    </h4>
+                    <code className="text-xs font-mono text-green-700 dark:text-green-300 break-all">
+                      GET https://crypto-gift-wallets-dao.vercel.app/api/token/total-supply
+                    </code>
+                  </div>
+                  <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <h4 className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">
+                      {t('verification.api.circulatingSupply')}
+                    </h4>
+                    <code className="text-xs font-mono text-green-700 dark:text-green-300 break-all">
+                      GET https://crypto-gift-wallets-dao.vercel.app/api/token/circulating-supply
+                    </code>
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {t('verification.api.note')}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Fraud Warning Explanation Card */}
+              <Card className="glass-panel border-l-4 border-l-red-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <AlertTriangle className="h-5 w-5 text-red-500" />
+                    <span>{t('verification.fraudWarning.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                      {t('verification.fraudWarning.problemTitle')}
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      {t('verification.fraudWarning.problemDesc')}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                      {t('verification.fraudWarning.reasonTitle')}
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                      {t('verification.fraudWarning.reasonDesc')}
+                    </p>
+                    <ul className="space-y-1 ml-4">
+                      <li className="text-sm text-gray-700 dark:text-gray-300 list-disc">
+                        {t('verification.fraudWarning.reason1')}
+                      </li>
+                      <li className="text-sm text-gray-700 dark:text-gray-300 list-disc">
+                        {t('verification.fraudWarning.reason2')}
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                      {t('verification.fraudWarning.solutionTitle')}
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      {t('verification.fraudWarning.solutionDesc')}
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                      {t('verification.fraudWarning.safetyTitle')}
+                    </h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      {t('verification.fraudWarning.safetyDesc')}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
 

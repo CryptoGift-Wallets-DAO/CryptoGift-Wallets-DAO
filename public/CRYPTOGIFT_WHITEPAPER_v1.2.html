@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRYPTOGIFT WALLETS DAO - WHITEPAPER v1.2</title>
+  <style>
+    /* Print-optimized professional styling */
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+      a {
+        color: #0066cc;
+        text-decoration: none;
+      }
+      a::after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        color: #666;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 20mm;
+      background: #ffffff;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      font-weight: 700;
+      margin: 0.5em 0;
+      color: #1a1a1a;
+      border-bottom: 3px solid #0052ff;
+      padding-bottom: 0.3em;
+    }
+
+    h2 {
+      font-size: 1.8em;
+      font-weight: 600;
+      margin: 1.2em 0 0.6em 0;
+      color: #1a1a1a;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 0.3em;
+    }
+
+    h3 {
+      font-size: 1.3em;
+      font-weight: 600;
+      margin: 1em 0 0.5em 0;
+      color: #333;
+    }
+
+    p {
+      margin: 0.8em 0;
+      text-align: justify;
+    }
+
+    strong {
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    a {
+      color: #0052ff;
+      text-decoration: none;
+      border-bottom: 1px solid #0052ff;
+    }
+
+    a:hover {
+      background: #e8f0ff;
+    }
+
+    code {
+      font-family: 'Monaco', 'Courier New', monospace;
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.9em;
+      color: #d63384;
+    }
+
+    pre {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 16px;
+      overflow-x: auto;
+      margin: 1em 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: #333;
+    }
+
+    blockquote {
+      border-left: 4px solid #0052ff;
+      margin: 1em 0;
+      padding: 0.5em 0 0.5em 1em;
+      background: #f8f9fa;
+      font-style: italic;
+      color: #555;
+    }
+
+    ul, ol {
+      margin: 0.8em 0;
+      padding-left: 2em;
+    }
+
+    li {
+      margin: 0.3em 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5em 0;
+      font-size: 0.95em;
+    }
+
+    th, td {
+      border: 1px solid #dee2e6;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    tr:nth-child(even) {
+      background: #f8f9fa;
+    }
+
+    hr {
+      border: none;
+      border-top: 2px solid #e0e0e0;
+      margin: 2em 0;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2em;
+      padding-bottom: 1em;
+      border-bottom: 3px solid #0052ff;
+    }
+
+    .header .version {
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 0.5em;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 3em;
+      padding-top: 1em;
+      border-top: 2px solid #e0e0e0;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .toc {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 20px;
+      margin: 2em 0;
+    }
+
+    .toc h2 {
+      margin-top: 0;
+      border-bottom: none;
+      font-size: 1.5em;
+    }
+
+    @media screen and (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      h1 {
+        font-size: 2em;
+      }
+      h2 {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📘 CRYPTOGIFT WALLETS DAO</h1>
+    <h2>WHITEPAPER v1.2</h2>
+    <div class="version">
+      <strong>Version:</strong> 1.2<br>
+      <strong>Last Updated:</strong> December 7, 2025<br>
+      <strong>Network:</strong> Base Mainnet (Chain ID: 8453)<br>
+      <strong>Token Contract:</strong> <code>0x5e3a61b550328f3D8C44f60b3e10a49D3d806175</code>
+    </div>
+    <p><em>Made by mbxarts.com The Moon in a Box property</em></p>
+  </div>
+
+  <h1>📘 CRYPTOGIFT WALLETS DAO - WHITEPAPER v1.2</h1>
+
+<strong>Official Technical Documentation</strong>
+
+<strong>Version</strong>: 1.2
+<strong>Last Updated</strong>: December 7, 2025
+<strong>Network</strong>: Base Mainnet (Chain ID: 8453)
+<strong>Token Contract</strong>: <code>0x5e3a61b550328f3D8C44f60b3e10a49D3d806175</code>
+
+Made by mbxarts.com The Moon in a Box property
+
+<hr>
+
+<h2>📑 TABLE OF CONTENTS</h2>
+
+<li><a href="#executive-summary">Executive Summary</a></li>
+<li><a href="#vision--mission">Vision & Mission</a></li>
+<li><a href="#the-problem">The Problem</a></li>
+<li><a href="#the-solution">The Solution</a></li>
+<li><a href="#tokenomics">Tokenomics</a></li>
+<li><a href="#smart-contracts-architecture">Smart Contracts Architecture</a></li>
+<li><a href="#governance-model">Governance Model</a></li>
+<li><a href="#roadmap">Roadmap</a></li>
+<li><a href="#security--audits">Security & Audits</a></li>
+<li><a href="#team--legal">Team & Legal</a></li>
+<li><a href="#contact--resources">Contact & Resources</a></li>
+
+<hr>
+
+<h2>🎯 EXECUTIVE SUMMARY</h2>
+
+CryptoGift Wallets DAO represents a natural evolution of the CryptoGift ecosystem, transforming Web3 education into a decentralized governance model where learning becomes decision-making power. Built on Base (Ethereum L2), the DAO empowers its community to co-govern the protocol while learning and earning.
+
+<strong>Key Highlights:</strong>
+<li><strong>Total Supply</strong>: 2,000,000 CGC (fixed, no additional minting)</li>
+<li><strong>Blockchain</strong>: Base Mainnet (Ethereum Layer 2)</li>
+<li><strong>Token Standard</strong>: ERC-20</li>
+<li><strong>Governance</strong>: Aragon OSx v1.4.0</li>
+<li><strong>Contract Status</strong>: Fully verified on BaseScan ✅</li>
+
+<hr>
+
+<h2>🌍 VISION & MISSION</h2>
+
+<h3>Vision</h3>
+<blockquote><strong>From zero to Web3—together. Learn. Earn. Co-govern.</strong></blockquote>
+
+<h3>Mission</h3>
+Democratize access to Web3 through a system where completing educational quests generates governance tokens, turning learning effort into voice and vote in the protocol's future.
+
+<hr>
+
+<h2>⚠️ THE PROBLEM</h2>
+
+<h3>Entry Barriers to Web3</h3>
+
+<li><strong>Technical Complexity</strong></li>
+   The blockchain learning curve intimidates new users, creating a significant barrier to entry.
+
+<li><strong>Lack of Incentives</strong></li>
+   Traditional education doesn't reward progress, leading to low engagement and completion rates.
+
+<li><strong>Governance-Community Disconnection</strong></li>
+   Most protocols are governed by early adopters with capital, not by active community members.
+
+<li><strong>No Clear Path</strong></li>
+   No structured route exists from beginner to contributor in the Web3 ecosystem.
+
+<h3>Limitations of Current Models</h3>
+
+<li><strong>Airdrop Farming</strong></li>
+   Mercenary behavior without real commitment to the protocol.
+
+<li><strong>Vote Buying</strong></li>
+   Power concentration in whales distorts governance decisions.
+
+<li><strong>Superficial Participation</strong></li>
+   Users voting without understanding proposals creates ineffective governance.
+
+<li><strong>Disconnected Education</strong></li>
+   Courses that don't lead to active participation or real-world application.
+
+<hr>
+
+<h2>✅ THE SOLUTION: CRYPTOGIFT WALLETS DAO</h2>
+
+<h3>System Architecture</h3>
+
+<pre><code>
+User → Quest Completed → EAS Attestation → MilestoneEscrow → CGC Tokens → Governance Power
+</code></pre>
+
+<strong>Flow Explanation:</strong>
+
+<li><strong>User Completes Quest</strong>: Educational tasks on the platform</li>
+<li><strong>EAS Attestation</strong>: Ethereum Attestation Service verifies completion</li>
+<li><strong>MilestoneEscrow</strong>: Smart contract releases CGC rewards</li>
+<li><strong>Governance Power</strong>: CGC tokens grant voting rights in the DAO</li>
+
+<h3>Core Innovation</h3>
+
+CryptoGift Wallets DAO is the first Web3 education platform that directly converts learning effort into governance power, creating a virtuous cycle of education, participation, and protocol improvement.
+
+<hr>
+
+<h2>💰 TOKENOMICS</h2>
+
+<h3>CGC Token Details</h3>
+
+<li><strong>Name</strong>: CryptoGift Coin</li>
+<li><strong>Symbol</strong>: CGC</li>
+<li><strong>Total Supply</strong>: 2,000,000 CGC (fixed)</li>
+<li><strong>Decimals</strong>: 18</li>
+<li><strong>Blockchain</strong>: Base (Ethereum Layer 2)</li>
+<li><strong>Contract</strong>: <code>0x5e3a61b550328f3D8C44f60b3e10a49D3d806175</code></li>
+<li><strong>Type</strong>: Pure Governance Token (no economic rights)</li>
+
+<h3>Distribution</h3>
+
+| Allocation | Percentage | Amount | Vesting |
+|---|---|---|---|
+| <strong>Educational Rewards</strong> | 40% | 800,000 CGC | Emission caps apply |
+| <strong>DAO Treasury</strong> | 25% | 500,000 CGC | Governance controlled |
+| <strong>Core Contributors</strong> | 15% | 300,000 CGC | 2 years, 6 month cliff |
+| <strong>Ecosystem Development</strong> | 10% | 200,000 CGC | Grants & partnerships |
+| <strong>Liquidity</strong> | 5% | 100,000 CGC | DEX pools on Base |
+| <strong>Emergency Reserve</strong> | 5% | 100,000 CGC | Multisig 3/5 |
+
+<h3>Emission Caps</h3>
+
+To ensure sustainable distribution:
+
+<li><strong>Annual Cap</strong>: 800,000 CGC maximum</li>
+<li><strong>Monthly Cap</strong>: 66,666 CGC maximum</li>
+<li><strong>Weekly Cap</strong>: 16,666 CGC maximum</li>
+<li><strong>Daily User Cap</strong>: 333 CGC maximum</li>
+
+<h3>Token Utility</h3>
+
+<li><strong>Governance</strong></li>
+   - Create and vote on proposals
+   - Delegate voting power to representatives
+   - Participate in DAO decision-making
+
+<li><strong>Access</strong></li>
+   - Premium educational content
+   - Priority features and early access
+   - Exclusive NFT badges
+
+<li><strong>Boosts</strong></li>
+   - Experience multipliers for quests
+   - Reduced cooldowns on tasks
+   - Early access to new features
+
+<hr>
+
+<h2>🔧 SMART CONTRACTS ARCHITECTURE</h2>
+
+All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
+
+<h3>Contract Suite</h3>
+
+#### 1. CGC Token
+<strong>Address</strong>: <code>0x5e3a61b550328f3D8C44f60b3e10a49D3d806175</code>
+<strong>Function</strong>: ERC-20 governance token for the DAO ecosystem
+<strong>Supply</strong>: 2,000,000 CGC (immutable)
+
+#### 2. MilestoneEscrow
+<strong>Address</strong>: <code>0x8346CFcaECc90d678d862319449E5a742c03f109</code>
+<strong>Function</strong>: Custody and programmatic release of CGC tokens with EIP-712 verification
+<strong>Features</strong>:
+<li>Secure token custody</li>
+<li>Automated distribution based on milestones</li>
+<li>EIP-712 signature verification</li>
+<li>Integration with task validation system</li>
+
+#### 3. MasterEIP712Controller
+<strong>Address</strong>: <code>0x67D9a01A3F7b5D38694Bb78dD39286Db75D7D869</code>
+<strong>Function</strong>: Centralized authorization control for all system permissions
+<strong>Features</strong>:
+<li>Role-based access control</li>
+<li>Signer authorization management</li>
+<li>System-wide permission gateway</li>
+
+#### 4. TaskRulesEIP712
+<strong>Address</strong>: <code>0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb</code>
+<strong>Function</strong>: Task validation rules and completion verification logic
+<strong>Features</strong>:
+<li>Quest completion validation</li>
+<li>Rule-based task verification</li>
+<li>Integration with EAS attestations</li>
+
+#### 5. Aragon DAO
+<strong>Address</strong>: <code>0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31</code>
+<strong>Function</strong>: Governance contract for proposals and voting
+<strong>Framework</strong>: Aragon OSx v1.4.0
+
+<h3>Security Features</h3>
+
+<li>✅ All contracts verified on BaseScan</li>
+<li>✅ External audit completed pre-launch</li>
+<li>✅ Bug bounty program (up to 100,000 CGC)</li>
+<li>✅ 48h timelock on critical functions</li>
+<li>✅ Emergency pause mechanism (multisig 3/5)</li>
+
+<hr>
+
+<h2>🗳️ GOVERNANCE MODEL</h2>
+
+<h3>Aragon OSx v1.4.0</h3>
+
+<li><strong>Plugin</strong>: Token Voting v1.3</li>
+<li><strong>Network</strong>: Base Mainnet (Chain ID: 8453)</li>
+
+<h3>Proposal Types</h3>
+
+<li><strong>Token Release</strong>: Distribution of rewards via MilestoneEscrow</li>
+<li><strong>Parameter Changes</strong>: Adjustment of caps, limits, multipliers</li>
+<li><strong>Integrations</strong>: New quest platforms and educational partners</li>
+<li><strong>Treasury Management</strong>: Use of DAO funds for development</li>
+<li><strong>Emergencies</strong>: Pauses, fund recovery, critical fixes</li>
+
+<h3>Voting Parameters</h3>
+
+<li><strong>Minimum Participation</strong>: 10% of total supply (200,000 CGC)</li>
+<li><strong>Support Threshold</strong>: 51% of votes cast</li>
+<li><strong>Minimum Duration</strong>: 7 days</li>
+<li><strong>Minimum Proposer Power</strong>: 1,000 CGC</li>
+
+<h3>Governance Process</h3>
+
+<li><strong>Proposal Creation</strong>: Any holder with 1,000+ CGC can create proposals</li>
+<li><strong>Discussion Period</strong>: Minimum 7 days for community discussion</li>
+<li><strong>Voting Period</strong>: Active voting on proposal outcome</li>
+<li><strong>Execution</strong>: Automatic execution if quorum and threshold met</li>
+<li><strong>Timelock</strong>: 48h delay before critical changes take effect</li>
+
+<hr>
+
+<h2>🗺️ ROADMAP</h2>
+
+<h3>Q4 2024 - Foundation ✅ Completed</h3>
+
+<li>✅ Deploy DAO on Aragon</li>
+<li>✅ Configure Token Voting plugin</li>
+<li>✅ Launch CGC token (2M supply)</li>
+<li>✅ Implement MilestoneEscrow</li>
+<li>✅ Deploy MasterEIP712Controller</li>
+<li>✅ Deploy TaskRulesEIP712</li>
+
+<h3>Q1 2025 - Platform Launch ✅ Completed</h3>
+
+<li>✅ Launch task system interface</li>
+<li>✅ Implement admin validation panel</li>
+<li>✅ Integrate automatic CGC payments</li>
+<li>✅ Deploy rewards system</li>
+<li>✅ Launch referral program with multi-level commissions</li>
+
+<h3>Q2 2025 - Growth 🔄 In Progress</h3>
+
+<li>✅ Expand user base to 1,000+ active users</li>
+<li>🔄 Partner with 3+ educational platforms</li>
+<li>🔄 Launch community-driven quests</li>
+<li>🔄 Implement advanced analytics dashboard</li>
+
+<h3>Q3 2025 - Expansion 🎯 Planned</h3>
+
+<li>📋 Integrate with 5+ Web3 learning platforms</li>
+<li>📋 Launch mobile-optimized interface</li>
+<li>📋 Implement NFT achievement system</li>
+<li>📋 Create partnership program</li>
+
+<h3>Q4 2025 - Ecosystem 🎯 Planned</h3>
+
+<li>📋 Multi-chain expansion planning</li>
+<li>📋 DeFi integrations for enhanced utility</li>
+<li>📋 Launch CGC staking mechanisms</li>
+<li>📋 Gradual decentralization of governance</li>
+
+<hr>
+
+<h2>🔐 SECURITY & AUDITS</h2>
+
+<h3>Audit Status</h3>
+
+<li><strong>Pre-Launch Audit</strong>: ✅ Completed</li>
+<li><strong>Auditor</strong>: [To be disclosed]</li>
+<li><strong>Audit Report</strong>: Available upon request</li>
+
+<h3>Bug Bounty Program</h3>
+
+<li><strong>Reward Pool</strong>: Up to 100,000 CGC</li>
+<li><strong>Scope</strong>: All smart contracts in production</li>
+<li><strong>Severity Levels</strong>:</li>
+  - Critical: 50,000-100,000 CGC
+  - High: 10,000-50,000 CGC
+  - Medium: 5,000-10,000 CGC
+  - Low: 1,000-5,000 CGC
+
+<h3>Security Measures</h3>
+
+<li><strong>Smart Contract Security</strong></li>
+   - Verified source code on BaseScan
+   - OpenZeppelin libraries for standard implementations
+   - EIP-712 signatures for all critical operations
+   - Role-based access control (RBAC)
+
+<li><strong>Operational Security</strong></li>
+   - Multisig 3/5 for emergency reserve
+   - 48h timelock on critical parameter changes
+   - Emergency pause functionality
+   - Automated monitoring and alerts
+
+<li><strong>Governance Security</strong></li>
+   - Minimum proposer power requirement (1,000 CGC)
+   - Minimum participation threshold (10%)
+   - Extended voting periods (7+ days)
+   - Transparent on-chain execution
+
+<hr>
+
+<h2>👥 TEAM & LEGAL</h2>
+
+<h3>Project Information</h3>
+
+<strong>Developed by</strong>: The Moon in a Box Inc.
+<strong>Project</strong>: CryptoGift Wallets DAO
+<strong>Website</strong>: https://crypto-gift-wallets-dao.vercel.app
+<strong>GitHub</strong>: https://github.com/mbxarts/cryptogift-wallets-DAO
+
+<h3>Legal Structure</h3>
+
+<li><strong>Entity</strong>: Delaware C-Corporation (The Moon in a Box Inc.)</li>
+<li><strong>Governance</strong>: Decentralized via Aragon DAO</li>
+<li><strong>Token Type</strong>: Utility/Governance (not a security)</li>
+
+<h3>Disclaimers</h3>
+
+<strong>IMPORTANT LEGAL NOTICES:</strong>
+
+<li><strong>No Investment Advice</strong>: This whitepaper does not constitute investment advice, financial advice, trading advice, or any other sort of advice.</li>
+
+<li><strong>No Guarantee of Returns</strong>: CGC is a governance token, not an investment vehicle. There are no guaranteed returns or profits.</li>
+
+<li><strong>Regulatory Compliance</strong>: Users are responsible for determining whether their use of CGC complies with their local laws and regulations.</li>
+
+<li><strong>Risk Disclosure</strong>: Cryptocurrency investments carry significant risks, including the possible loss of all invested capital.</li>
+
+<li><strong>No Economic Rights</strong>: CGC tokens grant governance rights only, not ownership or economic rights in The Moon in a Box Inc.</li>
+
+<hr>
+
+<h2>📞 CONTACT & RESOURCES</h2>
+
+<h3>Official Links</h3>
+
+<li><strong>Website</strong>: https://crypto-gift-wallets-dao.vercel.app</li>
+<li><strong>Documentation</strong>: https://crypto-gift-wallets-dao.vercel.app/docs</li>
+<li><strong>GitHub</strong>: https://github.com/mbxarts/cryptogift-wallets-DAO</li>
+<li><strong>BaseScan</strong>: https://basescan.org/address/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175</li>
+
+<h3>Social Media</h3>
+
+<li><strong>Twitter/X</strong>: https://x.com/CryptoGiftDAO</li>
+<li><strong>Discord</strong>: https://discord.gg/cryptogift</li>
+<li><strong>Telegram</strong>: [To be announced]</li>
+
+<h3>APIs (CoinGecko Integration)</h3>
+
+<li><strong>Total Supply</strong>: <code>GET /api/token/total-supply</code></li>
+<li><strong>Circulating Supply</strong>: <code>GET /api/token/circulating-supply</code></li>
+
+<h3>Support</h3>
+
+For technical support, partnership inquiries, or general questions, please visit our Discord community or create an issue on our GitHub repository.
+
+<hr>
+
+<h2>📄 APPENDIX</h2>
+
+<h3>Technical Specifications</h3>
+
+<strong>Network Details:</strong>
+<li>Chain: Base (Optimistic Rollup on Ethereum)</li>
+<li>Chain ID: 8453</li>
+<li>Block Time: ~2 seconds</li>
+<li>Finality: ~12 seconds</li>
+
+<strong>Token Specifications:</strong>
+<li>Standard: ERC-20</li>
+<li>Decimals: 18</li>
+<li>Total Supply: 2,000,000 (2 × 10^6)</li>
+<li>Smallest Unit: 0.000000000000000001 CGC (1 wei)</li>
+
+<h3>Version History</h3>
+
+<li><strong>v1.2</strong> (December 7, 2025): Updated with referral system, API endpoints</li>
+<li><strong>v1.1</strong> (January 9, 2025): Updated supply to 2M, added new contracts</li>
+<li><strong>v1.0</strong> (November 2024): Initial release</li>
+
+<hr>
+
+<strong>© 2024-2025 The Moon in a Box Inc. All rights reserved.</strong>
+
+This document is for informational purposes only and may be subject to change without notice.
+
+<hr>
+
+<strong>END OF WHITEPAPER</strong>
+
+
+  <div class="footer">
+    <p><strong>© 2024-2025 The Moon in a Box Inc. All rights reserved.</strong></p>
+    <p>This document is for informational purposes only and may be subject to change without notice.</p>
+    <p><em>Generated: 2025-12-07</em></p>
+  </div>
+</body>
+</html>

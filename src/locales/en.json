@@ -8,6 +8,7 @@
     "apex": "apeX",
     "apexAssistant": "apeX Assistant",
     "funding": "Funding",
+    "docs": "Docs",
     "admin": "Admin",
     "settings": "Settings"
   },
@@ -818,7 +819,8 @@
       "tokenomics": "Tokenomics",
       "contracts": "Smart Contracts",
       "governance": "Governance",
-      "roadmap": "Roadmap"
+      "roadmap": "Roadmap",
+      "verification": "Token Verification"
     },
     "whitepaper": {
       "title": "Whitepaper v1.1",
@@ -1023,6 +1025,106 @@
       "twitter": "Twitter",
       "email": "Email",
       "github": "GitHub"
+    },
+    "verification": {
+      "title": "Token Verification & Listing",
+      "subtitle": "Official information for exchanges and listing platforms",
+      "status": {
+        "title": "Current Status",
+        "coinGeckoStatus": "CoinGecko: Pending Listing",
+        "coinGeckoNote": "Application submitted - waiting for liquidity pool creation",
+        "baseScanStatus": "BaseScan: Verified Contract",
+        "viewOnBaseScan": "View on BaseScan",
+        "lastUpdated": "Last updated: December 5, 2025"
+      },
+      "tokenInfo": {
+        "title": "Token Information",
+        "contractAddress": "Contract Address",
+        "contractNote": "CGC Token on Base Mainnet (verified on BaseScan)",
+        "totalSupply": "Total Supply",
+        "totalSupplyValue": "2,000,000 CGC",
+        "circulatingSupply": "Circulating Supply",
+        "circulatingSupplyNote": "Updated daily via API",
+        "blockchain": "Blockchain",
+        "blockchainValue": "Base (Ethereum Layer 2)",
+        "chainId": "Chain ID",
+        "chainIdValue": "8453 (Base Mainnet)",
+        "tokenStandard": "Token Standard",
+        "tokenStandardValue": "ERC-20",
+        "decimals": "Decimals",
+        "decimalsValue": "18",
+        "tokenType": "Token Type",
+        "tokenTypeValue": "Governance Token (No economic rights)",
+        "deployedBy": "Deployed By",
+        "deployedByValue": "CryptoGift DAO Team",
+        "verified": "Verified on BaseScan"
+      },
+      "downloads": {
+        "title": "Downloads",
+        "subtitle": "Official logos and documentation",
+        "whitepaper": "Download Whitepaper (PDF)",
+        "whitepaperDesc": "Complete technical documentation",
+        "logo200": "Logo 200x200 (PNG)",
+        "logo200Desc": "For CoinGecko and exchanges",
+        "logo32": "Logo 32x32 (PNG)",
+        "logo32Desc": "For BaseScan verification",
+        "tokenList": "Token List (JSON)",
+        "tokenListDesc": "Standard token list format"
+      },
+      "coingecko": {
+        "title": "CoinGecko Listing Information",
+        "status": "Status",
+        "statusValue": "Pending - Liquidity Pool Required",
+        "previousAttempt": "Previous Application",
+        "previousAttemptValue": "Rejected Sept 11, 2025 (Request ID: CL1009250007)",
+        "rejectionReason": "Rejection Reason",
+        "rejectionReasonValue": "No liquidity pool found on DEX",
+        "nextSteps": "Next Steps",
+        "step1": "Create minimal liquidity pool on Uniswap Base ($100-200 USDC)",
+        "step2": "Re-apply to CoinGecko with pool information",
+        "step3": "Public verification post on Twitter/Discord",
+        "requirements": "CoinGecko Requirements",
+        "req1": "Contract verified on BaseScan",
+        "req2": "Active liquidity pool on DEX",
+        "req3": "Contract address visible on website",
+        "req4": "Social media presence (Twitter, Discord)",
+        "req5": "Whitepaper or project documentation",
+        "progress": "Progress",
+        "contractVerified": "Contract Verified",
+        "websiteShowing": "Website Showing Contract",
+        "socialMedia": "Social Media Active",
+        "documentation": "Documentation Complete",
+        "liquidityPool": "Liquidity Pool (Pending)"
+      },
+      "links": {
+        "title": "Official Links",
+        "baseScanContract": "View Contract on BaseScan",
+        "website": "Official Website",
+        "github": "GitHub Repository",
+        "twitter": "Twitter/X",
+        "discord": "Discord Community",
+        "aragon": "Aragon DAO"
+      },
+      "api": {
+        "title": "API Endpoints",
+        "subtitle": "For CoinGecko integration",
+        "totalSupply": "Total Supply API",
+        "totalSupplyEndpoint": "/api/token/total-supply",
+        "circulatingSupply": "Circulating Supply API",
+        "circulatingSupplyEndpoint": "/api/token/circulating-supply",
+        "note": "Both APIs return numeric values in CGC units (no decimals)"
+      },
+      "fraudWarning": {
+        "title": "Wallet Fraud Warning Notice",
+        "problem": "Current Issue",
+        "problemDesc": "MetaMask and Coinbase Wallet may show CGC transfers as fraudulent transactions",
+        "reason": "Reason",
+        "reasonDesc": "Token is not yet listed on CoinGecko or verified token lists",
+        "impact": "Impact",
+        "impactDesc": "This affects user trust and onboarding experience",
+        "resolution": "Resolution Timeline",
+        "resolutionDesc": "Expected to be resolved once CoinGecko listing is approved (2-6 weeks after pool creation)"
+      }
     }
   },
   "profile": {

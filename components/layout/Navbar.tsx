@@ -67,11 +67,11 @@ export const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white dark:bg-slate-900 shadow-lg sticky top-0 z-40 transition-colors duration-300 border-b border-gray-200 dark:border-slate-700">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-2">
         <div className="flex justify-between items-center py-4">
           {/* Logo and Brand */}
-          <div className="flex items-center space-x-3">
-            <Link href="/" className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2">
               <div className="relative w-12 h-12">
                 <Image
                   src="/apeX.png"
@@ -94,48 +94,46 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-2">
             <Link
               href="/"
-              className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-base font-bold"
+              className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-sm font-bold px-2"
             >
               {t('dashboard')}
             </Link>
 
-            {/* Separator */}
-            <div className="w-px h-6 bg-gradient-to-b from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-40"></div>
-
             <Link
               href="/tasks"
-              className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-base font-bold"
+              className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-sm font-bold px-2"
             >
               {t('tasks')}
             </Link>
 
-            {/* Separator */}
-            <div className="w-px h-6 bg-gradient-to-b from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-40"></div>
-
             <Link
               href="/referrals"
-              className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-base font-bold flex items-center gap-1"
+              className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-sm font-bold flex items-center gap-1 px-2"
             >
               {t('referrals')}
               <Users className="w-3 h-3" />
             </Link>
 
-            {/* Separator */}
-            <div className="w-px h-6 bg-gradient-to-b from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-40"></div>
-
             <Link
               href="/funding"
-              className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-base font-bold flex items-center gap-1"
+              className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-sm font-bold flex items-center gap-1 px-2"
             >
               {t('funding')}
               <Lock className="w-3 h-3" />
             </Link>
 
+            <Link
+              href="/docs"
+              className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-sm font-bold px-2"
+            >
+              {t('docs')}
+            </Link>
+
             {/* Separator */}
-            <div className="w-px h-6 bg-gradient-to-b from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-40"></div>
+            <div className="w-px h-6 bg-gradient-to-b from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-40 mx-2"></div>
 
             {/* Language Toggle */}
             <LanguageToggle />
@@ -223,6 +221,17 @@ export const Navbar: React.FC = () => {
               {/* Mobile Separator */}
               <div className="mx-4 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-30"></div>
 
+              <Link
+                href="/docs"
+                className="block text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors px-4 py-3 font-bold text-base"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('docs')}
+              </Link>
+
+              {/* Mobile Separator */}
+              <div className="mx-4 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-30"></div>
+
               {/* Mobile Language and Theme Toggles */}
               <div className="px-4 py-3 flex items-center justify-between">
                 <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t('settings')}</span>
@@ -297,17 +306,17 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
       {/* Main Wallet Button */}
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className={`flex items-center space-x-3 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 px-4 py-3
+        className={`flex items-center space-x-2 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 px-3 py-2
                  hover:border-amber-400 dark:hover:border-slate-500 transition-all duration-300 ${fullWidth ? 'w-full' : ''}`}
       >
         {/* Wallet Icon */}
-        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-          <Wallet className="w-4 h-4 text-white" />
+        <div className="w-7 h-7 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+          <Wallet className="w-3.5 h-3.5 text-white" />
         </div>
 
         {/* Wallet Info */}
         <div className="flex-1 text-left">
-          <div className="font-medium text-gray-900 dark:text-white text-sm">
+          <div className="font-medium text-gray-900 dark:text-white text-xs">
             {displayAddress}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -320,7 +329,7 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
 
         {/* Dropdown Arrow */}
         <ChevronDown
-          className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`}
+          className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`}
         />
       </button>
 
