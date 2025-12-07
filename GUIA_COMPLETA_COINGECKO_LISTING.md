@@ -261,10 +261,11 @@ Base
 18
 ```
 
-#### **Total Supply**
+#### **Total Supply** (Max Supply)
 ```
-2000000
+22000000
 ```
+*Note: CGC uses milestone-based progressive emission. Initial circulating: 2M CGC, Max theoretical: 22M CGC.*
 
 #### **Total Supply API**
 ```
@@ -438,7 +439,7 @@ No
 
 #### **Is this a rebase/elastic supply token?**
 ```
-No (supply is fixed at 2M CGC)
+No (CGC uses milestone-based progressive emission. Initial: 2M CGC, Max: 22M CGC minted as DAO completes verified milestones)
 ```
 
 ### Paso 3.9: Verificación Final
@@ -611,7 +612,13 @@ https://www.coingecko.com/en/coins/cryptogift-coin
 curl https://crypto-gift-wallets-dao.vercel.app/api/token/total-supply
 
 # Debe retornar:
-{"total_supply":"2000000"}
+{
+  "total_supply": "22000000",
+  "circulating_supply": "2000000",
+  "emission_model": "milestone-based",
+  "max_supply": "22000000",
+  "notes": "CGC uses milestone-based progressive emission..."
+}
 ```
 
 Si no funciona:

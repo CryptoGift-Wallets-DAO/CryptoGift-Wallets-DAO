@@ -2,19 +2,22 @@
  * 💰 Circulating Supply API Endpoint
  *
  * CoinGecko-compliant endpoint for CGC token circulating supply
- * Returns circulating supply in CGC units (no decimals)
+ * Returns current circulating supply in CGC units (no decimals)
  *
  * Endpoint: GET /api/token/circulating-supply
- * Response: { "circulating_supply": "XXXXX" }
+ * Response: { "circulating_supply": "2000000" }
  *
  * Contract: 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175 (Base Mainnet)
- * Calculation: Total Supply - Locked Tokens
  *
- * Locked tokens include:
- * - Treasury reserves (DAO controlled)
- * - Contributor vesting (2 year vesting, 6 month cliff)
- * - Emergency reserve (multisig 3/5)
- * - MilestoneEscrow contract holdings
+ * Emission Model: Progressive Milestone-Based Minting
+ * - Initial Supply: 2,000,000 CGC (current circulating)
+ * - Max Supply: 22,000,000 CGC (theoretical maximum)
+ * - New tokens minted ONLY when DAO completes verified milestones
+ * - Circulating supply increases gradually as value is created
+ *
+ * Calculation: Current minted tokens - Locked tokens (if any)
+ * Note: As milestones are completed and new tokens minted, this API
+ *       will automatically reflect the updated circulating supply.
  *
  * Made by mbxarts.com The Moon in a Box property
  */

@@ -71,10 +71,10 @@ ARQUITECTURA COMPLETA:
 ### CONTRATOS DESPLEGADOS ✅ (NUEVOS - 31 ENE 2025)
 ```
 Base Mainnet (Chain ID: 8453) - DEPLOYMENT COMPLETO CON MÁXIMA CALIDAD
-- CGC Token: 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175 (2M supply + GitHub logo)
+- CGC Token: 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175 (Milestone-based emission: 2M initial → 22M max + GitHub logo)
 - MasterEIP712Controller: 0x67D9a01A3F7b5D38694Bb78dD39286Db75D7D869 (Control layer)
 - TaskRulesEIP712: 0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb (Validation layer)
-- MilestoneEscrow: 0x8346CFcaECc90d678d862319449E5a742c03f109 (Custody layer)
+- MilestoneEscrow: 0x8346CFcaECc90d678d862319449E5a742c03f109 (Custody layer + Authorized Minter)
 ```
 
 ### CONTRATOS ANTERIORES (DEPRECATED)
@@ -90,7 +90,7 @@ NOTA: Los contratos siguientes fueron reemplazados por el nuevo sistema:
 - **Deployer**: 0xc655BF2Bd9AfA997c757Bef290A9Bb6ca41c5dE6
 - **Balance**: ~0.003 ETH (post-deployment, suficiente para operaciones)
 - **DAO Aragon**: 0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
-- **Token Supply**: 2M CGC (owner balance: 2M - LISTOS para distribución)
+- **Token Supply**: Milestone-Based Progressive Emission (Initial: 2M CGC circulating → Max: 22M CGC theoretical)
 - **Sistema Status**: ✅ 100% OPERATIONAL - Sistema DAO con mecánicas competitivas
 - **Verificación**: ✅ Todos los contratos verificados en BaseScan con badge verde
 - **🤖 apeX Agent**: ✅ GPT-5 con máximo reasoning + MCP tools + UI mejorada
@@ -188,10 +188,10 @@ app/api/tasks/route.ts - Enhanced API logic + user relevant tasks
 - `fca066b` - feat: enhance task system with competitive features and claim confirmation
 - `6bc3fd2` - fix: escape apostrophes in TaskClaimModal JSX to resolve ESLint errors
 
-### 🔄 ÚLTIMOS COMMITS (9 ENE 2025) - TOKEN METADATA SYSTEM
-- `[pending]` - feat: complete token metadata system for CoinGecko/BaseScan listing
-- `[pending]` - docs: comprehensive whitepaper update from 1M to 2M supply
-- `[pending]` - api: implement CoinGecko-compliant Total/Circulating Supply APIs
+### 🔄 ÚLTIMOS COMMITS (7 DIC 2025) - MILESTONE-BASED EMISSION MODEL
+- `[pending]` - docs: update all documentation with milestone-based progressive emission model (2M initial → 22M max)
+- `[pending]` - api: update Total/Circulating Supply APIs to reflect emission model
+- `[pending]` - whitepaper: comprehensive tokenomics update with progressive emission schedule
 
 ### ⏰ SISTEMA DE TIMEOUTS IMPLEMENTADO
 - **Timeout Formula**: 50% del tiempo estimado (mínimo 2h, máximo 7 días)
@@ -353,7 +353,7 @@ npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
 1. ✅ **Deployment completo** - COMPLETADO CON MÁXIMA EXCELENCIA
 2. ✅ **Verificar contratos en BaseScan** - COMPLETADO (todos con badge verde)
 3. ✅ **Implementar sistema completo** - COMPLETADO (3 capas de seguridad)
-4. ✅ **2M CGC Token** - COMPLETADO (con logo GitHub)
+4. ✅ **CGC Token Milestone Emission** - COMPLETADO (2M initial → 22M max + logo GitHub)
 5. ✅ **Frontend Integration** - COMPLETADO (UI conectada con contratos)
 6. ✅ **Backend Services** - COMPLETADO (APIs para contratos funcionales)
 7. ✅ **Task System Complete** - COMPLETADO (lifecycle end-to-end)
@@ -370,13 +370,15 @@ npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
 18. 🔄 **Notification System** - Discord/email alerts para task expirations
 19. 🔄 **Analytics Dashboard** - Métricas de competition effectiveness
 
-### Estado de Tokens (ACTUALIZADO)
+### Estado de Tokens (ACTUALIZADO 7 DIC 2025)
 ```bash
-# SISTEMA NUEVO COMPLETAMENTE OPERACIONAL
+# SISTEMA MILESTONE-BASED EMISSION OPERACIONAL
 # CGC Token: 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
-# Owner balance: 2,000,000 CGC (listos para distribución)
-# Supply total: 2,000,000 CGC (con logo GitHub funcionando)
+# Emission Model: Milestone-Based Progressive Minting
+# Current Circulating Supply: 2,000,000 CGC (initial emission)
+# Max Theoretical Supply: 22,000,000 CGC (via DAO milestone completion)
 # Minter autorizado: MilestoneEscrow (0x8346CFcaECc90d678d862319449E5a742c03f109)
+# Logo: GitHub logo funcionando en todos los exploradores
 ```
 
 ---

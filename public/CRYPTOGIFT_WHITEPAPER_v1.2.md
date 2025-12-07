@@ -32,9 +32,11 @@ Made by mbxarts.com The Moon in a Box property
 CryptoGift Wallets DAO represents a natural evolution of the CryptoGift ecosystem, transforming Web3 education into a decentralized governance model where learning becomes decision-making power. Built on Base (Ethereum L2), the DAO empowers its community to co-govern the protocol while learning and earning.
 
 **Key Highlights:**
-- **Total Supply**: 2,000,000 CGC (fixed, no additional minting)
+- **Initial Supply**: 2,000,000 CGC (current circulating)
+- **Max Supply**: 22,000,000 CGC (theoretical maximum via milestone-based emission)
 - **Blockchain**: Base Mainnet (Ethereum Layer 2)
 - **Token Standard**: ERC-20
+- **Emission Model**: Progressive milestone-based minting
 - **Governance**: Aragon OSx v1.4.0
 - **Contract Status**: Fully verified on BaseScan ✅
 
@@ -109,31 +111,66 @@ CryptoGift Wallets DAO is the first Web3 education platform that directly conver
 
 - **Name**: CryptoGift Coin
 - **Symbol**: CGC
-- **Total Supply**: 2,000,000 CGC (fixed)
+- **Initial Supply**: 2,000,000 CGC (current circulating)
+- **Max Supply**: 22,000,000 CGC (theoretical maximum)
+- **Emission Model**: Progressive Milestone-Based Minting
 - **Decimals**: 18
 - **Blockchain**: Base (Ethereum Layer 2)
 - **Contract**: `0x5e3a61b550328f3D8C44f60b3e10a49D3d806175`
 - **Type**: Pure Governance Token (no economic rights)
 
-### Distribution
+### Emission Model: Milestone-Based Progressive Minting
 
-| Allocation | Percentage | Amount | Vesting |
+**Key Principle**: New CGC tokens are ONLY minted when the DAO creates measurable value through verified milestone completion.
+
+Unlike traditional fixed-supply or time-based emission models, CGC uses a **value-based emission schedule** where token supply grows proportionally with platform achievements:
+
+- **Platform Development Milestones** → New tokens minted
+- **Community Growth Milestones** → New tokens minted
+- **Revenue & Adoption Milestones** → New tokens minted
+- **DAO Governance Decisions** → Can trigger strategic emissions
+
+**Authorized Minter**: MilestoneEscrow contract (`0x8346CFcaECc90d678d862319449E5a742c03f109`)
+
+This ensures token supply expansion is always backed by real value creation, preventing dilution while allowing sustainable growth.
+
+### Initial Distribution (2M CGC)
+
+The initial 2,000,000 CGC supply is allocated for bootstrapping the ecosystem:
+
+| Allocation | Percentage | Amount | Purpose |
 |---|---|---|---|
-| **Educational Rewards** | 40% | 800,000 CGC | Emission caps apply |
-| **DAO Treasury** | 25% | 500,000 CGC | Governance controlled |
-| **Core Contributors** | 15% | 300,000 CGC | 2 years, 6 month cliff |
-| **Ecosystem Development** | 10% | 200,000 CGC | Grants & partnerships |
-| **Liquidity** | 5% | 100,000 CGC | DEX pools on Base |
-| **Emergency Reserve** | 5% | 100,000 CGC | Multisig 3/5 |
+| **Referral Program** | 25% | 500,000 CGC | User acquisition & growth |
+| **Educational Rewards** | 20% | 400,000 CGC | Quest completions & learning |
+| **DAO Treasury** | 25% | 500,000 CGC | Governance controlled reserves |
+| **Core Contributors** | 15% | 300,000 CGC | 2 years vesting, 6 month cliff |
+| **Liquidity Pool** | 10% | 200,000 CGC | DEX liquidity on Base |
+| **Emergency Reserve** | 5% | 100,000 CGC | Multisig 3/5 security buffer |
 
-### Emission Caps
+### Progressive Emission Schedule (20M CGC Future Potential)
 
-To ensure sustainable distribution:
+The remaining 20,000,000 CGC can be progressively minted through verified milestone achievements:
 
-- **Annual Cap**: 800,000 CGC maximum
-- **Monthly Cap**: 66,666 CGC maximum
-- **Weekly Cap**: 16,666 CGC maximum
-- **Daily User Cap**: 333 CGC maximum
+#### 1. Platform Development Milestones (Target: 8M CGC)
+- Dashboard v1.0 Launch → 500,000 CGC
+- Task System v2.0 → 1,000,000 CGC
+- Mobile App Release → 1,500,000 CGC
+- Enterprise Features → 2,000,000 CGC
+- API Marketplace Launch → 3,000,000 CGC
+
+#### 2. Community Growth Milestones (Target: 7M CGC)
+- 10,000 Active Users → 1,000,000 CGC
+- 50,000 Active Users → 2,000,000 CGC
+- 100,000 Active Users → 4,000,000 CGC
+
+#### 3. Revenue & Sustainability Milestones (Target: 5M CGC)
+- $100K ARR → 1,000,000 CGC
+- $500K ARR → 2,000,000 CGC
+- $1M ARR → 2,000,000 CGC
+
+**Total Maximum Supply**: 2M (initial) + 20M (progressive) = 22M CGC
+
+**Important**: These milestones are examples. Actual emission requires DAO governance approval and verified achievement through on-chain attestations.
 
 ### Token Utility
 
@@ -163,7 +200,7 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 #### 1. CGC Token
 **Address**: `0x5e3a61b550328f3D8C44f60b3e10a49D3d806175`
 **Function**: ERC-20 governance token for the DAO ecosystem
-**Supply**: 2,000,000 CGC (immutable)
+**Supply**: 2,000,000 CGC initial (22,000,000 CGC max via milestone-based emission)
 
 #### 2. MilestoneEscrow
 **Address**: `0x8346CFcaECc90d678d862319449E5a742c03f109`
@@ -222,7 +259,7 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 
 ### Voting Parameters
 
-- **Minimum Participation**: 10% of total supply (200,000 CGC)
+- **Minimum Participation**: 10% of circulating supply (initially 200,000 CGC, adjusts as supply grows)
 - **Support Threshold**: 51% of votes cast
 - **Minimum Duration**: 7 days
 - **Minimum Proposer Power**: 1,000 CGC
@@ -389,12 +426,13 @@ For technical support, partnership inquiries, or general questions, please visit
 **Token Specifications:**
 - Standard: ERC-20
 - Decimals: 18
-- Total Supply: 2,000,000 (2 × 10^6)
+- Initial Supply: 2,000,000 (2 × 10^6)
+- Max Supply: 22,000,000 (2.2 × 10^7) via milestone-based emission
 - Smallest Unit: 0.000000000000000001 CGC (1 wei)
 
 ### Version History
 
-- **v1.2** (December 7, 2025): Updated with referral system, API endpoints
+- **v1.2** (December 7, 2025): Updated with milestone-based emission model, referral system, API endpoints, progressive tokenomics (2M initial → 22M max supply)
 - **v1.1** (January 9, 2025): Updated supply to 2M, added new contracts
 - **v1.0** (November 2024): Initial release
 

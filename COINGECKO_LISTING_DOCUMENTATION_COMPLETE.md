@@ -24,11 +24,16 @@ Todos los requisitos técnicos y documentación para el listing en CoinGecko han
 - **Response**:
   ```json
   {
-    "total_supply": "2000000"
+    "total_supply": "22000000",
+    "circulating_supply": "2000000",
+    "emission_model": "milestone-based",
+    "max_supply": "22000000",
+    "notes": "CGC uses milestone-based progressive emission. New tokens are minted only when DAO completes verified milestones."
   }
   ```
 - **URL en Producción**: `https://crypto-gift-wallets-dao.vercel.app/api/token/total-supply`
 - **Status**: ✅ Implementado y verificado
+- **Modelo**: Milestone-Based Progressive Emission (Initial: 2M CGC, Max: 22M CGC)
 
 #### **Circulating Supply Endpoint**
 - **Ruta**: `/api/token/circulating-supply`
@@ -218,7 +223,9 @@ node scripts/generate-whitepaper-html.js
 - [x] **Token Name**: CryptoGift Coin
 - [x] **Symbol**: CGC
 - [x] **Decimals**: 18
-- [x] **Total Supply**: 2,000,000 CGC
+- [x] **Total Supply**: 22,000,000 CGC (Max Supply via milestone-based emission)
+- [x] **Circulating Supply**: 2,000,000 CGC (Initial emission)
+- [x] **Emission Model**: Milestone-Based Progressive Minting
 - [x] **Blockchain**: Base Mainnet (Chain ID: 8453)
 - [x] **Contract**: `0x5e3a61b550328f3D8C44f60b3e10a49D3d806175`
 
