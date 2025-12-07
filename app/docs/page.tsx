@@ -6,7 +6,8 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Navbar } from '@/components/layout/Navbar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,9 +70,22 @@ const CAPS = [
   { key: 'daily', value: '333 CGC' },
 ];
 
+// Valid tab values for URL query params
+const VALID_TABS = ['whitepaper', 'tokenomics', 'contracts', 'governance', 'roadmap', 'verification'];
+
 export default function DocsPage() {
   const t = useTranslations('docs');
-  const [activeTab, setActiveTab] = useState('whitepaper');
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'whitepaper';
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Update tab when URL query param changes
+  useEffect(() => {
+    if (tabParam && VALID_TABS.includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
 
   const ContractCard = ({
     title,
