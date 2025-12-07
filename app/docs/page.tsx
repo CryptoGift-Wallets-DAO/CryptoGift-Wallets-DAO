@@ -21,6 +21,7 @@ import {
   Map,
   ExternalLink,
   CheckCircle2,
+  CheckCircle,
   Clock,
   AlertTriangle,
   Shield,
@@ -33,8 +34,13 @@ import {
   MessageCircle,
   Mail,
   Twitter,
-  ChevronRight
+  ChevronRight,
+  Copy,
+  Download,
+  TrendingUp,
+  Link2
 } from 'lucide-react';
+import Image from 'next/image';
 
 // Contract addresses
 const CONTRACTS = {
