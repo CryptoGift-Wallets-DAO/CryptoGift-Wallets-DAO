@@ -1,10 +1,11 @@
 # 🚀 GUÍA COMPLETA: COINGECKO LISTING PASO A PASO
 
-**Versión**: 1.0
-**Fecha**: 7 de Diciembre, 2025
+**Versión**: 1.1
+**Fecha**: 8 de Diciembre, 2025
 **Presupuesto**: $100 USD para liquidez inicial
 **Token**: CGC (CryptoGift Coin)
 **Network**: Base Mainnet
+**Website Oficial**: https://mbxarts.com
 
 Made by mbxarts.com The Moon in a Box property
 
@@ -231,7 +232,7 @@ CGC
 
 #### **Project Website**
 ```
-https://crypto-gift-wallets-dao.vercel.app
+https://mbxarts.com
 ```
 
 #### **Project Description** (Descripción corta)
@@ -269,12 +270,12 @@ Base
 
 #### **Total Supply API**
 ```
-https://crypto-gift-wallets-dao.vercel.app/api/token/total-supply
+https://mbxarts.com/api/token/total-supply
 ```
 
 #### **Circulating Supply API**
 ```
-https://crypto-gift-wallets-dao.vercel.app/api/token/circulating-supply
+https://mbxarts.com/api/token/circulating-supply
 ```
 
 #### **Block Explorer**
@@ -323,22 +324,22 @@ CGC/WETH
 
 #### **Whitepaper**
 ```
-https://crypto-gift-wallets-dao.vercel.app/CRYPTOGIFT_WHITEPAPER_v1.2.pdf
+https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.pdf
 ```
 
 O si prefieres el HTML:
 ```
-https://crypto-gift-wallets-dao.vercel.app/CRYPTOGIFT_WHITEPAPER_v1.2.html
+https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html
 ```
 
 #### **GitHub**
 ```
-https://github.com/mbxarts/cryptogift-wallets-DAO
+https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 ```
 
 #### **Documentation**
 ```
-https://crypto-gift-wallets-dao.vercel.app/docs
+https://mbxarts.com/docs
 ```
 
 #### **Twitter/X**
@@ -348,7 +349,7 @@ https://x.com/CryptoGiftDAO
 
 #### **Discord**
 ```
-https://discord.gg/cryptogift
+https://discord.gg/4zBvZnQB
 ```
 
 #### **Telegram** (si tienes)
@@ -365,13 +366,19 @@ https://discord.gg/cryptogift
 
 #### **Project Team Email**
 ```
-[Tu email de contacto profesional]
+admin@mbxarts.com
 ```
 
 #### **Team Members** (opcional pero recomendado)
 ```
-Godez22 - Technical Lead & Smart Contract Developer
-mbxarts.com - Project Creator & Vision
+Rafael Gonzalez - Founder & Product/Engineering Lead (LinkedIn: linkedin.com/in/rafael-gonzalez-iautomallink)
+Roberto Legrá - Head of Community & Growth / Marketing Advisor
+Leodanni Avila - Business Development & Operations / Marketing Advisor
+```
+
+#### **Team Page**
+```
+https://mbxarts.com/docs?tab=verification
 ```
 
 #### **Are you associated with any other projects?**
@@ -381,26 +388,32 @@ No (o mencionar CryptoGift Wallets si aplica)
 
 ### Paso 3.7: Logos e Imágenes
 
-#### **Logo 32x32 PNG**
-**URL**:
+#### **Logo 32x32 SVG** (Para BaseScan)
+**URL GitHub RAW** (Recomendado):
 ```
-https://crypto-gift-wallets-dao.vercel.app/metadata/cgc-logo-32x32.png
-```
-
-**O subir archivo local**:
-```
-Ubicación: public/metadata/cgc-logo-32x32.png
+https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/cgc-logo-32x32.svg
 ```
 
-#### **Logo 200x200 PNG**
-**URL**:
+**URL Vercel**:
 ```
-https://crypto-gift-wallets-dao.vercel.app/metadata/cgc-logo-200x200.png
+https://mbxarts.com/cgc-logo-32x32.svg
 ```
 
-**O subir archivo local**:
+#### **Logo 200x200 PNG** (Para CoinGecko)
+**URL GitHub RAW** (Recomendado):
 ```
-Ubicación: public/metadata/cgc-logo-200x200.png
+https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-200x200.png
+```
+
+**URL Vercel**:
+```
+https://mbxarts.com/metadata/cgc-logo-200x200.png
+```
+
+#### **Logo 512x512 PNG** (Para Wallets)
+**URL GitHub RAW**:
+```
+https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-512x512.png
 ```
 
 ### Paso 3.8: Información Adicional
@@ -609,7 +622,7 @@ https://www.coingecko.com/en/coins/cryptogift-coin
 **Solución**:
 ```bash
 # Verificar que el deployment en Vercel está activo
-curl https://crypto-gift-wallets-dao.vercel.app/api/token/total-supply
+curl https://mbxarts.com/api/token/total-supply
 
 # Debe retornar:
 {
