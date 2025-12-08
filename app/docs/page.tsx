@@ -880,31 +880,35 @@ export default function DocsPage() {
                         <p className="text-xs text-indigo-700 dark:text-indigo-300">512x512 PNG (Wallets)</p>
                       </div>
                     </a>
-                    {/* Logo 32x32 - GitHub RAW */}
+                    {/* Logo 32x32 SVG - BaseScan Required */}
                     <a
-                      href="https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-32x32.png"
-                      download="cgc-logo-32x32.png"
-                      className="flex items-center space-x-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
+                      href="https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/cgc-logo-32x32.svg"
+                      download="cgc-logo-32x32.svg"
+                      className="flex items-center space-x-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-2 border-green-300 dark:border-green-700 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
                     >
-                      <Download className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                      <Download className="h-8 w-8 text-green-600 dark:text-green-400" />
                       <div>
-                        <h4 className="font-semibold text-indigo-900 dark:text-indigo-100 text-sm">
-                          {t('verification.downloads.logo32')}
+                        <h4 className="font-semibold text-green-900 dark:text-green-100 text-sm">
+                          Logo 32x32 SVG
                         </h4>
-                        <p className="text-xs text-indigo-700 dark:text-indigo-300">32x32 PNG (BaseScan)</p>
+                        <p className="text-xs text-green-700 dark:text-green-300">SVG (BaseScan Required)</p>
                       </div>
                     </a>
                   </div>
-                  {/* Direct URLs for CoinGecko */}
+                  {/* Direct URLs for CoinGecko/BaseScan */}
                   <div className="mt-4 p-4 bg-gray-50 dark:bg-slate-800 rounded-lg">
-                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm mb-2">Direct URLs (for CoinGecko/Exchanges):</h4>
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm mb-2">Direct URLs (for CoinGecko/BaseScan/Exchanges):</h4>
                     <div className="space-y-2 text-xs font-mono">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Logo 200x200:</span>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-green-600 dark:text-green-400 font-semibold">BaseScan (SVG 32x32):</span>
+                        <code className="text-gray-700 dark:text-gray-300 break-all bg-green-50 dark:bg-green-900/20 p-1 rounded">https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/cgc-logo-32x32.svg</code>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-gray-600 dark:text-gray-400">Logo 200x200 PNG:</span>
                         <code className="text-indigo-600 dark:text-indigo-400 break-all">https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-200x200.png</code>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Logo 512x512:</span>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-gray-600 dark:text-gray-400">Logo 512x512 PNG:</span>
                         <code className="text-indigo-600 dark:text-indigo-400 break-all">https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-512x512.png</code>
                       </div>
                     </div>
@@ -1124,6 +1128,107 @@ export default function DocsPage() {
                     <p className="text-sm text-blue-700 dark:text-blue-300">
                       {t('verification.fraudWarning.safetyDesc')}
                     </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Team Card - Required by BaseScan */}
+              <Card className="glass-panel border-l-4 border-l-purple-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Users className="h-5 w-5 text-purple-500" />
+                    <span>The Team</span>
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">
+                    Lean, founder-led team combining product, Web3 dev and growth. 104 days of closed beta with 0 critical bugs and 85.7% claim rate. Ready to scale with funding &amp; partners.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {/* Rafael Gonzalez */}
+                    <div className="text-center">
+                      <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-200 dark:border-purple-700">
+                        <Image
+                          src="/team/rafael-gonzalez.jpg"
+                          alt="Rafael Gonzalez"
+                          width={96}
+                          height={96}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                      <h4 className="font-bold text-gray-900 dark:text-white">Rafael Gonzalez</h4>
+                      <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
+                        Founder &amp; Product / Engineering Lead
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                        Web3 dev, youth educator, built CryptoGift Wallets end-to-end on Base.
+                      </p>
+                      <a
+                        href="https://www.linkedin.com/in/rafael-gonzalez-iautomallink"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        <span>LinkedIn</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+
+                    {/* Roberto Legrá */}
+                    <div className="text-center">
+                      <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-200 dark:border-purple-700">
+                        <Image
+                          src="/team/roberto-legra.jpg"
+                          alt="Roberto Legrá"
+                          width={96}
+                          height={96}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                      <h4 className="font-bold text-gray-900 dark:text-white">Roberto Legrá</h4>
+                      <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
+                        Head of Community &amp; Growth / Marketing Advisor
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        6 years Community strategy designer &amp; Crypto community builder. Management of moderators, ambassadors, and content creators.
+                      </p>
+                    </div>
+
+                    {/* Leodanni Avila */}
+                    <div className="text-center">
+                      <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-200 dark:border-purple-700">
+                        <Image
+                          src="/team/leodanni-avila.jpg"
+                          alt="Leodanni Avila"
+                          width={96}
+                          height={96}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                      <h4 className="font-bold text-gray-900 dark:text-white">Leodanni Avila</h4>
+                      <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
+                        Business Development &amp; Operations / Marketing Advisor
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        3+ years in sales &amp; digital marketing; Experienced Head of Strategy &amp; Business Operations. 5+ years in Web3.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Contact Email */}
+                  <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Mail className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        <span className="text-sm font-medium text-purple-900 dark:text-purple-100">Official Contact:</span>
+                      </div>
+                      <a
+                        href="mailto:admin@mbxarts.com"
+                        className="text-sm text-purple-700 dark:text-purple-300 hover:underline font-mono"
+                      >
+                        admin@mbxarts.com
+                      </a>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

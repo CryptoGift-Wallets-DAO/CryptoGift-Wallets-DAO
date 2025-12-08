@@ -50,6 +50,14 @@ build
 !public/CRYPTOGIFT_WHITEPAPER_v1.2.html
 !public/CRYPTOGIFT_WHITEPAPER_v1.2.pdf
 !public/metadata/*.pdf
+# SVG Logos (CRITICAL for BaseScan - they require SVG)
+!public/cgc-logo-32x32.svg
+!public/cgc-logo-200x200.svg
+!public/cgc-logo-512x512.svg
+# Team Photos (CRITICAL for BaseScan verification)
+!public/team/rafael-gonzalez.jpg
+!public/team/roberto-legra.jpg
+!public/team/leodanni-avila.jpg
 
 # Contracts (not needed for runtime)
 /contracts
