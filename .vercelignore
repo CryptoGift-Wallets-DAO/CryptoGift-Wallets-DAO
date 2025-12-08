@@ -36,6 +36,20 @@ build
 !public/apeX22.PNG
 !public/apeX-aro.png
 !public/apeX-avatar.png
+# CGC Token Logos (CRITICAL for CoinGecko listing)
+!public/cgc-logo-32x32.png
+!public/cgc-logo-200x200.png
+!public/cgc-logo-512x512.png
+!public/metadata/cgc-logo-32x32.png
+!public/metadata/cgc-logo-200x200.png
+!public/metadata/cgc-logo-512x512.png
+!public/metadata/cgc-logo-64.png
+!public/metadata/cgc-logo-256.png
+!public/metadata/cgc-logo-512.png
+# Whitepaper (CRITICAL for CoinGecko listing)
+!public/CRYPTOGIFT_WHITEPAPER_v1.2.html
+!public/CRYPTOGIFT_WHITEPAPER_v1.2.pdf
+!public/metadata/*.pdf
 
 # Contracts (not needed for runtime)
 /contracts

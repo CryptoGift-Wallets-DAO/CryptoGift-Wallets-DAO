@@ -289,16 +289,26 @@ export default function DocsPage() {
                         </p>
                       </div>
                     </div>
-                    <a
-                      href="/CRYPTOGIFT_WHITEPAPER_v1.2.html"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl"
-                    >
-                      <FileText className="h-5 w-5" />
-                      <span>{t('whitepaper.download.button')}</span>
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <a
+                        href="/CRYPTOGIFT_WHITEPAPER_v1.2.pdf"
+                        download="CRYPTOGIFT_WHITEPAPER_v1.2.pdf"
+                        className="flex items-center space-x-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-lg font-semibold transition-colors shadow-lg hover:shadow-xl"
+                      >
+                        <Download className="h-5 w-5" />
+                        <span>Download PDF</span>
+                      </a>
+                      <a
+                        href="/CRYPTOGIFT_WHITEPAPER_v1.2.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-gray-200 rounded-lg font-semibold transition-colors"
+                      >
+                        <FileText className="h-5 w-5" />
+                        <span>View Online</span>
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -827,24 +837,25 @@ export default function DocsPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-3 gap-4">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Whitepaper PDF */}
                     <a
-                      href="/CRYPTOGIFT_WHITEPAPER_v1.2.html"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href="/CRYPTOGIFT_WHITEPAPER_v1.2.pdf"
+                      download="CRYPTOGIFT_WHITEPAPER_v1.2.pdf"
                       className="flex items-center space-x-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
                     >
-                      <FileText className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                      <Download className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                       <div>
                         <h4 className="font-semibold text-indigo-900 dark:text-indigo-100 text-sm">
                           {t('verification.downloads.whitepaper')}
                         </h4>
-                        <p className="text-xs text-indigo-700 dark:text-indigo-300">HTML (view/print to PDF)</p>
+                        <p className="text-xs text-indigo-700 dark:text-indigo-300">PDF (382 KB)</p>
                       </div>
                     </a>
+                    {/* Logo 200x200 - GitHub RAW */}
                     <a
-                      href="/cgc-logo-200x200.png"
-                      download
+                      href="https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-200x200.png"
+                      download="cgc-logo-200x200.png"
                       className="flex items-center space-x-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
                     >
                       <Download className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
@@ -852,12 +863,27 @@ export default function DocsPage() {
                         <h4 className="font-semibold text-indigo-900 dark:text-indigo-100 text-sm">
                           {t('verification.downloads.logo200')}
                         </h4>
-                        <p className="text-xs text-indigo-700 dark:text-indigo-300">200x200 PNG</p>
+                        <p className="text-xs text-indigo-700 dark:text-indigo-300">200x200 PNG (CoinGecko)</p>
                       </div>
                     </a>
+                    {/* Logo 512x512 - GitHub RAW */}
                     <a
-                      href="/cgc-logo-32x32.png"
-                      download
+                      href="https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-512x512.png"
+                      download="cgc-logo-512x512.png"
+                      className="flex items-center space-x-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
+                    >
+                      <Download className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                      <div>
+                        <h4 className="font-semibold text-indigo-900 dark:text-indigo-100 text-sm">
+                          Logo 512x512
+                        </h4>
+                        <p className="text-xs text-indigo-700 dark:text-indigo-300">512x512 PNG (Wallets)</p>
+                      </div>
+                    </a>
+                    {/* Logo 32x32 - GitHub RAW */}
+                    <a
+                      href="https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-32x32.png"
+                      download="cgc-logo-32x32.png"
                       className="flex items-center space-x-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
                     >
                       <Download className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
@@ -865,9 +891,23 @@ export default function DocsPage() {
                         <h4 className="font-semibold text-indigo-900 dark:text-indigo-100 text-sm">
                           {t('verification.downloads.logo32')}
                         </h4>
-                        <p className="text-xs text-indigo-700 dark:text-indigo-300">32x32 PNG</p>
+                        <p className="text-xs text-indigo-700 dark:text-indigo-300">32x32 PNG (BaseScan)</p>
                       </div>
                     </a>
+                  </div>
+                  {/* Direct URLs for CoinGecko */}
+                  <div className="mt-4 p-4 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm mb-2">Direct URLs (for CoinGecko/Exchanges):</h4>
+                    <div className="space-y-2 text-xs font-mono">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">Logo 200x200:</span>
+                        <code className="text-indigo-600 dark:text-indigo-400 break-all">https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-200x200.png</code>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">Logo 512x512:</span>
+                        <code className="text-indigo-600 dark:text-indigo-400 break-all">https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-512x512.png</code>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
