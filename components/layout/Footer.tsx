@@ -47,7 +47,7 @@ export const Footer: React.FC = () => {
               </a>
               {/* Discord */}
               <a
-                href="https://discord.gg/uWYxwmu9c5"
+                href="https://discord.gg/XzmKkrvhHc"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -189,7 +189,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a
-                  href="https://discord.gg/uWYxwmu9c5"
+                  href="https://discord.gg/XzmKkrvhHc"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"

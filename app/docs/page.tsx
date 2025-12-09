@@ -1032,7 +1032,7 @@ export default function DocsPage() {
                       <ExternalLink className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     </a>
                     <a
-                      href="https://discord.gg/uWYxwmu9c5"
+                      href="https://discord.gg/XzmKkrvhHc"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
@@ -1271,7 +1271,7 @@ export default function DocsPage() {
                 <Button
                   variant="outline"
                   className="flex items-center justify-center space-x-2 dark:border-slate-600 dark:text-gray-300"
-                  onClick={() => window.open('https://discord.gg/uWYxwmu9c5', '_blank')}
+                  onClick={() => window.open('https://discord.gg/XzmKkrvhHc', '_blank')}
                 >
                   <MessageCircle className="h-4 w-4" />
                   <span>{t('contact.discord')}</span>
