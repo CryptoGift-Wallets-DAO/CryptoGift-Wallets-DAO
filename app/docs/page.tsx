@@ -1032,7 +1032,7 @@ export default function DocsPage() {
                       <ExternalLink className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     </a>
                     <a
-                      href="https://discord.gg/cryptogift"
+                      href="https://discord.gg/uWYxwmu9c5"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
@@ -1060,7 +1060,7 @@ export default function DocsPage() {
                       {t('verification.api.totalSupply')}
                     </h4>
                     <code className="text-xs font-mono text-green-700 dark:text-green-300 break-all">
-                      GET https://crypto-gift-wallets-dao.vercel.app/api/token/total-supply
+                      GET https://mbxarts.com/api/token/total-supply
                     </code>
                   </div>
                   <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
@@ -1068,7 +1068,7 @@ export default function DocsPage() {
                       {t('verification.api.circulatingSupply')}
                     </h4>
                     <code className="text-xs font-mono text-green-700 dark:text-green-300 break-all">
-                      GET https://crypto-gift-wallets-dao.vercel.app/api/token/circulating-supply
+                      GET https://mbxarts.com/api/token/circulating-supply
                     </code>
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -1263,7 +1263,7 @@ export default function DocsPage() {
                 <Button
                   variant="outline"
                   className="flex items-center justify-center space-x-2 dark:border-slate-600 dark:text-gray-300"
-                  onClick={() => window.open('https://crypto-gift-wallets-dao.vercel.app', '_blank')}
+                  onClick={() => window.open('https://mbxarts.com', '_blank')}
                 >
                   <Globe className="h-4 w-4" />
                   <span>{t('contact.website')}</span>
@@ -1271,7 +1271,7 @@ export default function DocsPage() {
                 <Button
                   variant="outline"
                   className="flex items-center justify-center space-x-2 dark:border-slate-600 dark:text-gray-300"
-                  onClick={() => window.open('https://discord.gg/4zBvZnQB', '_blank')}
+                  onClick={() => window.open('https://discord.gg/uWYxwmu9c5', '_blank')}
                 >
                   <MessageCircle className="h-4 w-4" />
                   <span>{t('contact.discord')}</span>

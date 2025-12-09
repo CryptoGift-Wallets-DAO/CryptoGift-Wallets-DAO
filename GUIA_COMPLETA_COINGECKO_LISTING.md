@@ -349,7 +349,7 @@ https://x.com/CryptoGiftDAO
 
 #### **Discord**
 ```
-https://discord.gg/4zBvZnQB
+https://discord.gg/uWYxwmu9c5
 ```
 
 #### **Telegram** (si tienes)

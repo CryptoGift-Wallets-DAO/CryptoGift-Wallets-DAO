@@ -98,7 +98,7 @@ https://mbxarts.com/tokenlist.json
 | Logo SVG 32x32 | `https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/cgc-logo-32x32.svg` |
 | Project Sector | `DeFi, DAO, Education` |
 | Twitter | `https://x.com/CryptoGiftDAO` |
-| Discord | `https://discord.gg/4zBvZnQB` |
+| Discord | `https://discord.gg/uWYxwmu9c5` |
 | GitHub | `https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO` |
 
 ### Project Description (Max 300 chars)
