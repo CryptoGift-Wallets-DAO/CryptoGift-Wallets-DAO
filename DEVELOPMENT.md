@@ -17,6 +17,163 @@ Todas las referencias históricas a "2M CGC" en este documento se refieren ahora
 
 ---
 
+## 🎮 SESIÓN DE DESARROLLO - 9 DICIEMBRE 2025
+
+### 📅 Fecha: 9 Diciembre 2025 - 00:00 - 05:00 UTC
+### 👤 Desarrollador: Claude Opus 4.5 (AI Assistant)
+### 🎯 Objetivo: Configuración completa Discord Server + Domain Migration + CoinGecko Preparation
+
+### 📊 RESUMEN EJECUTIVO
+- ✅ **Discord Server Completo**: 10 roles, 7 categorías, 21 canales creados automáticamente
+- ✅ **Domain Migration**: crypto-gift-wallets-dao.vercel.app → mbxarts.com
+- ✅ **Discord Bot Integration**: Bot propio configurado con REST API
+- ✅ **Collab.Land Instalado**: Token gating preparado para CGC holders
+- ✅ **Links Actualizados**: Discord invite actualizado en 10+ archivos
+- ✅ **Mensajes Automáticos**: Bienvenida, reglas, anuncios, roadmap, links oficiales
+
+### 🔧 CAMBIOS TÉCNICOS DETALLADOS
+
+#### 1. DISCORD SERVER AUTOMATION
+**Script**: `scripts/setup-discord-rest.js`
+- **Método**: Discord REST API v10 con axios (sin discord.js)
+- **Credenciales**: Bot token, client ID, guild ID desde .env.local
+- **Funcionalidades**:
+  - Creación automática de roles con colores y permisos
+  - Creación de categorías y canales con permission overwrites
+  - Envío de mensajes de bienvenida a canales de información
+  - Configuración de canales read-only para anuncios
+  - Configuración de canales verified-only para comunidad
+
+#### 2. DOMAIN MIGRATION
+**Cambio**: `crypto-gift-wallets-dao.vercel.app` → `https://mbxarts.com`
+- **DNS**: Namecheap A Record → 76.76.21.21 (Vercel)
+- **CNAME**: www → cname.vercel-dns.com
+- **SSL**: Auto-generado por Vercel
+- **Razón**: Email admin@mbxarts.com debe coincidir con dominio (requisito BaseScan)
+
+#### 3. DISCORD LINK UPDATE
+**Cambio**: `discord.gg/uWYxwmu9c5` → `discord.gg/XzmKkrvhHc`
+- **Razón**: Servidor recreado desde cero con nueva estructura
+- **Guild ID**: 1440971032818090006
+- **Archivos actualizados**: 10 archivos en total
+
+#### 4. LOGO/METADATA FIXES
+- **Vercelignore**: Añadidas excepciones para logos PNG y SVG
+- **Team Section**: Añadida al docs page con fotos y LinkedIn
+- **SVG Logos**: cgc-logo-32x32.svg para BaseScan requirement
+
+### 📁 FILES MODIFICADOS CON PATHS COMPLETOS
+
+```
+ARCHIVOS NUEVOS:
+/mnt/c/Users/rafae/cryptogift-wallets-DAO/scripts/setup-discord-rest.js
+  - Script de configuración Discord via REST API
+  - 450+ líneas con roles, canales, permisos, mensajes
+
+/mnt/c/Users/rafae/cryptogift-wallets-DAO/scripts/setup-discord-server.js
+  - Script alternativo usando discord.js library
+  - 500+ líneas con misma funcionalidad
+
+ARCHIVOS MODIFICADOS (Discord Link + Domain):
+/mnt/c/Users/rafae/cryptogift-wallets-DAO/components/layout/Footer.tsx
+  - Discord link actualizado a XzmKkrvhHc
+
+/mnt/c/Users/rafae/cryptogift-wallets-DAO/app/docs/page.tsx
+  - Discord links actualizados
+  - API URLs actualizados a mbxarts.com
+  - Team section añadida con fotos y LinkedIn
+
+/mnt/c/Users/rafae/cryptogift-wallets-DAO/public/tokenlist.json
+  - Discord y website URLs actualizados
+
+/mnt/c/Users/rafae/cryptogift-wallets-DAO/public/metadata/token-metadata.json
+  - URLs actualizados a mbxarts.com y nuevo Discord
+
+/mnt/c/Users/rafae/cryptogift-wallets-DAO/public/metadata/submission-guide.json
+  - Todos los URLs actualizados
+  - Email actualizado a admin@mbxarts.com
+
+/mnt/c/Users/rafae/cryptogift-wallets-DAO/public/metadata/cgc-tokenlist.json
+  - URLs actualizados
+
+/mnt/c/Users/rafae/cryptogift-wallets-DAO/GUIA_CONFIGURAR_ICONO_CGC.md
+  - Discord link actualizado
+  - Estado: COMPLETADO
+
+/mnt/c/Users/rafae/cryptogift-wallets-DAO/GUIA_COMPLETA_COINGECKO_LISTING.md
+  - Todos los URLs actualizados a mbxarts.com
+  - Discord link actualizado
+```
+
+### 🔀 COMMITS REALIZADOS
+
+#### Commit 1: `3cc6d3e`
+**Mensaje**: `fix: update all Discord links and domain URLs across project`
+- Actualización inicial de Discord links (uWYxwmu9c5)
+- Migración de URLs de Vercel subdomain a mbxarts.com
+- 8 archivos modificados
+
+#### Commit 2: `c5fa846`
+**Mensaje**: `feat: complete Discord server setup + update all Discord links`
+- Scripts de automatización Discord añadidos
+- Discord link final actualizado (XzmKkrvhHc)
+- 10 archivos modificados, 1453 insertions
+
+### 🧪 CONFIGURACIÓN DISCORD REALIZADA
+
+#### Roles Creados (10):
+| Rol | Color | Propósito |
+|-----|-------|-----------|
+| 🔑 Admin | #E74C3C | Administrador completo |
+| 🛠️ Moderador | #E67E22 | Moderación de canales |
+| 👨‍💻 Team | #9B59B6 | Equipo del proyecto |
+| 💎 Diamond Holder | #1ABC9C | 100,000+ CGC |
+| 🥇 Gold Holder | #F1C40F | 10,000+ CGC |
+| 🥈 Silver Holder | #BDC3C7 | 1,000+ CGC |
+| 🥉 Bronze Holder | #CD7F32 | 100+ CGC |
+| ✅ Verified | #2ECC71 | Wallet verificada |
+| 📢 Announcements | #3498DB | Notificaciones |
+| 👥 Member | #95A5A6 | Miembro base |
+
+#### Canales Creados (21):
+| Categoría | Canales |
+|-----------|---------|
+| 📢 INFORMACIÓN | 📜-bienvenida-y-reglas, 📣-anuncios, 🗺️-roadmap, 🔗-links-oficiales |
+| ✅ VERIFICACIÓN | 🔐-verificate-aqui, ❓-soporte-verificacion |
+| 💬 COMUNIDAD | 💬-general, 💬-general-english, 🎉-presentaciones, 📸-memes, 💡-sugerencias |
+| 📚 EDUCACIÓN | 🎓-aprender-crypto, 📖-tutoriales, ❓-preguntas, 🎯-tareas-dao |
+| 🏛️ GOBERNANZA | 📜-propuestas, 🗳️-votaciones, 🏆-leaderboard |
+| 🔧 SOPORTE | 🆘-soporte-general, 🎫-crear-ticket, 🐛-reportar-bugs |
+| 🔊 VOZ | 🎤 Lounge General, 🎙️ AMA y Eventos, 🤝 Reuniones Team |
+
+### 📊 IMPACT ANALYSIS
+
+#### Beneficios Técnicos
+1. **Automatización Completa**: Server Discord configurado en <5 minutos
+2. **Consistencia**: Todos los links apuntan al mismo destino
+3. **Profesionalismo**: Dominio propio (mbxarts.com) vs subdomain
+4. **Token Gating Ready**: Collab.Land instalado para verificación
+
+#### Mejoras de Comunidad
+1. **Estructura Clara**: 7 categorías organizadas por función
+2. **Seguridad**: Canales verificados solo para holders
+3. **Onboarding**: Mensajes de bienvenida automáticos
+4. **Multilingual**: Canales separados ES/EN
+
+#### Preparación CoinGecko/BaseScan
+1. **Email Match**: admin@mbxarts.com = mbxarts.com ✅
+2. **Team Section**: Fotos y LinkedIn del equipo ✅
+3. **SVG Logos**: 32x32 SVG para BaseScan ✅
+4. **Discord Active**: Servidor con estructura completa ✅
+
+### 🎯 PRÓXIMOS PASOS
+1. **Collab.Land TGR**: Configurar Token Gating Rules en https://cc.collab.land/
+2. **BaseScan Submit**: Enviar formulario con SVG 32x32
+3. **CoinGecko Apply**: Completar formulario de listing
+4. **Liquidity Pool**: Crear par CGC/ETH en Aerodrome/Uniswap
+
+---
+
 ## 🤖 SESIÓN DE DESARROLLO - 4 SEPTIEMBRE 2025
 
 ### 📅 Fecha: 4 Septiembre 2025 - 15:00 UTC
