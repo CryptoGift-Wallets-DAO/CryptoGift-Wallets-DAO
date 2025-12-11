@@ -42,8 +42,8 @@ node scripts/emergency-toolkit.js status
 
 ```bash
 # Clonar repositorio
-git clone https://github.com/cryptogift-wallets/dao.git
-cd cryptogift-wallets-DAO
+git clone https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO.git
+cd CryptoGift-Wallets-DAO
 
 # 🟢 IMPORTANTE: Este proyecto usa PNPM
 pnpm install

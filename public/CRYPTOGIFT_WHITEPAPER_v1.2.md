@@ -22,8 +22,9 @@ Made by mbxarts.com The Moon in a Box property
 7. [Governance Model](#governance-model)
 8. [Roadmap](#roadmap)
 9. [Security & Audits](#security--audits)
-10. [Team & Legal](#team--legal)
-11. [Contact & Resources](#contact--resources)
+10. [Governance Risks](#governance-risks)
+11. [Team & Legal](#team--legal)
+12. [Contact & Resources](#contact--resources)
 
 ---
 
@@ -86,6 +87,17 @@ Democratize access to Web3 through a system where completing educational quests 
 
 ## ✅ THE SOLUTION: CRYPTOGIFT WALLETS DAO
 
+### The Flagship Product: CryptoGift Wallets
+
+**CryptoGift Wallets** is the core infrastructure of the ecosystem—a production-ready Web3 platform that transforms NFTs into fully functional, non-custodial wallets using **ERC-6551 token-bound accounts** and **account abstraction**. This revolutionary technology enables:
+
+- **NFT = Real Wallet**: Each NFT contains an embedded wallet that can hold real cryptocurrency
+- **Gasless Onboarding**: New users can receive and claim crypto gifts without needing ETH for gas
+- **Programmable Gifting**: Brands, creators, and DAOs can distribute assets at scale
+- **Zero Custody Risk**: Fully non-custodial design with no human intermediaries
+
+**The DAO's Core Purpose**: CryptoGift Wallets DAO exists to bootstrap, govern, and scale this flagship platform—coordinating development, liquidity, incentives, and community education so that more organizations can use CryptoGift Wallets to onboard new users into Web3.
+
 ### System Architecture
 
 ```
@@ -101,7 +113,7 @@ User → Quest Completed → EAS Attestation → MilestoneEscrow → CGC Tokens 
 
 ### Core Innovation
 
-CryptoGift Wallets DAO is the first Web3 education platform that directly converts learning effort into governance power, creating a virtuous cycle of education, participation, and protocol improvement.
+CryptoGift Wallets DAO is the first Web3 education platform that directly converts learning effort into governance power, creating a virtuous cycle of education, participation, and protocol improvement. The DAO governs the development of CryptoGift Wallets, ensuring sustainable growth aligned with community interests.
 
 ---
 
@@ -133,6 +145,18 @@ Unlike traditional fixed-supply or time-based emission models, CGC uses a **valu
 **Authorized Minter**: MilestoneEscrow contract (`0x8346CFcaECc90d678d862319449E5a742c03f109`)
 
 This ensures token supply expansion is always backed by real value creation, preventing dilution while allowing sustainable growth.
+
+### Anti-Dilution Protections
+
+The CGC token includes multiple on-chain safeguards against excessive emission:
+
+- **Hard Cap**: Maximum supply of 22,000,000 CGC is enforced at the smart contract level
+- **Single Authorized Minter**: Only the MilestoneEscrow contract can mint new tokens
+- **DAO Governance Required**: Every emission requires a successful governance proposal
+- **Milestone Verification**: Emissions are tied to verifiable on-chain attestations
+- **Gradual Release**: No single emission event can exceed defined thresholds
+
+These protections ensure that token holders are protected from arbitrary dilution and that all supply expansion reflects genuine ecosystem growth.
 
 ### Initial Distribution (2M CGC)
 
@@ -170,7 +194,17 @@ The remaining 20,000,000 CGC can be progressively minted through verified milest
 
 **Total Maximum Supply**: 2M (initial) + 20M (progressive) = 22M CGC
 
-**Important**: These milestones are examples. Actual emission requires DAO governance approval and verified achievement through on-chain attestations.
+**Important Notice on Milestones**:
+
+The milestones listed above are **illustrative examples** of the types of achievements that could trigger token emissions. The actual emission process works as follows:
+
+1. **Proposal**: Any CGC holder with 1,000+ tokens can propose a milestone emission
+2. **Specification**: The proposal must include specific, measurable criteria for the milestone
+3. **Voting**: The DAO votes on whether the milestone has been achieved
+4. **Verification**: Achievement is verified through on-chain attestations (EAS) or other verifiable evidence
+5. **Execution**: Upon approval, the MilestoneEscrow contract releases the specified tokens
+
+This governance-driven approach ensures that milestone definitions evolve with community consensus rather than being fixed at launch. Metrics like "Active Users" or "ARR" will be defined by the DAO through specific proposals that include measurement methodology and verification sources.
 
 ### Token Utility
 
@@ -295,7 +329,7 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 
 ### Q2 2025 - Growth 🔄 In Progress
 
-- ✅ Expand user base to 1,000+ active users
+- 🔄 Expand user base and engagement
 - 🔄 Partner with 3+ educational platforms
 - 🔄 Launch community-driven quests
 - 🔄 Implement advanced analytics dashboard
@@ -320,9 +354,11 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 
 ### Audit Status
 
-- **Pre-Launch Audit**: ✅ Completed
-- **Auditor**: [To be disclosed]
-- **Audit Report**: Available upon request
+- **Internal Security Review**: ✅ Completed
+- **External Audit**: 📋 Planned for Q2 2025
+- **Audit Firm**: To be selected via DAO governance proposal
+
+**Current Security Posture**: All smart contracts have undergone rigorous internal testing and use battle-tested OpenZeppelin libraries. A formal external audit is planned as the ecosystem matures and treasury resources allow. The DAO will vote on auditor selection to ensure community trust in the process.
 
 ### Bug Bounty Program
 
@@ -356,20 +392,65 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 
 ---
 
+## ⚠️ GOVERNANCE RISKS
+
+### DAO-Specific Risk Factors
+
+Participants in CryptoGift Wallets DAO should be aware of the following governance-related risks:
+
+**1. Governance Attack Risks**
+- **Vote Concentration**: Large token holders could potentially influence decisions disproportionately
+- **Flash Loan Attacks**: Theoretical risk of borrowing tokens to manipulate votes (mitigated by snapshot-based voting)
+- **Voter Apathy**: Low participation could lead to decisions made by small, active minorities
+
+**2. Operational Risks**
+- **Smart Contract Bugs**: Despite testing, undiscovered vulnerabilities may exist
+- **Upgrade Risks**: Protocol upgrades could introduce unintended consequences
+- **Key Management**: Multisig key holders represent centralization points during early stages
+
+**3. Decision-Making Risks**
+- **Adverse Proposals**: The DAO could theoretically approve proposals harmful to the ecosystem
+- **Coordination Failures**: Inability to reach consensus on critical decisions
+- **Regulatory Changes**: Future regulations could affect DAO operations
+
+**Mitigation Measures**:
+- Minimum participation thresholds (10%) ensure broad consensus
+- 48-hour timelocks allow community review before execution
+- Emergency pause functionality (3/5 multisig) for critical situations
+- Gradual decentralization plan to distribute power over time
+
+---
+
 ## 👥 TEAM & LEGAL
+
+### Core Team
+
+| Role | Name | Responsibility |
+|------|------|----------------|
+| **Founder & Lead** | Rafael Gonzalez | Product strategy, engineering, smart contracts |
+| **Community & Growth** | Roberto Legrá | Community building, marketing, partnerships |
+| **Business Development** | Leodanni Avila | Operations, business development, outreach |
+
+The team combines expertise in Web3 development, community building, and business operations. Full team profiles with LinkedIn links are available on our [Team Page](https://mbxarts.com/docs?tab=verification).
 
 ### Project Information
 
 **Developed by**: The Moon in a Box Inc.
 **Project**: CryptoGift Wallets DAO
-**Website**: https://crypto-gift-wallets-dao.vercel.app
-**GitHub**: https://github.com/mbxarts/cryptogift-wallets-DAO
+**Website**: https://mbxarts.com
+**GitHub**: https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 
 ### Legal Structure
 
 - **Entity**: Delaware C-Corporation (The Moon in a Box Inc.)
 - **Governance**: Decentralized via Aragon DAO
 - **Token Type**: Utility/Governance (not a security)
+
+### Responsibility Division
+
+- **The Moon in a Box Inc.**: Handles legal compliance, initial development, and operational infrastructure
+- **CryptoGift Wallets DAO**: Governs protocol parameters, treasury, emissions, and strategic direction
+- **Gradual Transition**: Over time, more responsibilities will transfer from the C-Corp to the DAO as decentralization matures
 
 ### Disclaimers
 
@@ -391,16 +472,16 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 
 ### Official Links
 
-- **Website**: https://crypto-gift-wallets-dao.vercel.app
-- **Documentation**: https://crypto-gift-wallets-dao.vercel.app/docs
-- **GitHub**: https://github.com/mbxarts/cryptogift-wallets-DAO
+- **Website**: https://mbxarts.com
+- **Documentation**: https://mbxarts.com/docs
+- **GitHub**: https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 - **BaseScan**: https://basescan.org/address/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
 
 ### Social Media
 
 - **Twitter/X**: https://x.com/CryptoGiftDAO
-- **Discord**: https://discord.gg/cryptogift
-- **Telegram**: [To be announced]
+- **Discord**: https://discord.gg/XzmKkrvhHc
+- **Email**: admin@mbxarts.com
 
 ### APIs (CoinGecko Integration)
 
@@ -432,6 +513,7 @@ For technical support, partnership inquiries, or general questions, please visit
 
 ### Version History
 
+- **v1.2.1** (December 11, 2025): Added CryptoGift Wallets product description, governance risks section, team information, anti-dilution protections, milestone verification process, updated audit status for transparency
 - **v1.2** (December 7, 2025): Updated with milestone-based emission model, referral system, API endpoints, progressive tokenomics (2M initial → 22M max supply)
 - **v1.1** (January 9, 2025): Updated supply to 2M, added new contracts
 - **v1.0** (November 2024): Initial release
