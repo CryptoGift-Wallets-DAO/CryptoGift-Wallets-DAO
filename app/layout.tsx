@@ -12,16 +12,53 @@ import { GlobalWidgets } from '@/components/layout/GlobalWidgets';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'CryptoGift DAO - Governance Dashboard',
-  description: 'Manage and participate in CryptoGift DAO governance',
-  keywords: 'DAO, governance, CryptoGift, Base, Aragon',
-  authors: [{ name: 'CryptoGift Team' }],
+  title: 'CryptoGift Wallets DAO - Decentralized Governance on Base',
+  description: 'CryptoGift Wallets DAO is a decentralized autonomous organization on Base blockchain. Earn CGC tokens by completing educational tasks, participate in governance, and join our referral program. Built with Aragon OSx.',
+  keywords: 'CryptoGift, CGC, DAO, governance, Base, blockchain, Aragon, crypto, token, decentralized, Web3, DeFi, referral, tasks, rewards, educational',
+  authors: [{ name: 'CryptoGift Wallets DAO Team' }],
+  creator: 'The Moon in a Box - mbxarts.com',
+  publisher: 'CryptoGift Wallets DAO',
+  metadataBase: new URL('https://mbxarts.com'),
+  alternates: {
+    canonical: 'https://mbxarts.com',
+  },
   openGraph: {
-    title: 'CryptoGift DAO',
-    description: 'Decentralized governance for CryptoGift ecosystem',
-    url: 'https://dao.cryptogift.com',
-    siteName: 'CryptoGift DAO',
+    title: 'CryptoGift Wallets DAO - Governance Dashboard',
+    description: 'Decentralized governance for the CryptoGift ecosystem on Base blockchain. Learn. Earn. Co-govern. Participate in DAO governance, complete tasks for CGC rewards, and grow your network with our referral program.',
+    url: 'https://mbxarts.com',
+    siteName: 'CryptoGift Wallets DAO',
     type: 'website',
+    locale: 'en_US',
+    images: [
+      {
+        url: 'https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-512x512.png',
+        width: 512,
+        height: 512,
+        alt: 'CryptoGift Wallets DAO - CGC Token Logo',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'CryptoGift Wallets DAO',
+    description: 'Decentralized governance on Base blockchain. Earn CGC tokens, participate in governance, join referral program.',
+    site: '@CryptoGiftDAO',
+    creator: '@CryptoGiftDAO',
+    images: ['https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-512x512.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'pending-verification-code',
   },
 };
 
