@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
+import { ApplicationGuide } from '@/components/funding/ApplicationGuide';
 import {
   ChevronDown,
   ChevronRight,
@@ -21,7 +22,8 @@ import {
   Award,
   Zap,
   Building,
-  Coins
+  Coins,
+  BookOpen
 } from 'lucide-react';
 
 // ===== TIPOS =====
@@ -1338,7 +1340,7 @@ export default function FundingPage() {
 function FundingDashboard() {
   const [completedItems, setCompletedItems] = useState<Record<string, boolean>>({});
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<'grants' | 'crowdfunding'>('grants');
+  const [activeTab, setActiveTab] = useState<'guide' | 'grants' | 'crowdfunding'>('guide');
   const [filterTier, setFilterTier] = useState<number | null>(null);
 
   // Load from localStorage
@@ -1398,13 +1400,24 @@ function FundingDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-4 border-b border-gray-200 pb-2">
+      <div className="flex gap-4 border-b border-gray-200 dark:border-gray-700 pb-2 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab('guide')}
+          className={`px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${
+            activeTab === 'guide'
+              ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 border-b-2 border-purple-500'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+          }`}
+        >
+          <BookOpen className="w-4 h-4 inline mr-2" />
+          Application Guide
+        </button>
         <button
           onClick={() => setActiveTab('grants')}
-          className={`px-4 py-2 font-medium rounded-t-lg transition-colors ${
+          className={`px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${
             activeTab === 'grants'
-              ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-500'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 border-b-2 border-blue-500'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
           }`}
         >
           <DollarSign className="w-4 h-4 inline mr-2" />
@@ -1412,10 +1425,10 @@ function FundingDashboard() {
         </button>
         <button
           onClick={() => setActiveTab('crowdfunding')}
-          className={`px-4 py-2 font-medium rounded-t-lg transition-colors ${
+          className={`px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${
             activeTab === 'crowdfunding'
-              ? 'bg-green-100 text-green-700 border-b-2 border-green-500'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-b-2 border-green-500'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
           }`}
         >
           <Users className="w-4 h-4 inline mr-2" />
@@ -1424,11 +1437,13 @@ function FundingDashboard() {
       </div>
 
       {/* Content */}
-      {activeTab === 'grants' ? (
+      {activeTab === 'guide' ? (
+        <ApplicationGuide />
+      ) : activeTab === 'grants' ? (
         <div className="space-y-6">
           {/* Tier Filter */}
           <div className="flex flex-wrap gap-2">
-            <span className="text-sm font-medium text-gray-600 py-2">Filter by Tier:</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400 py-2">Filter by Tier:</span>
             <button
               onClick={() => setFilterTier(null)}
               className={`px-3 py-1 rounded-full text-sm transition-colors ${

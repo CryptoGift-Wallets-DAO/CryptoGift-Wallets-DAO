@@ -2,12 +2,12 @@
 
 ## 🎯 INFORMACIÓN CRÍTICA DEL PROYECTO
 
-### ESTADO ACTUAL (9 DIC 2025) - DISCORD SERVER + COINGECKO READY ✅
-- **Progreso**: 100% Task System + i18n + Referrals + Bonos + **DISCORD SERVER COMPLETO** ✅
-- **Fase actual**: Sistema DAO con comunidad Discord completamente configurada
-- **Último Deploy**: Discord server con 10 roles, 7 categorías, 21 canales + mensajes automáticos
-- **Critical Update**: Dominio migrado a mbxarts.com, Discord link permanente configurado
-- **Último Commit**: `c5fa846` - feat: complete Discord server setup + update all Discord links
+### ESTADO ACTUAL (11 DIC 2025) - FUNDING APPLICATION SYSTEM ✅
+- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **FUNDING GUIDE COMPLETO** ✅
+- **Fase actual**: Sistema DAO con documentación completa para solicitudes de grants
+- **Último Deploy**: Funding Application Guide con Top 5 Grants + botones copiar + PDF
+- **Critical Update**: Página de Funding con nueva pestaña "Application Guide" como piedra angular
+- **Último Commit**: `a13fd50` - feat: add funding application guide with bilingual content
 
 ### 🎮 DISCORD SERVER CONFIGURADO (9 DIC 2025) ✅
 ```
@@ -46,6 +46,43 @@ SCRIPTS DISPONIBLES:
 ├── scripts/setup-discord-rest.js    - Configuración via REST API (usado)
 └── scripts/setup-discord-server.js  - Configuración via discord.js
 ```
+
+### 💰 FUNDING APPLICATION GUIDE (11 DIC 2025) ✅
+```
+SISTEMA COMPLETO PARA SOLICITUDES DE GRANTS:
+├── public/GRANT_APPLICATION_GUIDE.md        - Documento maestro (1251 líneas)
+├── components/funding/ApplicationGuide.tsx  - Componente React (28KB)
+├── app/funding/page.tsx                     - Página con pestaña "Application Guide"
+└── docs/governance/GRANT_APPLICATION_MASTER_GUIDE.md - Guía técnica detallada
+
+CARACTERÍSTICAS:
+├── 📋 16 secciones con información completa del proyecto
+├── 🌐 Bilingüe: Español primero, luego Inglés (copy-paste ready)
+├── 📋 Botón copiar para cada sección
+├── 📥 Descarga PDF disponible
+├── ⭐ Top 5 Grants con prioridad visual
+├── ✅ Checklist pre-aplicación
+└── 📊 Tabla de estado de aplicaciones
+
+TOP 5 GRANTS (PRIORIDAD):
+├── ⭐⭐⭐⭐⭐ Base Builder Grants ($3k-15k) - Rolling deadline
+├── ⭐⭐⭐⭐⭐ Base Weekly Rewards (2 ETH/week) - Talent Protocol
+├── ⭐⭐⭐⭐ Optimism RetroPGF ($10k-500k+) - Atlas platform
+├── ⭐⭐⭐⭐ Gitcoin Grants (Quadratic Funding) - GG22+
+└── ⭐⭐⭐ Base Batches (Accelerator) - H2 2025
+
+ESTADO APLICACIONES (11 DIC 2025):
+├── CoinGecko: ✅ ENVIADA (Dic 2025) - Esperando
+├── BaseScan: ✅ ENVIADA (Dic 2025) - Esperando
+├── Base Grants: 📋 LISTO - No tienen portal de tracking
+├── Optimism Atlas: 🔄 REGISTRAR - Crear perfil primero
+└── Gitcoin Grants: 🔄 REGISTRAR - Esperar GG22
+```
+
+**ACCESO:**
+- URL: `/funding` → Pestaña "Application Guide" (primera pestaña)
+- El componente muestra secciones expandibles con botón copiar
+- Toggle ES/EN para cambiar idioma de visualización
 
 ### 💰 SISTEMA DE BONOS AUTOMÁTICOS - ON-CHAIN (4 DIC 2025) ✅
 ```
@@ -227,12 +264,12 @@ app/api/tasks/route.ts - Enhanced API logic + user relevant tasks
 - `fca066b` - feat: enhance task system with competitive features and claim confirmation
 - `6bc3fd2` - fix: escape apostrophes in TaskClaimModal JSX to resolve ESLint errors
 
-### 🔄 ÚLTIMOS COMMITS (9 DIC 2025) - DISCORD + DOMAIN MIGRATION
+### 🔄 ÚLTIMOS COMMITS (11 DIC 2025) - FUNDING APPLICATION GUIDE
+- `a13fd50` - feat: add funding application guide with bilingual content and copy buttons
+- `94fa767` - docs: update guide with Aerodrome pool data + CoinGecko application ready
 - `c5fa846` - feat: complete Discord server setup + update all Discord links
 - `3cc6d3e` - fix: update all Discord links and domain URLs across project
 - `240a96d` - fix: add whitepaper download button to Whitepaper tab + upload CGC logos to GitHub
-- `accb0b2` - feat: add URL query param support for docs tab navigation
-- `15d265c` - docs: add automated minting system design + fix whitepaper PDF 404 + logo guide
 
 ### ⏰ SISTEMA DE TIMEOUTS IMPLEMENTADO
 - **Timeout Formula**: 50% del tiempo estimado (mínimo 2h, máximo 7 días)
@@ -390,7 +427,7 @@ npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
 
 ## 🎯 ROADMAP INMEDIATO
 
-### 🔥 PRÓXIMOS PASOS CRÍTICOS (ACTUALIZADOS 9 ENE 2025)
+### 🔥 PRÓXIMOS PASOS CRÍTICOS (ACTUALIZADOS 11 DIC 2025)
 1. ✅ **Deployment completo** - COMPLETADO CON MÁXIMA EXCELENCIA
 2. ✅ **Verificar contratos en BaseScan** - COMPLETADO (todos con badge verde)
 3. ✅ **Implementar sistema completo** - COMPLETADO (3 capas de seguridad)
@@ -405,12 +442,15 @@ npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
 12. ✅ **Discord Server Setup** - COMPLETADO (10 roles, 21 canales, mensajes automáticos)
 13. ✅ **Domain Migration** - COMPLETADO (mbxarts.com configurado con Vercel)
 14. ✅ **Collab.Land Integration** - COMPLETADO (instalado en Discord para token gating)
-15. 🔄 **BaseScan Logo Submission** - Enviar 32x32 SVG a BaseScan para verificación
-16. 🔄 **CoinGecko Form Submission** - Completar form con APIs y documentación
-17. 🔄 **Collab.Land TGR Config** - Configurar Token Gating Rules para roles de holder
-18. 🔄 **Coinbase Wallet Integration** - Usar tokenlist para Coinbase Wallet
-19. 🔄 **DAO Integration** - Transferir CGC tokens al vault de Aragon
-20. 🔄 **Production Testing** - Test completo con usuarios reales
+15. ✅ **Funding Application Guide** - COMPLETADO (16 secciones bilingües, Top 5 grants, PDF)
+16. 🔄 **Apply Base Builder Grants** - Usar guía para enviar solicitud
+17. 🔄 **Register Optimism Atlas** - Crear perfil en atlas.optimism.io
+18. 🔄 **Register Gitcoin Grants** - Preparar para GG22
+19. 🔄 **BaseScan Logo Submission** - Enviar 32x32 SVG a BaseScan
+20. 🔄 **CoinGecko Form Submission** - Completar form con APIs y documentación
+21. 🔄 **Collab.Land TGR Config** - Configurar Token Gating Rules
+22. 🔄 **DAO Integration** - Transferir CGC tokens al vault de Aragon
+23. 🔄 **Production Testing** - Test completo con usuarios reales
 
 ### Estado de Tokens (ACTUALIZADO 7 DIC 2025)
 ```bash
