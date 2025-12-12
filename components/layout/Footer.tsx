@@ -35,7 +35,7 @@ export const Footer: React.FC = () => {
             <div className="flex space-x-4">
               {/* Twitter/X */}
               <a
-                href="https://x.com/giftwalletcoin"
+                href="https://x.com/cryptogiftdao"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"

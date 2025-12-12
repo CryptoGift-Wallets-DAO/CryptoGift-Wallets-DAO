@@ -1279,7 +1279,7 @@ export default function DocsPage() {
                 <Button
                   variant="outline"
                   className="flex items-center justify-center space-x-2 dark:border-slate-600 dark:text-gray-300"
-                  onClick={() => window.open('https://x.com/giftwalletcoin', '_blank')}
+                  onClick={() => window.open('https://x.com/cryptogiftdao', '_blank')}
                 >
                   <Twitter className="h-4 w-4" />
                   <span>{t('contact.twitter')}</span>

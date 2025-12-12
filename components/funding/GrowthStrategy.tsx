@@ -1537,7 +1537,7 @@ export function GrowthStrategy() {
             {showEnglish ? 'Add Liquidity' : 'Añadir Liquidez'}
           </a>
           <a
-            href="https://twitter.com/CryptoGiftDAO"
+            href="https://x.com/cryptogiftdao"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 bg-sky-600 hover:bg-sky-500 rounded-lg text-white font-medium flex items-center gap-2 transition-colors"
