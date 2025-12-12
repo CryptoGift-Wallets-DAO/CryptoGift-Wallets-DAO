@@ -34,13 +34,13 @@ export function QRCodeModal({ isOpen, onClose, referralLink, referralCode }: QRC
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const svgData = new XMLSerializer().serializeToString(svg);
-    const img = new Image();
+    const qrImg = new Image();
 
     // Set canvas size (larger for better quality)
     canvas.width = 512;
     canvas.height = 512;
 
-    img.onload = () => {
+    qrImg.onload = () => {
       if (ctx) {
         // White background
         ctx.fillStyle = '#ffffff';
@@ -48,17 +48,41 @@ export function QRCodeModal({ isOpen, onClose, referralLink, referralCode }: QRC
 
         // Draw QR code centered
         const padding = 40;
-        ctx.drawImage(img, padding, padding, canvas.width - (padding * 2), canvas.height - (padding * 2));
+        ctx.drawImage(qrImg, padding, padding, canvas.width - (padding * 2), canvas.height - (padding * 2));
 
-        // Download
-        const link = document.createElement('a');
-        link.download = `CryptoGift-QR-${referralCode}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        // Draw logo in center
+        const logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.onload = () => {
+          const logoSize = 80;
+          const logoX = (canvas.width - logoSize) / 2;
+          const logoY = (canvas.height - logoSize) / 2;
+
+          // White background for logo
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(logoX - 5, logoY - 5, logoSize + 10, logoSize + 10);
+
+          // Draw logo
+          ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+
+          // Download
+          const link = document.createElement('a');
+          link.download = `CryptoGift-QR-${referralCode}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        };
+        logoImg.onerror = () => {
+          // Download without logo if it fails to load
+          const link = document.createElement('a');
+          link.download = `CryptoGift-QR-${referralCode}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        };
+        logoImg.src = '/cgc-logo-200x200.png';
       }
     };
 
-    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    qrImg.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
   };
 
   const handleShare = async () => {
@@ -115,10 +139,10 @@ export function QRCodeModal({ isOpen, onClose, referralLink, referralCode }: QRC
               </p>
             </div>
 
-            {/* QR Code */}
+            {/* QR Code with Logo Overlay */}
             <div
               ref={qrRef}
-              className="flex items-center justify-center p-6 bg-white rounded-xl shadow-inner mx-auto max-w-[280px]"
+              className="relative flex items-center justify-center p-6 bg-white rounded-xl shadow-inner mx-auto max-w-[280px]"
             >
               <QRCodeSVG
                 value={referralLink}
@@ -127,13 +151,17 @@ export function QRCodeModal({ isOpen, onClose, referralLink, referralCode }: QRC
                 includeMargin={false}
                 bgColor="#ffffff"
                 fgColor="#1e1e2e"
-                imageSettings={{
-                  src: '/cgc-logo-1mb.png',
-                  height: 45,
-                  width: 45,
-                  excavate: true,
-                }}
               />
+              {/* Logo overlay in center */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-white p-1 rounded-lg shadow-sm">
+                  <img
+                    src="/cgc-logo-200x200.png"
+                    alt="CGC"
+                    className="w-12 h-12 object-contain"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Referral Code Display */}
