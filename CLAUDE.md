@@ -2,12 +2,12 @@
 
 ## 🎯 INFORMACIÓN CRÍTICA DEL PROYECTO
 
-### ESTADO ACTUAL (11 DIC 2025) - FUNDING APPLICATION SYSTEM ✅
-- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **FUNDING GUIDE COMPLETO** ✅
-- **Fase actual**: Sistema DAO con documentación completa para solicitudes de grants
-- **Último Deploy**: Funding Application Guide con Top 5 Grants + botones copiar + PDF
-- **Critical Update**: Página de Funding con nueva pestaña "Application Guide" como piedra angular
-- **Último Commit**: `a13fd50` - feat: add funding application guide with bilingual content
+### ESTADO ACTUAL (12 DIC 2025) - GRANTS SYSTEM + TWITTER + QR CODE ✅
+- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **GRANTS COMPLETO** ✅
+- **Fase actual**: Sistema DAO con grants actualizados, Twitter corregido, QR con logo
+- **Último Deploy**: Top 5 Grants con links correctos, guías paso a paso, tips y modales
+- **Critical Update**: Twitter handle corregido en 30+ archivos (@cryptogiftdao)
+- **Último Commit**: `ef35cc8` - feat: complete overhaul of Top 5 Grants with correct links, step-by-step guides, and tips
 
 ### 🎮 DISCORD SERVER CONFIGURADO (9 DIC 2025) ✅
 ```
@@ -47,40 +47,43 @@ SCRIPTS DISPONIBLES:
 └── scripts/setup-discord-server.js  - Configuración via discord.js
 ```
 
-### 💰 FUNDING & GROWTH SYSTEM (11 DIC 2025) ✅
+### 💰 FUNDING & GRANTS SYSTEM (12 DIC 2025) ✅
 ```
-SISTEMA COMPLETO DE FUNDING Y CRECIMIENTO:
+SISTEMA COMPLETO DE FUNDING Y GRANTS:
 ├── public/GRANT_APPLICATION_GUIDE.md         - Documento maestro (1251 líneas)
-├── components/funding/ApplicationGuide.tsx   - Guía de aplicaciones (28KB)
+├── components/funding/ApplicationGuide.tsx   - Guía de aplicaciones (55KB+) con modales
 ├── components/funding/GrowthStrategy.tsx     - Plan de crecimiento (800+ líneas)
 ├── app/funding/page.tsx                      - 4 pestañas: Guide, Growth, Grants, Crowdfunding
 └── docs/governance/GRANT_APPLICATION_MASTER_GUIDE.md - Guía técnica detallada
 
+TOP 5 GRANTS (ACTUALIZADO 12 DIC 2025):
+├── Base Builder Grants    - 1-5 ETH | paragraph.com/@grants.base.eth
+├── Base Weekly Rewards    - 20 ETH/semana (top 100) | builderscore.xyz
+├── Optimism RetroPGF      - $10k-500k+ | atlas.optimism.io
+├── Gitcoin Grants GG24    - $1k-50k+ (Oct 14-28) | grants.gitcoin.co
+└── Base Batches 002       - Demo Day + Funding | devfolio.co (Sep 29 - Oct 18)
+
+CADA GRANT INCLUYE:
+├── ✅ Link directo de aplicación (funcionando)
+├── 📋 7 pasos detallados (ES/EN)
+├── 💡 6+ tips y trucos insider
+├── 📝 Requisitos claros
+├── ⏰ Timeline cuando aplica
+└── 🔲 Modal popup con guía completa
+
 TABS DISPONIBLES:
-├── 📖 Application Guide  - Información para llenar forms de grants
+├── 📖 Application Guide  - Top 5 Grants con Apply/Guide buttons
 ├── 📈 Growth Strategy    - Plan de acción post-rechazo CoinGecko
 ├── 💰 Grants & Programs  - 40 oportunidades de funding
 └── 👥 Crowdfunding       - Plataformas de crowdfunding
 
-GROWTH STRATEGY (NUEVO - PLAN COINGECKO):
-├── 💧 Liquidez: Añadir $5,000-10,000 a pools
-├── 📱 Twitter/X: Activar cuenta, posts diarios
-├── 🌐 Farcaster: Crear presencia, Frames interactivos
-├── 💬 Discord: Crecer a 500+ miembros
-├── 📊 Volumen: Generar trading orgánico
-└── 🎯 CoinGecko: Re-aplicar en 14 días
-
-AUTOMATIZACIÓN CLAUDE:
-├── ✅ PUEDE: Generar contenido, scripts, componentes, templates
-├── ⚠️ PARCIAL: Scheduling (necesita APIs), bots (necesita hosting)
-├── ❌ NO PUEDE: Transacciones blockchain, crear cuentas, correr 24/7
-
-ESTADO APLICACIONES (11 DIC 2025):
+ESTADO APLICACIONES (12 DIC 2025):
 ├── CoinGecko: ❌ RECHAZADA - Re-aplicar en 14 días con más tracción
 ├── BaseScan: ✅ ENVIADA (Dic 2025) - Esperando
-├── Base Grants: 📋 LISTO - No tienen portal de tracking
-├── Optimism Atlas: 🔄 REGISTRAR - Crear perfil primero
-└── Gitcoin Grants: 🔄 REGISTRAR - Esperar GG22
+├── Base Grants: ✅ READY TO APPLY (links actualizados)
+├── Base Batches 002: ⏰ Sep 29 - Oct 18, 2025
+├── Optimism Atlas: 🔄 REGISTRAR - Crear perfil en atlas.optimism.io
+└── Gitcoin Grants: ⏰ GG24 - Oct 14-28, 2025
 ```
 
 **ACCESO:**
@@ -269,12 +272,18 @@ app/api/tasks/route.ts - Enhanced API logic + user relevant tasks
 - `fca066b` - feat: enhance task system with competitive features and claim confirmation
 - `6bc3fd2` - fix: escape apostrophes in TaskClaimModal JSX to resolve ESLint errors
 
-### 🔄 ÚLTIMOS COMMITS (11 DIC 2025) - FUNDING APPLICATION GUIDE
+### 🔄 ÚLTIMOS COMMITS (12 DIC 2025) - GRANTS + TWITTER + QR CODE
+- `ef35cc8` - feat: complete overhaul of Top 5 Grants with correct links, step-by-step guides, and tips
+- `4e78e25` - fix: update remaining old Twitter links (giftwalletcoin → cryptogiftdao)
+- `0ed9ae4` - fix: update all Twitter/X links to correct handle + add View All button
+- `aa65393` - docs: add comprehensive Twitter/X optimization guide with actionable content
+- `dcb9945` - fix: add CGC logo overlay in center of QR code
+- `d616817` - feat: add QR code modal for referral links
+
+### 🔄 COMMITS ANTERIORES (11 DIC 2025)
 - `a13fd50` - feat: add funding application guide with bilingual content and copy buttons
 - `94fa767` - docs: update guide with Aerodrome pool data + CoinGecko application ready
 - `c5fa846` - feat: complete Discord server setup + update all Discord links
-- `3cc6d3e` - fix: update all Discord links and domain URLs across project
-- `240a96d` - fix: add whitepaper download button to Whitepaper tab + upload CGC logos to GitHub
 
 ### ⏰ SISTEMA DE TIMEOUTS IMPLEMENTADO
 - **Timeout Formula**: 50% del tiempo estimado (mínimo 2h, máximo 7 días)
