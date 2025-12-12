@@ -15,7 +15,10 @@ import {
   ChevronDown,
   ChevronRight,
   ExternalLink,
-  Star
+  Star,
+  X,
+  AlertCircle,
+  CheckCircle
 } from 'lucide-react';
 
 // ===== DATOS DE LA GUÍA =====
@@ -336,6 +339,17 @@ Availability for Calls: Flexible, coordinate via email`
 ];
 
 // ===== TOP 5 GRANTS =====
+interface GrantStep {
+  stepEs: string;
+  stepEn: string;
+  details?: string;
+}
+
+interface GrantTip {
+  tipEs: string;
+  tipEn: string;
+}
+
 interface TopGrant {
   id: string;
   name: string;
@@ -343,9 +357,17 @@ interface TopGrant {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   status: 'ready' | 'pending' | 'submitted';
   url: string;
+  applyUrl: string;
   priority: number;
   descriptionEs: string;
   descriptionEn: string;
+  stepsEs: string[];
+  stepsEn: string[];
+  tipsEs: string[];
+  tipsEn: string[];
+  requirementsEs: string[];
+  requirementsEn: string[];
+  timeline?: string;
 }
 
 const topGrants: TopGrant[] = [
@@ -356,53 +378,292 @@ const topGrants: TopGrant[] = [
     difficulty: 'Medium',
     status: 'ready',
     url: 'https://docs.base.org/get-started/get-funded',
+    applyUrl: 'https://paragraph.com/@grants.base.eth/calling-based-builders',
     priority: 5,
     descriptionEs: 'Grants retroactivos para proyectos desplegados en Base. Recompensa código enviado sobre pitches perfectos.',
-    descriptionEn: 'Retroactive grants for projects deployed on Base. Rewards shipped code over perfect pitches.'
+    descriptionEn: 'Retroactive grants for projects deployed on Base. Rewards shipped code over perfect pitches.',
+    stepsEs: [
+      '1. Despliega tu proyecto en Base Mainnet (testnet aceptable para prototipos tempranos)',
+      '2. Crea documentación clara: README, instrucciones de setup, demo',
+      '3. Comparte tu proyecto en Twitter/X mencionando @BuildOnBase',
+      '4. Publica en Farcaster con updates de tu progreso',
+      '5. Llena el formulario de nominación en paragraph.com/@grants.base.eth',
+      '6. Espera contacto del equipo de Base (solo contactan si eres seleccionado)',
+      '7. Si te contactan, prepara W8/W9 para KYC y compliance'
+    ],
+    stepsEn: [
+      '1. Deploy your project on Base Mainnet (testnet acceptable for early prototypes)',
+      '2. Create clear documentation: README, setup instructions, demo',
+      '3. Share your project on Twitter/X mentioning @BuildOnBase',
+      '4. Post on Farcaster with progress updates',
+      '5. Fill the nomination form at paragraph.com/@grants.base.eth',
+      '6. Wait for Base team contact (they only reach out if selected)',
+      '7. If contacted, prepare W8/W9 for KYC and compliance'
+    ],
+    tipsEs: [
+      '🎯 El equipo de Base BUSCA proyectos activamente en Twitter y Farcaster - sé visible',
+      '💡 "Shipped code > perfect pitches" - muestra producto funcionando, no slides',
+      '🔥 Proyectos con tracción real (usuarios, transacciones) tienen prioridad',
+      '⚡ Responde SOLO a mensajes de @buildonbase o cuentas seguidas por @BuildOnBase',
+      '📊 Incluye métricas: usuarios, TVL, transacciones, engagement',
+      '🚫 No hay formulario tradicional - es descubrimiento proactivo del equipo'
+    ],
+    tipsEn: [
+      '🎯 Base team ACTIVELY scouts projects on Twitter and Farcaster - be visible',
+      '💡 "Shipped code > perfect pitches" - show working product, not slides',
+      '🔥 Projects with real traction (users, transactions) get priority',
+      '⚡ Only respond to messages from @buildonbase or accounts followed by @BuildOnBase',
+      '📊 Include metrics: users, TVL, transactions, engagement',
+      '🚫 No traditional application form - proactive discovery by the team'
+    ],
+    requirementsEs: [
+      'MVP o prototipo desplegado en Base',
+      'Equipo pequeño (ideal para noches y fines de semana)',
+      'Caso de uso claro y definido',
+      'Documentación básica del proyecto'
+    ],
+    requirementsEn: [
+      'MVP or prototype deployed on Base',
+      'Small team (ideal for nights and weekends)',
+      'Clear and defined use case',
+      'Basic project documentation'
+    ]
   },
   {
     id: 'base-weekly',
     name: 'Base Weekly Rewards',
-    amount: '2 ETH/semana',
+    amount: '20 ETH/semana (top 100)',
     difficulty: 'Easy',
-    status: 'pending',
-    url: 'https://www.builderscore.xyz/',
+    status: 'ready',
+    url: 'https://docs.base.org/get-started/get-funded',
+    applyUrl: 'https://www.builderscore.xyz/',
     priority: 5,
-    descriptionEs: 'Competencia semanal via Talent Protocol. Solo registrarse y postear updates semanales.',
-    descriptionEn: 'Weekly competition via Talent Protocol. Just register and post weekly updates.'
+    descriptionEs: '20 ETH semanales distribuidos entre los top 100 builders en Base. Basado en Builder Score de Talent Protocol.',
+    descriptionEn: '20 ETH weekly distributed among top 100 builders on Base. Based on Talent Protocol Builder Score.',
+    stepsEs: [
+      '1. Ve a builderscore.xyz y conecta tu wallet',
+      '2. Obtén un Basename (tu identidad verificada en Base) en base.org/names',
+      '3. Vincula tu cuenta de GitHub a tu perfil',
+      '4. Vincula tu cuenta de Farcaster',
+      '5. Comienza a construir: commits en GitHub, deploy contratos, crea mini apps',
+      '6. Mantén un Builder Score ≥ 40 para ser elegible',
+      '7. El leaderboard se actualiza diariamente - no necesitas aplicar'
+    ],
+    stepsEn: [
+      '1. Go to builderscore.xyz and connect your wallet',
+      '2. Get a Basename (your verified identity on Base) at base.org/names',
+      '3. Link your GitHub account to your profile',
+      '4. Link your Farcaster account',
+      '5. Start building: GitHub commits, deploy contracts, create mini apps',
+      '6. Maintain a Builder Score ≥ 40 to be eligible',
+      '7. Leaderboard updates daily - no application needed'
+    ],
+    tipsEs: [
+      '🏆 Recompensas son proporcionales a tu score - más construyes, más ganas',
+      '📈 Boost tu score: commits open-source, contratos desplegados, mini apps en Farcaster',
+      '🔗 Basename es OBLIGATORIO para recibir rewards',
+      '⏰ El programa corre hasta Sep 22, 2025 (puede extenderse)',
+      '🎮 Usa la mini app de Builder Rewards en Farcaster para más puntos',
+      '💡 Contribuye a repos populares del ecosistema Base para más visibilidad'
+    ],
+    tipsEn: [
+      '🏆 Rewards are proportional to your score - more you build, more you earn',
+      '📈 Boost your score: open-source commits, deployed contracts, Farcaster mini apps',
+      '🔗 Basename is MANDATORY to receive rewards',
+      '⏰ Program runs until Sep 22, 2025 (may extend)',
+      '🎮 Use the Builder Rewards mini app on Farcaster for more points',
+      '💡 Contribute to popular Base ecosystem repos for more visibility'
+    ],
+    requirementsEs: [
+      'Basename (identidad verificada en Base)',
+      'Builder Score ≥ 40',
+      'Actividad verificada en GitHub y/o on-chain',
+      'Wallet compatible con Base'
+    ],
+    requirementsEn: [
+      'Basename (verified identity on Base)',
+      'Builder Score ≥ 40',
+      'Verified activity on GitHub and/or on-chain',
+      'Base-compatible wallet'
+    ],
+    timeline: 'Activo hasta Sep 22, 2025'
   },
   {
     id: 'optimism-rpgf',
     name: 'Optimism RetroPGF',
     amount: '$10k-500k+',
     difficulty: 'Medium',
-    status: 'pending',
-    url: 'https://atlas.optimism.io/',
+    status: 'ready',
+    url: 'https://community.optimism.io/citizens-house/rounds/retropgf-6',
+    applyUrl: 'https://atlas.optimism.io/',
     priority: 4,
-    descriptionEs: 'Retroactive Public Goods Funding. Base es parte del Optimism Superchain.',
-    descriptionEn: 'Retroactive Public Goods Funding. Base is part of the Optimism Superchain.'
+    descriptionEs: 'Retroactive Public Goods Funding. Base es parte del Optimism Superchain, todos los proyectos Base son elegibles.',
+    descriptionEn: 'Retroactive Public Goods Funding. Base is part of the Optimism Superchain, all Base projects are eligible.',
+    stepsEs: [
+      '1. Ve a atlas.optimism.io y crea tu perfil de proyecto',
+      '2. Vincula tu email y cuenta de GitHub',
+      '3. Verifica tu identidad con Passport (score 20+) o World ID',
+      '4. Designa una wallet de gobernanza para recibir el badge de Ciudadano',
+      '5. Documenta el IMPACTO de tu proyecto (métricas concretas)',
+      '6. Espera el anuncio de la próxima ronda de RetroPGF',
+      '7. Aplica durante el período de aplicación de la ronda'
+    ],
+    stepsEn: [
+      '1. Go to atlas.optimism.io and create your project profile',
+      '2. Link your email and GitHub account',
+      '3. Verify your identity with Passport (score 20+) or World ID',
+      '4. Designate a governance wallet to receive Citizen badge',
+      '5. Document your project IMPACT (concrete metrics)',
+      '6. Wait for the next RetroPGF round announcement',
+      '7. Apply during the round application period'
+    ],
+    tipsEs: [
+      '🌐 TODOS los proyectos Base son elegibles - Base es parte del Superchain',
+      '📊 El IMPACTO es todo: documenta usuarios, transacciones, valor generado',
+      '🏛️ Participa en governance de Optimism para aumentar visibilidad',
+      '🔗 La misma wallet NO puede recibir múltiples badges de Ciudadano',
+      '⚠️ Wallets sospechosas pueden requerir verificación adicional',
+      '💡 Categorías: infraestructura, tooling, analytics, liderazgo de governance'
+    ],
+    tipsEn: [
+      '🌐 ALL Base projects are eligible - Base is part of the Superchain',
+      '📊 IMPACT is everything: document users, transactions, value generated',
+      '🏛️ Participate in Optimism governance to increase visibility',
+      '🔗 Same wallet can NEVER receive multiple Citizen badges',
+      '⚠️ Suspicious wallets may require additional verification',
+      '💡 Categories: infrastructure, tooling, analytics, governance leadership'
+    ],
+    requirementsEs: [
+      'Proyecto que beneficie al Superchain (incluye Base)',
+      'Proof of Personhood (Passport score 20+ o World ID)',
+      'Impacto documentable y medible',
+      'Perfil completo en Atlas'
+    ],
+    requirementsEn: [
+      'Project benefiting the Superchain (includes Base)',
+      'Proof of Personhood (Passport score 20+ or World ID)',
+      'Documentable and measurable impact',
+      'Complete profile on Atlas'
+    ],
+    timeline: 'Rondas trimestrales - próxima TBD 2025'
   },
   {
     id: 'gitcoin',
-    name: 'Gitcoin Grants',
+    name: 'Gitcoin Grants (GG24)',
     amount: '$1k-50k+',
     difficulty: 'Medium',
-    status: 'pending',
-    url: 'https://grants.gitcoin.co',
+    status: 'ready',
+    url: 'https://www.gitcoin.co/blog/gitcoin-grants-2025-strategy',
+    applyUrl: 'https://grants.gitcoin.co/',
     priority: 4,
-    descriptionEs: 'Quadratic Funding. Muchas donaciones pequeñas valen más que pocas grandes.',
-    descriptionEn: 'Quadratic Funding. Many small donations are worth more than few large ones.'
+    descriptionEs: 'Quadratic Funding activo en GG24. 6 dominios de funding incluyendo Developer Tooling y Public Goods.',
+    descriptionEn: 'Quadratic Funding active in GG24. 6 funding domains including Developer Tooling and Public Goods.',
+    stepsEs: [
+      '1. Ve a grants.gitcoin.co y crea tu perfil de proyecto',
+      '2. Verifica tu Gitcoin Passport (score mínimo requerido)',
+      '3. Elige el dominio correcto: Developer Tooling, Public Goods R&D, Privacy, etc.',
+      '4. Completa tu aplicación antes del deadline (Oct 17, 2025 para GG24)',
+      '5. Durante la ronda de donaciones (Oct 14-28), promueve tu proyecto',
+      '6. Consigue MUCHAS donaciones pequeñas (el matching favorece cantidad sobre monto)',
+      '7. Espera la distribución del matching pool'
+    ],
+    stepsEn: [
+      '1. Go to grants.gitcoin.co and create your project profile',
+      '2. Verify your Gitcoin Passport (minimum score required)',
+      '3. Choose the right domain: Developer Tooling, Public Goods R&D, Privacy, etc.',
+      '4. Complete your application before deadline (Oct 17, 2025 for GG24)',
+      '5. During donation round (Oct 14-28), promote your project',
+      '6. Get MANY small donations (matching favors quantity over amount)',
+      '7. Wait for matching pool distribution'
+    ],
+    tipsEs: [
+      '💡 100 donaciones de $1 > 1 donación de $100 (quadratic funding)',
+      '🎯 Categorías GG24: Dev Tooling, Interop, Public Goods R&D, Privacy',
+      '📢 Campaña de donaciones es CRÍTICA - postea diariamente durante la ronda',
+      '🤝 Colabora con otros proyectos para cross-promotion',
+      '⚠️ Si participas en Retro Round, NO puedes aplicar a QF OSS',
+      '🔐 Gitcoin Passport verificado es obligatorio'
+    ],
+    tipsEn: [
+      '💡 100 donations of $1 > 1 donation of $100 (quadratic funding)',
+      '🎯 GG24 Categories: Dev Tooling, Interop, Public Goods R&D, Privacy',
+      '📢 Donation campaign is CRITICAL - post daily during the round',
+      '🤝 Collaborate with other projects for cross-promotion',
+      '⚠️ If participating in Retro Round, you CANNOT apply to QF OSS',
+      '🔐 Verified Gitcoin Passport is mandatory'
+    ],
+    requirementsEs: [
+      'Proyecto open-source (para OSS rounds)',
+      'Gitcoin Passport verificado',
+      'Encaja en uno de los 6 dominios de GG24',
+      'No participar simultáneamente en Retro + QF'
+    ],
+    requirementsEn: [
+      'Open-source project (for OSS rounds)',
+      'Verified Gitcoin Passport',
+      'Fits in one of the 6 GG24 domains',
+      'No simultaneous Retro + QF participation'
+    ],
+    timeline: 'GG24: Oct 14-28, 2025 (Applications close Oct 17)'
   },
   {
     id: 'base-batches',
-    name: 'Base Batches',
-    amount: 'Mentorship + Funding',
+    name: 'Base Batches 002',
+    amount: 'Demo Day + Mentorship + Funding',
     difficulty: 'Hard',
-    status: 'pending',
-    url: 'https://basebatches.xyz',
-    priority: 3,
-    descriptionEs: 'Accelerator de 3 fases. Próximo cohort: H2 2025.',
-    descriptionEn: '3-phase accelerator. Next cohort: H2 2025.'
+    status: 'ready',
+    url: 'https://www.basebatches.xyz/',
+    applyUrl: 'https://base-batches-startup-track.devfolio.co/',
+    priority: 4,
+    descriptionEs: 'Programa global de Base. Startup Track para equipos con producto + Builder Track para early-stage. Demo Day en Devconnect Buenos Aires.',
+    descriptionEn: 'Base global program. Startup Track for teams with product + Builder Track for early-stage. Demo Day at Devconnect Buenos Aires.',
+    stepsEs: [
+      '1. Decide tu track: Startup (producto live) o Builder (pre-producto)',
+      '2. Ve a base-batches-startup-track.devfolio.co o builder-track',
+      '3. Completa la aplicación en Devfolio antes del Oct 18, 2025',
+      '4. Si eres seleccionado (notificación Nov 1), únete al programa virtual',
+      '5. Startup Track: 4 semanas de mentorship + Demo Day en Buenos Aires',
+      '6. Builder Track: 4 semanas de buildathon + acceso a Incubase',
+      '7. Top 40 presentan ante VCs, angels y accelerators en Devconnect'
+    ],
+    stepsEn: [
+      '1. Choose your track: Startup (live product) or Builder (pre-product)',
+      '2. Go to base-batches-startup-track.devfolio.co or builder-track',
+      '3. Complete application on Devfolio before Oct 18, 2025',
+      '4. If selected (notification Nov 1), join the virtual program',
+      '5. Startup Track: 4 weeks mentorship + Demo Day in Buenos Aires',
+      '6. Builder Track: 4 weeks buildathon + Incubase access',
+      '7. Top 40 present to VCs, angels and accelerators at Devconnect'
+    ],
+    tipsEs: [
+      '🎯 Base NO toma equity ni tokens - es 100% gratuito',
+      '✈️ Top teams reciben viaje cubierto para 1 persona a Buenos Aires',
+      '🏆 Demo Day es ante audiencia curada de Coinbase Ventures, VCs, angels',
+      '📍 Top 40 obtienen booth en Ethereum World Fair',
+      '💡 Builder Track: 100 equipos entran a Incubase con mentorship virtual',
+      '⚠️ Wallets screened contra listas OFAC - cumplimiento es obligatorio'
+    ],
+    tipsEn: [
+      '🎯 Base takes NO equity or tokens - 100% free',
+      '✈️ Top teams get travel covered for 1 person to Buenos Aires',
+      '🏆 Demo Day is before curated audience of Coinbase Ventures, VCs, angels',
+      '📍 Top 40 get booth at Ethereum World Fair',
+      '💡 Builder Track: 100 teams enter Incubase with virtual mentorship',
+      '⚠️ Wallets screened against OFAC lists - compliance is mandatory'
+    ],
+    requirementsEs: [
+      'Startup Track: Producto live, equipo existente',
+      'Builder Track: Idea o prototipo temprano',
+      'Compromiso de construir en Base',
+      'Disponibilidad para programa virtual Oct-Dec 2025'
+    ],
+    requirementsEn: [
+      'Startup Track: Live product, existing team',
+      'Builder Track: Idea or early prototype',
+      'Commitment to build on Base',
+      'Availability for virtual program Oct-Dec 2025'
+    ],
+    timeline: 'Applications: Sep 29 - Oct 18, 2025 | Program: Oct-Dec 2025'
   }
 ];
 
@@ -412,6 +673,7 @@ export function ApplicationGuide() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showEnglish, setShowEnglish] = useState(false);
   const [viewAllExpanded, setViewAllExpanded] = useState(false);
+  const [selectedGrant, setSelectedGrant] = useState<TopGrant | null>(null);
 
   const toggleSection = (id: string) => {
     setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
@@ -519,29 +781,166 @@ export function ApplicationGuide() {
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                 {showEnglish ? grant.descriptionEn : grant.descriptionEs}
               </p>
+              {grant.timeline && (
+                <p className="text-xs text-purple-600 dark:text-purple-400 mt-1 font-medium">
+                  {grant.timeline}
+                </p>
+              )}
               <div className="flex items-center justify-between mt-3">
                 <span className={`text-xs px-2 py-1 rounded ${
                   grant.status === 'ready' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' :
                   grant.status === 'submitted' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
                   'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
                 }`}>
-                  {grant.status === 'ready' ? '✅ Ready to Apply' :
+                  {grant.status === 'ready' ? '✅ Ready' :
                    grant.status === 'submitted' ? '📤 Submitted' :
                    '⏳ Pending'}
                 </span>
+              </div>
+              {/* Action Buttons */}
+              <div className="flex gap-2 mt-3">
                 <a
-                  href={grant.url}
+                  href={grant.applyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-700 dark:text-blue-400"
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-3 h-3" />
+                  Apply
                 </a>
+                <button
+                  onClick={() => setSelectedGrant(grant)}
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  <FileText className="w-3 h-3" />
+                  Guide
+                </button>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Grant Guide Modal */}
+      {selectedGrant && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-2xl shadow-2xl">
+            {/* Modal Header */}
+            <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-t-2xl">
+              <button
+                onClick={() => setSelectedGrant(null)}
+                className="absolute top-4 right-4 p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+              <h2 className="text-2xl font-bold text-white">{selectedGrant.name}</h2>
+              <p className="text-white/80 mt-1">{selectedGrant.amount}</p>
+              {selectedGrant.timeline && (
+                <p className="text-sm text-yellow-300 mt-2 font-medium">{selectedGrant.timeline}</p>
+              )}
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Apply Button */}
+              <a
+                href={selectedGrant.applyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold text-lg rounded-xl hover:opacity-90 transition-opacity shadow-lg"
+              >
+                <ExternalLink className="w-5 h-5" />
+                {showEnglish ? 'Apply Now' : 'Aplicar Ahora'}
+              </a>
+
+              {/* Requirements */}
+              <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-xl border border-orange-200 dark:border-orange-800">
+                <h3 className="font-bold text-orange-800 dark:text-orange-300 mb-3 flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5" />
+                  {showEnglish ? 'Requirements' : 'Requisitos'}
+                </h3>
+                <ul className="space-y-2">
+                  {(showEnglish ? selectedGrant.requirementsEn : selectedGrant.requirementsEs).map((req, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-sm text-orange-700 dark:text-orange-300">
+                      <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      {req}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Step by Step */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
+                <h3 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  {showEnglish ? 'Step-by-Step Guide' : 'Guía Paso a Paso'}
+                </h3>
+                <ol className="space-y-3">
+                  {(showEnglish ? selectedGrant.stepsEn : selectedGrant.stepsEs).map((step, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-sm text-blue-700 dark:text-blue-300">
+                      <span className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                        {idx + 1}
+                      </span>
+                      <span className="pt-0.5">{step.replace(/^\d+\.\s*/, '')}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              {/* Tips & Tricks */}
+              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800">
+                <h3 className="font-bold text-green-800 dark:text-green-300 mb-3 flex items-center gap-2">
+                  <Star className="w-5 h-5" />
+                  {showEnglish ? 'Tips & Tricks' : 'Tips y Trucos'}
+                </h3>
+                <ul className="space-y-2">
+                  {(showEnglish ? selectedGrant.tipsEn : selectedGrant.tipsEs).map((tip, idx) => (
+                    <li key={idx} className="text-sm text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Useful Links */}
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
+                  <ExternalLink className="w-5 h-5" />
+                  {showEnglish ? 'Useful Links' : 'Links Útiles'}
+                </h3>
+                <div className="space-y-2">
+                  <a
+                    href={selectedGrant.applyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    {showEnglish ? 'Application Page' : 'Página de Aplicación'}
+                  </a>
+                  <a
+                    href={selectedGrant.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    {showEnglish ? 'Official Documentation' : 'Documentación Oficial'}
+                  </a>
+                </div>
+              </div>
+
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedGrant(null)}
+                className="w-full px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              >
+                {showEnglish ? 'Close' : 'Cerrar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Application Status */}
       <div className="glass-card p-6">
