@@ -128,9 +128,9 @@ export function QRCodeModal({ isOpen, onClose, referralLink, referralCode }: QRC
                 bgColor="#ffffff"
                 fgColor="#1e1e2e"
                 imageSettings={{
-                  src: '/cgc-logo-64x64.png',
-                  height: 40,
-                  width: 40,
+                  src: '/cgc-logo-1mb.png',
+                  height: 45,
+                  width: 45,
                   excavate: true,
                 }}
               />
