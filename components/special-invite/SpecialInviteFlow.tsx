@@ -763,20 +763,10 @@ export function SpecialInviteFlow({
   return (
     <>
       <HeaderBar />
-      {/* Main container with proper responsive layout */}
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-cyan-50 dark:from-slate-900 dark:via-purple-950 dark:to-cyan-950 pt-16">
-        {/* Background effects */}
-        <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse" />
-          <div className="absolute top-40 right-20 w-72 h-72 bg-cyan-400 dark:bg-cyan-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse" />
-        </div>
-
-        {/* Content container with max-width constraint */}
-        <div className={`relative z-10 container mx-auto px-4 py-6 md:py-8`}>
-          <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto ${className}`}>
-            {/* Left Panel - Image Card */}
-            <div className="md:sticky md:top-24 md:self-start">
-              <InviteImageCard
+      <div className={`pt-16 grid grid-cols-1 lg:grid-cols-2 gap-8 ${className}`}>
+        {/* Left Panel - Image Card */}
+        <div>
+          <InviteImageCard
           image={inviteData.image || '/special-referral.jpg'}
           name={t('card.name')}
           customMessage={inviteData.customMessage}
@@ -859,27 +849,25 @@ export function SpecialInviteFlow({
 
         {/* Trust Footer - Always shown since education step returns early */}
         <div className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-          <div className="flex items-start">
-            <svg className="w-5 h-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <div className="flex-1">
-              <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-1">
-                🏆 {t('helpSection.whyTitle')}
-              </h4>
-              <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
-                <li>• {t('helpSection.decentralized')}</li>
-                <li>• {t('helpSection.transparent')}</li>
-                <li>• {t('helpSection.community')}</li>
-                <li>• {t('helpSection.rewarded')}</li>
-              </ul>
+            <div className="flex items-start">
+              <svg className="w-5 h-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <div className="flex-1">
+                <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-1">
+                  🏆 {t('helpSection.whyTitle')}
+                </h4>
+                <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
+                  <li>• {t('helpSection.decentralized')}</li>
+                  <li>• {t('helpSection.transparent')}</li>
+                  <li>• {t('helpSection.community')}</li>
+                  <li>• {t('helpSection.rewarded')}</li>
+                </ul>
+              </div>
             </div>
           </div>
-        </div>{/* Close Trust Footer */}
-      </div>{/* Close Right Panel */}
-          </div>{/* Close grid */}
-        </div>{/* Close content container */}
-      </div>{/* Close main container */}
+        </div>
+      </div>
     </>
   );
 }
