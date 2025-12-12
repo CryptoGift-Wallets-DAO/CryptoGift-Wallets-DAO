@@ -29,8 +29,21 @@ import {
   Calendar,
   FileText,
   Download,
-  Settings
+  Settings,
+  Lightbulb,
+  Hash,
+  Send
 } from 'lucide-react';
+
+// Import Post Ideas Data
+import {
+  twitterWeeklyContent,
+  discordContent,
+  farcasterContent,
+  contentStats,
+  type PostIdea,
+  type DayContent
+} from './PostIdeasData';
 
 // ===== TIPOS =====
 interface RoadmapStep {
@@ -888,6 +901,302 @@ const AutomationAnalysis = () => {
   );
 };
 
+// ===== COMPONENTE POST IDEAS =====
+const PostIdeasSection = ({ showEnglish }: { showEnglish: boolean }) => {
+  const [activeTab, setActiveTab] = useState<'twitter' | 'discord' | 'farcaster'>('twitter');
+  const [expandedDays, setExpandedDays] = useState<Record<number, boolean>>({ 1: true });
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyToClipboard = async (text: string, id: string) => {
+    await navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const toggleDay = (day: number) => {
+    setExpandedDays(prev => ({ ...prev, [day]: !prev[day] }));
+  };
+
+  const getCategoryBadge = (category: string) => {
+    const badges: Record<string, { bg: string; text: string; label: string; labelEn: string }> = {
+      educational: { bg: 'bg-blue-500/20', text: 'text-blue-400', label: 'Educativo', labelEn: 'Educational' },
+      emotional: { bg: 'bg-pink-500/20', text: 'text-pink-400', label: 'Emocional', labelEn: 'Emotional' },
+      technical: { bg: 'bg-purple-500/20', text: 'text-purple-400', label: 'Técnico', labelEn: 'Technical' },
+      community: { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Comunidad', labelEn: 'Community' },
+      viral: { bg: 'bg-orange-500/20', text: 'text-orange-400', label: 'Viral', labelEn: 'Viral' },
+      cta: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'CTA', labelEn: 'CTA' }
+    };
+    return badges[category] || badges.educational;
+  };
+
+  const getTypeBadge = (type: string) => {
+    const badges: Record<string, { icon: string; label: string }> = {
+      tweet: { icon: '🐦', label: 'Tweet' },
+      thread: { icon: '🧵', label: 'Thread' },
+      poll: { icon: '📊', label: 'Poll' },
+      quote: { icon: '💬', label: 'Quote' },
+      announcement: { icon: '📢', label: 'Announcement' }
+    };
+    return badges[type] || badges.tweet;
+  };
+
+  return (
+    <div className="bg-gradient-to-r from-pink-900/30 to-orange-900/30 rounded-xl p-6 border border-pink-500/30">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-bold text-white flex items-center gap-3">
+          <Lightbulb className="w-6 h-6 text-yellow-400" />
+          {showEnglish ? '💡 Post Ideas - Ready to Copy' : '💡 Ideas de Posts - Listos para Copiar'}
+        </h3>
+        <div className="flex items-center gap-2 text-sm text-gray-400">
+          <span>{contentStats.totalTwitterPosts} tweets</span>
+          <span>•</span>
+          <span>{contentStats.totalDiscordPosts} Discord</span>
+          <span>•</span>
+          <span>{contentStats.totalFarcasterPosts} Farcaster</span>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setActiveTab('twitter')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'twitter'
+              ? 'bg-sky-600 text-white'
+              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+          }`}
+        >
+          <Twitter className="w-4 h-4" />
+          Twitter/X ({contentStats.totalTwitterPosts})
+        </button>
+        <button
+          onClick={() => setActiveTab('discord')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'discord'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+          }`}
+        >
+          <MessageCircle className="w-4 h-4" />
+          Discord ({contentStats.totalDiscordPosts})
+        </button>
+        <button
+          onClick={() => setActiveTab('farcaster')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'farcaster'
+              ? 'bg-purple-600 text-white'
+              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+          }`}
+        >
+          <Globe className="w-4 h-4" />
+          Farcaster ({contentStats.totalFarcasterPosts})
+        </button>
+      </div>
+
+      {/* Twitter Content */}
+      {activeTab === 'twitter' && (
+        <div className="space-y-4">
+          {twitterWeeklyContent.map((dayContent: DayContent) => (
+            <div key={dayContent.day} className="bg-black/30 rounded-lg overflow-hidden">
+              {/* Day Header */}
+              <button
+                onClick={() => toggleDay(dayContent.day)}
+                className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="w-10 h-10 rounded-full bg-sky-600 flex items-center justify-center font-bold text-white">
+                    D{dayContent.day}
+                  </span>
+                  <div className="text-left">
+                    <h4 className="font-semibold text-white">
+                      {showEnglish ? dayContent.themeEn : dayContent.theme}
+                    </h4>
+                    <p className="text-sm text-gray-400">
+                      {dayContent.posts.length} posts • {showEnglish ? 'Day' : 'Día'} {dayContent.day}
+                    </p>
+                  </div>
+                </div>
+                {expandedDays[dayContent.day] ? (
+                  <ChevronDown className="w-5 h-5 text-gray-400" />
+                ) : (
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                )}
+              </button>
+
+              {/* Day Content */}
+              {expandedDays[dayContent.day] && (
+                <div className="px-4 pb-4 space-y-3">
+                  {dayContent.posts.map((post: PostIdea, postIndex: number) => {
+                    const catBadge = getCategoryBadge(post.category);
+                    const typeBadge = getTypeBadge(post.type);
+                    const postContent = showEnglish ? post.contentEn : post.content;
+
+                    return (
+                      <div key={post.id} className="bg-black/40 rounded-lg p-4 border border-gray-700/50">
+                        {/* Post Header */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm">{typeBadge.icon} {typeBadge.label}</span>
+                            <span className={`px-2 py-0.5 rounded text-xs ${catBadge.bg} ${catBadge.text}`}>
+                              {showEnglish ? catBadge.labelEn : catBadge.label}
+                            </span>
+                            {post.bestTime && (
+                              <span className="text-xs text-gray-500 flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {post.bestTime}
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => copyToClipboard(postContent, post.id)}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-sm font-medium transition-colors"
+                          >
+                            {copiedId === post.id ? (
+                              <><Check className="w-4 h-4" /> {showEnglish ? 'Copied!' : '¡Copiado!'}</>
+                            ) : (
+                              <><Copy className="w-4 h-4" /> {showEnglish ? 'Copy' : 'Copiar'}</>
+                            )}
+                          </button>
+                        </div>
+
+                        {/* Post Content */}
+                        <pre className="text-sm text-gray-200 whitespace-pre-wrap font-sans leading-relaxed">
+                          {postContent}
+                        </pre>
+
+                        {/* Hashtags */}
+                        {post.hashtags && post.hashtags.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-1">
+                            {post.hashtags.map((tag, i) => (
+                              <span key={i} className="text-xs text-sky-400">
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Discord Content */}
+      {activeTab === 'discord' && (
+        <div className="space-y-6">
+          {discordContent.map((category, catIndex) => (
+            <div key={catIndex} className="bg-black/30 rounded-lg p-4">
+              <h4 className="font-semibold text-indigo-400 mb-4 flex items-center gap-2">
+                <MessageCircle className="w-5 h-5" />
+                {showEnglish ? category.categoryEn : category.category}
+              </h4>
+              <div className="space-y-4">
+                {category.posts.map((post, postIndex) => {
+                  const postId = `discord-${catIndex}-${postIndex}`;
+                  const postContent = showEnglish ? post.contentEn : post.content;
+
+                  return (
+                    <div key={postIndex} className="bg-black/40 rounded-lg p-4 border border-indigo-500/20">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-white">
+                            {showEnglish ? post.titleEn : post.title}
+                          </span>
+                          <span className="text-xs text-gray-500 bg-gray-700 px-2 py-0.5 rounded">
+                            {post.channel}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => copyToClipboard(postContent, postId)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition-colors"
+                        >
+                          {copiedId === postId ? (
+                            <><Check className="w-4 h-4" /> {showEnglish ? 'Copied!' : '¡Copiado!'}</>
+                          ) : (
+                            <><Copy className="w-4 h-4" /> {showEnglish ? 'Copy' : 'Copiar'}</>
+                          )}
+                        </button>
+                      </div>
+                      <pre className="text-sm text-gray-200 whitespace-pre-wrap font-sans leading-relaxed bg-black/30 rounded p-3 max-h-60 overflow-y-auto">
+                        {postContent}
+                      </pre>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Farcaster Content */}
+      {activeTab === 'farcaster' && (
+        <div className="space-y-4">
+          {farcasterContent.map((cast, index) => {
+            const castId = `farcaster-${index}`;
+            const castContent = showEnglish ? cast.contentEn : cast.content;
+
+            return (
+              <div key={index} className="bg-black/30 rounded-lg p-4 border border-purple-500/20">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-purple-400 font-medium">
+                      {cast.type === 'thread' ? '🧵 Thread' : cast.type === 'frame' ? '🖼️ Frame' : '💬 Cast'}
+                    </span>
+                    {cast.channel && (
+                      <span className="text-xs text-gray-500 bg-gray-700 px-2 py-0.5 rounded">
+                        {cast.channel}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(castContent, castId)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-colors"
+                  >
+                    {copiedId === castId ? (
+                      <><Check className="w-4 h-4" /> {showEnglish ? 'Copied!' : '¡Copiado!'}</>
+                    ) : (
+                      <><Copy className="w-4 h-4" /> {showEnglish ? 'Copy' : 'Copiar'}</>
+                    )}
+                  </button>
+                </div>
+                <pre className="text-sm text-gray-200 whitespace-pre-wrap font-sans leading-relaxed">
+                  {castContent}
+                </pre>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Stats Footer */}
+      <div className="mt-6 pt-6 border-t border-gray-700">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div className="bg-black/30 rounded-lg p-3">
+            <p className="text-2xl font-bold text-sky-400">{contentStats.daysOfContent}</p>
+            <p className="text-xs text-gray-400">{showEnglish ? 'Days of Content' : 'Días de Contenido'}</p>
+          </div>
+          <div className="bg-black/30 rounded-lg p-3">
+            <p className="text-2xl font-bold text-green-400">{contentStats.categories.length}</p>
+            <p className="text-xs text-gray-400">{showEnglish ? 'Categories' : 'Categorías'}</p>
+          </div>
+          <div className="bg-black/30 rounded-lg p-3">
+            <p className="text-2xl font-bold text-purple-400">{contentStats.platforms.length}</p>
+            <p className="text-xs text-gray-400">{showEnglish ? 'Platforms' : 'Plataformas'}</p>
+          </div>
+          <div className="bg-black/30 rounded-lg p-3">
+            <p className="text-lg font-bold text-yellow-400">10K+</p>
+            <p className="text-xs text-gray-400">{showEnglish ? 'Potential Reach/Week' : 'Alcance Potencial/Sem'}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ===== COMPONENTE PRINCIPAL =====
 export function GrowthStrategy() {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
@@ -1203,6 +1512,9 @@ export function GrowthStrategy() {
           </div>
         );
       })}
+
+      {/* Post Ideas Section */}
+      <PostIdeasSection showEnglish={showEnglish} />
 
       {/* Final CTA */}
       <div className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 rounded-xl p-6 border border-yellow-500/30 text-center">
