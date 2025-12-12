@@ -714,7 +714,19 @@
       "discord": "Share on Discord",
       "copyLink": "Copy Link",
       "qrCode": "QR Code",
-      "downloadQR": "Download QR"
+      "downloadQR": "Download QR",
+      "message": "Join CryptoGift DAO with my referral link and earn CGC tokens!"
+    },
+    "qrModal": {
+      "title": "Your Referral QR Code",
+      "description": "Scan to join CryptoGift DAO",
+      "code": "Referral Code",
+      "link": "Referral Link",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "download": "Download",
+      "share": "Share",
+      "tip": "Friends who scan this code will automatically be linked to your referral network"
     },
     "tabs": {
       "overview": "Overview",

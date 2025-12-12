@@ -714,7 +714,19 @@
       "discord": "Compartir en Discord",
       "copyLink": "Copiar Link",
       "qrCode": "Código QR",
-      "downloadQR": "Descargar QR"
+      "downloadQR": "Descargar QR",
+      "message": "Únete a CryptoGift DAO con mi link de referido y gana tokens CGC!"
+    },
+    "qrModal": {
+      "title": "Tu Código QR de Referido",
+      "description": "Escanea para unirte a CryptoGift DAO",
+      "code": "Código de Referido",
+      "link": "Link de Referido",
+      "copy": "Copiar",
+      "copied": "¡Copiado!",
+      "download": "Descargar",
+      "share": "Compartir",
+      "tip": "Los amigos que escaneen este código se vincularán automáticamente a tu red de referidos"
     },
     "tabs": {
       "overview": "Resumen",

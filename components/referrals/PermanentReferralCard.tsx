@@ -58,7 +58,9 @@ import {
   Activity,
   Wallet,
   BarChart3,
+  QrCode,
 } from 'lucide-react';
+import { QRCodeModal } from './QRCodeModal';
 
 interface PermanentReferralCardProps {
   referralCode: string;
@@ -128,6 +130,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
   const [claimHistory, setClaimHistory] = useState<Record<string, ClaimHistoryEntry[]>>({});
   const [loadingClaimHistory, setLoadingClaimHistory] = useState<string | null>(null);
   const [pausingInviteCode, setPausingInviteCode] = useState<string | null>(null);
+  const [qrModalInvite, setQrModalInvite] = useState<{ code: string; url: string } | null>(null);
 
   const defaultMessage = 'Te invito a unirte a CryptoGift DAO, una comunidad descentralizada donde puedes contribuir y ganar recompensas. Este enlace nunca expira!';
   const defaultTitle = 'Invitacion Permanente a CryptoGift DAO';
@@ -885,7 +888,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center space-x-2 pt-2">
+                        <div className="flex items-center flex-wrap gap-2 pt-2">
                           {/* View History Button */}
                           <Button
                             onClick={() => {
@@ -904,6 +907,17 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                           >
                             <UserCheck className="h-3 w-3 mr-1" />
                             {isExpanded ? 'Ocultar Historial' : `Ver ${invite.totalClaims} Usuarios`}
+                          </Button>
+
+                          {/* QR Code Button */}
+                          <Button
+                            onClick={() => setQrModalInvite({ code: invite.inviteCode, url: inviteUrl })}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs"
+                          >
+                            <QrCode className="h-3 w-3 mr-1" />
+                            QR
                           </Button>
 
                           {/* Pause/Resume Button */}
@@ -997,6 +1011,16 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
               </div>
             )}
           </div>
+        )}
+
+        {/* QR Code Modal for Permanent Invites */}
+        {qrModalInvite && (
+          <QRCodeModal
+            isOpen={!!qrModalInvite}
+            onClose={() => setQrModalInvite(null)}
+            referralLink={qrModalInvite.url}
+            referralCode={qrModalInvite.code}
+          />
         )}
       </CardContent>
     </Card>

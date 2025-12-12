@@ -13,6 +13,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { SpecialReferralCard } from '@/components/referrals/SpecialReferralCard';
 import { PermanentReferralCard } from '@/components/referrals/PermanentReferralCard';
+import { QRCodeModal } from '@/components/referrals/QRCodeModal';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -167,6 +168,7 @@ function ReferralsDashboard() {
   const { address } = useAccount();
   const [activeTab, setActiveTab] = useState<'overview' | 'network' | 'rewards' | 'leaderboard' | 'history'>('overview');
   const [copied, setCopied] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   // Use real data from hooks
   const { code, stats: apiStats, links, isLoading, refetchAll } = useReferralDashboard(address);
@@ -298,13 +300,26 @@ function ReferralsDashboard() {
                 <MessageCircle className="h-4 w-4 mr-2" />
                 {t('share.discord')}
               </Button>
-              <Button variant="outline" size="sm" className="dark:border-slate-600">
+              <Button
+                variant="outline"
+                size="sm"
+                className="dark:border-slate-600"
+                onClick={() => setShowQRModal(true)}
+              >
                 <QrCode className="h-4 w-4 mr-2" />
                 {t('share.qrCode')}
               </Button>
             </div>
           </CardContent>
         </Card>
+
+        {/* QR Code Modal */}
+        <QRCodeModal
+          isOpen={showQRModal}
+          onClose={() => setShowQRModal(false)}
+          referralLink={referralLink}
+          referralCode={referralCode}
+        />
 
         {/* Network Overview */}
         <Card className="glass-panel">

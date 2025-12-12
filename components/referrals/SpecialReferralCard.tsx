@@ -53,7 +53,9 @@ import {
   Calendar,
   CheckCircle,
   Clock,
+  QrCode,
 } from 'lucide-react';
+import { QRCodeModal } from './QRCodeModal';
 
 interface SpecialReferralCardProps {
   referralCode: string;
@@ -106,6 +108,7 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
   const [showHistory, setShowHistory] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [deletingInviteCode, setDeletingInviteCode] = useState<string | null>(null);
+  const [qrModalInvite, setQrModalInvite] = useState<{ code: string; url: string } | null>(null);
 
   const defaultMessage = t('form.messageDefault');
 
@@ -745,7 +748,7 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
                         )}
 
                         {/* Actions */}
-                        <div className="flex items-center space-x-2 pt-2">
+                        <div className="flex items-center flex-wrap gap-2 pt-2">
                           {/* View Message Button */}
                           {invite.customMessage && (
                             <Button
@@ -760,6 +763,17 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
                               {selectedMessage === invite.customMessage ? 'Ocultar' : 'Ver Mensaje'}
                             </Button>
                           )}
+
+                          {/* QR Code Button */}
+                          <Button
+                            onClick={() => setQrModalInvite({ code: invite.inviteCode, url: inviteUrl })}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs"
+                          >
+                            <QrCode className="h-3 w-3 mr-1" />
+                            QR
+                          </Button>
 
                           {/* Delete Button */}
                           <Button
@@ -795,6 +809,16 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
               </div>
             )}
           </div>
+        )}
+
+        {/* QR Code Modal for Special Invites */}
+        {qrModalInvite && (
+          <QRCodeModal
+            isOpen={!!qrModalInvite}
+            onClose={() => setQrModalInvite(null)}
+            referralLink={qrModalInvite.url}
+            referralCode={qrModalInvite.code}
+          />
         )}
       </CardContent>
     </Card>
