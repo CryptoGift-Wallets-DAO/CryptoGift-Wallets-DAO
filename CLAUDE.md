@@ -47,32 +47,36 @@ SCRIPTS DISPONIBLES:
 └── scripts/setup-discord-server.js  - Configuración via discord.js
 ```
 
-### 💰 FUNDING APPLICATION GUIDE (11 DIC 2025) ✅
+### 💰 FUNDING & GROWTH SYSTEM (11 DIC 2025) ✅
 ```
-SISTEMA COMPLETO PARA SOLICITUDES DE GRANTS:
-├── public/GRANT_APPLICATION_GUIDE.md        - Documento maestro (1251 líneas)
-├── components/funding/ApplicationGuide.tsx  - Componente React (28KB)
-├── app/funding/page.tsx                     - Página con pestaña "Application Guide"
+SISTEMA COMPLETO DE FUNDING Y CRECIMIENTO:
+├── public/GRANT_APPLICATION_GUIDE.md         - Documento maestro (1251 líneas)
+├── components/funding/ApplicationGuide.tsx   - Guía de aplicaciones (28KB)
+├── components/funding/GrowthStrategy.tsx     - Plan de crecimiento (800+ líneas)
+├── app/funding/page.tsx                      - 4 pestañas: Guide, Growth, Grants, Crowdfunding
 └── docs/governance/GRANT_APPLICATION_MASTER_GUIDE.md - Guía técnica detallada
 
-CARACTERÍSTICAS:
-├── 📋 16 secciones con información completa del proyecto
-├── 🌐 Bilingüe: Español primero, luego Inglés (copy-paste ready)
-├── 📋 Botón copiar para cada sección
-├── 📥 Descarga PDF disponible
-├── ⭐ Top 5 Grants con prioridad visual
-├── ✅ Checklist pre-aplicación
-└── 📊 Tabla de estado de aplicaciones
+TABS DISPONIBLES:
+├── 📖 Application Guide  - Información para llenar forms de grants
+├── 📈 Growth Strategy    - Plan de acción post-rechazo CoinGecko
+├── 💰 Grants & Programs  - 40 oportunidades de funding
+└── 👥 Crowdfunding       - Plataformas de crowdfunding
 
-TOP 5 GRANTS (PRIORIDAD):
-├── ⭐⭐⭐⭐⭐ Base Builder Grants ($3k-15k) - Rolling deadline
-├── ⭐⭐⭐⭐⭐ Base Weekly Rewards (2 ETH/week) - Talent Protocol
-├── ⭐⭐⭐⭐ Optimism RetroPGF ($10k-500k+) - Atlas platform
-├── ⭐⭐⭐⭐ Gitcoin Grants (Quadratic Funding) - GG22+
-└── ⭐⭐⭐ Base Batches (Accelerator) - H2 2025
+GROWTH STRATEGY (NUEVO - PLAN COINGECKO):
+├── 💧 Liquidez: Añadir $5,000-10,000 a pools
+├── 📱 Twitter/X: Activar cuenta, posts diarios
+├── 🌐 Farcaster: Crear presencia, Frames interactivos
+├── 💬 Discord: Crecer a 500+ miembros
+├── 📊 Volumen: Generar trading orgánico
+└── 🎯 CoinGecko: Re-aplicar en 14 días
+
+AUTOMATIZACIÓN CLAUDE:
+├── ✅ PUEDE: Generar contenido, scripts, componentes, templates
+├── ⚠️ PARCIAL: Scheduling (necesita APIs), bots (necesita hosting)
+├── ❌ NO PUEDE: Transacciones blockchain, crear cuentas, correr 24/7
 
 ESTADO APLICACIONES (11 DIC 2025):
-├── CoinGecko: ✅ ENVIADA (Dic 2025) - Esperando
+├── CoinGecko: ❌ RECHAZADA - Re-aplicar en 14 días con más tracción
 ├── BaseScan: ✅ ENVIADA (Dic 2025) - Esperando
 ├── Base Grants: 📋 LISTO - No tienen portal de tracking
 ├── Optimism Atlas: 🔄 REGISTRAR - Crear perfil primero
@@ -80,9 +84,10 @@ ESTADO APLICACIONES (11 DIC 2025):
 ```
 
 **ACCESO:**
-- URL: `/funding` → Pestaña "Application Guide" (primera pestaña)
-- El componente muestra secciones expandibles con botón copiar
-- Toggle ES/EN para cambiar idioma de visualización
+- URL: `/funding` → 4 pestañas disponibles
+- Growth Strategy: Roadmaps completos para cada área con fases detalladas
+- Templates de contenido listos para copiar (Twitter, Farcaster, Discord)
+- Scripts de automatización para webhooks y bots
 
 ### 💰 SISTEMA DE BONOS AUTOMÁTICOS - ON-CHAIN (4 DIC 2025) ✅
 ```

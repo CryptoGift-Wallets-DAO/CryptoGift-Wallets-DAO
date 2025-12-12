@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { ApplicationGuide } from '@/components/funding/ApplicationGuide';
+import { GrowthStrategy } from '@/components/funding/GrowthStrategy';
 import {
   ChevronDown,
   ChevronRight,
@@ -1340,7 +1341,7 @@ export default function FundingPage() {
 function FundingDashboard() {
   const [completedItems, setCompletedItems] = useState<Record<string, boolean>>({});
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<'guide' | 'grants' | 'crowdfunding'>('guide');
+  const [activeTab, setActiveTab] = useState<'guide' | 'growth' | 'grants' | 'crowdfunding'>('guide');
   const [filterTier, setFilterTier] = useState<number | null>(null);
 
   // Load from localStorage
@@ -1413,6 +1414,17 @@ function FundingDashboard() {
           Application Guide
         </button>
         <button
+          onClick={() => setActiveTab('growth')}
+          className={`px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${
+            activeTab === 'growth'
+              ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-b-2 border-green-500'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+          }`}
+        >
+          <TrendingUp className="w-4 h-4 inline mr-2" />
+          Growth Strategy
+        </button>
+        <button
           onClick={() => setActiveTab('grants')}
           className={`px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${
             activeTab === 'grants'
@@ -1439,6 +1451,8 @@ function FundingDashboard() {
       {/* Content */}
       {activeTab === 'guide' ? (
         <ApplicationGuide />
+      ) : activeTab === 'growth' ? (
+        <GrowthStrategy />
       ) : activeTab === 'grants' ? (
         <div className="space-y-6">
           {/* Tier Filter */}
