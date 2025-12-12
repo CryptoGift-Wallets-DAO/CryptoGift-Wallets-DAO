@@ -429,8 +429,77 @@ export default function CryptoGiftDAODashboard() {
           </CGCAccessGate>
         </section>
 
+        {/* Team Section - Required by BaseScan for token verification */}
+        <section className="glass-panel p-6 mb-8 spring-in" style={{ animationDelay: '1.5s' }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 glass-bubble">
+                <Users className="w-6 h-6 text-purple-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-glass">{tDashboard('team.title')}</h3>
+                <p className="text-glass-secondary text-sm">{tDashboard('team.description')}</p>
+              </div>
+            </div>
+            <a
+              href="/docs?tab=verification"
+              className="text-sm text-purple-500 hover:text-purple-400 transition-colors flex items-center gap-1"
+            >
+              {tDashboard('team.viewFullTeam')} →
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Rafael Gonzalez - Founder */}
+            <div className="glass-card p-4 text-center">
+              <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                RG
+              </div>
+              <h4 className="font-bold text-glass">{tDashboard('team.founder.name')}</h4>
+              <p className="text-xs text-purple-500 font-medium mb-1">{tDashboard('team.founder.role')}</p>
+              <p className="text-xs text-glass-secondary mb-2">{tDashboard('team.founder.bio')}</p>
+              <a
+                href="https://www.linkedin.com/in/rafael-gonzalez-iautomallink"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-500 hover:underline"
+              >
+                LinkedIn →
+              </a>
+            </div>
+
+            {/* Roberto Legrá */}
+            <div className="glass-card p-4 text-center">
+              <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                RL
+              </div>
+              <h4 className="font-bold text-glass">{tDashboard('team.community.name')}</h4>
+              <p className="text-xs text-purple-500 font-medium mb-1">{tDashboard('team.community.role')}</p>
+              <p className="text-xs text-glass-secondary">{tDashboard('team.community.bio')}</p>
+            </div>
+
+            {/* Leodanni Avila */}
+            <div className="glass-card p-4 text-center">
+              <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                LA
+              </div>
+              <h4 className="font-bold text-glass">{tDashboard('team.business.name')}</h4>
+              <p className="text-xs text-purple-500 font-medium mb-1">{tDashboard('team.business.role')}</p>
+              <p className="text-xs text-glass-secondary">{tDashboard('team.business.bio')}</p>
+            </div>
+          </div>
+
+          {/* Contact Email */}
+          <div className="mt-4 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20 flex items-center justify-between">
+            <span className="text-sm text-glass-secondary">{tDashboard('team.contact')}:</span>
+            <a href="mailto:admin@mbxarts.com" className="text-sm text-purple-400 hover:text-purple-300 font-mono">
+              admin@mbxarts.com
+            </a>
+          </div>
+        </section>
+
         {/* System Status Footer */}
-        <footer className="glass-panel p-6 spring-in" style={{ animationDelay: '1.5s' }}>
+        <footer className="glass-panel p-6 spring-in" style={{ animationDelay: '1.6s' }}>
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-3">
               <div className={`w-3 h-3 rounded-full ${systemActive ? 'bg-green-400 pulse-glow' : 'bg-red-400'}`}></div>

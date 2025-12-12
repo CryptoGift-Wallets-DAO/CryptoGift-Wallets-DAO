@@ -112,6 +112,27 @@
         "contractAdmin": "Contract Admin",
         "systemStatus": "System Status"
       }
+    },
+    "team": {
+      "title": "The Team",
+      "description": "Lean, founder-led team combining product, Web3 development and growth.",
+      "viewFullTeam": "View Full Team",
+      "founder": {
+        "name": "Rafael Gonzalez",
+        "role": "Founder & Engineering Lead",
+        "bio": "Web3 developer, built CryptoGift end-to-end on Base"
+      },
+      "community": {
+        "name": "Roberto Legrá",
+        "role": "Head of Community & Growth",
+        "bio": "6 years community strategy, crypto community builder"
+      },
+      "business": {
+        "name": "Leodanni Avila",
+        "role": "Business Development & Operations",
+        "bio": "5+ years in Web3, sales and digital marketing"
+      },
+      "contact": "Official Contact"
     }
   },
   "tasks": {
@@ -818,7 +839,7 @@
       "network": "Network"
     },
     "bottom": {
-      "copyright": "© 2025 The Moon in a Box, CryptoGift Wallets DAO. All rights reserved.",
+      "copyright": "© 2025 CryptoGift Wallets DAO. A project by The Moon in a Box Inc. All rights reserved.",
       "builtOn": "Built on",
       "chain": "Base"
     }

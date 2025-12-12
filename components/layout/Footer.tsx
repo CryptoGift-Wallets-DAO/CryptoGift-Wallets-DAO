@@ -171,7 +171,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <a
-                  href="mailto:admin@mbxart.com"
+                  href="mailto:admin@mbxarts.com"
                   className="hover:text-white transition-colors"
                 >
                   {t('company.contact')}
