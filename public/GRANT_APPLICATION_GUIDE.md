@@ -739,7 +739,7 @@ Instead of inflating supply by calendar, emission progresses when there are real
 
 ---
 
-### ✅ COMPLETADO - Fundación (Q4 2024 - Q1 2025)
+### ✅ COMPLETADO (Q4 2024 - Q4 2025)
 
 **Q4 2024 - Fundación**
 - ✅ Deploy DAO en Aragon con Token Voting
@@ -751,42 +751,78 @@ Instead of inflating supply by calendar, emission progresses when there are real
 - ✅ Sistema de tareas con mecánicas competitivas y timeouts
 - ✅ Pagos automáticos de CGC post-validación
 - ✅ Sistema de referidos multinivel (10%, 5%, 2.5%)
-- ✅ Pool de liquidez Aerodrome activo
+
+**Q2-Q3 2025 - Crecimiento**
+- ✅ Pool de liquidez Aerodrome activo (WETH/CGC)
+- ✅ Token metadata completo (logos, APIs CoinGecko-compliant)
+- ✅ Whitepaper v1.2.1 publicado
+- ✅ Sistema i18n bilingüe (ES/EN)
+
+**Q4 2025 - Comunidad & Listings (AHORA - Diciembre 2025)**
+- ✅ Discord server completo (21 canales, 10 roles)
+- ✅ Domain migration a mbxarts.com
+- ✅ Collab.Land instalado para token gating
+- ✅ Funding Application Guide completo (Top 5 grants)
+- ✅ SEO optimizado (robots.txt, sitemap, metadata)
+- ✅ Twitter/X corregido (@cryptogiftdao)
+- ✅ QR Code con logo CGC para referidos
 
 ---
 
-### 🔄 EN PROGRESO - Ejecución (Q2 2025)
+### 🔄 EN PROGRESO (Q4 2025 - Diciembre)
 
-**Corto plazo - Ejecución inmediata:**
-- 🔄 Expandir catálogo de quests y onboarding de creadores/educadores
-- 🔄 Automatizar ciclo "voto → tarea → validación → distribución" para CGC
-- 🔄 Profundizar liquidez e integrar más rutas en Base
-- 🔄 Dashboard de analytics avanzado con métricas de impacto
-- 🔄 Partnerships con 3+ plataformas educativas
+**Listings & Grants:**
+- 🔄 CoinGecko: Rechazada → Re-aplicar con más tracción (14 días)
+- 🔄 BaseScan: Enviada, esperando respuesta
+- 🔄 Base Builder Grants: Ready to apply
+- 🔄 Optimism Atlas: Crear perfil
+- 🔄 Gitcoin Grants: Preparar para GG24
 
----
-
-### 📋 PLANIFICADO - Distribución Masiva (Q3-Q4 2025)
-
-**Mediano plazo - Escala sin perder alma:**
-- 📋 Convertir CryptoGift Wallets en componentes **plug-and-play/white-label** para marcas, creadores, comunidades y ONGs
-- 📋 Campañas masivas con **1155-TBA-like**: reglas configurables, atribución y reporting en tiempo real
-- 📋 Empujar "**gifting for events**" (bodas, cumpleaños, donaciones) con UX ultra simple
-- 📋 Sistema de NFT achievements on-chain
-- 📋 Interfaz mobile-optimizada
+**Configuración:**
+- 🔄 Collab.Land TGR: Configurar Token Gating Rules
+- 🔄 Production testing con usuarios reales
+- 🔄 DAO Integration: Transferir CGC tokens al vault de Aragon
 
 ---
 
-### 🔮 VISIÓN - Infraestructura Financiera (2026+)
+### 📋 PRÓXIMO (Q1 2026)
 
-**Largo plazo - El riel invisible:**
-- 🔮 **API para integración en fintechs "en dos líneas"**
+**Tracción & Grants:**
+- 📋 Re-aplicar CoinGecko con métricas de tracción
+- 📋 Submit Base Builder Grants application
+- 📋 Register en Optimism Atlas para RetroPGF
+- 📋 Aplicar a Gitcoin Grants GG24 (Oct 2025 deadline)
+
+**Producto:**
+- 📋 Expandir catálogo de quests
+- 📋 Onboarding de creadores/educadores
+- 📋 Dashboard de analytics avanzado con métricas de impacto
+- 📋 Partnerships con 3+ plataformas educativas
+
+---
+
+### 🎯 PLANIFICADO (Q2-Q3 2026)
+
+**Escala sin perder alma:**
+- 🎯 Implementar Automated Minting System (diseño en docs/)
+- 🎯 Componentes **plug-and-play/white-label** para marcas/ONGs
+- 🎯 Campañas masivas **1155-TBA-like** con reglas configurables
+- 🎯 "**Gifting for events**" (bodas, cumpleaños, donaciones)
+- 🎯 Sistema de NFT achievements on-chain
+- 🎯 Interfaz mobile-optimizada
+
+---
+
+### 🔮 VISIÓN (Q4 2026+)
+
+**El riel invisible - Infraestructura Financiera:**
+- 🔮 **API para fintechs "en dos líneas"**
 - 🔮 Puente hacia **activos tokenizados (RWA)** y programas de lealtad
-- 🔮 Mantener estándar de **transparencia radical**: reservas on-chain, gasto de gas patrocinado visible, auditorías accesibles
-- 🔮 Expansión multi-chain estratégica
+- 🔮 **Colaboraciones masivas** con proyectos del ecosistema Base
 - 🔮 Integraciones DeFi avanzadas
 - 🔮 Mecanismos de staking CGC
 - 🔮 Descentralización progresiva de gobernanza
+- 🔮 **Transparencia radical**: reservas on-chain, gas patrocinado visible, auditorías accesibles
 
 ---
 
@@ -798,7 +834,7 @@ Instead of inflating supply by calendar, emission progresses when there are real
 
 ---
 
-### ✅ COMPLETED - Foundation (Q4 2024 - Q1 2025)
+### ✅ COMPLETED (Q4 2024 - Q4 2025)
 
 **Q4 2024 - Foundation**
 - ✅ Deploy DAO on Aragon with Token Voting
@@ -810,42 +846,78 @@ Instead of inflating supply by calendar, emission progresses when there are real
 - ✅ Task system with competitive mechanics and timeouts
 - ✅ Automatic CGC payments post-validation
 - ✅ Multi-level referral system (10%, 5%, 2.5%)
-- ✅ Active Aerodrome liquidity pool
+
+**Q2-Q3 2025 - Growth**
+- ✅ Active Aerodrome liquidity pool (WETH/CGC)
+- ✅ Complete token metadata (logos, CoinGecko-compliant APIs)
+- ✅ Whitepaper v1.2.1 published
+- ✅ Bilingual i18n system (ES/EN)
+
+**Q4 2025 - Community & Listings (NOW - December 2025)**
+- ✅ Complete Discord server (21 channels, 10 roles)
+- ✅ Domain migration to mbxarts.com
+- ✅ Collab.Land installed for token gating
+- ✅ Complete Funding Application Guide (Top 5 grants)
+- ✅ SEO optimized (robots.txt, sitemap, metadata)
+- ✅ Twitter/X corrected (@cryptogiftdao)
+- ✅ QR Code with CGC logo for referrals
 
 ---
 
-### 🔄 IN PROGRESS - Execution (Q2 2025)
+### 🔄 IN PROGRESS (Q4 2025 - December)
 
-**Short-term - Immediate execution:**
-- 🔄 Expand quest catalog and creator/educator onboarding
-- 🔄 Automate "vote → task → validation → distribution" cycle for CGC
-- 🔄 Deepen liquidity and integrate more routes on Base
-- 🔄 Advanced analytics dashboard with impact metrics
-- 🔄 Partnerships with 3+ educational platforms
+**Listings & Grants:**
+- 🔄 CoinGecko: Rejected → Re-apply with more traction (14 days)
+- 🔄 BaseScan: Submitted, awaiting response
+- 🔄 Base Builder Grants: Ready to apply
+- 🔄 Optimism Atlas: Create profile
+- 🔄 Gitcoin Grants: Prepare for GG24
 
----
-
-### 📋 PLANNED - Massive Distribution (Q3-Q4 2025)
-
-**Medium-term - Scale without losing soul:**
-- 📋 Transform CryptoGift Wallets into **plug-and-play/white-label components** for brands, creators, communities and NGOs
-- 📋 Massive campaigns with **1155-TBA-like**: configurable rules, attribution and real-time reporting
-- 📋 Push "**gifting for events**" (weddings, birthdays, donations) with ultra-simple UX
-- 📋 On-chain NFT achievements system
-- 📋 Mobile-optimized interface
+**Configuration:**
+- 🔄 Collab.Land TGR: Configure Token Gating Rules
+- 🔄 Production testing with real users
+- 🔄 DAO Integration: Transfer CGC tokens to Aragon vault
 
 ---
 
-### 🔮 VISION - Financial Infrastructure (2026+)
+### 📋 NEXT (Q1 2026)
 
-**Long-term - The invisible rail:**
-- 🔮 **API for fintech integration "in two lines"**
+**Traction & Grants:**
+- 📋 Re-apply CoinGecko with traction metrics
+- 📋 Submit Base Builder Grants application
+- 📋 Register on Optimism Atlas for RetroPGF
+- 📋 Apply to Gitcoin Grants GG24 (Oct 2025 deadline)
+
+**Product:**
+- 📋 Expand quest catalog
+- 📋 Creator/educator onboarding
+- 📋 Advanced analytics dashboard with impact metrics
+- 📋 Partnerships with 3+ educational platforms
+
+---
+
+### 🎯 PLANNED (Q2-Q3 2026)
+
+**Scale without losing soul:**
+- 🎯 Implement Automated Minting System (design in docs/)
+- 🎯 **Plug-and-play/white-label components** for brands/NGOs
+- 🎯 Massive **1155-TBA-like campaigns** with configurable rules
+- 🎯 "**Gifting for events**" (weddings, birthdays, donations)
+- 🎯 On-chain NFT achievements system
+- 🎯 Mobile-optimized interface
+
+---
+
+### 🔮 VISION (Q4 2026+)
+
+**The invisible rail - Financial Infrastructure:**
+- 🔮 **API for fintechs "in two lines"**
 - 🔮 Bridge to **tokenized assets (RWA)** and loyalty programs
-- 🔮 Maintain standard of **radical transparency**: on-chain reserves, visible sponsored gas spending, accessible audits
-- 🔮 Strategic multi-chain expansion
+- 🔮 **Massive collaborations** with Base ecosystem projects
 - 🔮 Advanced DeFi integrations
 - 🔮 CGC staking mechanisms
 - 🔮 Progressive governance decentralization
+- 🔮 **Radical transparency**: on-chain reserves, visible sponsored gas, accessible audits
 
 ---
 

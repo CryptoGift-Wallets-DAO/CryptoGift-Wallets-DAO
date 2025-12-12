@@ -390,56 +390,74 @@ Availability for Calls: Flexible, coordinate via email`
   },
   {
     id: 'whats-next',
-    titleEs: '🚀 ¿Qué Sigue Ahora? - Roadmap Estratégico',
-    titleEn: '🚀 What\'s Next? - Strategic Roadmap',
+    titleEs: '🚀 ¿Qué Sigue Ahora? - Roadmap (Dic 2025)',
+    titleEn: '🚀 What\'s Next? - Roadmap (Dec 2025)',
     icon: <Target className="w-5 h-5" />,
     contentEs: `VISIÓN: Lo próximo no es "crecer por crecer". Es escalar sin perder el alma: emoción + infraestructura + medición.
 
-✅ COMPLETADO (Q4 2024 - Q1 2025):
-• Deploy DAO en Aragon + Token Voting + CGC (2M supply)
-• MilestoneEscrow + MasterEIP712Controller + TaskRulesEIP712
-• Sistema de tareas competitivas + Referidos multinivel
-• Pool de liquidez Aerodrome activo
+✅ COMPLETADO (Q4 2024 - Q4 2025):
+• Q4 2024: DAO Aragon + Token Voting + CGC (2M supply)
+• Q1 2025: MilestoneEscrow + Task system + Referidos multinivel
+• Q2-Q3 2025: Pool Aerodrome + Token metadata + Whitepaper + i18n
+• Q4 2025: Discord (21 canales) + mbxarts.com + Collab.Land + SEO + QR Code
 
-🔄 EN PROGRESO - Ejecución (Q2 2025):
-• Expandir catálogo de quests + onboarding de creadores
-• Automatizar ciclo "voto → tarea → validación → distribución"
-• Profundizar liquidez en Base
-• Dashboard de analytics con métricas de impacto
+🔄 EN PROGRESO (Q4 2025 - Diciembre):
+• CoinGecko: Rechazada → Re-aplicar con más tracción
+• BaseScan: Enviada, esperando respuesta
+• Grants: Base Builder, Optimism Atlas, Gitcoin GG24 - Ready to apply
+• Collab.Land TGR: Configurar Token Gating Rules
+• Production testing con usuarios reales
 
-📋 PLANIFICADO - Distribución Masiva (Q3-Q4 2025):
+📋 PRÓXIMO (Q1 2026):
+• Re-aplicar CoinGecko con métricas de tracción
+• Submit Base Builder Grants + Optimism Atlas + Gitcoin
+• Expandir catálogo de quests + onboarding creadores
+• Dashboard de analytics avanzado
+• Partnerships con 3+ plataformas educativas
+
+🎯 PLANIFICADO (Q2-Q3 2026):
+• Automated Minting System implementation
 • Componentes plug-and-play/white-label para marcas/ONGs
-• Campañas masivas 1155-TBA-like con reglas configurables
+• Campañas masivas 1155-TBA-like
 • "Gifting for events" (bodas, cumpleaños, donaciones)
-• Interfaz mobile-optimizada
 
-🔮 VISIÓN - Infraestructura Financiera (2026+):
+🔮 VISIÓN (Q4 2026+):
 • API para fintechs "en dos líneas"
 • Puente hacia activos tokenizados (RWA)
+• Colaboraciones masivas con ecosistema Base
 • Transparencia radical: reservas on-chain, auditorías accesibles`,
     contentEn: `VISION: What's next isn't "growing for the sake of growing". It's scaling without losing the soul: emotion + infrastructure + measurement.
 
-✅ COMPLETED (Q4 2024 - Q1 2025):
-• Deploy DAO on Aragon + Token Voting + CGC (2M supply)
-• MilestoneEscrow + MasterEIP712Controller + TaskRulesEIP712
-• Competitive task system + Multi-level referrals
-• Active Aerodrome liquidity pool
+✅ COMPLETED (Q4 2024 - Q4 2025):
+• Q4 2024: DAO Aragon + Token Voting + CGC (2M supply)
+• Q1 2025: MilestoneEscrow + Task system + Multi-level referrals
+• Q2-Q3 2025: Aerodrome pool + Token metadata + Whitepaper + i18n
+• Q4 2025: Discord (21 channels) + mbxarts.com + Collab.Land + SEO + QR Code
 
-🔄 IN PROGRESS - Execution (Q2 2025):
+🔄 IN PROGRESS (Q4 2025 - December):
+• CoinGecko: Rejected → Re-apply with more traction
+• BaseScan: Submitted, awaiting response
+• Grants: Base Builder, Optimism Atlas, Gitcoin GG24 - Ready to apply
+• Collab.Land TGR: Configure Token Gating Rules
+• Production testing with real users
+
+📋 NEXT (Q1 2026):
+• Re-apply CoinGecko with traction metrics
+• Submit Base Builder Grants + Optimism Atlas + Gitcoin
 • Expand quest catalog + creator onboarding
-• Automate "vote → task → validation → distribution" cycle
-• Deepen liquidity on Base
-• Analytics dashboard with impact metrics
+• Advanced analytics dashboard
+• Partnerships with 3+ educational platforms
 
-📋 PLANNED - Massive Distribution (Q3-Q4 2025):
+🎯 PLANNED (Q2-Q3 2026):
+• Automated Minting System implementation
 • Plug-and-play/white-label components for brands/NGOs
-• Massive 1155-TBA-like campaigns with configurable rules
+• Massive 1155-TBA-like campaigns
 • "Gifting for events" (weddings, birthdays, donations)
-• Mobile-optimized interface
 
-🔮 VISION - Financial Infrastructure (2026+):
+🔮 VISION (Q4 2026+):
 • API for fintechs "in two lines"
 • Bridge to tokenized assets (RWA)
+• Massive collaborations with Base ecosystem
 • Radical transparency: on-chain reserves, accessible audits`
   }
 ];
