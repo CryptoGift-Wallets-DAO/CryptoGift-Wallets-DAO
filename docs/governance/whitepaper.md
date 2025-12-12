@@ -359,7 +359,7 @@ El proyecto se encuentra en desarrollo activo y los parámetros pueden cambiar m
 **Contacto**
 - Website: https://crypto-gift-wallets-dao.vercel.app
 - Discord: https://discord.gg/cryptogift
-- Twitter: @CryptoGiftDAO
+- Twitter: @cryptogiftdao
 - Email: dao@cryptogift-wallets.com
 - GitHub: https://github.com/CryptoGift-Wallets-DAO
 

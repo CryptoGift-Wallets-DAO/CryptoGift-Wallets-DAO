@@ -200,7 +200,7 @@ function generateMetadataJSON(assets) {
             website: 'https://crypto-gift-wallets-dao.vercel.app',
             github: 'https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO',
             discord: 'https://discord.gg/cryptogift',
-            twitter: 'https://x.com/CryptoGiftDAO'
+            twitter: 'https://x.com/cryptogiftdao'
         },
         description: "CryptoGift Coin (CGC) is the governance token of the CryptoGift Wallets DAO, enabling community-driven decision making and rewards distribution for educational achievements.",
         tags: ["governance", "dao", "rewards", "education", "community"],
@@ -234,7 +234,7 @@ function generateBaseScanInfo() {
     console.log('- Website: https://crypto-gift-wallets-dao.vercel.app');
     console.log('- GitHub: https://github.com/CryptoGift-Wallets-DAO');
     console.log('- Discord: https://discord.gg/cryptogift');
-    console.log('- X/Twitter: @CryptoGiftDAO');
+    console.log('- X/Twitter: @cryptogiftdao');
     console.log('- Email: dao@cryptogift-wallets.com');
     
     console.log('\nLogo URLs (use after GitHub commit):');

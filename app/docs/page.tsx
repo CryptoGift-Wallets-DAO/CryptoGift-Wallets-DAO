@@ -1021,7 +1021,7 @@ export default function DocsPage() {
                       <ExternalLink className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     </a>
                     <a
-                      href="https://x.com/CryptoGiftDAO"
+                      href="https://x.com/cryptogiftdao"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"

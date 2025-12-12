@@ -198,7 +198,7 @@ Any changes to tokenomics require:
 
 - **Email:** admin@mbxarts.com
 - **Discord:** https://discord.gg/XzmKkrvhHc
-- **Twitter:** @CryptoGiftDAO
+- **Twitter:** @cryptogiftdao
 
 ---
 

@@ -287,7 +287,7 @@ Documentación: https://mbxarts.com/docs
 Whitepaper: https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html
 GitHub: https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 Discord: https://discord.gg/XzmKkrvhHc
-Twitter: https://x.com/CryptoGiftDAO
+Twitter: https://x.com/cryptogiftdao
 
 APIs:
 Total Supply: https://mbxarts.com/api/token/total-supply
@@ -303,7 +303,7 @@ Documentation: https://mbxarts.com/docs
 Whitepaper: https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html
 GitHub: https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 Discord: https://discord.gg/XzmKkrvhHc
-Twitter: https://x.com/CryptoGiftDAO
+Twitter: https://x.com/cryptogiftdao
 
 APIs:
 Total Supply: https://mbxarts.com/api/token/total-supply
@@ -322,14 +322,14 @@ Logo 512x512: https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGif
 Email: admin@mbxarts.com
 Empresa: The Moon in a Box Inc.
 Discord: https://discord.gg/XzmKkrvhHc
-Twitter: @CryptoGiftDAO
+Twitter: @cryptogiftdao
 
 Disponibilidad para Calls: Flexible, coordinar via email`,
     contentEn: `Primary Contact: Rafael González
 Email: admin@mbxarts.com
 Company: The Moon in a Box Inc.
 Discord: https://discord.gg/XzmKkrvhHc
-Twitter: @CryptoGiftDAO
+Twitter: @cryptogiftdao
 
 Availability for Calls: Flexible, coordinate via email`
   }
@@ -411,9 +411,24 @@ export function ApplicationGuide() {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showEnglish, setShowEnglish] = useState(false);
+  const [viewAllExpanded, setViewAllExpanded] = useState(false);
 
   const toggleSection = (id: string) => {
     setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const expandAll = () => {
+    const allExpanded: Record<string, boolean> = {};
+    guideSections.forEach(section => {
+      allExpanded[section.id] = true;
+    });
+    setExpandedSections(allExpanded);
+    setViewAllExpanded(true);
+  };
+
+  const collapseAll = () => {
+    setExpandedSections({});
+    setViewAllExpanded(false);
   };
 
   const copyToClipboard = async (text: string, id: string) => {
@@ -424,7 +439,7 @@ export function ApplicationGuide() {
 
   return (
     <div className="space-y-8">
-      {/* Header con Download */}
+      {/* Header con Download y View */}
       <div className="glass-card p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -435,7 +450,7 @@ export function ApplicationGuide() {
               Toda la información necesaria para solicitudes de grants
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setShowEnglish(!showEnglish)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -446,13 +461,33 @@ export function ApplicationGuide() {
             >
               {showEnglish ? '🇬🇧 English' : '🇪🇸 Español'}
             </button>
+            <button
+              onClick={viewAllExpanded ? collapseAll : expandAll}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                viewAllExpanded
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                  : 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
+              }`}
+            >
+              {viewAllExpanded ? (
+                <>
+                  <ChevronDown className="w-4 h-4" />
+                  Collapse All
+                </>
+              ) : (
+                <>
+                  <ChevronRight className="w-4 h-4" />
+                  View All
+                </>
+              )}
+            </button>
             <a
               href="/GRANT_APPLICATION_GUIDE.md"
               download="CryptoGift_Grant_Application_Guide.md"
               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
             >
               <Download className="w-4 h-4" />
-              Download PDF
+              Download Guide
             </a>
           </div>
         </div>

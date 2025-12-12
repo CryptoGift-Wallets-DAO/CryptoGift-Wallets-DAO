@@ -114,10 +114,10 @@ Educación + Recompensas + Comunidad
 
 **VERSIÓN INGLÉS:**
 ```
-NFT that IS your wallet. Gas = $0. DAO Governance.
-The most human Web3 onboarding.
-Education + Rewards + Community
-Join us:
+NFT que ES tu wallet. Gas = $0. Gobernanza DAO.
+El onboarding más humano a Web3.
+Educación + Recompensas + Comunidad
+Únete:
 ```
 
 **VERSIÓN BILINGÜE (Recomendada):**
@@ -174,11 +174,12 @@ CONTENIDO DEL BANNER:
 ```
 ¿Qué es CryptoGift Wallets DAO?
 
-El sistema que convierte a tu amigo que "no entiende crypto" en holder y participante de gobernanza.
+El sistema que convierte a tu amigo que "no entiende crypto" en holder, criptobro y si asi lo quieres: en participante de gobernanzas DAO, especialista DeFi y hasta trader.
 
-En 5 minutos. Sin gas. Sin complicaciones.
 
-Un hilo para entender todo:
+Regala en 5 minutos. Sin gas. Sin complicaciones. Sin miedo
+
+Un hilo para entenderlos a todos:
 
 🧵👇
 ```
@@ -187,11 +188,16 @@ Un hilo para entender todo:
 ```
 1/ EL PROBLEMA
 
+La adopción se rompe en el primer paso:
 El 73% de personas dice que crypto es "muy complicado".
+• instalar wallet
+• guardar seed phrase
+• pagar gas
+• entender redes
+Pero el 89% de esas mismas personas ha regalado al menos dinero alguna vez.
+Regalar… eso lo entiende cualquiera.
 
-Pero el 89% de esas mismas personas ha regalado dinero alguna vez.
-
-¿Y si el REGALO fuera la puerta de entrada?
+¿Y si el REGALO fuera la puerta de entrada a Web3?
 
 Esa es nuestra tesis.
 ```
@@ -200,27 +206,42 @@ Esa es nuestra tesis.
 ```
 2/ LA SOLUCIÓN
 
-CryptoGift Wallets usa tecnología ERC-6551 (Token Bound Accounts):
+CryptoGift Wallets transforma esa foto cargada de recuerdos en algo más que un NFT: la convierte en una wallet real (ERC-6551 / Token Bound Account):
 
 • Tu NFT ES una wallet real
-• Puede contener ETH, tokens, otros NFTs
+• Puede contener ETH, tokens, otros NFTs, etc.
 • Gas = $0 (Account Abstraction)
-• Sin seed phrases para el receptor
+• Reclamo por link/QR, sin seed phrases
+• Si no reclaman: auto-return al emisor (si asi lo decides)
 
 Es como si tu foto de perfil pudiera guardar dinero.
+
+Y para escalar a lo grande: nuestro 1155-TBA-like (core del proyecto).
+• Campañas de 1,000 a 1,000,000+ “gift-wallets”
+• QR / links en eventos, tiendas, ads, comunidades
+• Reglas por campaña: fecha, cupos, whitelist, 1 por persona
+• Incentivos para ONG/ayudas, encuestas, educación, misiones
+• Medición y atribución: cohortes, referidos, conversión real
+• No reclamado = auto-return / redistribución (control total)
+
 ```
 
 **TWEET 4/7:**
 ```
-3/ CÓMO FUNCIONA
+3/ CÓMO FUNCIONA (LA MAGIA)
 
-1️⃣ Creas un NFT con foto/mensaje personalizado
-2️⃣ Depositas crypto dentro del NFT
-3️⃣ Envías el link a tu amigo/familia
-4️⃣ Ellos reclaman SIN pagar gas
-5️⃣ Ya tienen su primera wallet + fondos
+1️⃣ Creas el regalo: NFT con foto + mensaje persnalizado (algo que importa de verdad)
+2️⃣ Le cargas valor: crypto dentro (o rewards/activos)
+3️⃣ (Opcional/Recomendado) Le pones “candado inteligente”: eliges un módulo de la Academy
+   • finanzas, cripto, seguridad, trading, Web3… (y más entre otras cosas dado el elevado numero de colaboraciones en ese sector)
+4️⃣ Envías un link/QR
+5️⃣ Ellos reclaman SIN gas… pero mejor:
+   primero aprenden lo esencial de las tematicas seleccionadas impulsados por el factor psicologico-emocional asociado al regalo
+6️⃣ Resultado: ya tienen su primera wallet no-custodial + fondos + criterio para moverse en Web3
+   (tú eliges el nivel: básico → avanzado)
 
-Demo: mbxarts.com
+Demo: https://youtu.be/_CDc7GMVNhg?si=yjiK-t7AWHGVf3Oo
+
 ```
 
 **TWEET 5/7:**
@@ -246,12 +267,13 @@ Cómo ganar CGC:
 
 🌐 Web: mbxarts.com
 📄 Docs: mbxarts.com/docs
+📄 White Paper: https://www.mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html
 💬 Discord: discord.gg/XzmKkrvhHc
-📊 Token: BaseScan (verificado ✅)
+📊 Contratos: BaseScan (verificado ✅)
 
 El DAO ya está operativo en Base Mainnet.
 
-Las tareas pagan CGC real.
+Las tareas pagan CGC real .
 ```
 
 **TWEET 7/7:**
@@ -272,92 +294,122 @@ Las tareas pagan CGC real.
 
 ### 3.2 VERSIÓN INGLÉS DEL HILO
 
-**TWEET 1/7:**
-```
+**TWEET 1/7 (Principal - Se fija este):**
 What is CryptoGift Wallets DAO?
 
-The system that turns your friend who "doesn't get crypto" into a holder and governance participant.
+The system that turns your friend who “doesn’t understand crypto” into a holder, a crypto bro, and if you want: a DAO governance participant, a DeFi specialist, and even a trader.
 
-In 5 minutes. No gas. No complications.
+Gift in 5 minutes. No gas. No complications. No fear
 
-A thread to understand everything:
+One thread to understand them all:
 
 🧵👇
+
 ```
 
 **TWEET 2/7:**
 ```
+
 1/ THE PROBLEM
 
-73% of people say crypto is "too complicated".
+Adoption breaks at the very first step:
+73% of people say crypto is “too complicated”.
+• install a wallet
+• store a seed phrase
+• pay gas
+• understand networks
+But 89% of those same people have given money as a gift at least once.
+Gifting… that’s something anyone understands.
 
-But 89% of those same people have gifted money before.
+What if the GIFT were the gateway into Web3?
 
-What if the GIFT was the gateway?
+That’s our thesis.
 
-That's our thesis.
 ```
 
 **TWEET 3/7:**
 ```
+
 2/ THE SOLUTION
 
-CryptoGift Wallets uses ERC-6551 technology (Token Bound Accounts):
+CryptoGift Wallets transforms that memory-loaded photo into more than an NFT: it turns it into a real wallet (ERC-6551 / Token Bound Account):
 
 • Your NFT IS a real wallet
-• Can hold ETH, tokens, other NFTs
+• It can hold ETH, tokens, other NFTs, etc.
 • Gas = $0 (Account Abstraction)
-• No seed phrases for recipients
+• Claim via link/QR, no seed phrases
+• If they don’t claim: auto-return to the sender (if you decide so)
 
-It's like your profile pic could store money.
+It’s like your profile picture could store money.
+
+And to scale big: our 1155-TBA-like (core of the project).
+• Campaigns from 1,000 to 1,000,000+ “gift-wallets”
+• QR / links at events, stores, ads, communities
+• Rules per campaign: date, slots, whitelist, 1 per person
+• Incentives for NGOs/aid, surveys, education, missions
+• Measurement and attribution: cohorts, referrals, real conversion
+• Not claimed = auto-return / redistribution (full control)
+
 ```
 
 **TWEET 4/7:**
 ```
-3/ HOW IT WORKS
 
-1️⃣ Create an NFT with custom photo/message
-2️⃣ Deposit crypto inside the NFT
-3️⃣ Send the link to your friend/family
-4️⃣ They claim WITHOUT paying gas
-5️⃣ Now they have their first wallet + funds
+3/ HOW IT WORKS (THE MAGIC)
 
-Demo: mbxarts.com
+1️⃣ You create the gift: NFT with photo + personalized message (something that truly matters)
+2️⃣ You load it with value: crypto inside (or rewards/assets)
+3️⃣ (Optional/Recommended) You add a “smart lock”: you choose a module from the Academy
+• finance, crypto, security, trading, Web3… (and more among other things given the high number of collaborations in that sector)
+4️⃣ You send a link/QR
+5️⃣ They claim with NO gas… but better:
+first they learn the essentials of the selected topics, driven by the psychological-emotional factor associated with the gift
+6️⃣ Result: they already have their first non-custodial wallet + funds + criteria to move in Web3
+(you choose the level: basic → advanced)
+
+Demo: [https://youtu.be/_CDc7GMVNhg?si=yjiK-t7AWHGVf3Oo](https://youtu.be/_CDc7GMVNhg?si=yjiK-t7AWHGVf3Oo)
+
 ```
 
 **TWEET 5/7:**
 ```
+
 4/ THE CGC TOKEN
 
-CryptoGift Coin ($CGC) is the DAO governance token.
+CryptoGift Coin ($CGC) is the DAO’s governance token.
 
 • Initial supply: 2M CGC
 • Max supply: 22M (via milestones)
-• Network: Base (Coinbase L2)
+• Network: Base (Coinbase’s L2)
 • No vesting for holders
 
 How to earn CGC:
 • Complete community tasks
 • Refer new users (3 levels)
 • Contribute to development
+
 ```
 
 **TWEET 6/7:**
 ```
+
 5/ JOIN THE COMMUNITY
 
 🌐 Web: mbxarts.com
 📄 Docs: mbxarts.com/docs
+📄 White Paper: [https://www.mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html](https://www.mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html)
 💬 Discord: discord.gg/XzmKkrvhHc
-📊 Token: BaseScan (verified ✅)
+📊 Contracts: BaseScan (verified ✅)
 
-The DAO is already live on Base Mainnet.
+The DAO is already operational on Base Mainnet.
 
 Tasks pay real CGC.
+
 ```
 
 **TWEET 7/7:**
 ```
+
 6/ NEXT STEPS
 
 ✅ Token deployed and verified
@@ -367,9 +419,11 @@ Tasks pay real CGC.
 🔄 CoinGecko application (in progress)
 🔄 More wallet integrations
 
-Questions? Reply below 👇
+Questions? I’ll reply below 👇
 
 #Base #Web3 #DAO #ERC6551
+
+
 ```
 
 ---
@@ -504,7 +558,7 @@ Links oficiales de CryptoGift Wallets DAO:
 🌐 Web: mbxarts.com
 💬 Discord: discord.gg/XzmKkrvhHc
 📊 Token: 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
-🐦 Twitter: @CryptoGiftDAO (esta cuenta)
+🐦 Twitter: @cryptogiftdao (esta cuenta)
 
 NUNCA:
 ❌ Te pediremos seed phrase

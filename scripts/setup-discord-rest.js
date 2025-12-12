@@ -179,7 +179,7 @@ Somos una **Organización Autónoma Descentralizada (DAO)** en Base que recompen
 ## 🔗 LINKS OFICIALES
 
 🌐 **Website:** https://mbxarts.com
-🐦 **Twitter:** https://x.com/CryptoGiftDAO
+🐦 **Twitter:** https://x.com/cryptogiftdao
 📄 **Whitepaper:** https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.pdf
 🏛️ **Aragon DAO:** https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
 🔍 **BaseScan CGC:** https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
@@ -265,7 +265,7 @@ Puedes obtener CGC completando tareas en https://mbxarts.com/tasks
 | Plataforma | Link |
 |------------|------|
 | 🏠 Website | https://mbxarts.com |
-| 🐦 Twitter/X | https://x.com/CryptoGiftDAO |
+| 🐦 Twitter/X | https://x.com/cryptogiftdao |
 | 💻 GitHub | https://github.com/CryptoGift-Wallets-DAO |
 | 📱 Discord | https://discord.gg/XzmKkrvhHc |
 

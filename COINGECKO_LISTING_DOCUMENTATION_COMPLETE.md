@@ -271,7 +271,7 @@ Whitepaper (Online):
 https://crypto-gift-wallets-dao.vercel.app/CRYPTOGIFT_WHITEPAPER_v1.2.html
 
 Twitter/X:
-https://x.com/CryptoGiftDAO
+https://x.com/cryptogiftdao
 
 Discord:
 https://discord.gg/cryptogift

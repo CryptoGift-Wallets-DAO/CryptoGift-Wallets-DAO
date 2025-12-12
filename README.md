@@ -331,7 +331,7 @@ Este proyecto está en desarrollo activo. Los smart contracts no han sido audita
 
 - **Email**: dao@cryptogift-wallets.com
 - **Security**: security@cryptogift-wallets.com
-- **Twitter**: @CryptoGiftDAO
+- **Twitter**: @cryptogiftdao
 
 ---
 

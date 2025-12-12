@@ -344,7 +344,7 @@ https://mbxarts.com/docs
 
 #### **Twitter/X**
 ```
-https://x.com/CryptoGiftDAO
+https://x.com/cryptogiftdao
 ```
 
 #### **Discord**
@@ -748,7 +748,7 @@ Antes de enviar la solicitud a CoinGecko, verifica:
 - [ ] Par CGC/WETH activo
 
 ### Redes Sociales
-- [ ] Twitter/X activo (@CryptoGiftDAO)
+- [ ] Twitter/X activo (@cryptogiftdao)
 - [ ] Discord creado y con link funcionando
 - [ ] Al menos 1-2 posts sobre el proyecto
 
@@ -801,7 +801,7 @@ Si tienes problemas durante el proceso:
 
 3. **Comunidad**:
    - Discord de CryptoGift
-   - Twitter/X: @CryptoGiftDAO
+   - Twitter/X: @cryptogiftdao
 
 ---
 

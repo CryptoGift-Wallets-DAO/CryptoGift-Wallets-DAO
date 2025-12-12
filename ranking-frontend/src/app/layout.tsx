@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'CryptoGift DAO Ranking',
     description: 'Real-time visual ranking system for CryptoGift DAO collaborators',
-    creator: '@CryptoGiftDAO',
+    creator: '@cryptogiftdao',
     images: ['/og-image.png'],
   },
   robots: {

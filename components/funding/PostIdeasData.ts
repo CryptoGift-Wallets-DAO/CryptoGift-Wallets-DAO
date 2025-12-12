@@ -72,7 +72,7 @@ Un NFT que ES tu wallet.
 Gas = $0.
 Un botón para todo.
 
-Eso construimos en @CryptoGiftDAO 🎁`,
+Eso construimos en @cryptogiftdao 🎁`,
         contentEn: `Why do 99% of people NOT enter crypto?
 
 ❌ "I don't know where to start"
@@ -86,7 +86,7 @@ An NFT that IS your wallet.
 Gas = $0.
 One button for everything.
 
-That's what we build at @CryptoGiftDAO 🎁`,
+That's what we build at @cryptogiftdao 🎁`,
         type: 'tweet',
         category: 'educational',
         hashtags: ['CryptoAdoption', 'Web3Onboarding', 'GaslessTransactions'],
@@ -710,7 +710,7 @@ Join: discord.gg/XzmKkrvhHc 💜`,
 En Web2: La empresa decide, tú obedeces.
 En Web3: La comunidad decide, todos construyen.
 
-En @CryptoGiftDAO:
+En @cryptogiftdao:
 • Tú votas el roadmap
 • Tú propones features
 • Tú recibes rewards por contribuir
@@ -721,7 +721,7 @@ Tu voz importa. Literalmente 🗳️`,
 In Web2: The company decides, you obey.
 In Web3: The community decides, everyone builds.
 
-At @CryptoGiftDAO:
+At @cryptogiftdao:
 • You vote on the roadmap
 • You propose features
 • You get rewards for contributing
@@ -1211,7 +1211,7 @@ Un NFT que es una wallet real. Con crypto real. Sin complicaciones.
 **Links importantes:**
 🌐 Web: https://mbxarts.com
 📄 Docs: https://mbxarts.com/docs
-🐦 Twitter: @CryptoGiftDAO
+🐦 Twitter: @cryptogiftdao
 
 ¡Bienvenido a la familia! 💜`,
         contentEn: `# 🎁 Welcome to CryptoGift Wallets DAO
@@ -1238,7 +1238,7 @@ An NFT that is a real wallet. With real crypto. No complications.
 **Important links:**
 🌐 Web: https://mbxarts.com
 📄 Docs: https://mbxarts.com/docs
-🐦 Twitter: @CryptoGiftDAO
+🐦 Twitter: @cryptogiftdao
 
 Welcome to the family! 💜`
       }
@@ -1276,7 +1276,7 @@ Welcome to the family! 💜`
 ¿Qué te gustaría ver la próxima semana? Comenta abajo 👇
 
 ---
-*Síguenos en Twitter para updates diarios: @CryptoGiftDAO*`,
+*Síguenos en Twitter para updates diarios: @cryptogiftdao*`,
         contentEn: `# 📢 Weekly Update - [DATE]
 
 ## 🔥 Most important this week:
@@ -1301,7 +1301,7 @@ Welcome to the family! 💜`
 What would you like to see next week? Comment below 👇
 
 ---
-*Follow us on Twitter for daily updates: @CryptoGiftDAO*`
+*Follow us on Twitter for daily updates: @cryptogiftdao*`
       },
       {
         title: 'GM Diario',

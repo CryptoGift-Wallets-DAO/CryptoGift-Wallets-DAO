@@ -162,8 +162,8 @@ const strategySections: StrategySection[] = [
     icon: <Twitter className="w-5 h-5" />,
     color: 'sky',
     currentState: {
-      es: 'Cuenta @CryptoGiftDAO existe pero inactiva. Sin engagement. Sin contenido regular.',
-      en: 'Account @CryptoGiftDAO exists but inactive. No engagement. No regular content.'
+      es: 'Cuenta @cryptogiftdao existe pero inactiva. Sin engagement. Sin contenido regular.',
+      en: 'Account @cryptogiftdao exists but inactive. No engagement. No regular content.'
     },
     targetState: {
       es: '1,000+ seguidores orgánicos. Posts diarios. Engagement rate 3-5%. Comunidad activa.',
@@ -255,7 +255,7 @@ https://mbxarts.com`
         name: 'Thread Educativo ERC-6551',
         content: `🧵 ¿Qué es ERC-6551 y por qué cambia todo?
 
-Un hilo sobre la tecnología que usamos en @CryptoGiftDAO:
+Un hilo sobre la tecnología que usamos en @cryptogiftdao:
 
 1/7 ERC-6551 convierte CUALQUIER NFT en una wallet completa.
 
@@ -264,7 +264,7 @@ Imagina: tu NFT puede tener tokens, otros NFTs, y ejecutar transacciones.
 🔽`,
         contentEn: `🧵 What is ERC-6551 and why does it change everything?
 
-A thread about the technology we use at @CryptoGiftDAO:
+A thread about the technology we use at @cryptogiftdao:
 
 1/7 ERC-6551 turns ANY NFT into a complete wallet.
 
@@ -295,14 +295,14 @@ $CGC #Base #Web3 #DAO`
       },
       {
         name: 'Daily Update',
-        content: `📊 Update diario de @CryptoGiftDAO
+        content: `📊 Update diario de @cryptogiftdao
 
 🔹 [Desarrollo/noticia del día]
 🔹 [Estadística relevante]
 🔹 [Call to action]
 
 ¿Qué te gustaría ver mañana? 👇`,
-        contentEn: `📊 Daily update from @CryptoGiftDAO
+        contentEn: `📊 Daily update from @cryptogiftdao
 
 🔹 [Development/news of the day]
 🔹 [Relevant stat]
@@ -422,7 +422,7 @@ Questions? 👇`
         name: 'Building in Public',
         content: `🛠️ Build log #[NÚMERO]
 
-Esta semana en @CryptoGiftDAO:
+Esta semana en @cryptogiftdao:
 
 ✅ [Logro 1]
 ✅ [Logro 2]
@@ -433,7 +433,7 @@ Próxima semana: [Preview]
 /base /build`,
         contentEn: `🛠️ Build log #[NUMBER]
 
-This week at @CryptoGiftDAO:
+This week at @cryptogiftdao:
 
 ✅ [Achievement 1]
 ✅ [Achievement 2]

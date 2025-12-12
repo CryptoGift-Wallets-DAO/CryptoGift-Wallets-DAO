@@ -479,7 +479,7 @@ The team combines expertise in Web3 development, community building, and busines
 
 ### Social Media
 
-- **Twitter/X**: https://x.com/CryptoGiftDAO
+- **Twitter/X**: https://x.com/cryptogiftdao
 - **Discord**: https://discord.gg/XzmKkrvhHc
 - **Email**: admin@mbxarts.com
 

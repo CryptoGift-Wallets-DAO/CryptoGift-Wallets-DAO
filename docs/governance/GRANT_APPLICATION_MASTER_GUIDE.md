@@ -998,7 +998,7 @@ Actively seeking advisors in:
 ### Social / Community
 | Recurso | URL |
 |---------|-----|
-| **Twitter/X** | https://x.com/CryptoGiftDAO |
+| **Twitter/X** | https://x.com/cryptogiftdao |
 | **Discord** | https://discord.gg/XzmKkrvhHc |
 
 ### APIs
@@ -1027,7 +1027,7 @@ Actively seeking advisors in:
 | **Empresa** | The Moon in a Box Inc. |
 | **Fundador** | Rafael González |
 | **Discord** | discord.gg/XzmKkrvhHc |
-| **Twitter** | @CryptoGiftDAO |
+| **Twitter** | @cryptogiftdao |
 
 ## Para Grants y Partnerships / For Grants and Partnerships
 

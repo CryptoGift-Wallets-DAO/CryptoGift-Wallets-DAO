@@ -104,7 +104,7 @@ node scripts/verify-new-contracts.js
 - **Email**: dao@cryptogift-wallets.com
 - **Logo URL**: [64x64 GitHub raw URL]
 - **Description**: CryptoGift Coin (CGC) is the governance token of the CryptoGift Wallets DAO. The token enables holders to participate in DAO governance decisions and receive rewards for contributions to the ecosystem.
-- **Twitter**: https://x.com/CryptoGiftDAO
+- **Twitter**: https://x.com/cryptogiftdao
 - **Discord**: https://discord.gg/cryptogift
 - **GitHub**: https://github.com/CryptoGift-Wallets-DAO
 

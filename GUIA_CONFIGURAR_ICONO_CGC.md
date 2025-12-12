@@ -72,7 +72,7 @@ URLs importantes:
 | **Decimals** | `18` |
 | **Project Website** | `https://mbxarts.com` |
 | **Logo URL** | `https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-200x200.png` |
-| **Twitter** | `https://x.com/CryptoGiftDAO` |
+| **Twitter** | `https://x.com/cryptogiftdao` |
 | **Discord** | `https://discord.gg/XzmKkrvhHc` |
 | **GitHub** | `https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO` |
 | **Whitepaper** | `https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.pdf` |
@@ -200,7 +200,7 @@ Token List: https://mbxarts.com/tokenlist.json
 Website: https://mbxarts.com
 Docs: https://mbxarts.com/docs
 Whitepaper: https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.pdf
-Twitter: https://x.com/CryptoGiftDAO
+Twitter: https://x.com/cryptogiftdao
 Discord: https://discord.gg/XzmKkrvhHc
 GitHub: https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 BaseScan Token: https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175

@@ -933,7 +933,7 @@ CryptoGift Wallets is not an isolated app - it's infrastructure that other organ
 ### Social / Community
 | Recurso | URL |
 |---------|-----|
-| **Twitter/X** | https://x.com/CryptoGiftDAO |
+| **Twitter/X** | https://x.com/cryptogiftdao |
 | **Discord** | https://discord.gg/XzmKkrvhHc |
 
 ### APIs
@@ -962,7 +962,7 @@ CryptoGift Wallets is not an isolated app - it's infrastructure that other organ
 | **Empresa** | The Moon in a Box Inc. |
 | **Fundador** | Rafael González |
 | **Discord** | https://discord.gg/XzmKkrvhHc |
-| **Twitter** | @CryptoGiftDAO |
+| **Twitter** | @cryptogiftdao |
 
 ## Para Grants y Partnerships / For Grants and Partnerships
 

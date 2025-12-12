@@ -42,8 +42,8 @@ export const metadata: Metadata = {
     card: 'summary',
     title: 'CryptoGift Wallets DAO',
     description: 'Decentralized governance on Base blockchain. Earn CGC tokens, participate in governance, join referral program.',
-    site: '@CryptoGiftDAO',
-    creator: '@CryptoGiftDAO',
+    site: '@cryptogiftdao',
+    creator: '@cryptogiftdao',
     images: ['https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO/main/public/metadata/cgc-logo-512x512.png'],
   },
   robots: {

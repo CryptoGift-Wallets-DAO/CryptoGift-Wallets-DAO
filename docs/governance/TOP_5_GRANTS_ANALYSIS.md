@@ -320,7 +320,7 @@ Try it: mbxarts.com
 **Links**:
 - GitHub: https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 - Website: https://mbxarts.com
-- Twitter: https://x.com/CryptoGiftDAO
+- Twitter: https://x.com/cryptogiftdao
 - Discord: https://discord.gg/XzmKkrvhHc
 
 **PASO 3: Aplicar Durante Ronda Activa**
@@ -364,7 +364,7 @@ Antes de aplicar a cualquier grant:
 ## Presencia Online
 - [ ] Website funcionando: https://mbxarts.com
 - [ ] GitHub actualizado
-- [ ] Twitter activo: @CryptoGiftDAO
+- [ ] Twitter activo: @cryptogiftdao
 - [ ] Discord con miembros: discord.gg/XzmKkrvhHc
 
 ## APIs Funcionando
