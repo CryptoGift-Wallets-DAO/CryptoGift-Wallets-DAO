@@ -15,6 +15,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { useDashboardStats } from '@/lib/web3/hooks';
@@ -41,11 +42,44 @@ import {
 // Permanent invite link for new users
 const INVITE_LINK = '/permanent-invite/PI-MJ3CJ0IF-D313F4D99755F78F';
 
-// Subtle float animation
-const floatAnimation = `
+// Animations: float + holographic shimmer
+const animations = `
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
+  }
+
+  @keyframes holographic {
+    0% {
+      background-position: 0% 50%;
+      filter: hue-rotate(0deg);
+    }
+    50% {
+      background-position: 100% 50%;
+      filter: hue-rotate(30deg);
+    }
+    100% {
+      background-position: 0% 50%;
+      filter: hue-rotate(0deg);
+    }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.5),
+                  0 0 40px rgba(147, 51, 234, 0.3),
+                  0 0 60px rgba(59, 130, 246, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(147, 51, 234, 0.6),
+                  0 0 50px rgba(59, 130, 246, 0.4),
+                  0 0 80px rgba(147, 51, 234, 0.3);
+    }
   }
 `;
 
@@ -70,7 +104,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen theme-gradient-bg text-gray-900 dark:text-white overflow-hidden">
-      <style jsx>{floatAnimation}</style>
+      <style jsx>{animations}</style>
 
       {/* Subtle animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -82,7 +116,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* HERO SECTION */}
-      <section className="relative pt-24 pb-12 px-4">
+      <section className="relative pt-16 pb-12 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             {/* Left: Text Content */}
@@ -192,15 +226,15 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Floating elements - positioned to not interfere */}
-                <div className="absolute -top-3 -right-3 p-2 glass-panel rounded-lg text-xs" style={{ animation: 'float 4s ease-in-out infinite 1s' }}>
+                {/* Floating elements - spread further to sides */}
+                <div className="absolute -top-6 -right-12 lg:-right-16 p-2 glass-panel rounded-lg text-xs" style={{ animation: 'float 4s ease-in-out infinite 1s' }}>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                     <span className="font-medium text-gray-700 dark:text-white">{t('hero.floating.verified')}</span>
                   </div>
                 </div>
 
-                <div className="absolute -bottom-2 -left-2 p-2 glass-panel rounded-lg text-xs" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }}>
+                <div className="absolute -bottom-6 -left-12 lg:-left-16 p-2 glass-panel rounded-lg text-xs" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }}>
                   <div className="flex items-center gap-1.5">
                     <Wallet className="w-3.5 h-3.5 text-blue-500" />
                     <span className="font-medium text-gray-700 dark:text-white">{t('hero.floating.gasless')}</span>
@@ -315,7 +349,7 @@ export default function LandingPage() {
                   <div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-gray-300 dark:from-white/20 to-transparent z-0" />
                 )}
 
-                <div className="relative z-10 glass-panel p-6 rounded-2xl hover:scale-105 transition-all">
+                <div className="relative z-10 glass-panel p-6 rounded-2xl hover:scale-[1.02] transition-all">
                   {/* Step number */}
                   <div className={`absolute -top-3 -left-3 w-8 h-8 bg-gradient-to-br from-${item.color}-500 to-${item.color}-600 rounded-xl flex items-center justify-center font-bold text-sm text-white shadow-md`}>
                     {item.step}
@@ -401,21 +435,70 @@ export default function LandingPage() {
               </div>
 
               <div className="relative">
-                <div className="aspect-square max-w-xs mx-auto bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20 rounded-2xl p-6 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-2">
-                      CGC
+                <div className="aspect-square max-w-xs mx-auto flex items-center justify-center">
+                  {/* Holographic token display */}
+                  <div className="relative">
+                    {/* Outer glow ring */}
+                    <div
+                      className="absolute -inset-4 rounded-full opacity-75"
+                      style={{
+                        background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6)',
+                        backgroundSize: '300% 100%',
+                        animation: 'holographic 4s ease infinite, pulse-glow 3s ease-in-out infinite',
+                        filter: 'blur(20px)',
+                      }}
+                    />
+
+                    {/* Glass container with holographic border */}
+                    <div
+                      className="relative w-40 h-40 lg:w-48 lg:h-48 rounded-full p-1"
+                      style={{
+                        background: 'linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899, #06b6d4, #3b82f6)',
+                        backgroundSize: '400% 400%',
+                        animation: 'holographic 6s ease infinite',
+                      }}
+                    >
+                      {/* Inner glass panel */}
+                      <div className="w-full h-full rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl flex items-center justify-center overflow-hidden relative">
+                        {/* Shimmer effect */}
+                        <div
+                          className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                          style={{ animation: 'shimmer 3s infinite' }}
+                        />
+
+                        {/* CGC Logo */}
+                        <Image
+                          src="/cgc-logo-1mb.png"
+                          alt="CGC Token"
+                          width={120}
+                          height={120}
+                          className="relative z-10 drop-shadow-lg lg:w-36 lg:h-36"
+                          style={{ filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))' }}
+                        />
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{t('token.governance')}</div>
-                    <div className="mt-4 flex items-center justify-center gap-3">
-                      <div className="flex items-center gap-1 text-green-500">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span className="text-xs">{t('token.verified')}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-blue-500">
-                        <Shield className="w-4 h-4" />
-                        <span className="text-xs">{t('token.secure')}</span>
-                      </div>
+
+                    {/* Floating particles effect */}
+                    <div className="absolute -top-2 -right-2 w-3 h-3 rounded-full bg-blue-400" style={{ animation: 'float 2s ease-in-out infinite' }} />
+                    <div className="absolute -bottom-1 -left-3 w-2 h-2 rounded-full bg-purple-400" style={{ animation: 'float 2.5s ease-in-out infinite 0.5s' }} />
+                    <div className="absolute top-1/2 -right-4 w-2 h-2 rounded-full bg-pink-400" style={{ animation: 'float 3s ease-in-out infinite 1s' }} />
+                  </div>
+                </div>
+
+                {/* Token info below */}
+                <div className="text-center mt-6">
+                  <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-1">
+                    CGC Token
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">{t('token.governance')}</div>
+                  <div className="flex items-center justify-center gap-4">
+                    <div className="flex items-center gap-1 text-green-500">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span className="text-xs font-medium">{t('token.verified')}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-blue-500">
+                      <Shield className="w-4 h-4" />
+                      <span className="text-xs font-medium">{t('token.secure')}</span>
                     </div>
                   </div>
                 </div>
