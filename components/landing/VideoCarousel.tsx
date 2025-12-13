@@ -150,8 +150,9 @@ export function VideoCarousel() {
             style={{
               width: '100%',
               height: '100%',
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               '--controls': 'none',
-            } as React.CSSProperties}
+            } as any}
             className="w-full h-full"
           />
 
