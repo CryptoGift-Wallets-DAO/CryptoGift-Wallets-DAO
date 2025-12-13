@@ -35,6 +35,13 @@ const VIDEOS = {
       duration: '10 min',
     },
     {
+      id: 'demo',
+      muxPlaybackId: 'FCb1PkEnWapDI01wHXObphFgQPa4PY8zK5akxw2o7DcE',
+      title: 'Demo: Crear y Reclamar',
+      description: 'Demo del proceso de creación y reclamación de regalos',
+      duration: '1 min',
+    },
+    {
       id: 'outro-es',
       muxPlaybackId: 'PBqn7kacf00PoAczsHLk02TyU01OAx4VdUNYJaYdbbasQw',
       title: 'CryptoGift Club',
@@ -49,6 +56,13 @@ const VIDEOS = {
       title: 'Full Presentation',
       description: 'Learn how to gift real digital assets',
       duration: '10 min',
+    },
+    {
+      id: 'demo',
+      muxPlaybackId: 'FCb1PkEnWapDI01wHXObphFgQPa4PY8zK5akxw2o7DcE',
+      title: 'Demo: Create & Claim',
+      description: 'Demo of the gift creation and claiming process',
+      duration: '1 min',
     },
     {
       id: 'outro-en',
@@ -211,38 +225,54 @@ export function VideoCarousel() {
         </div>
       </div>
 
-      {/* Floating elements - RIGHT SIDE */}
-      <div className="absolute -top-6 -right-16 lg:-right-24 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 0.5s' }}>
+      {/* Floating elements - RIGHT SIDE (inner to outer) */}
+      <div className="absolute -top-6 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 0.5s' }}>
         <span className="font-medium text-purple-600 dark:text-purple-400">Open</span>
       </div>
 
-      <div className="absolute top-8 -right-20 lg:-right-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 1s' }}>
+      <div className="absolute top-4 -right-28 lg:-right-40 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 1s' }}>
         <span className="font-medium text-blue-600 dark:text-blue-400">Secure</span>
       </div>
 
-      <div className="absolute top-24 -right-14 lg:-right-20 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.5s ease-in-out infinite 0.2s' }}>
+      <div className="absolute top-20 -right-24 lg:-right-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.5s ease-in-out infinite 0.2s' }}>
         <span className="font-medium text-green-600 dark:text-green-400">Human</span>
       </div>
 
-      <div className="absolute bottom-16 -right-24 lg:-right-36 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
+      <div className="absolute top-36 -right-32 lg:-right-48 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
         <span className="font-medium text-cyan-600 dark:text-cyan-400">Gift in 5 min</span>
       </div>
 
-      {/* Floating elements - LEFT SIDE */}
-      <div className="absolute -top-4 -left-14 lg:-left-20 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 0.8s' }}>
+      <div className="absolute bottom-12 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.3s ease-in-out infinite 0.7s' }}>
+        <span className="font-medium text-teal-600 dark:text-teal-400">Easy claim</span>
+      </div>
+
+      <div className="absolute bottom-28 -right-36 lg:-right-52 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.8s ease-in-out infinite 1.8s' }}>
+        <span className="font-medium text-sky-600 dark:text-sky-400">Base L2</span>
+      </div>
+
+      {/* Floating elements - LEFT SIDE (moved much further left) */}
+      <div className="absolute -top-8 -left-24 lg:-left-36 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 0.8s' }}>
         <span className="font-medium text-emerald-600 dark:text-emerald-400">No gas</span>
       </div>
 
-      <div className="absolute top-12 -left-20 lg:-left-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.2s ease-in-out infinite 0.3s' }}>
+      <div className="absolute top-6 -left-32 lg:-left-48 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.2s ease-in-out infinite 0.3s' }}>
         <span className="font-medium text-amber-600 dark:text-amber-400">No complications</span>
       </div>
 
-      <div className="absolute top-28 -left-12 lg:-left-16 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.2s ease-in-out infinite 1.2s' }}>
+      <div className="absolute top-24 -left-28 lg:-left-40 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.2s ease-in-out infinite 1.2s' }}>
         <span className="font-medium text-rose-600 dark:text-rose-400">No fear</span>
       </div>
 
-      <div className="absolute bottom-8 -left-24 lg:-left-36 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.8s ease-in-out infinite 0.6s' }}>
+      <div className="absolute top-40 -left-36 lg:-left-52 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.8s ease-in-out infinite 0.6s' }}>
         <span className="font-medium text-indigo-600 dark:text-indigo-400">100% yours</span>
+      </div>
+
+      <div className="absolute bottom-20 -left-24 lg:-left-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.6s ease-in-out infinite 1.4s' }}>
+        <span className="font-medium text-fuchsia-600 dark:text-fuchsia-400">Web3 simple</span>
+      </div>
+
+      <div className="absolute bottom-4 -left-32 lg:-left-44 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.4s ease-in-out infinite 0.9s' }}>
+        <span className="font-medium text-orange-600 dark:text-orange-400">Intuitive UX</span>
       </div>
     </div>
   );
