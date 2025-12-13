@@ -17,6 +17,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { VideoCarousel } from '@/components/landing/VideoCarousel';
 import { useDashboardStats } from '@/lib/web3/hooks';
 import { useAccount } from '@/lib/thirdweb';
 import {
@@ -114,8 +115,8 @@ export default function LandingPage() {
 
       <Navbar />
 
-      {/* HERO SECTION */}
-      <section className="relative pt-16 pb-12 px-4">
+      {/* HERO SECTION - Closer to navbar */}
+      <section className="relative pt-8 pb-12 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             {/* Left: Text Content */}
@@ -178,68 +179,9 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right: Visual Element */}
+            {/* Right: Video Carousel */}
             <div className={`relative transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
-              <div className="relative mx-auto w-full max-w-sm">
-                {/* Main card - GLASS CRYSTAL */}
-                <div className="relative z-10 p-6 rounded-2xl glass-crystal" style={{ animation: 'float 6s ease-in-out infinite' }}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
-                      <Gift className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-bold text-gray-900 dark:text-white">{t('hero.card.title')}</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{t('hero.card.subtitle')}</p>
-                    </div>
-                  </div>
-
-                  {/* Progress bars */}
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-500 dark:text-gray-400">{t('hero.card.learn')}</span>
-                        <span className="text-blue-500 font-medium">+200 CGC</span>
-                      </div>
-                      <div className="h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-3/4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-500 dark:text-gray-400">{t('hero.card.earn')}</span>
-                        <span className="text-green-500 font-medium">+50 CGC</span>
-                      </div>
-                      <div className="h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-1/2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-500 dark:text-gray-400">{t('hero.card.govern')}</span>
-                        <span className="text-purple-500 font-medium">{t('hero.card.active')}</span>
-                      </div>
-                      <div className="h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Floating elements - GLASS CRYSTAL */}
-                <div className="absolute -top-8 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 1s' }}>
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                    <span className="font-medium text-gray-700 dark:text-white">{t('hero.floating.verified')}</span>
-                  </div>
-                </div>
-
-                <div className="absolute -bottom-8 -left-20 lg:-left-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }}>
-                  <div className="flex items-center gap-1.5">
-                    <Wallet className="w-3.5 h-3.5 text-blue-500" />
-                    <span className="font-medium text-gray-700 dark:text-white">{t('hero.floating.gasless')}</span>
-                  </div>
-                </div>
-              </div>
+              <VideoCarousel />
             </div>
           </div>
         </div>
