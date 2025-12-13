@@ -13,7 +13,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -26,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { SpecialInviteFlow } from '@/components/special-invite/SpecialInviteFlow';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
+import { useTranslations } from 'next-intl';
 
 interface InviteData {
   code: string;
@@ -43,6 +43,7 @@ export default function SpecialInvitePage() {
   const params = useParams();
   const router = useRouter();
   const inviteCode = params.code as string;
+  const t = useTranslations('invite');
 
   // State
   const [pageState, setPageState] = useState<PageState>('loading');
@@ -99,7 +100,7 @@ export default function SpecialInvitePage() {
             <CardContent className="p-8">
               <div className="flex flex-col items-center justify-center min-h-[400px]">
                 <Loader2 className="h-12 w-12 text-purple-500 animate-spin mb-4" />
-                <p className="text-gray-600 dark:text-gray-400">Cargando tu invitacion...</p>
+                <p className="text-gray-600 dark:text-gray-400">{t('loading')}</p>
               </div>
             </CardContent>
           </Card>
@@ -114,13 +115,13 @@ export default function SpecialInvitePage() {
                   <AlertCircle className="h-12 w-12 text-red-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  Invitacion Invalida
+                  {t('invalid.title')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-                  {error || 'Este enlace de invitacion es invalido o ha expirado.'}
+                  {error || t('invalid.desc')}
                 </p>
                 <Button onClick={() => router.push('/')}>
-                  Ir al Inicio
+                  {t('invalid.goHome')}
                 </Button>
               </div>
             </CardContent>
@@ -165,7 +166,7 @@ export default function SpecialInvitePage() {
                   CryptoGift DAO
                 </h1>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Invitacion Especial
+                  {t('special.title')}
                 </span>
               </div>
             </div>

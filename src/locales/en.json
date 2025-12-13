@@ -27,7 +27,8 @@
       "community": "Claim Rate",
       "tasksCompleted": "Beta Transactions",
       "distributed": "Initial Supply",
-      "milestones": "Days Beta"
+      "milestones": "Days Beta",
+      "verified": "Verified on BaseScan (Testnet)"
     },
     "problem": {
       "title": "Adoption Breaks at the First Step",
@@ -115,6 +116,33 @@
       "badge": "Our Team",
       "title": "The Team",
       "subtitle": "Lean, founder-led team combining product, Web3 dev and growth. 104 days of closed beta with 0 critical bugs and 85.7% claim rate. Ready to scale with funding & partners."
+    }
+  },
+  "invite": {
+    "loading": "Loading your invitation...",
+    "alreadyClaimed": {
+      "title": "You Already Claimed This Invitation",
+      "desc": "You are already part of CryptoGift DAO through this permanent link.",
+      "shareTip": "This is a permanent link - You can share it with others!",
+      "goToDashboard": "Go to Dashboard"
+    },
+    "maxReached": {
+      "title": "Limit Reached",
+      "desc": "This link has reached its maximum limit of {max} claims.",
+      "goHome": "Go to Home"
+    },
+    "invalid": {
+      "title": "Invalid Invitation",
+      "desc": "This invitation link is not valid or has been disabled.",
+      "goHome": "Go to Home"
+    },
+    "permanent": {
+      "title": "Permanent Invitation",
+      "badge": "Unlimited"
+    },
+    "special": {
+      "title": "Special Invitation",
+      "badge": "Special"
     }
   },
   "navigation": {
@@ -912,7 +940,145 @@
         "created": "Links Created",
         "claimed": "Successfully Claimed",
         "pending": "Pending Completion"
+      },
+      "image": {
+        "label": "Custom Image (optional)",
+        "uploadPrompt": "Click to upload an image",
+        "uploadFormat": "JPG, PNG or GIF (max 5MB)",
+        "uploadingImage": "Uploading image...",
+        "invalidImage": "Please select a valid image",
+        "imageTooLarge": "Image must be less than 5MB"
+      },
+      "password": {
+        "shareTitle": "Password to Share",
+        "shareHelp": "Share this password with the person you invite. They'll need it to access.",
+        "copiedLabel": "Copied"
+      },
+      "history": {
+        "title": "Previous Special Links",
+        "loading": "Loading...",
+        "status": {
+          "expired": "Expired",
+          "claimed": "Claimed",
+          "active": "Active"
+        },
+        "claimedBy": "Claimed by",
+        "showMessage": "Show Message",
+        "hideMessage": "Hide",
+        "delete": "Delete"
       }
+    },
+    "permanent": {
+      "title": "Permanent Referral Link",
+      "subtitle": "Multi-use links that track all users who join",
+      "badge": "Never Expires",
+      "description": "Create permanent links that never expire and allow multiple users. Track clicks, conversions and see the complete history of everyone who joined through your link.",
+      "benefits": {
+        "neverExpires": "Never Expires",
+        "unlimitedUsers": "Unlimited Users",
+        "fullAnalytics": "Complete Analytics"
+      },
+      "form": {
+        "customTitle": "Custom Title (optional)",
+        "customTitlePlaceholder": "Permanent Invitation to CryptoGift DAO",
+        "customImage": "Custom Image (optional)",
+        "uploadPrompt": "Click to upload an image",
+        "uploadFormat": "JPG, PNG or GIF (max 5MB)",
+        "invalidImage": "Please select a valid image",
+        "imageTooLarge": "Image must be less than 5MB",
+        "password": "Password (optional)",
+        "passwordPlaceholder": "Leave empty if no password required",
+        "passwordHelp": "Protect your link with a password (visible for sharing)",
+        "passwordVisible": "Visible",
+        "maxClaims": "User Limit (optional)",
+        "maxClaimsPlaceholder": "Leave empty for unlimited users",
+        "maxClaimsHelp": "Set a maximum number of users who can claim this link (empty = unlimited)",
+        "customMessage": "Custom Message (optional)",
+        "customMessagePlaceholder": "I invite you to join CryptoGift DAO...",
+        "customMessageHelp": "Customize the welcome message"
+      },
+      "generate": "Generate Permanent Link",
+      "generating": "Generating...",
+      "uploadingImage": "Uploading image...",
+      "linkCreated": "✅ Permanent Link Created",
+      "copied": "Copied",
+      "copy": "Copy",
+      "passwordShare": {
+        "title": "Password to Share",
+        "help": "Share this password with the people you invite. They'll need it to access."
+      },
+      "createAnother": "Create Another Link",
+      "history": {
+        "title": "Your Permanent Links",
+        "loading": "Loading...",
+        "status": {
+          "active": "Active",
+          "paused": "Paused",
+          "disabled": "Disabled",
+          "unknown": "Unknown"
+        },
+        "badgePermanent": "Permanent",
+        "analytics": {
+          "clicks": "Clicks",
+          "claimed": "Claimed",
+          "completed": "Completed",
+          "conversion": "Conversion"
+        },
+        "viewHistory": "Hide History",
+        "viewUsers": "View {count} Users",
+        "pause": "Pause",
+        "resume": "Resume",
+        "delete": "Delete",
+        "usersTitle": "Users Who Joined",
+        "userCompleted": "✅ Completed",
+        "userPending": "⏳ Pending",
+        "noUsers": "No users have joined yet"
+      },
+      "deleteConfirm": "Are you sure you want to delete this permanent link?\n\nThis action CANNOT be undone. All associated data will be deleted:\n- The link will stop working\n- User history will be lost\n- Statistics will be deleted\n\nIf you just want to pause the link temporarily, use the 'Pause' button instead.",
+      "errorGenerating": "Error generating permanent link. Please try again.",
+      "errorDeleting": "Error deleting the link. Please try again."
+    }
+  },
+  "inviteCard": {
+    "status": {
+      "active": "ACTIVE",
+      "expired": "EXPIRED",
+      "claimed": "CLAIMED",
+      "revoked": "REVOKED"
+    },
+    "clickToView": "Click to view full image",
+    "clickToEnlarge": "Click to enlarge",
+    "placeholder": {
+      "title": "Special Invitation",
+      "subtitle": "CryptoGift DAO"
+    },
+    "updateStatus": "Update status",
+    "code": "Code",
+    "referredBy": "🔗 Referred by",
+    "referrerMessage": "Referrer's Message",
+    "timeRemaining": "Time Remaining",
+    "expired": "Expired",
+    "daysRemaining": "{days} day(s) remaining",
+    "hoursRemaining": "{hours} hour(s) remaining",
+    "expiresSoon": "Expires soon",
+    "details": {
+      "type": "Type",
+      "typeValue": "Special DAO Invitation",
+      "network": "Network",
+      "networkValue": "Base Mainnet",
+      "expires": "Expires"
+    },
+    "messages": {
+      "claimed": "✅ Invitation claimed successfully",
+      "expired": "⏰ This invitation has expired",
+      "revoked": "❌ This invitation has been revoked"
+    },
+    "metadata": {
+      "description": "Special invitation to join CryptoGift DAO",
+      "type": "Type",
+      "typeValue": "Special Invitation",
+      "status": "Status",
+      "referrer": "Referrer"
     }
   },
   "funding": {

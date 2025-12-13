@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { NFTImageModal } from './NFTImageModal';
 
 interface InviteImageCardProps {
@@ -39,19 +40,20 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
   className = '',
   onRefresh
 }) => {
+  const t = useTranslations('inviteCard');
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   // Fallback to local image if Supabase image fails
   const displayImage = imageError || !image ? '/special-referral.jpg' : image;
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active': return { icon: '🟢', text: 'ACTIVA' };
-      case 'expired': return { icon: '⏰', text: 'EXPIRADA' };
-      case 'claimed': return { icon: '✅', text: 'RECLAMADA' };
-      case 'revoked': return { icon: '❌', text: 'REVOCADA' };
-      default: return { icon: '❓', text: status.toUpperCase() };
+  const getStatusIcon = (statusValue: string) => {
+    switch (statusValue) {
+      case 'active': return { icon: '🟢', text: t('status.active') };
+      case 'expired': return { icon: '⏰', text: t('status.expired') };
+      case 'claimed': return { icon: '✅', text: t('status.claimed') };
+      case 'revoked': return { icon: '❌', text: t('status.revoked') };
+      default: return { icon: '❓', text: statusValue.toUpperCase() };
     }
   };
 
@@ -74,14 +76,14 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
     const expiry = new Date(expiresAt);
     const diff = expiry.getTime() - now.getTime();
 
-    if (diff <= 0) return 'Expirada';
+    if (diff <= 0) return t('expired');
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
-    if (days > 0) return `${days} dia${days > 1 ? 's' : ''} restante${days > 1 ? 's' : ''}`;
-    if (hours > 0) return `${hours} hora${hours > 1 ? 's' : ''} restante${hours > 1 ? 's' : ''}`;
-    return 'Expira pronto';
+    if (days > 0) return t('daysRemaining', { days });
+    if (hours > 0) return t('hoursRemaining', { hours });
+    return t('expiresSoon');
   };
 
   return (
@@ -92,7 +94,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
           <div
             className="nft-card-image-container relative cursor-pointer group"
             onClick={() => setShowImageModal(true)}
-            title="Click para ver imagen completa"
+            title={t('clickToView')}
           >
             <Image
               src={displayImage}
@@ -119,7 +121,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
               </svg>
-              Click para ampliar
+              {t('clickToEnlarge')}
             </div>
           </div>
         ) : (
@@ -129,8 +131,8 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
               <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent" />
               <div className="relative z-10 text-center">
                 <div className="text-8xl mb-4 drop-shadow-lg">🎟️</div>
-                <div className="text-white font-bold text-lg">Invitacion Especial</div>
-                <div className="text-white/80 text-sm">CryptoGift DAO</div>
+                <div className="text-white font-bold text-lg">{t('placeholder.title')}</div>
+                <div className="text-white/80 text-sm">{t('placeholder.subtitle')}</div>
               </div>
 
               {/* GEOMETRIC PATTERNS */}
@@ -157,7 +159,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
                 onRefresh();
               }}
               className="p-2 bg-white/80 dark:bg-gray-800/80 rounded-full hover:bg-white dark:hover:bg-gray-800 transition-colors"
-              title="Actualizar estado"
+              title={t('updateStatus')}
             >
               <svg className="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -176,12 +178,12 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
           </h3>
           {inviteCode && (
             <p className="text-sm text-gray-600 dark:text-gray-400 font-mono">
-              Codigo: {inviteCode}
+              {t('code')}: {inviteCode}
             </p>
           )}
           {referrerCode && (
             <p className="text-xs text-purple-600 dark:text-purple-400 font-medium mt-1">
-              🔗 Referido por: {referrerCode}
+              {t('referredBy')}: {referrerCode}
             </p>
           )}
         </div>
@@ -193,7 +195,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
               <span className="text-xl mr-2">💬</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-purple-800 dark:text-purple-300 mb-1">
-                  Mensaje del Referidor
+                  {t('referrerMessage')}
                 </p>
                 <p className="text-sm text-purple-700 dark:text-purple-400 italic">
                   &ldquo;{customMessage}&rdquo;
@@ -208,7 +210,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Tiempo Restante
+                {t('timeRemaining')}
               </span>
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 {getTimeRemaining()}
@@ -220,24 +222,24 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
         {/* Invite Details */}
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">Tipo:</span>
+            <span className="text-gray-600 dark:text-gray-400">{t('details.type')}:</span>
             <span className="text-gray-900 dark:text-white font-medium">
-              Invitacion Especial DAO
+              {t('details.typeValue')}
             </span>
           </div>
 
           <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">Network:</span>
+            <span className="text-gray-600 dark:text-gray-400">{t('details.network')}:</span>
             <span className="text-gray-900 dark:text-white">
-              Base Mainnet
+              {t('details.networkValue')}
             </span>
           </div>
 
           {expiresAt && (
             <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Expira:</span>
+              <span className="text-gray-600 dark:text-gray-400">{t('details.expires')}:</span>
               <span className="text-gray-900 dark:text-white">
-                {new Date(expiresAt).toLocaleDateString('es-ES', {
+                {new Date(expiresAt).toLocaleDateString(undefined, {
                   day: 'numeric',
                   month: 'short',
                   year: 'numeric'
@@ -251,7 +253,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
         {status === 'claimed' && (
           <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
             <p className="text-green-800 dark:text-green-300 text-sm font-medium">
-              ✅ Invitacion reclamada exitosamente
+              {t('messages.claimed')}
             </p>
           </div>
         )}
@@ -259,7 +261,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
         {status === 'expired' && (
           <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3">
             <p className="text-orange-800 dark:text-orange-300 text-sm font-medium">
-              ⏰ Esta invitacion ha expirado
+              {t('messages.expired')}
             </p>
           </div>
         )}
@@ -267,7 +269,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
         {status === 'revoked' && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
             <p className="text-red-800 dark:text-red-300 text-sm font-medium">
-              ❌ Esta invitacion ha sido revocada
+              {t('messages.revoked')}
             </p>
           </div>
         )}
@@ -281,12 +283,12 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
         name={name}
         tokenId={inviteCode}
         metadata={{
-          description: customMessage || 'Invitacion especial para unirse a CryptoGift DAO',
+          description: customMessage || t('metadata.description'),
           attributes: [
-            { trait_type: 'Tipo', value: 'Invitacion Especial' },
-            { trait_type: 'Network', value: 'Base Mainnet' },
-            { trait_type: 'Estado', value: statusInfo.text },
-            ...(referrerCode ? [{ trait_type: 'Referidor', value: referrerCode }] : [])
+            { trait_type: t('metadata.type'), value: t('metadata.typeValue') },
+            { trait_type: t('details.network'), value: t('details.networkValue') },
+            { trait_type: t('metadata.status'), value: statusInfo.text },
+            ...(referrerCode ? [{ trait_type: t('metadata.referrer'), value: referrerCode }] : [])
           ]
         }}
       />

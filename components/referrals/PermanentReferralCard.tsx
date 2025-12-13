@@ -132,8 +132,8 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
   const [pausingInviteCode, setPausingInviteCode] = useState<string | null>(null);
   const [qrModalInvite, setQrModalInvite] = useState<{ code: string; url: string } | null>(null);
 
-  const defaultMessage = 'Te invito a unirte a CryptoGift DAO, una comunidad descentralizada donde puedes contribuir y ganar recompensas. Este enlace nunca expira!';
-  const defaultTitle = 'Invitacion Permanente a CryptoGift DAO';
+  const defaultMessage = t('form.customMessagePlaceholder');
+  const defaultTitle = t('form.customTitlePlaceholder');
 
   // Load permanent invites on mount and when wallet changes
   useEffect(() => {
@@ -215,14 +215,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
   const handleDeleteInvite = useCallback(async (inviteCode: string) => {
     if (!walletAddress) return;
 
-    const confirmed = window.confirm(
-      '¿Estás seguro de que quieres eliminar este enlace permanente?\n\n' +
-      'Esta acción NO se puede deshacer. Se eliminarán todos los datos asociados:\n' +
-      '- El enlace dejará de funcionar\n' +
-      '- Se perderá el historial de usuarios\n' +
-      '- Se eliminarán las estadísticas\n\n' +
-      'Si solo quieres pausar el enlace temporalmente, usa el botón "Pausar" en su lugar.'
-    );
+    const confirmed = window.confirm(t('deleteConfirm'));
 
     if (!confirmed) return;
 
@@ -247,11 +240,11 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
         console.log(`🗑️ Deleted permanent invite ${inviteCode}`);
       } else {
         const data = await response.json();
-        alert(`Error al eliminar: ${data.error || 'Error desconocido'}`);
+        alert(`${t('errorDeleting')}: ${data.error || ''}`);
       }
     } catch (error) {
       console.error('Error deleting invite:', error);
-      alert('Error al eliminar el enlace. Por favor intenta de nuevo.');
+      alert(t('errorDeleting'));
     } finally {
       setPausingInviteCode(null);
     }
@@ -273,13 +266,13 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return { color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300', text: 'Activo', icon: <Activity className="h-3 w-3" /> };
+        return { color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300', text: t('history.status.active'), icon: <Activity className="h-3 w-3" /> };
       case 'paused':
-        return { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300', text: 'Pausado', icon: <Pause className="h-3 w-3" /> };
+        return { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300', text: t('history.status.paused'), icon: <Pause className="h-3 w-3" /> };
       case 'disabled':
-        return { color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400', text: 'Deshabilitado', icon: <X className="h-3 w-3" /> };
+        return { color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400', text: t('history.status.disabled'), icon: <X className="h-3 w-3" /> };
       default:
-        return { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', text: 'Desconocido', icon: null };
+        return { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', text: t('history.status.unknown'), icon: null };
     }
   };
 
@@ -290,13 +283,13 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Por favor selecciona una imagen valida');
+      alert(t('form.invalidImage'));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('La imagen debe ser menor a 5MB');
+      alert(t('form.imageTooLarge'));
       return;
     }
 
@@ -423,7 +416,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
       setShowForm(false);
     } catch (error) {
       console.error('Error generating permanent link:', error);
-      alert('Error al generar enlace permanente. Intenta de nuevo.');
+      alert(t('errorGenerating'));
     } finally {
       setIsGenerating(false);
       setIsUploadingImage(false);
@@ -471,14 +464,14 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
             </div>
             <div>
               <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
-                <span>Enlace Permanente de Referido</span>
+                <span>{t('title')}</span>
                 <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs">
                   <Infinity className="h-3 w-3 mr-1" />
-                  Nunca Expira
+                  {t('badge')}
                 </Badge>
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
-                Enlaces multi-uso que rastrean todos los usuarios que ingresan
+                {t('subtitle')}
               </CardDescription>
             </div>
           </div>
@@ -488,8 +481,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
       <CardContent className="space-y-6">
         {/* Description */}
         <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-          Crea enlaces permanentes que <strong>nunca expiran</strong> y permiten <strong>multiples usuarios</strong>.
-          Rastrea clicks, conversiones y ve el historial completo de todos los que se unieron a traves de tu enlace.
+          {t('description')}
         </p>
 
         {/* Benefits */}
@@ -498,7 +490,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
             <Infinity className="h-5 w-5 text-purple-500 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                Nunca Expira
+                {t('benefits.neverExpires')}
               </p>
             </div>
           </div>
@@ -506,7 +498,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
             <Users className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                Usuarios Ilimitados
+                {t('benefits.unlimitedUsers')}
               </p>
             </div>
           </div>
@@ -514,7 +506,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
             <BarChart3 className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                Analytics Completo
+                {t('benefits.fullAnalytics')}
               </p>
             </div>
           </div>
@@ -527,11 +519,11 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
             <div className="space-y-2">
               <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
                 <Sparkles className="h-4 w-4 mr-2 text-purple-500" />
-                Titulo Personalizado (opcional)
+                {t('form.customTitle')}
               </label>
               <Input
                 type="text"
-                placeholder="Invitacion Permanente a CryptoGift DAO"
+                placeholder={t('form.customTitlePlaceholder')}
                 value={customTitle}
                 onChange={(e) => setCustomTitle(e.target.value)}
                 className="bg-white/70 dark:bg-slate-800/50"
@@ -543,7 +535,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
             <div className="space-y-2">
               <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
                 <ImagePlus className="h-4 w-4 mr-2 text-purple-500" />
-                Imagen Personalizada (opcional)
+                {t('form.customImage')}
               </label>
 
               {customImage ? (
@@ -569,10 +561,10 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                 >
                   <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Haz click para subir una imagen
+                    {t('form.uploadPrompt')}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    JPG, PNG o GIF (max 5MB)
+                    {t('form.uploadFormat')}
                   </p>
                 </div>
               )}
@@ -590,12 +582,12 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
             <div className="space-y-2">
               <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
                 <Lock className="h-4 w-4 mr-2 text-gray-500" />
-                Contrasena (opcional)
+                {t('form.password')}
               </label>
               <div className="relative">
                 <Input
                   type="text"
-                  placeholder="Deja vacio si no requiere contrasena"
+                  placeholder={t('form.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-white/70 dark:bg-slate-800/50 pr-10 font-mono"
@@ -604,11 +596,11 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
               </div>
               <div className="flex items-center gap-2">
                 <p className="text-xs text-gray-500 dark:text-gray-400 flex-1">
-                  Protege tu enlace con una contrasena (visible para compartir)
+                  {t('form.passwordHelp')}
                 </p>
                 <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
                   <Eye className="h-3 w-3" />
-                  Visible
+                  {t('form.passwordVisible')}
                 </span>
               </div>
             </div>
@@ -617,18 +609,18 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
             <div className="space-y-2">
               <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
                 <Users className="h-4 w-4 mr-2 text-purple-500" />
-                Limite de Usuarios (opcional)
+                {t('form.maxClaims')}
               </label>
               <Input
                 type="number"
-                placeholder="Deja vacio para usuarios ilimitados"
+                placeholder={t('form.maxClaimsPlaceholder')}
                 value={maxClaims}
                 onChange={(e) => setMaxClaims(e.target.value)}
                 className="bg-white/70 dark:bg-slate-800/50"
                 min="1"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Establece un limite maximo de usuarios que pueden reclamar este enlace (vacio = ilimitado)
+                {t('form.maxClaimsHelp')}
               </p>
             </div>
 
@@ -636,10 +628,10 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
             <div className="space-y-2">
               <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
                 <Sparkles className="h-4 w-4 mr-2 text-purple-500" />
-                Mensaje Personalizado (opcional)
+                {t('form.customMessage')}
               </label>
               <Textarea
-                placeholder="Te invito a unirte a CryptoGift DAO..."
+                placeholder={t('form.customMessagePlaceholder')}
                 value={customMessage}
                 onChange={(e) => setCustomMessage(e.target.value)}
                 className="bg-white/70 dark:bg-slate-800/50 min-h-[100px] resize-none"
@@ -647,7 +639,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
               />
               <div className="flex justify-between">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Personaliza el mensaje de bienvenida
+                  {t('form.customMessageHelp')}
                 </p>
                 <span className="text-xs text-gray-400">
                   {customMessage.length}/500
@@ -664,12 +656,12 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  {isUploadingImage ? 'Subiendo imagen...' : 'Generando...'}
+                  {isUploadingImage ? t('uploadingImage') : t('generating')}
                 </>
               ) : (
                 <>
                   <Infinity className="h-4 w-4 mr-2" />
-                  Generar Enlace Permanente
+                  {t('generate')}
                 </>
               )}
             </Button>
@@ -682,7 +674,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
               <div className="flex items-center space-x-2 mb-3">
                 <Check className="h-5 w-5 text-green-500" />
                 <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                  ✅ Enlace Permanente Creado
+                  {t('linkCreated')}
                 </span>
               </div>
 
@@ -700,12 +692,12 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                   {copied ? (
                     <>
                       <Check className="h-4 w-4 text-green-500 mr-1" />
-                      Copiado
+                      {t('copied')}
                     </>
                   ) : (
                     <>
                       <Copy className="h-4 w-4 mr-1" />
-                      Copiar
+                      {t('copy')}
                     </>
                   )}
                 </Button>
@@ -718,11 +710,11 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                 <div className="flex items-center space-x-2 mb-3">
                   <Lock className="h-5 w-5 text-purple-500" />
                   <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
-                    Contrasena para Compartir
+                    {t('passwordShare.title')}
                   </span>
                   <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs">
                     <Eye className="h-3 w-3 mr-1" />
-                    Visible
+                    {t('form.passwordVisible')}
                   </Badge>
                 </div>
 
@@ -739,19 +731,19 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                     {copiedPassword ? (
                       <>
                         <Check className="h-4 w-4 text-purple-500 mr-1" />
-                        Copiada
+                        {t('copied')}
                       </>
                     ) : (
                       <>
                         <Copy className="h-4 w-4 mr-1" />
-                        Copiar
+                        {t('copy')}
                       </>
                     )}
                   </Button>
                 </div>
 
                 <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">
-                  Comparte esta contrasena con las personas que invites. La necesitaran para acceder.
+                  {t('passwordShare.help')}
                 </p>
               </div>
             )}
@@ -763,7 +755,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                 className="flex-1"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
-                Crear Otro Enlace
+                {t('createAnother')}
               </Button>
               <Button
                 onClick={() => generatedLink && window.open(generatedLink, '_blank')}
@@ -787,7 +779,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
               <div className="flex items-center space-x-2">
                 <History className="h-5 w-5 text-purple-500" />
                 <span className="font-medium text-gray-700 dark:text-gray-300">
-                  Tus Enlaces Permanentes
+                  {t('history.title')}
                 </span>
                 <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs">
                   {permanentInvites.length}
@@ -806,7 +798,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                 {isLoadingInvites ? (
                   <div className="flex items-center justify-center py-4">
                     <Loader2 className="h-5 w-5 animate-spin text-purple-500" />
-                    <span className="ml-2 text-sm text-gray-500">Cargando...</span>
+                    <span className="ml-2 text-sm text-gray-500">{t('history.loading')}</span>
                   </div>
                 ) : (
                   permanentInvites.map((invite) => {
@@ -833,7 +825,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                             )}
                             <Badge variant="outline" className="text-xs">
                               <Infinity className="h-3 w-3 mr-1" />
-                              Permanente
+                              {t('history.badgePermanent')}
                             </Badge>
                           </div>
                           <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
@@ -845,19 +837,19 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                         {/* Analytics Stats */}
                         <div className="grid grid-cols-4 gap-2">
                           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 text-center">
-                            <div className="text-xs text-blue-600 dark:text-blue-400 mb-1">Clicks</div>
+                            <div className="text-xs text-blue-600 dark:text-blue-400 mb-1">{t('history.analytics.clicks')}</div>
                             <div className="text-lg font-bold text-blue-700 dark:text-blue-300">{invite.totalClicks || 0}</div>
                           </div>
                           <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2 text-center">
-                            <div className="text-xs text-green-600 dark:text-green-400 mb-1">Reclamados</div>
+                            <div className="text-xs text-green-600 dark:text-green-400 mb-1">{t('history.analytics.claimed')}</div>
                             <div className="text-lg font-bold text-green-700 dark:text-green-300">{invite.totalClaims || 0}</div>
                           </div>
                           <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-2 text-center">
-                            <div className="text-xs text-purple-600 dark:text-purple-400 mb-1">Completados</div>
+                            <div className="text-xs text-purple-600 dark:text-purple-400 mb-1">{t('history.analytics.completed')}</div>
                             <div className="text-lg font-bold text-purple-700 dark:text-purple-300">{invite.totalCompleted || 0}</div>
                           </div>
                           <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2 text-center">
-                            <div className="text-xs text-amber-600 dark:text-amber-400 mb-1">Conversion</div>
+                            <div className="text-xs text-amber-600 dark:text-amber-400 mb-1">{t('history.analytics.conversion')}</div>
                             <div className="text-lg font-bold text-amber-700 dark:text-amber-300">{(invite.conversionRate || 0).toFixed(0)}%</div>
                           </div>
                         </div>
@@ -906,7 +898,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                             className="text-xs"
                           >
                             <UserCheck className="h-3 w-3 mr-1" />
-                            {isExpanded ? 'Ocultar Historial' : `Ver ${invite.totalClaims} Usuarios`}
+                            {isExpanded ? t('history.viewHistory') : t('history.viewUsers', { count: invite.totalClaims })}
                           </Button>
 
                           {/* QR Code Button */}
@@ -933,12 +925,12 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                             ) : invite.status === 'active' ? (
                               <>
                                 <Pause className="h-3 w-3 mr-1" />
-                                Pausar
+                                {t('history.pause')}
                               </>
                             ) : (
                               <>
                                 <Play className="h-3 w-3 mr-1" />
-                                Reanudar
+                                {t('history.resume')}
                               </>
                             )}
                           </Button>
@@ -956,7 +948,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                             ) : (
                               <>
                                 <X className="h-3 w-3 mr-1" />
-                                Eliminar
+                                {t('history.delete')}
                               </>
                             )}
                           </Button>
@@ -967,7 +959,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                           <div className="mt-3 p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
                             <h4 className="text-sm font-medium text-purple-800 dark:text-purple-300 mb-2 flex items-center gap-2">
                               <UserCheck className="h-4 w-4" />
-                              Usuarios que Ingresaron ({claims.length})
+                              {t('history.usersTitle')} ({claims.length})
                             </h4>
                             {loadingClaimHistory === invite.inviteCode ? (
                               <div className="flex items-center justify-center py-2">
@@ -986,11 +978,11 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                                     <div className="flex items-center gap-2">
                                       {claim.completedAt ? (
                                         <Badge className="bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 text-xs">
-                                          ✅ Completado
+                                          {t('history.userCompleted')}
                                         </Badge>
                                       ) : (
                                         <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300 text-xs">
-                                          ⏳ Pendiente
+                                          {t('history.userPending')}
                                         </Badge>
                                       )}
                                     </div>
@@ -999,7 +991,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                               </div>
                             ) : (
                               <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-2">
-                                Aun no hay usuarios que hayan ingresado
+                                {t('history.noUsers')}
                               </p>
                             )}
                           </div>

@@ -177,12 +177,12 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
   const getStatusBadge = (status: string, expiresAt: string) => {
     const isExpired = new Date(expiresAt) < new Date();
     if (isExpired) {
-      return { color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400', text: 'Expirado' };
+      return { color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400', text: t('history.status.expired') };
     }
     if (status === 'claimed') {
-      return { color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300', text: 'Reclamado' };
+      return { color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300', text: t('history.status.claimed') };
     }
-    return { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', text: 'Activo' };
+    return { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', text: t('history.status.active') };
   };
 
   // Handle image file selection
@@ -192,13 +192,13 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Por favor selecciona una imagen valida');
+      alert(t('image.invalidImage'));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('La imagen debe ser menor a 5MB');
+      alert(t('image.imageTooLarge'));
       return;
     }
 
@@ -441,7 +441,7 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
             <div className="space-y-2">
               <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
                 <ImagePlus className="h-4 w-4 mr-2 text-purple-500" />
-                Imagen Personalizada (opcional)
+                {t('image.label')}
               </label>
 
               {customImage ? (
@@ -467,10 +467,10 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
                 >
                   <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Haz click para subir una imagen
+                    {t('image.uploadPrompt')}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    JPG, PNG o GIF (max 5MB)
+                    {t('image.uploadFormat')}
                   </p>
                 </div>
               )}
@@ -543,7 +543,7 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  {isUploadingImage ? 'Subiendo imagen...' : t('generating')}
+                  {isUploadingImage ? t('image.uploadingImage') : t('generating')}
                 </>
               ) : (
                 <>
@@ -597,7 +597,7 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
                 <div className="flex items-center space-x-2 mb-3">
                   <Lock className="h-5 w-5 text-amber-500" />
                   <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
-                    Contrasena para Compartir
+                    {t('password.shareTitle')}
                   </span>
                   <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-xs">
                     <Eye className="h-3 w-3 mr-1" />
@@ -618,19 +618,19 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
                     {copiedPassword ? (
                       <>
                         <Check className="h-4 w-4 text-amber-500 mr-1" />
-                        Copiada
+                        {t('password.copiedLabel')}
                       </>
                     ) : (
                       <>
                         <Copy className="h-4 w-4 mr-1" />
-                        Copiar
+                        {t('copyLink')}
                       </>
                     )}
                   </Button>
                 </div>
 
                 <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
-                  Comparte esta contrasena con la persona que invitas. La necesitara para acceder.
+                  {t('password.shareHelp')}
                 </p>
               </div>
             )}
@@ -666,7 +666,7 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
               <div className="flex items-center space-x-2">
                 <History className="h-5 w-5 text-purple-500" />
                 <span className="font-medium text-gray-700 dark:text-gray-300">
-                  Links Especiales Anteriores
+                  {t('history.title')}
                 </span>
                 <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs">
                   {previousInvites.length}
@@ -685,7 +685,7 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
                 {isLoadingInvites ? (
                   <div className="flex items-center justify-center py-4">
                     <Loader2 className="h-5 w-5 animate-spin text-purple-500" />
-                    <span className="ml-2 text-sm text-gray-500">Cargando...</span>
+                    <span className="ml-2 text-sm text-gray-500">{t('history.loading')}</span>
                   </div>
                 ) : (
                   previousInvites.map((invite) => {
@@ -743,7 +743,7 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
                         {invite.claimedBy && (
                           <div className="flex items-center text-xs text-green-600 dark:text-green-400">
                             <CheckCircle className="h-3 w-3 mr-1" />
-                            Reclamado por: {invite.claimedBy.slice(0, 6)}...{invite.claimedBy.slice(-4)}
+                            {t('history.claimedBy')}: {invite.claimedBy.slice(0, 6)}...{invite.claimedBy.slice(-4)}
                           </div>
                         )}
 
@@ -760,7 +760,7 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
                               className="text-xs"
                             >
                               <MessageSquare className="h-3 w-3 mr-1" />
-                              {selectedMessage === invite.customMessage ? 'Ocultar' : 'Ver Mensaje'}
+                              {selectedMessage === invite.customMessage ? t('history.hideMessage') : t('history.showMessage')}
                             </Button>
                           )}
 
@@ -788,7 +788,7 @@ export function SpecialReferralCard({ referralCode, walletAddress }: SpecialRefe
                             ) : (
                               <>
                                 <Trash2 className="h-3 w-3 mr-1" />
-                                Eliminar
+                                {t('history.delete')}
                               </>
                             )}
                           </Button>
