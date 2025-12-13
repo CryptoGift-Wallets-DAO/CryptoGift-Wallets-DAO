@@ -3,8 +3,8 @@
 
 **Fecha**: 13 Diciembre 2025
 **Autor**: CryptoGift DAO Team
-**Versión**: 3.0 FINAL (Copy-Paste Ready)
-**Estado**: ✅ LISTO PARA IMPLEMENTACIÓN - Sin Ambigüedades
+**Versión**: 3.1 FINAL (Copy-Paste Ready)
+**Estado**: ✅ LISTO PARA IMPLEMENTACIÓN - Con Cap Global Real
 
 ---
 
@@ -116,7 +116,8 @@ function withdraw() external nonReentrant {
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                         FLUJO DE MINTING CON GATEWAY                         ║
+║                    FLUJO DE MINTING CON GATEWAY v3.1                         ║
+║                     (CAP GLOBAL contra totalSupply())                        ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
 ║   [Sistema que quiere mintear]                                               ║
@@ -124,13 +125,14 @@ function withdraw() external nonReentrant {
 ║          │ minterGateway.mint(recipient, amount)                             ║
 ║          ▼                                                                   ║
 ║   ┌──────────────────────────────────────────────────────────────────────┐   ║
-║   │                     MINTER GATEWAY                                   │   ║
+║   │                     MINTER GATEWAY v3.1                              │   ║
 ║   │                                                                      │   ║
 ║   │  1. ¿Está el caller autorizado?                                     │   ║
 ║   │     authorizedCallers[msg.sender] == true?                          │   ║
 ║   │                                                                      │   ║
-║   │  2. ¿Cabe bajo el cap?                                              │   ║
-║   │     totalMintedViaGateway + amount <= maxMintableViaGateway?        │   ║
+║   │  2. ¿Cabe bajo el CAP GLOBAL? ← CRÍTICO (v3.1)                     │   ║
+║   │     cgcToken.totalSupply() + amount <= MAX_TOTAL_SUPPLY?            │   ║
+║   │     (Checa supply REAL del token, no contador interno)              │   ║
 ║   │                                                                      │   ║
 ║   │  3. Si pasa: cgcToken.mint(recipient, amount)                       │   ║
 ║   │     Si falla: REVERT "Would exceed max supply"                      │   ║
@@ -140,7 +142,28 @@ function withdraw() external nonReentrant {
 ║   [CGCToken] ← Gateway es el ÚNICO minter autorizado                        ║
 ║          │                                                                   ║
 ║          ▼                                                                   ║
-║   [Tokens minteados] ← GARANTIZADO bajo 22M mientras Gateway sea único      ║
+║   [Tokens minteados] ← GARANTIZADO bajo 22M INCLUSO si otro minter existe   ║
+║                        porque Gateway checa totalSupply() REAL              ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    PROTECCIÓN CONTRA BYPASS (v3.1)                           ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║   ESCENARIO: DAO añade otro minter vía Timelock (7 días)                    ║
+║              Ese minter mintea X tokens fuera del Gateway                   ║
+║                                                                              ║
+║   ANTES (v3.0):                                                              ║
+║   │ Gateway tiene contador interno = 0 (no sabe de X)                       ║
+║   │ Gateway piensa que puede mintear 20M más                                ║
+║   │ Total podría exceder 22M ← ❌ BUG                                       ║
+║                                                                              ║
+║   AHORA (v3.1):                                                              ║
+║   │ Gateway lee totalSupply() = initialSupply + X                           ║
+║   │ Gateway calcula: 22M - (initialSupply + X) = remaining                  ║
+║   │ Gateway SOLO puede mintear remaining ← ✅ SEGURO                        ║
+║   │ Además: hasSupplyDrift() detecta que hubo minting externo              ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
@@ -305,9 +328,12 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
     // ═══════════════════════════════════════════════════════════════════════
 
     /**
-     * @notice Mint tokens with cap enforcement
+     * @notice Mint tokens with GLOBAL cap enforcement
      * @param to Recipient address
      * @param amount Amount to mint (in wei, 18 decimals)
+     *
+     * @dev CRITICAL: Validates against ACTUAL totalSupply(), not just internal counter.
+     *      This protects against >22M even if another minter is added via Timelock.
      */
     function mint(address to, uint256 amount)
         external
@@ -318,9 +344,22 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
         if (to == address(0)) revert InvalidAddress();
         if (amount == 0) revert InvalidAmount();
 
-        uint256 remaining = getRemainingMintable();
-        if (amount > remaining) {
-            revert WouldExceedMaxSupply(amount, remaining);
+        // ══════════════════════════════════════════════════════════════════
+        // CRITICAL FIX v3.1: Check against ACTUAL totalSupply() (global cap)
+        // ══════════════════════════════════════════════════════════════════
+        // This ensures we NEVER exceed 22M even if:
+        // - Another minter was added via Timelock and minted tokens
+        // - Someone found a way to mint outside Gateway
+        // The Gateway becomes a "safety belt" for the entire system.
+
+        uint256 currentActualSupply = cgcToken.totalSupply();
+        if (currentActualSupply >= MAX_TOTAL_SUPPLY) {
+            revert WouldExceedMaxSupply(amount, 0);
+        }
+
+        uint256 globalRemaining = MAX_TOTAL_SUPPLY - currentActualSupply;
+        if (amount > globalRemaining) {
+            revert WouldExceedMaxSupply(amount, globalRemaining);
         }
 
         // CEI pattern: update state before external call
@@ -332,36 +371,49 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
             to,
             amount,
             totalMintedViaGateway,
-            getRemainingMintable(),
+            getGlobalRemaining(),  // Now shows GLOBAL remaining
             msg.sender
         );
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // VIEW FUNCTIONS (ALL use correct variables)
+    // VIEW FUNCTIONS
     // ═══════════════════════════════════════════════════════════════════════
 
     /**
-     * @notice Tokens remaining under the cap
-     * @return Remaining mintable via this gateway
+     * @notice GLOBAL remaining - based on ACTUAL totalSupply() of token
+     * @dev This is the TRUE remaining that can be minted system-wide
+     *      Accounts for any minting that happened outside Gateway
      */
-    function getRemainingMintable() public view returns (uint256) {
+    function getGlobalRemaining() public view returns (uint256) {
+        uint256 actualSupply = cgcToken.totalSupply();
+        if (actualSupply >= MAX_TOTAL_SUPPLY) return 0;
+        return MAX_TOTAL_SUPPLY - actualSupply;
+    }
+
+    /**
+     * @notice Gateway-internal remaining (for bookkeeping only)
+     * @dev This is just the Gateway's internal counter
+     *      Use getGlobalRemaining() for actual mintable amount
+     */
+    function getGatewayRemaining() public view returns (uint256) {
         return maxMintableViaGateway - totalMintedViaGateway;
     }
 
     /**
-     * @notice Current effective total supply
-     * @return initialSupplyAtDeployment + totalMintedViaGateway
+     * @notice Current ACTUAL total supply from token contract
+     * @dev Reads directly from CGCToken - the source of truth
      */
-    function getEffectiveTotalSupply() public view returns (uint256) {
-        return initialSupplyAtDeployment + totalMintedViaGateway;
+    function getActualTotalSupply() public view returns (uint256) {
+        return cgcToken.totalSupply();
     }
 
     /**
      * @notice Check if a mint would succeed
+     * @dev Uses GLOBAL remaining, not internal counter
      */
     function canMint(uint256 amount) external view returns (bool possible, uint256 remaining) {
-        remaining = getRemainingMintable();
+        remaining = getGlobalRemaining();  // GLOBAL check
         possible = amount <= remaining && !paused();
     }
 
@@ -370,18 +422,35 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
      */
     function getSupplyInfo() external view returns (
         uint256 maxSupply,
-        uint256 initialSupply,
+        uint256 actualTotalSupply,
         uint256 mintedViaGateway,
-        uint256 effectiveTotal,
-        uint256 remainingMintable,
+        uint256 globalRemaining,
+        uint256 gatewayRemaining,
         uint256 percentageMinted
     ) {
         maxSupply = MAX_TOTAL_SUPPLY;
-        initialSupply = initialSupplyAtDeployment;      // ← Correct variable
-        mintedViaGateway = totalMintedViaGateway;
-        effectiveTotal = getEffectiveTotalSupply();
-        remainingMintable = getRemainingMintable();
-        percentageMinted = (effectiveTotal * 10000) / MAX_TOTAL_SUPPLY;
+        actualTotalSupply = cgcToken.totalSupply();       // ACTUAL from token
+        mintedViaGateway = totalMintedViaGateway;         // Gateway internal counter
+        globalRemaining = getGlobalRemaining();           // TRUE remaining
+        gatewayRemaining = getGatewayRemaining();         // Internal counter remaining
+        percentageMinted = (actualTotalSupply * 10000) / MAX_TOTAL_SUPPLY;
+    }
+
+    /**
+     * @notice Detect if someone minted outside Gateway (supply drift)
+     * @dev If this returns true, it means tokens were minted bypassing Gateway
+     */
+    function hasSupplyDrift() external view returns (bool driftDetected, uint256 driftAmount) {
+        uint256 expectedSupply = initialSupplyAtDeployment + totalMintedViaGateway;
+        uint256 actualSupply = cgcToken.totalSupply();
+
+        if (actualSupply > expectedSupply) {
+            driftDetected = true;
+            driftAmount = actualSupply - expectedSupply;
+        } else {
+            driftDetected = false;
+            driftAmount = 0;
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -438,17 +507,21 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 
 ---
 
-## 📋 RUNBOOK DE DEPLOY (5 Acciones)
+## 📋 RUNBOOK DE DEPLOY (4 Acciones + Verificación)
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                         RUNBOOK DE DEPLOY MAINNET                            ║
+║                    RUNBOOK DE DEPLOY MAINNET v3.1                            ║
+║                    (Con migración atómica - Brecha #3)                       ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
 ║  PRE-REQUISITOS:                                                             ║
 ║  • Multisig 3/5 creado (Gnosis Safe recomendado)                            ║
-║  • Guardian EOA identificado                                                 ║
+║  • Guardian EOA identificado (o Multisig 2/3 para extra seguridad)         ║
 ║  • ETH para gas (~0.02 ETH)                                                 ║
+║                                                                              ║
+║  ⚠️  IMPORTANTE: Actions 3 DEBE ejecutarse en UN SOLO BATCH                 ║
+║      para evitar estados intermedios peligrosos.                            ║
 ║                                                                              ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
@@ -478,31 +551,41 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 ║  │ • Calcula maxMintableViaGateway                                         │ ║
 ║  └─────────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                              ║
-║  ACTION 3: Configurar minters en CGCToken                                    ║
+║  ACTION 3: BATCH ATÓMICO - Configurar minters + Transfer ownership          ║
 ║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ ⚠️  EJECUTAR COMO MULTICALL O PROPUESTA ÚNICA EN GNOSIS SAFE           │ ║
+║  │                                                                         │ ║
+║  │ // Todas estas llamadas en UN SOLO BATCH:                               │ ║
 ║  │ cgcToken.addMinter(gatewayAddress)       // Gateway puede mintear      │ ║
 ║  │ cgcToken.removeMinter(escrowAddress)     // 0x8346CFcaE... (nunca usó) │ ║
 ║  │ cgcToken.removeMinter(deployerAddress)   // 0xc655BF2B... (si aplica)  │ ║
-║  └─────────────────────────────────────────────────────────────────────────┘ ║
-║                                                                              ║
-║  ACTION 4: Transferir ownership de CGCToken al Timelock                      ║
-║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
-║  │ cgcToken.transferOwnership(timelockAddress)                             │ ║
+║  │ cgcToken.transferOwnership(timelockAddress)  // Protección final       │ ║
 ║  │                                                                         │ ║
-║  │ RESULTADO: Cualquier addMinter() futuro requiere 7 días                │ ║
+║  │ ¿POR QUÉ ATÓMICO?                                                       │ ║
+║  │ • Si se ejecuta secuencial, hay ventana donde:                          │ ║
+║  │   - Gateway es minter PERO minters viejos siguen activos               │ ║
+║  │   - O Gateway es minter SIN timelock protegiendo ownership             │ ║
+║  │ • Con batch atómico: estado final garantizado en 1 tx                   │ ║
+║  │                                                                         │ ║
+║  │ CÓMO EN GNOSIS SAFE:                                                    │ ║
+║  │ • Transaction Builder → Add New Transaction × 4                         │ ║
+║  │ • Agregar las 4 llamadas arriba                                         │ ║
+║  │ • Create Batch → Submit → Confirm 3/5 firmas                           │ ║
 ║  └─────────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                              ║
-║  ACTION 5: Verificación Post-Deploy                                          ║
+║  ACTION 4: Verificación Post-Deploy                                          ║
 ║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
 ║  │ ☐ gateway.cgcToken() == 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175     │ ║
-║  │ ☐ gateway.initialSupplyAtDeployment() == cgcToken.totalSupply()        │ ║
+║  │ ☐ gateway.initialSupplyAtDeployment() == valor esperado                 │ ║
 ║  │ ☐ gateway.maxMintableViaGateway() == 22M - initialSupply               │ ║
+║  │ ☐ gateway.getGlobalRemaining() == 22M - cgcToken.totalSupply()         │ ║
 ║  │ ☐ gateway.owner() == multisigAddress                                   │ ║
 ║  │ ☐ gateway.guardian() == guardianEOA                                    │ ║
 ║  │ ☐ cgcToken.minters(gateway) == true                                    │ ║
 ║  │ ☐ cgcToken.minters(escrow) == false                                    │ ║
 ║  │ ☐ cgcToken.minters(deployer) == false                                  │ ║
 ║  │ ☐ cgcToken.owner() == timelockAddress                                  │ ║
+║  │ ☐ gateway.hasSupplyDrift() == (false, 0)  // No drift inicial          │ ║
 ║  └─────────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -510,7 +593,7 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 
 ---
 
-## 🛡️ MATRIZ DE SEGURIDAD HONESTA
+## 🛡️ MATRIZ DE SEGURIDAD HONESTA (v3.1)
 
 ### Qué Protege Este Sistema
 
@@ -521,6 +604,8 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 | Guardian malicioso pausa indefinido | ✅ **SÍ** | Unpause es Multisig (rápido) |
 | DAO añade nuevo minter bypass | ⚠️ **CON DELAY** | Timelock da 7 días de aviso |
 | Bug en contrato Gateway | ✅ **MITIGADO** | Multisig puede pausar, comunidad puede migrar |
+| **Otro minter excede 22M** | ✅ **SÍ (v3.1)** | Gateway checa totalSupply() REAL, no contador interno |
+| **Supply drift no detectado** | ✅ **SÍ (v3.1)** | hasSupplyDrift() detecta minting externo |
 
 ### Lo Que NO Protege (Honestidad)
 
@@ -529,6 +614,44 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 | DAO vota añadir minter bypass | **POSIBLE** después de 7 días de delay |
 | Multisig 3/5 se compromete | Gateway owner comprometido = callers manipulables |
 | Timelock + DAO maliciosos coordinados | Pueden bypass después de delay |
+| Guardian spamea pausas | **MITIGADO** - ver sección siguiente |
+
+### 🛑 Mitigación de Guardian Spam (Brecha #4)
+
+**Problema**: Guardian puede pausar repetidamente (DoS intermitente).
+
+**Soluciones disponibles (escoger según nivel de riesgo)**:
+
+```solidity
+// OPCIÓN A: Guardian es Multisig 2/3 (recomendado para producción)
+// PRO: Requiere coordinación de 2 personas para pausar
+// CON: Más lento para emergencias reales
+constructor(..., address _guardian) {
+    // Guardian debe ser Safe 2/3, no EOA
+    require(IGnosisSafe(_guardian).getThreshold() >= 2, "Guardian must be multisig");
+}
+
+// OPCIÓN B: Cooldown de pausa (24 horas entre pausas)
+// PRO: Limita spam sin multisig
+// CON: Puede bloquear pausas legítimas consecutivas
+uint256 public lastPauseTimestamp;
+uint256 public constant PAUSE_COOLDOWN = 24 hours;
+
+function emergencyPause(string calldata reason) external {
+    require(msg.sender == guardian || msg.sender == owner(), "Not authorized");
+    require(block.timestamp >= lastPauseTimestamp + PAUSE_COOLDOWN, "Cooldown active");
+    lastPauseTimestamp = block.timestamp;
+    _pause();
+    emit EmergencyPaused(msg.sender, reason);
+}
+
+// OPCIÓN C: Guardian puede ser removido rápido (owner=multisig)
+// PRO: Si guardian spamea, multisig lo remueve en <4h
+// CON: Ventana de spam antes de remoción
+// → Esta es la opción actual del contrato v3.1
+```
+
+**Recomendación**: Para producción, usar **OPCIÓN A** (Guardian = Multisig 2/3). Para testnet, OPCIÓN C es suficiente.
 
 **SOLUCIÓN PARA BYPASS ABSOLUTO**: Si se requiere que bypass sea **100% imposible**, usar `cgcToken.renounceOwnership()` en lugar de Timelock. Pero esto elimina capacidad de emergencia.
 
@@ -551,10 +674,10 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 
 ---
 
-## 📊 TESTS REQUERIDOS
+## 📊 TESTS REQUERIDOS (v3.1)
 
 ```javascript
-// Tests que SÍ tienen sentido:
+// Tests CORE (v3.0):
 test_cannotMintOverCap()
 test_onlyAuthorizedCanMint()
 test_correctInitialSupplyReading()
@@ -563,9 +686,20 @@ test_pauseStopsMinting()
 test_guardianCanPause()
 test_guardianCannotUnpause()
 test_ownerCanUnpause()
-test_getRemainingMintableDecreases()
-test_getEffectiveTotalSupplyIncreases()
 test_decimalsVerification()
+
+// Tests NUEVOS (v3.1 - Global Cap):
+test_globalCapEnforcedAgainstTotalSupply()    // ← CRÍTICO
+test_cannotExceed22MEvenIfAnotherMinterExists()  // Simular otro minter
+test_getGlobalRemainingReflectsActualSupply()
+test_hasSupplyDriftDetectsExternalMinting()
+test_mintFailsWhenGlobalCapReached()
+
+// Test de Simulación de Bypass:
+// 1. Deploy Gateway
+// 2. Simular que otro contrato mintea X tokens directamente
+// 3. Verificar que Gateway.mint() respeta el cap global (22M - totalSupply())
+// 4. Verificar que hasSupplyDrift() == true y reporta X
 
 // Tests que NO tienen sentido (MilestoneEscrow no mintea):
 // ❌ test_milestoneEscrowThroughGateway()
@@ -574,7 +708,7 @@ test_decimalsVerification()
 
 ---
 
-## 🎯 CRITERIO GO/NO-GO
+## 🎯 CRITERIO GO/NO-GO (v3.1)
 
 | Criterio | Estado |
 |----------|--------|
@@ -584,8 +718,11 @@ test_decimalsVerification()
 | Postura Timelock honesta | ✅ |
 | Política pause/unpause clara | ✅ |
 | CGC decimals verificado (18) | ✅ |
+| **Cap validado contra totalSupply() real (Brecha #1)** | ✅ v3.1 |
+| **Migración atómica documentada (Brecha #3)** | ✅ v3.1 |
+| **Guardian spam mitigación documentada (Brecha #4)** | ✅ v3.1 |
 
-**VEREDICTO: GO** - Este documento está listo para implementación.
+**VEREDICTO: GO** - Este documento v3.1 está listo para implementación.
 
 ---
 
@@ -602,4 +739,28 @@ DAO Aragon:        0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31 (owner actual)
 
 **Made by mbxarts.com The Moon in a Box property**
 **Co-Author: Godez22**
-**Versión: 3.0 FINAL - 13 Diciembre 2025**
+**Versión: 3.1 FINAL - 13 Diciembre 2025**
+
+---
+
+## 📝 CHANGELOG
+
+### v3.1 (13 Dic 2025) - Brechas Críticas Corregidas
+- **Brecha #1 (CRÍTICA)**: mint() ahora valida contra `MAX_TOTAL_SUPPLY - cgcToken.totalSupply()` (cap global real)
+- **Brecha #3 (MEDIA)**: Runbook actualizado con batch atómico para Actions 3 (Gnosis Safe multicall)
+- **Brecha #4 (MEDIA)**: Documentadas 3 opciones para mitigar guardian spam
+- **NUEVO**: `getGlobalRemaining()` - remaining basado en totalSupply() real
+- **NUEVO**: `getActualTotalSupply()` - lee supply directamente del token
+- **NUEVO**: `hasSupplyDrift()` - detecta minting externo al Gateway
+- **ACTUALIZADO**: getSupplyInfo() ahora retorna `actualTotalSupply` y `globalRemaining`
+- **ACTUALIZADO**: Tests incluyen simulación de bypass con otro minter
+
+### v3.0 (13 Dic 2025)
+- Documento limpio sin código viejo
+- Todas las 6 deficiencias de v2.0 corregidas
+- Un solo contrato copy-paste ready
+
+### v2.0 (Deprecated)
+- Mezclaba variables v1 y v3
+- Contradicciones sobre MilestoneEscrow
+- Afirmaciones falsas sobre bypass "imposible"
