@@ -365,17 +365,19 @@ Unlike traditional fixed-supply or time-based emission models, CGC uses a <stron
 
 This ensures token supply expansion is always backed by real value creation, preventing dilution while allowing sustainable growth.
 
-<h3>Anti-Dilution Protections</h3>
+<h3>Emission Controls</h3>
 
-The CGC token includes multiple on-chain safeguards against excessive emission:
+The CGC token uses a <strong>governance-controlled emission architecture</strong>:
 
-<li><strong>Hard Cap</strong>: Maximum supply of 22,000,000 CGC is enforced at the smart contract level</li>
-<li><strong>Single Authorized Minter</strong>: Only the MilestoneEscrow contract can mint new tokens</li>
-<li><strong>DAO Governance Required</strong>: Every emission requires a successful governance proposal</li>
-<li><strong>Milestone Verification</strong>: Emissions are tied to verifiable on-chain attestations</li>
-<li><strong>Gradual Release</strong>: No single emission event can exceed defined thresholds</li>
+<li><strong>Authorized Minter System</strong>: The contract owner (DAO) controls which addresses can mint tokens</li>
+<li><strong>Current Authorized Minter</strong>: Only MilestoneEscrow contract (<code>0x8346CFcaECc90d678d862319449E5a742c03f109</code>)</li>
+<li><strong>DAO Governance Required</strong>: Adding new minters requires DAO owner approval</li>
+<li><strong>Milestone Verification</strong>: Emissions are tied to verifiable on-chain attestations via EAS</li>
+<li><strong>Transparency</strong>: All minter additions/removals emit on-chain events for full auditability</li>
 
-These protections ensure that token holders are protected from arbitrary dilution and that all supply expansion reflects genuine ecosystem growth.
+<strong>Important Technical Note</strong>: The token contract does not enforce a hard cap at the code level. Instead, emission control is achieved through the minter authorization system—only addresses explicitly approved by the DAO owner can mint new tokens. This design allows flexibility for future governance decisions while maintaining transparency through on-chain events.
+
+<strong>Target Maximum Supply</strong>: 22,000,000 CGC. This is a governance-enforced target, not a code-enforced cap. The DAO commits to this limit through its governance processes and milestone-based emission schedule.
 
 <h3>Initial Distribution (2M CGC)</h3>
 
@@ -488,10 +490,11 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 <h3>Security Features</h3>
 
 <li>✅ All contracts verified on BaseScan</li>
-<li>✅ External audit completed pre-launch</li>
+<li>✅ OpenZeppelin battle-tested libraries</li>
 <li>✅ Bug bounty program (up to 100,000 CGC)</li>
 <li>✅ 48h timelock on critical functions</li>
 <li>✅ Emergency pause mechanism (multisig 3/5)</li>
+<li>📋 External audit planned for Q2 2026</li>
 
 <hr>
 
@@ -773,7 +776,7 @@ This document is for informational purposes only and may be subject to change wi
   <div class="footer">
     <p><strong>© 2024-2025 The Moon in a Box Inc. All rights reserved.</strong></p>
     <p>This document is for informational purposes only and may be subject to change without notice.</p>
-    <p><em>Generated: 2025-12-12</em></p>
+    <p><em>Generated: 2025-12-13</em></p>
   </div>
 </body>
 </html>

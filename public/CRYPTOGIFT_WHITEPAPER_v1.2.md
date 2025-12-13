@@ -146,17 +146,19 @@ Unlike traditional fixed-supply or time-based emission models, CGC uses a **valu
 
 This ensures token supply expansion is always backed by real value creation, preventing dilution while allowing sustainable growth.
 
-### Anti-Dilution Protections
+### Emission Controls
 
-The CGC token includes multiple on-chain safeguards against excessive emission:
+The CGC token uses a **governance-controlled emission architecture**:
 
-- **Hard Cap**: Maximum supply of 22,000,000 CGC is enforced at the smart contract level
-- **Single Authorized Minter**: Only the MilestoneEscrow contract can mint new tokens
-- **DAO Governance Required**: Every emission requires a successful governance proposal
-- **Milestone Verification**: Emissions are tied to verifiable on-chain attestations
-- **Gradual Release**: No single emission event can exceed defined thresholds
+- **Authorized Minter System**: The contract owner (DAO) controls which addresses can mint tokens
+- **Current Authorized Minter**: Only MilestoneEscrow contract (`0x8346CFcaECc90d678d862319449E5a742c03f109`)
+- **DAO Governance Required**: Adding new minters requires DAO owner approval
+- **Milestone Verification**: Emissions are tied to verifiable on-chain attestations via EAS
+- **Transparency**: All minter additions/removals emit on-chain events for full auditability
 
-These protections ensure that token holders are protected from arbitrary dilution and that all supply expansion reflects genuine ecosystem growth.
+**Important Technical Note**: The token contract does not enforce a hard cap at the code level. Instead, emission control is achieved through the minter authorization system—only addresses explicitly approved by the DAO owner can mint new tokens. This design allows flexibility for future governance decisions while maintaining transparency through on-chain events.
+
+**Target Maximum Supply**: 22,000,000 CGC. This is a governance-enforced target, not a code-enforced cap. The DAO commits to this limit through its governance processes and milestone-based emission schedule.
 
 ### Initial Distribution (2M CGC)
 
@@ -269,10 +271,11 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 ### Security Features
 
 - ✅ All contracts verified on BaseScan
-- ✅ External audit completed pre-launch
+- ✅ OpenZeppelin battle-tested libraries
 - ✅ Bug bounty program (up to 100,000 CGC)
 - ✅ 48h timelock on critical functions
 - ✅ Emergency pause mechanism (multisig 3/5)
+- 📋 External audit planned for Q2 2026
 
 ---
 

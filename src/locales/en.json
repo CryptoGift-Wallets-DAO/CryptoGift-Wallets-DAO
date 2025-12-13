@@ -24,10 +24,10 @@
       }
     },
     "stats": {
-      "community": "Future Holders",
-      "tasksCompleted": "Missions Complete",
-      "distributed": "Capital Gifted",
-      "milestones": "Lives Transformed"
+      "community": "Claim Rate",
+      "tasksCompleted": "Beta Transactions",
+      "distributed": "Initial Supply",
+      "milestones": "Days Beta"
     },
     "problem": {
       "title": "Adoption Breaks at the First Step",
@@ -97,15 +97,15 @@
       "emissionValue": "Achievement-based",
       "governance": "Pure Governance",
       "verified": "Verified",
-      "secure": "Audited"
+      "secure": "OpenZeppelin"
     },
     "cta": {
       "title": "The Best Gift Was Never the Object",
       "subtitle": "It was the door it opens. Today that door is blockchain, and the key fits in an NFT-wallet that beats with story, with value... and with future.",
       "button1": "Gift the Future",
       "button2": "Invite & Earn",
-      "joined": "500+ lives transformed",
-      "rating": "The most human adoption"
+      "joined": "104 days beta tested",
+      "rating": "85.7% claim rate"
     },
     "videoCarousel": {
       "watch": "Watch Now",

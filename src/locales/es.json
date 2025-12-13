@@ -24,10 +24,10 @@
       }
     },
     "stats": {
-      "community": "Futuros Holders",
-      "tasksCompleted": "Misiones Cumplidas",
-      "distributed": "Capital Regalado",
-      "milestones": "Vidas Transformadas"
+      "community": "Tasa de Reclamación",
+      "tasksCompleted": "Transacciones Beta",
+      "distributed": "Supply Inicial",
+      "milestones": "Días de Beta"
     },
     "problem": {
       "title": "La Adopción Se Rompe en el Primer Paso",
@@ -97,15 +97,15 @@
       "emissionValue": "Basado en Logros",
       "governance": "Gobernanza Pura",
       "verified": "Verificado",
-      "secure": "Auditado"
+      "secure": "OpenZeppelin"
     },
     "cta": {
       "title": "El Mejor Regalo Nunca Fue el Objeto",
       "subtitle": "Fue la puerta que abre. Hoy esa puerta es blockchain, y la llave cabe en un NFT-wallet que late con historia, con valor... y con futuro.",
       "button1": "Regala el Futuro",
       "button2": "Invita y Gana",
-      "joined": "500+ vidas transformadas",
-      "rating": "La adopción más humana"
+      "joined": "104 días de beta",
+      "rating": "85.7% tasa de éxito"
     },
     "videoCarousel": {
       "watch": "Ver Ahora",

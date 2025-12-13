@@ -192,10 +192,10 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
             {[
-              { icon: Users, label: t('stats.community'), value: formatNumber(holdersCount) || '500+', color: 'blue' },
-              { icon: GraduationCap, label: t('stats.tasksCompleted'), value: formatNumber(questsCompleted) || '1,200+', color: 'green' },
-              { icon: Wallet, label: t('stats.distributed'), value: formatNumber(totalSupply) || '2M CGC', color: 'purple' },
-              { icon: Award, label: t('stats.milestones'), value: formatNumber(milestonesReleased) || '25+', color: 'yellow' },
+              { icon: Users, label: t('stats.community'), value: '85.7%', color: 'blue' },
+              { icon: GraduationCap, label: t('stats.tasksCompleted'), value: '674+', color: 'green' },
+              { icon: Wallet, label: t('stats.distributed'), value: '2M CGC', color: 'purple' },
+              { icon: Award, label: t('stats.milestones'), value: '104', color: 'yellow' },
             ].map((stat, i) => (
               <div
                 key={i}
