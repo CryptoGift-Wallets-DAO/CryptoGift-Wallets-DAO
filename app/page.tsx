@@ -466,7 +466,7 @@ export default function LandingPage() {
                     >
                       {/* Inner GLASS CIRCLE - transparent with blur */}
                       <div
-                        className="w-full h-full rounded-full flex items-center justify-center overflow-hidden relative p-2"
+                        className="w-full h-full rounded-full flex items-center justify-center overflow-hidden relative p-1"
                         style={{
                           background: 'rgba(255, 255, 255, 0.1)',
                           backdropFilter: 'blur(20px)',
@@ -480,11 +480,11 @@ export default function LandingPage() {
                           style={{ animation: 'shimmer 3s infinite' }}
                         />
 
-                        {/* CGC Logo - BIGGER, fills most of the circle */}
+                        {/* CGC Logo - MAXIMUM SIZE, minimal border */}
                         <img
                           src="/cgc-logo-512x512.png"
                           alt="CGC Token"
-                          className="relative z-10 w-[85%] h-[85%] object-contain"
+                          className="relative z-10 w-[95%] h-[95%] object-contain"
                           style={{ filter: 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.8))' }}
                         />
                       </div>
@@ -497,8 +497,8 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Token info below - CLOSER to circle */}
-                <div className="text-center mt-3">
+                {/* Token info below - VERY CLOSE to circle */}
+                <div className="text-center mt-1">
                   <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-1">
                     CGC Token
                   </div>
