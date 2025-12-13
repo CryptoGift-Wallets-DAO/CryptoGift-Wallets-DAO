@@ -96,7 +96,7 @@ export const Navbar: React.FC = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-2">
             <Link
-              href="/"
+              href="/dashboard"
               className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-sm font-bold px-2"
             >
               {t('dashboard')}
@@ -178,7 +178,7 @@ export const Navbar: React.FC = () => {
           <div className="md:hidden border-t border-gray-200 dark:border-slate-700 py-4 bg-white dark:bg-slate-900">
             <div className="space-y-4">
               <Link
-                href="/"
+                href="/dashboard"
                 className="block text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors px-4 py-3 font-bold text-base"
                 onClick={() => setIsMenuOpen(false)}
               >

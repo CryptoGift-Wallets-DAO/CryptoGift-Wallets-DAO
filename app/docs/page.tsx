@@ -52,13 +52,13 @@ const CONTRACTS = {
   aragonDAO: '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31',
 };
 
-// Distribution data
+// Distribution data - Aligned with Whitepaper v1.2 (December 2025)
 const DISTRIBUTION = [
-  { key: 'rewards', percentage: 40, amount: '800,000' },
+  { key: 'referrals', percentage: 25, amount: '500,000' },
+  { key: 'educational', percentage: 20, amount: '400,000' },
   { key: 'treasury', percentage: 25, amount: '500,000' },
   { key: 'contributors', percentage: 15, amount: '300,000' },
-  { key: 'ecosystem', percentage: 10, amount: '200,000' },
-  { key: 'liquidity', percentage: 5, amount: '100,000' },
+  { key: 'liquidity', percentage: 10, amount: '200,000' },
   { key: 'reserve', percentage: 5, amount: '100,000' },
 ];
 
@@ -789,16 +789,38 @@ export default function DocsPage() {
                       </code>
                     </div>
 
+                    {/* Supply Model - Highlighted */}
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700 mb-4">
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="text-center">
+                          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            {t('verification.tokenInfo.initialSupply')}
+                          </h4>
+                          <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                            {t('verification.tokenInfo.initialSupplyValue')}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            {t('verification.tokenInfo.maxSupply')}
+                          </h4>
+                          <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
+                            {t('verification.tokenInfo.maxSupplyValue')}
+                          </p>
+                        </div>
+                        <div className="text-center md:col-span-1">
+                          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            {t('verification.tokenInfo.emissionModel')}
+                          </h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            {t('verification.tokenInfo.emissionModelValue')}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Other Token Details */}
                     <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                          {t('verification.tokenInfo.totalSupply')}
-                        </h4>
-                        <p className="text-gray-900 dark:text-white font-mono">
-                          {t('verification.tokenInfo.totalSupplyValue')}
-                        </p>
-                      </div>
                       <div>
                         <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
                           {t('verification.tokenInfo.decimals')}
@@ -821,6 +843,14 @@ export default function DocsPage() {
                         </h4>
                         <p className="text-gray-900 dark:text-white">
                           {t('verification.tokenInfo.tokenStandardValue')}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                          {t('verification.tokenInfo.chainId')}
+                        </h4>
+                        <p className="text-gray-900 dark:text-white">
+                          {t('verification.tokenInfo.chainIdValue')}
                         </p>
                       </div>
                     </div>

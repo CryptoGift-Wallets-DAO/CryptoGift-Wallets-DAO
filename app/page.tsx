@@ -2,624 +2,504 @@
 
 /**
  * ============================================================================
- * 🌐 I18N PATTERN - INSTRUCCIONES PARA TRADUCCIONES
+ * 🚀 CRYPTOGIFT WALLETS DAO - LANDING PAGE
  * ============================================================================
  *
- * Para agregar traducciones a cualquier componente:
+ * Enterprise-level landing page with sales psychology and stunning visuals.
+ * Designed to convert visitors into community members.
  *
- * 1. Importar useTranslations:
- *    import { useTranslations } from 'next-intl';
+ * Features:
+ * - Hero section with compelling value proposition
+ * - Problem/Solution narrative
+ * - How it works (3 simple steps)
+ * - Key benefits and features
+ * - Live statistics from blockchain
+ * - Team section
+ * - Strong call-to-action
  *
- * 2. En el componente, usar el hook con el namespace:
- *    const t = useTranslations('dashboard');  // usa src/locales/{locale}.json -> dashboard
- *
- * 3. Usar t() para obtener traducciones:
- *    <span>{t('title')}</span>  // "Dashboard" en EN, "Panel" en ES
- *
- * 4. Para textos anidados:
- *    t('stats.totalSupply')  // accede a dashboard.stats.totalSupply
- *
- * 5. Las traducciones están en:
- *    - src/locales/en.json (English - default)
- *    - src/locales/es.json (Spanish)
- *
- * 6. Agregar nuevas traducciones: editar AMBOS archivos json
+ * i18n: Full bilingual support (EN/ES)
  * ============================================================================
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
-import { useDashboardStats, useCGCTransfer, useMilestoneRelease } from '@/lib/web3/hooks';
-import { useAccount, useNetwork, useSwitchChain, useAutoSwitchToBase } from '@/lib/thirdweb';
-import { useToast } from '@/components/ui/toast';
-import { base } from 'thirdweb/chains';
-import { stringToHex } from 'viem';
-import { ensureEthereumAddress } from '@/lib/utils';
+import { useDashboardStats } from '@/lib/web3/hooks';
+import { useAccount } from '@/lib/thirdweb';
 import {
   Wallet,
-  TrendingUp,
+  Gift,
+  GraduationCap,
   Users,
   Vote,
-  CheckCircle2,
-  Repeat2,
-  Lock,
   Zap,
+  Shield,
+  TrendingUp,
+  ArrowRight,
+  CheckCircle2,
+  Sparkles,
   Target,
-  Settings,
-  Eye,
-  EyeOff
+  Heart,
+  Globe,
+  Play,
+  Star,
+  ChevronRight,
+  Rocket,
+  Award,
+  BookOpen
 } from 'lucide-react';
 
-export default function CryptoGiftDAODashboard() {
+// Animation keyframes for floating elements
+const floatAnimation = `
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+    50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+  }
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+`;
+
+export default function LandingPage() {
+  const t = useTranslations('landing');
   const { address, isConnected } = useAccount();
-  const { chainId } = useNetwork();
-  const { success, error, warning, info } = useToast();
+  const { totalSupply, holdersCount, questsCompleted, milestonesReleased } = useDashboardStats();
 
-  // 🌐 I18N: Hooks para traducciones de diferentes namespaces
-  const tDashboard = useTranslations('dashboard');
-  const tCommon = useTranslations('common');
-  const tWallet = useTranslations('wallet');
-
-  // Auto-switch to Base Mainnet (using Thirdweb hook)
-  useAutoSwitchToBase();
-
-  // Get real blockchain data
-  const {
-    totalSupply,
-    circulatingSupply,
-    treasuryBalance,
-    escrowBalance,
-    holdersCount,
-    proposalsActive,
-    questsCompleted,
-    activeTasks,
-    milestonesReleased,
-    userBalance,
-    userEarnings,
-    systemActive,
-    systemLimits,
-    systemUsage,
-  } = useDashboardStats();
-
-  // Transaction hooks
-  const { transfer, isPending: isTransferPending, isSuccess: isTransferSuccess, hash: transferHash } = useCGCTransfer();
-  const { releaseMilestone, isPending: isReleasePending, isSuccess: isReleaseSuccess, hash: releaseHash } = useMilestoneRelease();
-
-  const [loadingStates, setLoadingStates] = useState({
-    proposals: false,
-    createProposal: false,
-    delegate: false,
-    release: false,
-    history: false,
-    vesting: false,
-    quests: false,
-    leaderboard: false,
-    sync: false,
-    safe: false,
-    admin: false,
-    status: false,
-  });
-
-  const [balanceVisible, setBalanceVisible] = useState(true);
-
-  // Show transaction success messages
-  useEffect(() => {
-    if (isTransferSuccess && transferHash) {
-      success('Transfer Successful', `Transaction confirmed: ${transferHash.slice(0, 10)}...`);
-    }
-  }, [isTransferSuccess, transferHash, success]);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (isReleaseSuccess && releaseHash) {
-      success('Milestone Released', `Payment released: ${releaseHash.slice(0, 10)}...`);
-    }
-  }, [isReleaseSuccess, releaseHash, success]);
+    setIsVisible(true);
+  }, []);
 
-  const handleAction = async (action: string, loadingKey: keyof typeof loadingStates) => {
-    if (!isConnected) {
-      warning('Wallet Required', 'Please connect your wallet to continue');
-      return;
-    }
-
-    if (chainId !== 8453) {
-      warning('Wrong Network', 'Please switch to Base Network');
-      return;
-    }
-
-    setLoadingStates(prev => ({ ...prev, [loadingKey]: true }));
-    
-    try {
-      // Handle real blockchain actions
-      switch (action) {
-        case 'Request token release':
-          // Example: Release 100 CGC tokens to connected wallet
-          if (address) {
-            const recipientAddress = ensureEthereumAddress(address);
-            if (recipientAddress) {
-              // Use a more predictable milestone ID to avoid SSR hydration issues
-              const milestoneIdString = `milestone-user-${address.slice(-8)}`;
-              const milestoneId: `0x${string}` = stringToHex(milestoneIdString, { size: 32 });
-              await releaseMilestone(recipientAddress, '100', milestoneId);
-              info('Transaction Submitted', 'Waiting for confirmation...');
-            }
-          }
-          break;
-          
-        case 'Check system status':
-          const status = systemActive ? 'Active' : 'Paused';
-          const dailyUsage = `${systemUsage.daily}/${systemLimits.daily} CGC`;
-          info('System Status', `Status: ${status}, Daily Usage: ${dailyUsage}`);
-          break;
-          
-        case 'Open Safe Multisig':
-          window.open('https://app.safe.global/base:0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31', '_blank');
-          success('Opening Safe', 'Redirecting to Safe multisig...');
-          break;
-          
-        default:
-          // Placeholder for other actions
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          info(`${action}`, 'Feature coming soon...');
-          break;
-      }
-      
-    } catch (err: any) {
-      error(`${action} failed`, err?.message || 'Please try again');
-    } finally {
-      setLoadingStates(prev => ({ ...prev, [loadingKey]: false }));
-    }
-  };
-
-  // Format numbers for display
-  const formatNumber = (num: string | number) => {
+  // Format large numbers
+  const formatNumber = (num: string | number | undefined) => {
+    if (!num) return '0';
     const n = typeof num === 'string' ? parseFloat(num) : num;
-    if (n >= 1000000) return `${(n / 1000000).toFixed(2)}M`;
-    if (n >= 1000) return `${(n / 1000).toFixed(2)}K`;
-    return n.toFixed(2);
+    if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
+    if (n >= 1000) return `${(n / 1000).toFixed(0)}K`;
+    return n.toLocaleString();
   };
 
   return (
-    <div className="min-h-screen theme-gradient-bg">
-      {/* Professional Navbar */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">
+      <style jsx>{floatAnimation}</style>
+
+      {/* Animated background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-40 right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl" style={{ animation: 'float 6s ease-in-out infinite' }} />
+        <div className="absolute bottom-40 left-1/4 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl" style={{ animation: 'float 8s ease-in-out infinite 2s' }} />
+        <div className="absolute -bottom-20 right-1/3 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl animate-pulse" />
+      </div>
+
       <Navbar />
 
-      {/* Glassmorphism Background Effect - Theme Aware */}
-      <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-400 dark:bg-pink-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse delay-2000"></div>
-      </div>
+      {/* HERO SECTION */}
+      <section className="relative pt-32 pb-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Text Content */}
+            <div className={`space-y-8 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+                <Sparkles className="w-4 h-4 text-yellow-400" />
+                <span className="text-sm font-medium">{t('hero.badge')}</span>
+              </div>
 
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* User Profile Section (if connected) */}
-        {isConnected && address && (
-          <section className="glass-card mb-8 p-6 spring-in" style={{ animationDelay: '0.1s' }}>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white">
-                  <Wallet className="w-8 h-8" />
+              {/* Main Headline */}
+              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+                <span className="bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+                  {t('hero.title1')}
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  {t('hero.title2')}
+                </span>
+              </h1>
+
+              {/* Subheadline */}
+              <p className="text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-xl">
+                {t('hero.subtitle')}
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  href="/tasks"
+                  className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl font-semibold text-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
+                >
+                  <Rocket className="w-5 h-5" />
+                  {t('hero.cta1')}
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  href="/docs"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm rounded-xl font-semibold text-lg border border-white/20 hover:bg-white/20 transition-all hover:scale-105"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  {t('hero.cta2')}
+                </Link>
+              </div>
+
+              {/* Trust indicators */}
+              <div className="flex flex-wrap items-center gap-6 pt-4">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Shield className="w-5 h-5 text-green-400" />
+                  <span className="text-sm">{t('hero.trust1')}</span>
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-glass">{tWallet('connected')}</h3>
-                  <p className="text-glass-secondary font-mono text-sm">
-                    {address.slice(0, 8)}...{address.slice(-6)}
-                  </p>
-                  <p className="text-xs text-glass-secondary">{tWallet('base')} • {chainId === base.id ? tWallet('network') : tWallet('unsupportedNetwork')}</p>
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Globe className="w-5 h-5 text-blue-400" />
+                  <span className="text-sm">{t('hero.trust2')}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Zap className="w-5 h-5 text-yellow-400" />
+                  <span className="text-sm">{t('hero.trust3')}</span>
                 </div>
               </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="text-center">
-                  <div className="flex items-center gap-2 justify-center sm:justify-start">
-                    <p className="text-glass-secondary text-sm">{tWallet('cgcBalance')}</p>
-                    <button
-                      onClick={() => setBalanceVisible(!balanceVisible)}
-                      className="text-glass-secondary hover:text-glass transition-colors"
-                    >
-                      {balanceVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                    </button>
+            </div>
+
+            {/* Right: Visual Element */}
+            <div className={`relative transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
+              <div className="relative mx-auto w-full max-w-lg">
+                {/* Main card */}
+                <div className="relative z-10 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl" style={{ animation: 'float 6s ease-in-out infinite' }}>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl">
+                      <Gift className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">{t('hero.card.title')}</h3>
+                      <p className="text-gray-400">{t('hero.card.subtitle')}</p>
+                    </div>
                   </div>
-                  <p className="text-2xl font-bold text-glass">
-                    {balanceVisible ? `${formatNumber(userBalance)} CGC` : '••••••'}
-                  </p>
+
+                  {/* Progress bars */}
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-400">{t('hero.card.learn')}</span>
+                        <span className="text-blue-400">+200 CGC</span>
+                      </div>
+                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full w-3/4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-400">{t('hero.card.earn')}</span>
+                        <span className="text-green-400">+50 CGC</span>
+                      </div>
+                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full w-1/2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-400">{t('hero.card.govern')}</span>
+                        <span className="text-purple-400">{t('hero.card.active')}</span>
+                      </div>
+                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full w-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-glass-secondary text-sm">{tDashboard('yourStats.earnings')}</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    +{formatNumber(userEarnings)} CGC
-                  </p>
+
+                {/* Floating elements */}
+                <div className="absolute -top-6 -right-6 p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-xl rounded-2xl border border-green-500/30" style={{ animation: 'float 4s ease-in-out infinite 1s' }}>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                    <span className="text-sm font-medium">{t('hero.floating.verified')}</span>
+                  </div>
+                </div>
+
+                <div className="absolute -bottom-4 -left-4 p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl rounded-2xl border border-blue-500/30" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }}>
+                  <div className="flex items-center gap-2">
+                    <Wallet className="w-5 h-5 text-blue-400" />
+                    <span className="text-sm font-medium">{t('hero.floating.gasless')}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </section>
-        )}
-
-        {/* Main Stats Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-          <StatCard
-            title={tDashboard('stats.totalSupply')}
-            value={`${formatNumber(totalSupply)} CGC`}
-            icon={<TrendingUp className="w-6 h-6 text-blue-500" />}
-            loading={!totalSupply || totalSupply === '0'}
-            delay="0.2s"
-          />
-          <StatCard
-            title={tDashboard('stats.holders')}
-            value={holdersCount.toString()}
-            icon={<Users className="w-6 h-6 text-green-500" />}
-            loading={holdersCount === 0}
-            delay="0.3s"
-          />
-          <StatCard
-            title={tDashboard('stats.proposals')}
-            value={proposalsActive.toString()}
-            icon={<Vote className="w-6 h-6 text-purple-500" />}
-            delay="0.4s"
-          />
-          <StatCard
-            title={tDashboard('stats.tasksCompleted')}
-            value={questsCompleted.toString()}
-            icon={<CheckCircle2 className="w-6 h-6 text-emerald-500" />}
-            delay="0.5s"
-          />
-          <StatCard
-            title={tDashboard('stats.circulatingSupply')}
-            value={`${formatNumber(circulatingSupply)} CGC`}
-            icon={<Repeat2 className="w-6 h-6 text-indigo-500" />}
-            delay="0.6s"
-          />
-        </section>
-
-        {/* Secondary Stats */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title={tDashboard('stats.treasuryBalance')}
-            value={`${formatNumber(treasuryBalance)} CGC`}
-            icon={<Wallet className="w-6 h-6 text-amber-500" />}
-            loading={!treasuryBalance}
-            delay="0.7s"
-          />
-          <StatCard
-            title={tDashboard('stats.escrowBalance')}
-            value={`${formatNumber(escrowBalance)} CGC`}
-            icon={<Lock className="w-6 h-6 text-red-500" />}
-            delay="0.8s"
-          />
-          <StatCard
-            title={tDashboard('system.usage')}
-            value={activeTasks.toString()}
-            icon={<Zap className="w-6 h-6 text-yellow-500" />}
-            delay="0.9s"
-          />
-          <StatCard
-            title={tDashboard('stats.milestonesReleased')}
-            value={milestonesReleased.toString()}
-            icon={<Target className="w-6 h-6 text-pink-500" />}
-            delay="1.0s"
-          />
-        </section>
-
-        {/* Main Action Panels */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Governance Panel */}
-          <ActionPanel
-            title={tDashboard('panels.governance.title')}
-            description={tDashboard('panels.governance.description')}
-            icon={<Vote className="w-6 h-6 text-purple-500" />}
-            actions={[
-              {
-                label: tDashboard('panels.governance.viewProposals'),
-                action: () => handleAction('View proposals', 'proposals'),
-                loading: loadingStates.proposals,
-                disabled: !isConnected
-              },
-              {
-                label: tDashboard('panels.governance.createProposal'),
-                action: () => handleAction('Create proposal', 'createProposal'),
-                loading: loadingStates.createProposal,
-                disabled: !isConnected
-              },
-              {
-                label: tDashboard('panels.governance.delegateVoting'),
-                action: () => handleAction('Delegate voting power', 'delegate'),
-                loading: loadingStates.delegate,
-                disabled: !isConnected
-              }
-            ]}
-            delay="1.1s"
-          />
-
-          {/* Token Management Panel - Protected */}
-          <CGCAccessGate
-            requiredBalance="0.01"
-            title={`🪙 ${tDashboard('panels.tokenManagement.accessTitle')}`}
-            description={tDashboard('panels.tokenManagement.accessDescription')}
-          >
-            <ActionPanel
-              title={tDashboard('panels.tokenManagement.title')}
-              description={tDashboard('panels.tokenManagement.description')}
-              icon={<Wallet className="w-6 h-6 text-green-500" />}
-              actions={[
-                {
-                  label: isReleasePending ? tDashboard('panels.tokenManagement.releasing') : tDashboard('panels.tokenManagement.requestRelease'),
-                  action: () => handleAction('Request token release', 'release'),
-                  loading: loadingStates.release || isReleasePending,
-                  disabled: !isConnected || isReleasePending,
-                  primary: true
-                },
-                {
-                  label: tDashboard('panels.tokenManagement.releaseHistory'),
-                  action: () => handleAction('View release history', 'history'),
-                  loading: loadingStates.history,
-                  disabled: !isConnected
-                },
-                {
-                  label: tDashboard('panels.tokenManagement.vestingSchedule'),
-                  action: () => handleAction('Check vesting schedule', 'vesting'),
-                  loading: loadingStates.vesting,
-                  disabled: !isConnected
-                }
-              ]}
-              delay="1.2s"
-            />
-          </CGCAccessGate>
-
-          {/* Quest Platform Panel */}
-          <ActionPanel
-            title={tDashboard('panels.quests.title')}
-            description={tDashboard('panels.quests.description')}
-            icon={<CheckCircle2 className="w-6 h-6 text-blue-500" />}
-            actions={[
-              {
-                label: `${tDashboard('panels.quests.activeQuests')} (${activeTasks})`,
-                action: () => handleAction('View active quests', 'quests'),
-                loading: loadingStates.quests,
-                disabled: !isConnected
-              },
-              {
-                label: tDashboard('panels.quests.leaderboard'),
-                action: () => handleAction('View leaderboard', 'leaderboard'),
-                loading: loadingStates.leaderboard
-              },
-              {
-                label: tDashboard('panels.quests.syncZealy'),
-                action: () => handleAction('Sync with Zealy', 'sync'),
-                loading: loadingStates.sync,
-                disabled: !isConnected,
-                secondary: true
-              }
-            ]}
-            delay="1.3s"
-          />
-
-          {/* Administration Panel - Protected */}
-          <CGCAccessGate
-            requiredBalance="1.0"
-            title={`⚙️ ${tDashboard('panels.administration.accessTitle')}`}
-            description={tDashboard('panels.administration.accessDescription')}
-          >
-            <ActionPanel
-              title={tDashboard('panels.administration.title')}
-              description={tDashboard('panels.administration.description')}
-              icon={<Settings className="w-6 h-6 text-gray-500" />}
-              actions={[
-                {
-                  label: tDashboard('panels.administration.safeMultisig'),
-                  action: () => handleAction('Open Safe Multisig', 'safe'),
-                  loading: loadingStates.safe
-                },
-                {
-                  label: tDashboard('panels.administration.contractAdmin'),
-                  action: () => handleAction('Access contract admin', 'admin'),
-                  loading: loadingStates.admin,
-                  disabled: !isConnected
-                },
-                {
-                  label: tDashboard('panels.administration.systemStatus'),
-                  action: () => handleAction('Check system status', 'status'),
-                  loading: loadingStates.status,
-                  secondary: true
-                }
-              ]}
-              delay="1.4s"
-            />
-          </CGCAccessGate>
-        </section>
-
-        {/* Team Section - Required by BaseScan for token verification */}
-        <section className="glass-panel p-6 mb-8 spring-in" style={{ animationDelay: '1.5s' }}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 glass-bubble">
-                <Users className="w-6 h-6 text-purple-500" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-glass">{tDashboard('team.title')}</h3>
-                <p className="text-glass-secondary text-sm">{tDashboard('team.description')}</p>
-              </div>
-            </div>
-            <a
-              href="/docs?tab=verification"
-              className="text-sm text-purple-500 hover:text-purple-400 transition-colors flex items-center gap-1"
-            >
-              {tDashboard('team.viewFullTeam')} →
-            </a>
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Rafael Gonzalez - Founder */}
-            <div className="glass-card p-4 text-center">
-              <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                RG
-              </div>
-              <h4 className="font-bold text-glass">{tDashboard('team.founder.name')}</h4>
-              <p className="text-xs text-purple-500 font-medium mb-1">{tDashboard('team.founder.role')}</p>
-              <p className="text-xs text-glass-secondary mb-2">{tDashboard('team.founder.bio')}</p>
-              <a
-                href="https://www.linkedin.com/in/rafael-gonzalez-iautomallink"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-blue-500 hover:underline"
+      {/* STATS SECTION */}
+      <section className="relative py-16 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
+            {[
+              { icon: Users, label: t('stats.community'), value: formatNumber(holdersCount) || '500+', color: 'blue' },
+              { icon: GraduationCap, label: t('stats.tasksCompleted'), value: formatNumber(questsCompleted) || '1,200+', color: 'green' },
+              { icon: Wallet, label: t('stats.distributed'), value: formatNumber(totalSupply) || '2M CGC', color: 'purple' },
+              { icon: Award, label: t('stats.milestones'), value: formatNumber(milestonesReleased) || '25+', color: 'yellow' },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className={`relative group p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-${stat.color}-500/50 transition-all hover:scale-105`}
               >
-                LinkedIn →
-              </a>
-            </div>
-
-            {/* Roberto Legrá */}
-            <div className="glass-card p-4 text-center">
-              <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                RL
+                <stat.icon className={`w-8 h-8 text-${stat.color}-400 mb-3`} />
+                <div className="text-3xl lg:text-4xl font-bold mb-1">{stat.value}</div>
+                <div className="text-gray-400 text-sm">{stat.label}</div>
               </div>
-              <h4 className="font-bold text-glass">{tDashboard('team.community.name')}</h4>
-              <p className="text-xs text-purple-500 font-medium mb-1">{tDashboard('team.community.role')}</p>
-              <p className="text-xs text-glass-secondary">{tDashboard('team.community.bio')}</p>
-            </div>
-
-            {/* Leodanni Avila */}
-            <div className="glass-card p-4 text-center">
-              <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                LA
-              </div>
-              <h4 className="font-bold text-glass">{tDashboard('team.business.name')}</h4>
-              <p className="text-xs text-purple-500 font-medium mb-1">{tDashboard('team.business.role')}</p>
-              <p className="text-xs text-glass-secondary">{tDashboard('team.business.bio')}</p>
-            </div>
+            ))}
           </div>
-
-          {/* Contact Email */}
-          <div className="mt-4 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20 flex items-center justify-between">
-            <span className="text-sm text-glass-secondary">{tDashboard('team.contact')}:</span>
-            <a href="mailto:admin@mbxarts.com" className="text-sm text-purple-400 hover:text-purple-300 font-mono">
-              admin@mbxarts.com
-            </a>
-          </div>
-        </section>
-
-        {/* System Status Footer */}
-        <footer className="glass-panel p-6 spring-in" style={{ animationDelay: '1.6s' }}>
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className={`w-3 h-3 rounded-full ${systemActive ? 'bg-green-400 pulse-glow' : 'bg-red-400'}`}></div>
-              <span className="text-glass-secondary text-sm">
-                {tDashboard('system.title')}: {systemActive ? tDashboard('system.active') : tDashboard('system.inactive')}
-              </span>
-            </div>
-
-            {!isConnected && (
-              <div className="text-center">
-                <p className="text-glass-secondary text-sm">
-                  {tWallet('connect')}
-                </p>
-              </div>
-            )}
-
-            {isConnected && chainId !== base.id && (
-              <div className="text-center">
-                <p className="text-orange-500 text-sm">
-                  {tWallet('unsupportedNetwork')}
-                </p>
-              </div>
-            )}
-          </div>
-        </footer>
-      </div>
-
-      {/* Full-width Footer */}
-      <Footer />
-    </div>
-  );
-}
-
-// Stat Card Component with Glass morphism
-function StatCard({ 
-  title, 
-  value, 
-  icon, 
-  loading = false,
-  delay = "0s"
-}: { 
-  title: string; 
-  value: string; 
-  icon: React.ReactNode;
-  loading?: boolean;
-  delay?: string;
-}) {
-  return (
-    <div className="glass-card p-6 spring-in" style={{ animationDelay: delay }}>
-      <div className="flex items-center justify-between mb-3">
-        <div className="p-2 glass-bubble">
-          {icon}
         </div>
-        <div className="text-right">
-          <p className="text-glass-secondary text-xs uppercase tracking-wider font-medium">
-            {title}
+      </section>
+
+      {/* PROBLEM/SOLUTION SECTION */}
+      <section className="relative py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+              {t('problem.title')}
+            </h2>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              {t('problem.subtitle')}
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Problem */}
+            <div className="p-8 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-3xl border border-red-500/20">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-red-500/20 rounded-xl">
+                  <Target className="w-6 h-6 text-red-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-red-300">{t('problem.problemTitle')}</h3>
+              </div>
+              <ul className="space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <div className="mt-1 w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                      <span className="text-red-400 text-xs">✕</span>
+                    </div>
+                    <span className="text-gray-300">{t(`problem.problem${i}`)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Solution */}
+            <div className="p-8 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-3xl border border-green-500/20">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-green-500/20 rounded-xl">
+                  <Sparkles className="w-6 h-6 text-green-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-green-300">{t('problem.solutionTitle')}</h3>
+              </div>
+              <ul className="space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <div className="mt-1 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    </div>
+                    <span className="text-gray-300">{t(`problem.solution${i}`)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS SECTION */}
+      <section className="relative py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+              {t('howItWorks.title')}
+            </h2>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              {t('howItWorks.subtitle')}
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {[
+              { step: 1, icon: Wallet, color: 'blue', title: t('howItWorks.step1.title'), desc: t('howItWorks.step1.desc') },
+              { step: 2, icon: GraduationCap, color: 'purple', title: t('howItWorks.step2.title'), desc: t('howItWorks.step2.desc') },
+              { step: 3, icon: Vote, color: 'green', title: t('howItWorks.step3.title'), desc: t('howItWorks.step3.desc') },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="relative group"
+              >
+                {/* Connector line */}
+                {i < 2 && (
+                  <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-white/20 to-transparent z-0" />
+                )}
+
+                <div className="relative z-10 p-8 bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 hover:border-white/30 transition-all hover:scale-105">
+                  {/* Step number */}
+                  <div className={`absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-${item.color}-500 to-${item.color}-600 rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg`}>
+                    {item.step}
+                  </div>
+
+                  <div className={`p-4 bg-${item.color}-500/20 rounded-2xl w-fit mb-6 mt-4`}>
+                    <item.icon className={`w-8 h-8 text-${item.color}-400`} />
+                  </div>
+
+                  <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
+                  <p className="text-gray-400">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURES SECTION */}
+      <section className="relative py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+              {t('features.title')}
+            </h2>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              {t('features.subtitle')}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { icon: Gift, title: t('features.nftWallet.title'), desc: t('features.nftWallet.desc'), color: 'purple' },
+              { icon: Zap, title: t('features.gasless.title'), desc: t('features.gasless.desc'), color: 'yellow' },
+              { icon: GraduationCap, title: t('features.learn.title'), desc: t('features.learn.desc'), color: 'blue' },
+              { icon: Users, title: t('features.referrals.title'), desc: t('features.referrals.desc'), color: 'green' },
+              { icon: Vote, title: t('features.governance.title'), desc: t('features.governance.desc'), color: 'pink' },
+              { icon: Shield, title: t('features.security.title'), desc: t('features.security.desc'), color: 'cyan' },
+            ].map((feature, i) => (
+              <div
+                key={i}
+                className="group p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-white/30 transition-all hover:scale-105 hover:bg-white/10"
+              >
+                <div className={`p-3 bg-${feature.color}-500/20 rounded-xl w-fit mb-4`}>
+                  <feature.icon className={`w-6 h-6 text-${feature.color}-400`} />
+                </div>
+                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                <p className="text-gray-400 text-sm">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TOKEN INFO SECTION */}
+      <section className="relative py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-3xl border border-white/10 p-8 lg:p-12">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-6">
+                  <Wallet className="w-4 h-4 text-blue-400" />
+                  <span className="text-sm font-medium">{t('token.badge')}</span>
+                </div>
+                <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+                  {t('token.title')}
+                </h2>
+                <p className="text-xl text-gray-400 mb-8">
+                  {t('token.desc')}
+                </p>
+                <div className="space-y-4">
+                  {[
+                    { label: t('token.initial'), value: '2,000,000 CGC' },
+                    { label: t('token.max'), value: '22,000,000 CGC' },
+                    { label: t('token.emission'), value: t('token.emissionValue') },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                      <span className="text-gray-400">{item.label}</span>
+                      <span className="font-bold text-blue-400">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative">
+                <div className="aspect-square bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-3xl p-8 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-6xl lg:text-8xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                      CGC
+                    </div>
+                    <div className="text-xl text-gray-400">{t('token.governance')}</div>
+                    <div className="mt-6 flex items-center justify-center gap-4">
+                      <div className="flex items-center gap-2 text-green-400">
+                        <CheckCircle2 className="w-5 h-5" />
+                        <span className="text-sm">{t('token.verified')}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-blue-400">
+                        <Shield className="w-5 h-5" />
+                        <span className="text-sm">{t('token.secure')}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA SECTION */}
+      <section className="relative py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl lg:text-6xl font-bold mb-6">
+            {t('cta.title')}
+          </h2>
+          <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+            {t('cta.subtitle')}
           </p>
-        </div>
-      </div>
-      {loading ? (
-        <div className="h-8 w-24 bg-glass rounded animate-pulse"></div>
-      ) : (
-        <p className="text-2xl font-bold text-glass">{value}</p>
-      )}
-    </div>
-  );
-}
 
-// Action Panel Component
-function ActionPanel({
-  title,
-  description,
-  icon,
-  actions,
-  delay = "0s"
-}: {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  actions: Array<{
-    label: string;
-    action: () => void;
-    loading?: boolean;
-    disabled?: boolean;
-    primary?: boolean;
-    secondary?: boolean;
-  }>;
-  delay?: string;
-}) {
-  return (
-    <div className="glass-panel p-6 spring-in" style={{ animationDelay: delay }}>
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 glass-bubble">
-          {icon}
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link
+              href="/tasks"
+              className="group inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl font-semibold text-xl hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
+            >
+              <Rocket className="w-6 h-6" />
+              {t('cta.button1')}
+              <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/referrals"
+              className="inline-flex items-center gap-2 px-10 py-5 bg-white/10 backdrop-blur-sm rounded-xl font-semibold text-xl border border-white/20 hover:bg-white/20 transition-all hover:scale-105"
+            >
+              <Users className="w-6 h-6" />
+              {t('cta.button2')}
+            </Link>
+          </div>
+
+          {/* Social proof */}
+          <div className="mt-16 flex flex-wrap items-center justify-center gap-8 text-gray-400">
+            <div className="flex items-center gap-2">
+              <div className="flex -space-x-2">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 border-2 border-slate-900" />
+                ))}
+              </div>
+              <span className="text-sm">{t('cta.joined')}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+              <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+              <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+              <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+              <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+              <span className="text-sm ml-1">{t('cta.rating')}</span>
+            </div>
+          </div>
         </div>
-        <div>
-          <h3 className="text-xl font-semibold text-glass">{title}</h3>
-          <p className="text-glass-secondary text-sm">{description}</p>
-        </div>
-      </div>
-      
-      <div className="space-y-3">
-        {actions.map((action, index) => (
-          <button
-            key={index}
-            className={`glass-button w-full text-left flex items-center justify-between group ${
-              action.primary ? 'pulse-glow' : ''
-            } ${
-              action.secondary ? 'opacity-75' : ''
-            }`}
-            onClick={action.action}
-            disabled={action.disabled || action.loading}
-          >
-            <span className={action.loading ? 'opacity-50' : ''}>{action.label}</span>
-            {action.loading && (
-              <div className="w-4 h-4 border-2 border-glass-secondary border-t-transparent rounded-full animate-spin"></div>
-            )}
-          </button>
-        ))}
-      </div>
+      </section>
+
+      <Footer />
     </div>
   );
 }

@@ -10,7 +10,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Navbar } from '@/components/layout/Navbar';
-import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { SpecialReferralCard } from '@/components/referrals/SpecialReferralCard';
 import { PermanentReferralCard } from '@/components/referrals/PermanentReferralCard';
 import { QRCodeModal } from '@/components/referrals/QRCodeModal';
@@ -119,45 +118,40 @@ export default function ReferralsPage() {
     <>
       <Navbar />
 
-      <CGCAccessGate
-        title={`🤝 ${t('accessTitle')}`}
-        description={t('accessDescription')}
-        requiredBalance="0.01"
-      >
-        <div className="min-h-screen theme-gradient-bg">
-          {/* Background effects */}
-          <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">
-            <div className="absolute top-20 left-20 w-72 h-72 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
-            <div className="absolute top-40 right-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
-            <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-cyan-400 dark:bg-cyan-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
-          </div>
+      {/* Open access - no token gating for viewing */}
+      <div className="min-h-screen theme-gradient-bg">
+        {/* Background effects */}
+        <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">
+          <div className="absolute top-20 left-20 w-72 h-72 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
+          <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-cyan-400 dark:bg-cyan-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
+        </div>
 
-          {/* Header */}
-          <div className="relative z-10 border-b border-gray-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
-            <div className="container mx-auto px-4 py-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
-                    <Users className="h-8 w-8 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">{t('subtitle')}</span>
-                  </div>
+        {/* Header */}
+        <div className="relative z-10 border-b border-gray-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+                  <Users className="h-8 w-8 text-white" />
                 </div>
-                <Badge variant="secondary" className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
-                  <Activity className="h-3 w-3 mr-1" />
-                  Active
-                </Badge>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('title')}</h1>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{t('subtitle')}</span>
+                </div>
               </div>
+              <Badge variant="secondary" className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                <Activity className="h-3 w-3 mr-1" />
+                Active
+              </Badge>
             </div>
           </div>
-
-          <div className="relative z-10 container mx-auto px-4 py-8">
-            <ReferralsDashboard />
-          </div>
         </div>
-      </CGCAccessGate>
+
+        <div className="relative z-10 container mx-auto px-4 py-8">
+          <ReferralsDashboard />
+        </div>
+      </div>
     </>
   );
 }

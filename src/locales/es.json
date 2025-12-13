@@ -1,4 +1,113 @@
 {
+  "landing": {
+    "hero": {
+      "badge": "Plataforma de Educación Web3 en Base",
+      "title1": "Aprende Web3.",
+      "title2": "Gana Gobernanza.",
+      "subtitle": "La primera plataforma donde tu esfuerzo educativo se convierte en poder de decisión. Completa tareas, gana tokens CGC y co-gobierna el futuro de la educación descentralizada.",
+      "cta1": "Comienza a Aprender",
+      "cta2": "Leer Docs",
+      "trust1": "Contratos Verificados",
+      "trust2": "Base Mainnet",
+      "trust3": "Onboarding sin Gas",
+      "card": {
+        "title": "Tu Progreso",
+        "subtitle": "Miembro Activo",
+        "learn": "Progreso de Aprendizaje",
+        "earn": "Ganancias por Referidos",
+        "govern": "Poder de Gobernanza",
+        "active": "Activo"
+      },
+      "floating": {
+        "verified": "Contrato Verificado",
+        "gasless": "Cero Comisiones de Gas"
+      }
+    },
+    "stats": {
+      "community": "Miembros de la Comunidad",
+      "tasksCompleted": "Tareas Completadas",
+      "distributed": "Tokens Distribuidos",
+      "milestones": "Milestones Logrados"
+    },
+    "problem": {
+      "title": "Web3 Tiene un Problema",
+      "subtitle": "La barrera de entrada es demasiado alta. Estamos cambiando eso.",
+      "problemTitle": "La Realidad Actual",
+      "problem1": "La jerga técnica compleja intimida a los nuevos usuarios",
+      "problem2": "No hay un camino claro de principiante a contribuidor",
+      "problem3": "La educación tradicional no recompensa el progreso",
+      "problem4": "La gobernanza está dominada por early adopters con capital",
+      "solutionTitle": "Nuestra Solución",
+      "solution1": "Aprendizaje gamificado con rutas de progresión claras",
+      "solution2": "Gana tokens de gobernanza completando tareas educativas",
+      "solution3": "Sistema de referidos multinivel recompensa el crecimiento comunitario",
+      "solution4": "Tu esfuerzo equivale a tu voz en la gobernanza"
+    },
+    "howItWorks": {
+      "title": "Cómo Funciona",
+      "subtitle": "Tres simples pasos para ir de cero a contribuidor Web3",
+      "step1": {
+        "title": "Conecta",
+        "desc": "Conecta cualquier wallet o crea una al instante. No se requieren comisiones de gas para comenzar."
+      },
+      "step2": {
+        "title": "Aprende y Gana",
+        "desc": "Completa tareas educativas y quests. Cada completación te da tokens de gobernanza CGC."
+      },
+      "step3": {
+        "title": "Co-Gobierna",
+        "desc": "Usa tus tokens para votar propuestas, crear iniciativas y dar forma al futuro de la plataforma."
+      }
+    },
+    "features": {
+      "title": "Construido para el Futuro",
+      "subtitle": "Tecnología de vanguardia combinada con diseño intuitivo",
+      "nftWallet": {
+        "title": "NFT = Wallet (ERC-6551)",
+        "desc": "Cuentas revolucionarias token-bound convierten tus NFTs en wallets completamente funcionales."
+      },
+      "gasless": {
+        "title": "Cero Comisiones de Gas",
+        "desc": "La abstracción de cuentas permite transacciones sin gas para un onboarding perfecto."
+      },
+      "learn": {
+        "title": "Aprende para Ganar",
+        "desc": "Academia estructurada con quests que recompensan logros educativos reales."
+      },
+      "referrals": {
+        "title": "Referidos de 3 Niveles",
+        "desc": "Sistema de referidos multinivel con distribución automática de recompensas on-chain."
+      },
+      "governance": {
+        "title": "Gobernanza DAO",
+        "desc": "Impulsado por Aragon OSx con votación por tokens para decisiones transparentes y descentralizadas."
+      },
+      "security": {
+        "title": "Seguridad Enterprise",
+        "desc": "Smart contracts verificados con treasury multi-firma y auditoría completa."
+      }
+    },
+    "token": {
+      "badge": "Token CGC",
+      "title": "El Token CGC",
+      "desc": "Un token de gobernanza puro sin derechos económicos. Tu CGC representa tu voz en el DAO.",
+      "initial": "Supply Inicial",
+      "max": "Supply Máximo (vía Milestones)",
+      "emission": "Modelo de Emisión",
+      "emissionValue": "Basado en Milestones",
+      "governance": "Token de Gobernanza",
+      "verified": "Verificado",
+      "secure": "Seguro"
+    },
+    "cta": {
+      "title": "¿Listo para Comenzar?",
+      "subtitle": "Únete a cientos de aprendices que ya están ganando poder de gobernanza. Tu viaje Web3 comienza aquí.",
+      "button1": "Comienza tu Viaje",
+      "button2": "Invita Amigos",
+      "joined": "500+ miembros unidos",
+      "rating": "5.0 valoración comunidad"
+    }
+  },
   "navigation": {
     "dashboard": "Panel",
     "tasks": "Tareas",
@@ -72,6 +181,8 @@
       "title": "Estado del Sistema",
       "active": "Activo",
       "inactive": "Inactivo",
+      "beta": "Modo Beta",
+      "syncing": "Sincronizando métricas",
       "limits": "Límites",
       "daily": "Diario",
       "weekly": "Semanal",
@@ -926,8 +1037,8 @@
       "verification": "Verificación del Token"
     },
     "whitepaper": {
-      "title": "Whitepaper v1.1",
-      "updated": "Última actualización: 9 de Enero, 2025",
+      "title": "Whitepaper v1.2",
+      "updated": "Última actualización: 11 de Diciembre, 2025",
       "download": {
         "title": "Descargar Whitepaper Completo",
         "description": "Accede a la documentación técnica completa",
@@ -974,25 +1085,25 @@
         "title": "Token de Gobernanza (CGC)",
         "name": "Nombre: CryptoGift Coin",
         "symbol": "Símbolo: CGC",
-        "supply": "Suministro Total: 2,000,000 CGC",
+        "supply": "Supply Inicial: 2M CGC | Máx: 22M CGC (basado en milestones)",
         "blockchain": "Blockchain: Base (Ethereum L2)",
         "standard": "Estándar: ERC-20",
         "type": "Tipo: Token de Gobernanza Puro (sin derechos económicos)"
       },
       "distribution": {
-        "title": "Distribución Inicial",
-        "rewards": "Recompensas Educativas",
-        "rewardsDesc": "Recompensas por quests, logros educativos, incentivos comunitarios",
+        "title": "Distribución Inicial (2M CGC)",
+        "referrals": "Programa de Referidos",
+        "referralsDesc": "Recompensas multinivel y bonos de registro",
+        "educational": "Recompensas Educativas",
+        "educationalDesc": "Completar quests, tareas academy, logros de aprendizaje",
         "treasury": "Tesoro DAO",
         "treasuryDesc": "Controlado por gobernanza para desarrollo del protocolo",
         "contributors": "Core Contributors",
         "contributorsDesc": "2 años vesting, 6 meses cliff",
-        "ecosystem": "Desarrollo Ecosistema",
-        "ecosystemDesc": "Grants y partnerships",
-        "liquidity": "Liquidez",
-        "liquidityDesc": "Pools DEX en Base",
-        "reserve": "Reserva Emergencia",
-        "reserveDesc": "Controlado por multisig 3/5"
+        "liquidity": "Pool de Liquidez",
+        "liquidityDesc": "Pool Aerodrome DEX en Base (CGC/WETH)",
+        "reserve": "Reserva de Emergencia",
+        "reserveDesc": "Controlado por multisig 3/5 para emergencias"
       },
       "caps": {
         "title": "Caps de Emisión",
@@ -1149,10 +1260,12 @@
         "title": "Información del Token",
         "contractAddress": "Dirección del Contrato",
         "contractNote": "Token CGC en Base Mainnet (verificado en BaseScan)",
-        "totalSupply": "Suministro Total",
-        "totalSupplyValue": "2,000,000 CGC",
-        "circulatingSupply": "Suministro Circulante",
-        "circulatingSupplyNote": "Actualizado diariamente vía API",
+        "initialSupply": "Suministro Inicial/Circulante",
+        "initialSupplyValue": "2,000,000 CGC",
+        "maxSupply": "Suministro Máximo Teórico",
+        "maxSupplyValue": "22,000,000 CGC (vía emisión por milestones)",
+        "emissionModel": "Modelo de Emisión",
+        "emissionModelValue": "Basado en milestones: Nuevos tokens acuñados solo cuando el DAO completa milestones verificados",
         "blockchain": "Blockchain",
         "blockchainValue": "Base (Ethereum Layer 2)",
         "chainId": "Chain ID",

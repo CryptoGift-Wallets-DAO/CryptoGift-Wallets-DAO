@@ -1,4 +1,12 @@
-# 📘 CryptoGift Wallets DAO - Whitepaper v1.1
+# ⚠️ DEPRECATED - See [Whitepaper v1.2](/public/CRYPTOGIFT_WHITEPAPER_v1.2.md)
+
+> **Note**: This document is outdated. The current official whitepaper is **v1.2** available at:
+> - Web: https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html
+> - Source: `/public/CRYPTOGIFT_WHITEPAPER_v1.2.md`
+
+---
+
+# 📘 CryptoGift Wallets DAO - Whitepaper v1.1 (ARCHIVED)
 
 ## Executive Summary
 

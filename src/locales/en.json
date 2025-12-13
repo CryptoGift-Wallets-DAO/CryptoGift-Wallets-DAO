@@ -1,4 +1,113 @@
 {
+  "landing": {
+    "hero": {
+      "badge": "Web3 Education Platform on Base",
+      "title1": "Learn Web3.",
+      "title2": "Earn Governance.",
+      "subtitle": "The first platform where your educational effort becomes decision-making power. Complete tasks, earn CGC tokens, and co-govern the future of decentralized education.",
+      "cta1": "Start Learning",
+      "cta2": "Read Docs",
+      "trust1": "Verified Contracts",
+      "trust2": "Base Mainnet",
+      "trust3": "Gasless Onboarding",
+      "card": {
+        "title": "Your Progress",
+        "subtitle": "Active Member",
+        "learn": "Learning Progress",
+        "earn": "Referral Earnings",
+        "govern": "Governance Power",
+        "active": "Active"
+      },
+      "floating": {
+        "verified": "Contract Verified",
+        "gasless": "Zero Gas Fees"
+      }
+    },
+    "stats": {
+      "community": "Community Members",
+      "tasksCompleted": "Tasks Completed",
+      "distributed": "Tokens Distributed",
+      "milestones": "Milestones Achieved"
+    },
+    "problem": {
+      "title": "Web3 Has a Problem",
+      "subtitle": "The barrier to entry is too high. We are changing that.",
+      "problemTitle": "The Current Reality",
+      "problem1": "Complex technical jargon intimidates newcomers",
+      "problem2": "No clear path from beginner to contributor",
+      "problem3": "Traditional education doesn't reward progress",
+      "problem4": "Governance is dominated by early adopters with capital",
+      "solutionTitle": "Our Solution",
+      "solution1": "Gamified learning with clear progression paths",
+      "solution2": "Earn governance tokens by completing educational tasks",
+      "solution3": "Multi-level referral system rewards community growth",
+      "solution4": "Your effort equals your voice in governance"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Three simple steps to go from zero to Web3 contributor",
+      "step1": {
+        "title": "Connect",
+        "desc": "Connect any wallet or create one instantly. No gas fees required to get started."
+      },
+      "step2": {
+        "title": "Learn & Earn",
+        "desc": "Complete educational tasks and quests. Each completion earns you CGC governance tokens."
+      },
+      "step3": {
+        "title": "Co-Govern",
+        "desc": "Use your tokens to vote on proposals, create initiatives, and shape the future of the platform."
+      }
+    },
+    "features": {
+      "title": "Built for the Future",
+      "subtitle": "Cutting-edge technology meets intuitive design",
+      "nftWallet": {
+        "title": "NFT = Wallet (ERC-6551)",
+        "desc": "Revolutionary token-bound accounts turn your NFTs into fully functional wallets."
+      },
+      "gasless": {
+        "title": "Zero Gas Fees",
+        "desc": "Account abstraction enables gasless transactions for seamless onboarding."
+      },
+      "learn": {
+        "title": "Learn to Earn",
+        "desc": "Structured academy with quests that reward real educational achievement."
+      },
+      "referrals": {
+        "title": "3-Level Referrals",
+        "desc": "Multi-level referral system with automatic on-chain rewards distribution."
+      },
+      "governance": {
+        "title": "DAO Governance",
+        "desc": "Powered by Aragon OSx with token voting for transparent, decentralized decisions."
+      },
+      "security": {
+        "title": "Enterprise Security",
+        "desc": "Verified smart contracts with multi-sig treasury and comprehensive audit trail."
+      }
+    },
+    "token": {
+      "badge": "CGC Token",
+      "title": "The CGC Token",
+      "desc": "A pure governance token with no economic rights. Your CGC represents your voice in the DAO.",
+      "initial": "Initial Supply",
+      "max": "Max Supply (via Milestones)",
+      "emission": "Emission Model",
+      "emissionValue": "Milestone-based",
+      "governance": "Governance Token",
+      "verified": "Verified",
+      "secure": "Secure"
+    },
+    "cta": {
+      "title": "Ready to Start?",
+      "subtitle": "Join hundreds of learners already earning governance power. Your Web3 journey starts here.",
+      "button1": "Start Your Journey",
+      "button2": "Invite Friends",
+      "joined": "500+ members joined",
+      "rating": "5.0 community rating"
+    }
+  },
   "navigation": {
     "dashboard": "Dashboard",
     "tasks": "Tasks",
@@ -72,6 +181,8 @@
       "title": "System Status",
       "active": "Active",
       "inactive": "Inactive",
+      "beta": "Beta Mode",
+      "syncing": "Metrics syncing",
       "limits": "Limits",
       "daily": "Daily",
       "weekly": "Weekly",
@@ -856,8 +967,8 @@
       "verification": "Token Verification"
     },
     "whitepaper": {
-      "title": "Whitepaper v1.1",
-      "updated": "Last updated: January 9, 2025",
+      "title": "Whitepaper v1.2",
+      "updated": "Last updated: December 11, 2025",
       "download": {
         "title": "Download Complete Whitepaper",
         "description": "Access the full technical documentation",
@@ -904,25 +1015,25 @@
         "title": "Governance Token (CGC)",
         "name": "Name: CryptoGift Coin",
         "symbol": "Symbol: CGC",
-        "supply": "Total Supply: 2,000,000 CGC",
+        "supply": "Initial Supply: 2M CGC | Max: 22M CGC (milestone-based)",
         "blockchain": "Blockchain: Base (Ethereum L2)",
         "standard": "Standard: ERC-20",
         "type": "Type: Pure Governance Token (no economic rights)"
       },
       "distribution": {
-        "title": "Initial Distribution",
-        "rewards": "Educational Rewards",
-        "rewardsDesc": "Quest rewards, educational achievements, community incentives",
+        "title": "Initial Distribution (2M CGC)",
+        "referrals": "Referral Program",
+        "referralsDesc": "Multi-level referral rewards and signup bonuses",
+        "educational": "Educational Rewards",
+        "educationalDesc": "Quest completion, academy tasks, learning achievements",
         "treasury": "DAO Treasury",
         "treasuryDesc": "Controlled by governance for protocol development",
         "contributors": "Core Contributors",
         "contributorsDesc": "2 years vesting, 6 month cliff",
-        "ecosystem": "Ecosystem Development",
-        "ecosystemDesc": "Grants and partnerships",
-        "liquidity": "Liquidity",
-        "liquidityDesc": "DEX pools on Base",
+        "liquidity": "Liquidity Pool",
+        "liquidityDesc": "Aerodrome DEX pool on Base (CGC/WETH)",
         "reserve": "Emergency Reserve",
-        "reserveDesc": "Multisig 3/5 controlled"
+        "reserveDesc": "Multisig 3/5 controlled for emergencies"
       },
       "caps": {
         "title": "Emission Caps",
@@ -1079,10 +1190,12 @@
         "title": "Token Information",
         "contractAddress": "Contract Address",
         "contractNote": "CGC Token on Base Mainnet (verified on BaseScan)",
-        "totalSupply": "Total Supply",
-        "totalSupplyValue": "2,000,000 CGC",
-        "circulatingSupply": "Circulating Supply",
-        "circulatingSupplyNote": "Updated daily via API",
+        "initialSupply": "Initial/Circulating Supply",
+        "initialSupplyValue": "2,000,000 CGC",
+        "maxSupply": "Max Theoretical Supply",
+        "maxSupplyValue": "22,000,000 CGC (via milestone-based emission)",
+        "emissionModel": "Emission Model",
+        "emissionModelValue": "Milestone-based: New tokens minted only when DAO completes verified milestones",
         "blockchain": "Blockchain",
         "blockchainValue": "Base (Ethereum Layer 2)",
         "chainId": "Chain ID",
