@@ -466,7 +466,7 @@ export default function LandingPage() {
                     >
                       {/* Inner GLASS CIRCLE - transparent with blur */}
                       <div
-                        className="w-full h-full rounded-full flex items-center justify-center overflow-hidden relative"
+                        className="w-full h-full rounded-full flex items-center justify-center overflow-hidden relative p-2"
                         style={{
                           background: 'rgba(255, 255, 255, 0.1)',
                           backdropFilter: 'blur(20px)',
@@ -480,16 +480,12 @@ export default function LandingPage() {
                           style={{ animation: 'shimmer 3s infinite' }}
                         />
 
-                        {/* CGC Logo */}
+                        {/* CGC Logo - BIGGER, fills most of the circle */}
                         <img
-                          src="/cgc-logo-200x200.png"
+                          src="/cgc-logo-512x512.png"
                           alt="CGC Token"
-                          className="relative z-10 w-28 h-28 lg:w-36 lg:h-36 object-contain"
+                          className="relative z-10 w-[85%] h-[85%] object-contain"
                           style={{ filter: 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.8))' }}
-                          onError={(e) => {
-                            // Fallback to 512 version if 200x200 fails
-                            (e.target as HTMLImageElement).src = '/cgc-logo-512x512.png';
-                          }}
                         />
                       </div>
                     </div>
@@ -501,17 +497,22 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Token info below */}
-                <div className="text-center mt-8">
+                {/* Token info below - CLOSER to circle */}
+                <div className="text-center mt-3">
                   <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-1">
                     CGC Token
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">{t('token.governance')}</div>
                   <div className="flex items-center justify-center gap-4">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-crystal">
+                    <a
+                      href="https://basescan.org/address/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175#code"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-crystal hover:scale-105 transition-transform cursor-pointer"
+                    >
                       <CheckCircle2 className="w-4 h-4 text-green-500" />
                       <span className="text-xs font-medium text-green-600 dark:text-green-400">{t('token.verified')}</span>
-                    </div>
+                    </a>
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-crystal">
                       <Shield className="w-4 h-4 text-blue-500" />
                       <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{t('token.secure')}</span>
