@@ -15,7 +15,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { useDashboardStats } from '@/lib/web3/hooks';
@@ -226,15 +225,15 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Floating elements - spread further to sides */}
-                <div className="absolute -top-6 -right-12 lg:-right-16 p-2 glass-panel rounded-lg text-xs" style={{ animation: 'float 4s ease-in-out infinite 1s' }}>
+                {/* Floating elements - spread much further to sides */}
+                <div className="absolute -top-8 -right-20 lg:-right-28 p-2 glass-panel rounded-lg text-xs" style={{ animation: 'float 4s ease-in-out infinite 1s' }}>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                     <span className="font-medium text-gray-700 dark:text-white">{t('hero.floating.verified')}</span>
                   </div>
                 </div>
 
-                <div className="absolute -bottom-6 -left-12 lg:-left-16 p-2 glass-panel rounded-lg text-xs" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }}>
+                <div className="absolute -bottom-8 -left-20 lg:-left-28 p-2 glass-panel rounded-lg text-xs" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }}>
                   <div className="flex items-center gap-1.5">
                     <Wallet className="w-3.5 h-3.5 text-blue-500" />
                     <span className="font-medium text-gray-700 dark:text-white">{t('hero.floating.gasless')}</span>
@@ -350,8 +349,15 @@ export default function LandingPage() {
                 )}
 
                 <div className="relative z-10 glass-panel p-6 rounded-2xl hover:scale-[1.02] transition-all">
-                  {/* Step number */}
-                  <div className={`absolute -top-3 -left-3 w-8 h-8 bg-gradient-to-br from-${item.color}-500 to-${item.color}-600 rounded-xl flex items-center justify-center font-bold text-sm text-white shadow-md`}>
+                  {/* Step number - Glass effect badge */}
+                  <div className={`absolute -top-3 -left-3 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm text-white shadow-lg backdrop-blur-md border border-white/30`}
+                    style={{
+                      background: `linear-gradient(135deg, var(--tw-gradient-from) 0%, var(--tw-gradient-to) 100%)`,
+                      '--tw-gradient-from': item.color === 'blue' ? '#3b82f6' : item.color === 'purple' ? '#8b5cf6' : '#22c55e',
+                      '--tw-gradient-to': item.color === 'blue' ? '#2563eb' : item.color === 'purple' ? '#7c3aed' : '#16a34a',
+                      boxShadow: `0 4px 15px ${item.color === 'blue' ? 'rgba(59, 130, 246, 0.4)' : item.color === 'purple' ? 'rgba(139, 92, 246, 0.4)' : 'rgba(34, 197, 94, 0.4)'}`,
+                    } as React.CSSProperties}
+                  >
                     {item.step}
                   </div>
 
@@ -440,65 +446,63 @@ export default function LandingPage() {
                   <div className="relative">
                     {/* Outer glow ring */}
                     <div
-                      className="absolute -inset-4 rounded-full opacity-75"
+                      className="absolute -inset-6 rounded-full opacity-60"
                       style={{
                         background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6)',
                         backgroundSize: '300% 100%',
                         animation: 'holographic 4s ease infinite, pulse-glow 3s ease-in-out infinite',
-                        filter: 'blur(20px)',
+                        filter: 'blur(25px)',
                       }}
                     />
 
                     {/* Glass container with holographic border */}
                     <div
-                      className="relative w-40 h-40 lg:w-48 lg:h-48 rounded-full p-1"
+                      className="relative w-44 h-44 lg:w-52 lg:h-52 rounded-full p-1.5"
                       style={{
                         background: 'linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899, #06b6d4, #3b82f6)',
                         backgroundSize: '400% 400%',
                         animation: 'holographic 6s ease infinite',
                       }}
                     >
-                      {/* Inner glass panel */}
-                      <div className="w-full h-full rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl flex items-center justify-center overflow-hidden relative">
+                      {/* Inner glass panel - REAL GLASS EFFECT */}
+                      <div className="w-full h-full rounded-full glass-panel flex items-center justify-center overflow-hidden relative border border-white/30 dark:border-white/20">
                         {/* Shimmer effect */}
                         <div
-                          className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                          className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/40 to-transparent"
                           style={{ animation: 'shimmer 3s infinite' }}
                         />
 
-                        {/* CGC Logo */}
-                        <Image
+                        {/* CGC Logo - using img tag for reliability */}
+                        <img
                           src="/cgc-logo-1mb.png"
                           alt="CGC Token"
-                          width={120}
-                          height={120}
-                          className="relative z-10 drop-shadow-lg lg:w-36 lg:h-36"
-                          style={{ filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))' }}
+                          className="relative z-10 w-28 h-28 lg:w-36 lg:h-36 object-contain"
+                          style={{ filter: 'drop-shadow(0 0 15px rgba(59, 130, 246, 0.6))' }}
                         />
                       </div>
                     </div>
 
                     {/* Floating particles effect */}
-                    <div className="absolute -top-2 -right-2 w-3 h-3 rounded-full bg-blue-400" style={{ animation: 'float 2s ease-in-out infinite' }} />
-                    <div className="absolute -bottom-1 -left-3 w-2 h-2 rounded-full bg-purple-400" style={{ animation: 'float 2.5s ease-in-out infinite 0.5s' }} />
-                    <div className="absolute top-1/2 -right-4 w-2 h-2 rounded-full bg-pink-400" style={{ animation: 'float 3s ease-in-out infinite 1s' }} />
+                    <div className="absolute -top-3 -right-3 w-4 h-4 rounded-full bg-blue-400/80 backdrop-blur-sm" style={{ animation: 'float 2s ease-in-out infinite' }} />
+                    <div className="absolute -bottom-2 -left-4 w-3 h-3 rounded-full bg-purple-400/80 backdrop-blur-sm" style={{ animation: 'float 2.5s ease-in-out infinite 0.5s' }} />
+                    <div className="absolute top-1/2 -right-5 w-3 h-3 rounded-full bg-pink-400/80 backdrop-blur-sm" style={{ animation: 'float 3s ease-in-out infinite 1s' }} />
                   </div>
                 </div>
 
                 {/* Token info below */}
-                <div className="text-center mt-6">
+                <div className="text-center mt-8">
                   <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-1">
                     CGC Token
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">{t('token.governance')}</div>
                   <div className="flex items-center justify-center gap-4">
-                    <div className="flex items-center gap-1 text-green-500">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span className="text-xs font-medium">{t('token.verified')}</span>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 glass-panel rounded-full">
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <span className="text-xs font-medium text-green-600 dark:text-green-400">{t('token.verified')}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-blue-500">
-                      <Shield className="w-4 h-4" />
-                      <span className="text-xs font-medium">{t('token.secure')}</span>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 glass-panel rounded-full">
+                      <Shield className="w-4 h-4 text-blue-500" />
+                      <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{t('token.secure')}</span>
                     </div>
                   </div>
                 </div>
