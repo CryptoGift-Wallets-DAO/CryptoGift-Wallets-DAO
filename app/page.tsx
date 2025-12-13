@@ -515,6 +515,113 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* TEAM SECTION */}
+      <section className="relative py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="rounded-2xl p-6 lg:p-8 glass-crystal border-l-4 border-l-purple-500">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 rounded-full mb-4">
+                <Users className="w-3.5 h-3.5 text-purple-500" />
+                <span className="text-xs font-medium text-purple-600 dark:text-purple-400">{t('team.badge')}</span>
+              </div>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                {t('team.title')}
+              </h2>
+              <p className="text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                {t('team.subtitle')}
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Rafael Gonzalez */}
+              <div className="text-center p-4 rounded-xl glass-crystal">
+                <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-300 dark:border-purple-700">
+                  <img
+                    src="/team/rafael-gonzalez.jpg"
+                    alt="Rafael Gonzalez"
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white">Rafael Gonzalez</h4>
+                <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
+                  Founder & Product / Engineering Lead
+                </p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                  Web3 dev, youth educator, built CryptoGift Wallets end-to-end on Base.
+                </p>
+                <a
+                  href="http://www.linkedin.com/in/rafael-gonzalez-cgc-mbxarts"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  <span>LinkedIn</span>
+                  <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+
+              {/* Roberto Legrá */}
+              <div className="text-center p-4 rounded-xl glass-crystal">
+                <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-300 dark:border-purple-700">
+                  <img
+                    src="/team/roberto-legra.jpg"
+                    alt="Roberto Legrá"
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white">Roberto Legrá</h4>
+                <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
+                  Head of Community & Growth / Marketing Advisor
+                </p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  6 years Community strategy designer & Crypto community builder. Management of moderators, ambassadors, and content creators.
+                </p>
+              </div>
+
+              {/* Leodanni Avila */}
+              <div className="text-center p-4 rounded-xl glass-crystal">
+                <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-300 dark:border-purple-700">
+                  <img
+                    src="/team/leodanni-avila.jpg"
+                    alt="Leodanni Avila"
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white">Leodanni Avila</h4>
+                <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
+                  Business Development & Operations / Marketing Advisor
+                </p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                  3+ years in sales & digital marketing; Experienced Head of Strategy & Business Operations. 5+ years in Web3.
+                </p>
+                <a
+                  href="http://www.linkedin.com/in/leodanni-avila-dev-mbxarts"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  <span>LinkedIn</span>
+                  <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Contact Email */}
+            <div className="mt-6 p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+                <span className="text-sm font-medium text-purple-600 dark:text-purple-400">Official Contact:</span>
+                <a
+                  href="mailto:admin@mbxarts.com"
+                  className="text-sm text-purple-700 dark:text-purple-300 hover:underline font-mono"
+                >
+                  admin@mbxarts.com
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );

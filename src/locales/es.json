@@ -110,6 +110,11 @@
     "videoCarousel": {
       "watch": "Ver Ahora",
       "quality": "Alta Calidad"
+    },
+    "team": {
+      "badge": "Nuestro Equipo",
+      "title": "El Equipo",
+      "subtitle": "Equipo lean liderado por fundadores, combinando producto, desarrollo Web3 y crecimiento. 104 días de beta cerrada con 0 bugs críticos y 85.7% tasa de reclamación. Listos para escalar con financiamiento y socios."
     }
   },
   "navigation": {

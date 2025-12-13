@@ -1194,7 +1194,7 @@ export default function DocsPage() {
                         Web3 dev, youth educator, built CryptoGift Wallets end-to-end on Base.
                       </p>
                       <a
-                        href="https://www.linkedin.com/in/rafael-gonzalez-iautomallink"
+                        href="http://www.linkedin.com/in/rafael-gonzalez-cgc-mbxarts"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
@@ -1239,9 +1239,18 @@ export default function DocsPage() {
                       <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
                         Business Development &amp; Operations / Marketing Advisor
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                         3+ years in sales &amp; digital marketing; Experienced Head of Strategy &amp; Business Operations. 5+ years in Web3.
                       </p>
+                      <a
+                        href="http://www.linkedin.com/in/leodanni-avila-dev-mbxarts"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        <span>LinkedIn</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
                     </div>
                   </div>
 

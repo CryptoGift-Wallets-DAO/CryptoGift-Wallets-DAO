@@ -110,6 +110,11 @@
     "videoCarousel": {
       "watch": "Watch Now",
       "quality": "HD Quality"
+    },
+    "team": {
+      "badge": "Our Team",
+      "title": "The Team",
+      "subtitle": "Lean, founder-led team combining product, Web3 dev and growth. 104 days of closed beta with 0 critical bugs and 85.7% claim rate. Ready to scale with funding & partners."
     }
   },
   "navigation": {
