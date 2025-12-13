@@ -3,8 +3,8 @@
 
 **Fecha**: 13 Diciembre 2025
 **Autor**: CryptoGift DAO Team
-**Versión**: 3.2 FINAL (Copy-Paste Ready)
-**Estado**: ✅ LISTO PARA IMPLEMENTACIÓN - Con Wording Honesto y Underflow Fix
+**Versión**: 3.3 FINAL (Copy-Paste Ready)
+**Estado**: ✅ LISTO PARA IMPLEMENTACIÓN - Runbook Completo con 5 Actions
 
 ---
 
@@ -104,7 +104,7 @@ function withdraw() external nonReentrant {
 ║  │    • unpause después de emergencia (evitar DoS de 7 días)            │  ║
 ║  │    • añadir/remover authorized callers                                │  ║
 ║  │                                                                        │  ║
-║  │  Guardian: EOA del equipo de seguridad                                │  ║
+║  │  Guardian: Multisig 2/3 (mainnet) o EOA (solo testnet)                │  ║
 ║  │  - Puede pausar instantáneo (emergencia)                              │  ║
 ║  │  - NO puede unpause (evita que guardian malicioso controle minting)  │  ║
 ║  └────────────────────────────────────────────────────────────────────────┘  ║
@@ -116,7 +116,7 @@ function withdraw() external nonReentrant {
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                    FLUJO DE MINTING CON GATEWAY v3.2                         ║
+║                    FLUJO DE MINTING CON GATEWAY v3.3                         ║
 ║                     (CAP GLOBAL contra totalSupply())                        ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
@@ -125,7 +125,7 @@ function withdraw() external nonReentrant {
 ║          │ minterGateway.mint(recipient, amount)                             ║
 ║          ▼                                                                   ║
 ║   ┌──────────────────────────────────────────────────────────────────────┐   ║
-║   │                     MINTER GATEWAY v3.2                              │   ║
+║   │                     MINTER GATEWAY v3.3                              │   ║
 ║   │                                                                      │   ║
 ║   │  1. ¿Está el caller autorizado?                                     │   ║
 ║   │     authorizedCallers[msg.sender] == true?                          │   ║
@@ -148,7 +148,7 @@ function withdraw() external nonReentrant {
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                    PROTECCIÓN CONTRA BYPASS (v3.2)                           ║
+║                    PROTECCIÓN CONTRA BYPASS (v3.3)                           ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
 ║   ESCENARIO: DAO añade otro minter vía Timelock (7 días)                    ║
@@ -159,7 +159,7 @@ function withdraw() external nonReentrant {
 ║   │ Gateway piensa que puede mintear 20M más                                ║
 ║   │ Total podría exceder 22M ← ❌ BUG                                       ║
 ║                                                                              ║
-║   AHORA (v3.2):                                                              ║
+║   AHORA (v3.3):                                                              ║
 ║   │ Gateway lee totalSupply() = initialSupply + X                           ║
 ║   │ Gateway calcula: 22M - (initialSupply + X) = remaining                  ║
 ║   │ Gateway SOLO puede mintear remaining ← ✅ GATEWAY SEGURO               ║
@@ -236,7 +236,7 @@ interface ICGCToken {
 }
 
 /**
- * @title MinterGateway v3.2 FINAL
+ * @title MinterGateway v3.3 FINAL
  * @author CryptoGift DAO Team
  * @notice Enforces hard cap on CGC token minting FROM THIS GATEWAY ONLY
  *
@@ -255,10 +255,10 @@ interface ICGCToken {
  * - CGCToken has NO native cap - another minter could exceed 22M
  * - See security matrix for full details
  *
- * OPENZEPPELIN VERSION: Compatible with v4.9+ and v5.x
- * - v4.x: import "@openzeppelin/contracts/security/Pausable.sol"
- * - v5.x: import "@openzeppelin/contracts/utils/Pausable.sol"
- * - This code uses v5.x paths (adjust if using v4.x)
+ * OPENZEPPELIN VERSION: v5.x ONLY (project uses ^5.0.1)
+ * - Imports use v5.x paths: @openzeppelin/contracts/utils/Pausable.sol
+ * - Ownable constructor pattern: Ownable(_owner)
+ * - NOT compatible with v4.x without import path changes
  */
 contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 
@@ -345,7 +345,7 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
     /**
      * @param _cgcToken Address of CGC token (0x5e3a61b550328f3D8C44f60b3e10a49D3d806175)
      * @param _owner Multisig 3/5 address (for fast unpause and caller management)
-     * @param _guardian EOA that can pause in emergencies
+     * @param _guardian Multisig 2/3 for mainnet (EOA only for testnet) - can pause but NOT unpause
      */
     constructor(
         address _cgcToken,
@@ -573,11 +573,11 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 
 ---
 
-## 📋 RUNBOOK DE DEPLOY (4 Acciones + Verificación)
+## 📋 RUNBOOK DE DEPLOY (5 Actions)
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                    RUNBOOK DE DEPLOY MAINNET v3.2                            ║
+║                    RUNBOOK DE DEPLOY MAINNET v3.3                            ║
 ║                    (Con migración atómica + Wording honesto)                 ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
@@ -654,12 +654,31 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 ║  │ ☐ gateway.hasSupplyDrift() == (false, 0)  // No drift inicial          │ ║
 ║  └─────────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                              ║
+║  ACTION 5: Habilitar Sistemas de Minting (CRÍTICO)                          ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ ⚠️  SIN ESTE PASO, NINGÚN SISTEMA PUEDE MINTEAR                        │ ║
+║  │                                                                         │ ║
+║  │ El Gateway por defecto tiene authorizedCallers vacío.                   │ ║
+║  │ Debes añadir los contratos/EOAs que necesitan mintear:                  │ ║
+║  │                                                                         │ ║
+║  │ // Desde Multisig Owner (3/5):                                          │ ║
+║  │ gateway.addAuthorizedCaller(rewardsSystemAddress)                       │ ║
+║  │ gateway.addAuthorizedCaller(adminEOAForEmergency)  // Opcional          │ ║
+║  │                                                                         │ ║
+║  │ VERIFICAR:                                                              │ ║
+║  │ ☐ gateway.authorizedCallers(rewardsSystemAddress) == true              │ ║
+║  │ ☐ gateway.authorizedCallerCount() >= 1                                 │ ║
+║  │                                                                         │ ║
+║  │ NOTA: Solo authorizedCallers pueden llamar gateway.mint()              │ ║
+║  │       Si no añades ninguno, el minting quedará bloqueado.               │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
 ---
 
-## 🛡️ MATRIZ DE SEGURIDAD HONESTA (v3.2)
+## 🛡️ MATRIZ DE SEGURIDAD HONESTA (v3.3)
 
 ### Qué Protege Este Sistema
 
@@ -769,7 +788,7 @@ function emergencyPause(string calldata reason) external {
 
 ---
 
-## 📊 TESTS REQUERIDOS (v3.2)
+## 📊 TESTS REQUERIDOS (v3.3)
 
 ```javascript
 // Tests CORE:
@@ -808,7 +827,7 @@ test_getSupplyInfoDoesNotRevertAfterBurn()      // ← NUEVO v3.2
 
 ---
 
-## 🎯 CRITERIO GO/NO-GO (v3.2)
+## 🎯 CRITERIO GO/NO-GO (v3.3)
 
 | Criterio | Estado |
 |----------|--------|
@@ -823,9 +842,11 @@ test_getSupplyInfoDoesNotRevertAfterBurn()      // ← NUEVO v3.2
 | **Guardian spam mitigación documentada** | ✅ v3.1 |
 | **Wording honesto: Gateway no protege otros minters** | ✅ v3.2 |
 | **getGatewayRemaining() con clamp anti-underflow** | ✅ v3.2 |
-| **OpenZeppelin version clarificada (v4/v5)** | ✅ v3.2 |
+| **OpenZeppelin version: v5.x ONLY (^5.0.1)** | ✅ v3.2 |
+| **ACTION 5: authorizedCallers documentado** | ✅ v3.3 |
+| **Guardian wording consistente (Multisig 2/3)** | ✅ v3.3 |
 
-**VEREDICTO: GO** - Este documento v3.2 está listo para implementación.
+**VEREDICTO: GO** - Este documento v3.3 está listo para implementación.
 
 ### ⚠️ ADVERTENCIA FINAL PARA EL IMPLEMENTADOR
 
@@ -862,11 +883,20 @@ DAO Aragon:        0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31 (owner actual)
 
 **Made by mbxarts.com The Moon in a Box property**
 **Co-Author: Godez22**
-**Versión: 3.2 FINAL - 13 Diciembre 2025**
+**Versión: 3.3 FINAL - 13 Diciembre 2025**
 
 ---
 
 ## 📝 CHANGELOG
+
+### v3.3 (13 Dic 2025) - Runbook Completo + Guardian Consistency
+- **NUEVO**: ACTION 5 añadido al runbook - "Habilitar Sistemas de Minting"
+- **CRÍTICO**: Sin ACTION 5, ningún sistema puede llamar gateway.mint() (authorizedCallers vacío)
+- **FIX**: Guardian wording consistente - ahora dice "Multisig 2/3" en TODO el documento
+- **FIX**: Constructor @param _guardian actualizado con descripción correcta
+- **FIX**: Arquitectura diagram actualizado (EOA → Multisig 2/3)
+- **FIX**: OpenZeppelin version aclarada - "v5.x ONLY" (proyecto usa ^5.0.1)
+- **ACTUALIZADO**: GO/NO-GO criteria con 2 nuevos checks
 
 ### v3.2 (13 Dic 2025) - Wording Honesto + Underflow Fix
 - **FIX CRÍTICO**: `getGatewayRemaining()` ahora usa clamp para evitar underflow en escenario burn
