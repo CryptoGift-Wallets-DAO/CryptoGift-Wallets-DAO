@@ -181,8 +181,8 @@ export default function LandingPage() {
             {/* Right: Visual Element */}
             <div className={`relative transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
               <div className="relative mx-auto w-full max-w-sm">
-                {/* Main card - TRUE GLASS */}
-                <div className="relative z-10 p-6 rounded-2xl border border-white/20" style={{ animation: 'float 6s ease-in-out infinite', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                {/* Main card - GLASS CRYSTAL */}
+                <div className="relative z-10 p-6 rounded-2xl glass-crystal" style={{ animation: 'float 6s ease-in-out infinite' }}>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
                       <Gift className="w-5 h-5 text-white" />
@@ -225,15 +225,15 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Floating elements - TRUE GLASS */}
-                <div className="absolute -top-8 -right-20 lg:-right-28 p-2 rounded-lg text-xs border border-white/20" style={{ animation: 'float 4s ease-in-out infinite 1s', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)' }}>
+                {/* Floating elements - GLASS CRYSTAL */}
+                <div className="absolute -top-8 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 1s' }}>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
                     <span className="font-medium text-gray-700 dark:text-white">{t('hero.floating.verified')}</span>
                   </div>
                 </div>
 
-                <div className="absolute -bottom-8 -left-20 lg:-left-28 p-2 rounded-lg text-xs border border-white/20" style={{ animation: 'float 5s ease-in-out infinite 0.5s', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)' }}>
+                <div className="absolute -bottom-8 -left-20 lg:-left-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }}>
                   <div className="flex items-center gap-1.5">
                     <Wallet className="w-3.5 h-3.5 text-blue-500" />
                     <span className="font-medium text-gray-700 dark:text-white">{t('hero.floating.gasless')}</span>
@@ -257,8 +257,7 @@ export default function LandingPage() {
             ].map((stat, i) => (
               <div
                 key={i}
-                className="p-4 rounded-xl hover:scale-105 transition-all border border-white/20"
-                style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+                className="p-4 rounded-xl glass-crystal hover:scale-105 transition-all"
               >
                 <stat.icon className={`w-6 h-6 text-${stat.color}-500 mb-2`} />
                 <div className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-0.5">{stat.value}</div>
@@ -349,21 +348,15 @@ export default function LandingPage() {
                   <div className="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-gray-300 dark:from-white/20 to-transparent z-0" />
                 )}
 
-                <div
-                  className="relative z-10 p-6 rounded-2xl hover:scale-[1.02] transition-all border border-white/20"
-                  style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
-                >
+                <div className="relative z-10 p-6 rounded-2xl glass-crystal hover:scale-[1.02] transition-all">
                   {/* Step number - Glass effect badge */}
                   <div
-                    className="absolute -top-3 -left-3 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm text-white shadow-lg border border-white/30"
+                    className="absolute -top-3 -left-3 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shadow-lg glass-crystal-badge"
                     style={{
-                      background: 'rgba(255,255,255,0.15)',
-                      backdropFilter: 'blur(15px)',
-                      WebkitBackdropFilter: 'blur(15px)',
                       boxShadow: `0 4px 15px ${item.color === 'blue' ? 'rgba(59, 130, 246, 0.5)' : item.color === 'purple' ? 'rgba(139, 92, 246, 0.5)' : 'rgba(34, 197, 94, 0.5)'}`,
                     }}
                   >
-                    <span className={`bg-gradient-to-br ${item.color === 'blue' ? 'from-blue-400 to-blue-600' : item.color === 'purple' ? 'from-purple-400 to-purple-600' : 'from-green-400 to-green-600'} bg-clip-text text-transparent`}>
+                    <span className={`bg-gradient-to-br ${item.color === 'blue' ? 'from-blue-400 to-blue-600' : item.color === 'purple' ? 'from-purple-400 to-purple-600' : 'from-green-400 to-green-600'} bg-clip-text text-transparent font-bold`}>
                       {item.step}
                     </span>
                   </div>
@@ -404,8 +397,7 @@ export default function LandingPage() {
             ].map((feature, i) => (
               <div
                 key={i}
-                className="p-5 rounded-xl hover:scale-105 transition-all border border-white/20"
-                style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+                className="p-5 rounded-xl glass-crystal hover:scale-105 transition-all"
               >
                 <div className={`p-2 bg-${feature.color}-500/10 dark:bg-${feature.color}-500/20 rounded-lg w-fit mb-3`}>
                   <feature.icon className={`w-5 h-5 text-${feature.color}-500`} />
@@ -421,10 +413,7 @@ export default function LandingPage() {
       {/* TOKEN INFO SECTION */}
       <section className="relative py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <div
-            className="rounded-2xl p-6 lg:p-8 border border-white/20"
-            style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
-          >
+          <div className="rounded-2xl p-6 lg:p-8 glass-crystal">
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 rounded-full mb-4">
@@ -493,10 +482,14 @@ export default function LandingPage() {
 
                         {/* CGC Logo */}
                         <img
-                          src="/cgc-logo-1mb.png"
+                          src="/cgc-logo-200x200.png"
                           alt="CGC Token"
                           className="relative z-10 w-28 h-28 lg:w-36 lg:h-36 object-contain"
                           style={{ filter: 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.8))' }}
+                          onError={(e) => {
+                            // Fallback to 512 version if 200x200 fails
+                            (e.target as HTMLImageElement).src = '/cgc-logo-512x512.png';
+                          }}
                         />
                       </div>
                     </div>
@@ -515,11 +508,11 @@ export default function LandingPage() {
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">{t('token.governance')}</div>
                   <div className="flex items-center justify-center gap-4">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/20" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-crystal">
                       <CheckCircle2 className="w-4 h-4 text-green-500" />
                       <span className="text-xs font-medium text-green-600 dark:text-green-400">{t('token.verified')}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/20" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-crystal">
                       <Shield className="w-4 h-4 text-blue-500" />
                       <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{t('token.secure')}</span>
                     </div>

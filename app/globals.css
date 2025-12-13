@@ -426,6 +426,57 @@ body {
 }
 
 /* ====================================================
+   💎 GLASS CRYSTAL - Works on BOTH Light and Dark modes
+   ==================================================== */
+
+/* Glass crystal effect - semi-transparent with blur */
+.glass-crystal {
+  background: rgba(100, 120, 180, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(100, 120, 180, 0.15);
+  box-shadow:
+    0 4px 16px rgba(100, 120, 180, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-crystal:hover {
+  background: rgba(100, 120, 180, 0.12);
+  box-shadow:
+    0 8px 24px rgba(100, 120, 180, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Dark mode enhancement for glass crystal */
+.dark .glass-crystal {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.dark .glass-crystal:hover {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Glass crystal badge (for step numbers) */
+.glass-crystal-badge {
+  background: rgba(100, 120, 180, 0.2);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(100, 120, 180, 0.3);
+}
+
+.dark .glass-crystal-badge {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ====================================================
    🔮 ENHANCED GLASS EFFECTS FOR DARK MODE
    ==================================================== */
 
