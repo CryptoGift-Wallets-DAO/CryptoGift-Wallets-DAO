@@ -3,8 +3,8 @@
 
 **Fecha**: 13 Diciembre 2025
 **Autor**: CryptoGift DAO Team
-**Versión**: 3.1 FINAL (Copy-Paste Ready)
-**Estado**: ✅ LISTO PARA IMPLEMENTACIÓN - Con Cap Global Real
+**Versión**: 3.2 FINAL (Copy-Paste Ready)
+**Estado**: ✅ LISTO PARA IMPLEMENTACIÓN - Con Wording Honesto y Underflow Fix
 
 ---
 
@@ -116,7 +116,7 @@ function withdraw() external nonReentrant {
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                    FLUJO DE MINTING CON GATEWAY v3.1                         ║
+║                    FLUJO DE MINTING CON GATEWAY v3.2                         ║
 ║                     (CAP GLOBAL contra totalSupply())                        ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
@@ -139,16 +139,16 @@ function withdraw() external nonReentrant {
 ║   └──────────────────────────────────────────────────────────────────────┘   ║
 ║          │                                                                   ║
 ║          ▼                                                                   ║
-║   [CGCToken] ← Gateway es el ÚNICO minter autorizado                        ║
+║   [CGCToken] ← Gateway es el ÚNICO minter autorizado (idealmente)           ║
 ║          │                                                                   ║
 ║          ▼                                                                   ║
-║   [Tokens minteados] ← GARANTIZADO bajo 22M INCLUSO si otro minter existe   ║
-║                        porque Gateway checa totalSupply() REAL              ║
+║   [Tokens minteados] ← Gateway NO EXCEDERÁ 22M desde sí mismo               ║
+║                        (pero otro minter SÍ podría exceder - ver matriz)    ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                    PROTECCIÓN CONTRA BYPASS (v3.1)                           ║
+║                    PROTECCIÓN CONTRA BYPASS (v3.2)                           ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
 ║   ESCENARIO: DAO añade otro minter vía Timelock (7 días)                    ║
@@ -159,11 +159,14 @@ function withdraw() external nonReentrant {
 ║   │ Gateway piensa que puede mintear 20M más                                ║
 ║   │ Total podría exceder 22M ← ❌ BUG                                       ║
 ║                                                                              ║
-║   AHORA (v3.1):                                                              ║
+║   AHORA (v3.2):                                                              ║
 ║   │ Gateway lee totalSupply() = initialSupply + X                           ║
 ║   │ Gateway calcula: 22M - (initialSupply + X) = remaining                  ║
-║   │ Gateway SOLO puede mintear remaining ← ✅ SEGURO                        ║
+║   │ Gateway SOLO puede mintear remaining ← ✅ GATEWAY SEGURO               ║
 ║   │ Además: hasSupplyDrift() detecta que hubo minting externo              ║
+║   │                                                                         ║
+║   │ ⚠️  PERO: El otro minter YA pudo haber excedido 22M                    ║
+║   │     Gateway no puede evitar eso - CGCToken no tiene cap nativo         ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
@@ -187,9 +190,9 @@ interface ICGCToken {
 }
 
 /**
- * @title MinterGateway v3.0 FINAL
+ * @title MinterGateway v3.2 FINAL
  * @author CryptoGift DAO Team
- * @notice Enforces hard cap on CGC token minting
+ * @notice Enforces hard cap on CGC token minting FROM THIS GATEWAY ONLY
  *
  * @dev VERIFIED FACTS:
  * - CGC has 18 decimals (CGCToken.sol line 288)
@@ -199,7 +202,17 @@ interface ICGCToken {
  * OWNERSHIP MODEL:
  * - Gateway owner: Multisig 3/5 (fast response for unpause/callers)
  * - Token owner: Timelock 7 days (protects against new minters)
- * - Guardian: EOA for emergency pause only
+ * - Guardian: Multisig 2/3 for mainnet (EOA only for testnet)
+ *
+ * CRITICAL LIMITATION:
+ * - This Gateway can only limit ITSELF, not other minters
+ * - CGCToken has NO native cap - another minter could exceed 22M
+ * - See security matrix for full details
+ *
+ * OPENZEPPELIN VERSION: Compatible with v4.9+ and v5.x
+ * - v4.x: import "@openzeppelin/contracts/security/Pausable.sol"
+ * - v5.x: import "@openzeppelin/contracts/utils/Pausable.sol"
+ * - This code uses v5.x paths (adjust if using v4.x)
  */
 contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 
@@ -395,8 +408,15 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
      * @notice Gateway-internal remaining (for bookkeeping only)
      * @dev This is just the Gateway's internal counter
      *      Use getGlobalRemaining() for actual mintable amount
+     *
+     * @dev CRITICAL FIX v3.2: Clamp to prevent underflow if burn occurs
+     *      SCENARIO: If tokens are burned and Gateway re-mints (allowed by globalRemaining),
+     *      totalMintedViaGateway can exceed maxMintableViaGateway → underflow!
+     *      FIX: Return 0 instead of reverting
      */
     function getGatewayRemaining() public view returns (uint256) {
+        // Clamp to prevent underflow in burn scenarios
+        if (totalMintedViaGateway >= maxMintableViaGateway) return 0;
         return maxMintableViaGateway - totalMintedViaGateway;
     }
 
@@ -593,7 +613,7 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 
 ---
 
-## 🛡️ MATRIZ DE SEGURIDAD HONESTA (v3.1)
+## 🛡️ MATRIZ DE SEGURIDAD HONESTA (v3.2)
 
 ### Qué Protege Este Sistema
 
@@ -604,8 +624,9 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 | Guardian malicioso pausa indefinido | ✅ **SÍ** | Unpause es Multisig (rápido) |
 | DAO añade nuevo minter bypass | ⚠️ **CON DELAY** | Timelock da 7 días de aviso |
 | Bug en contrato Gateway | ✅ **MITIGADO** | Multisig puede pausar, comunidad puede migrar |
-| **Otro minter excede 22M** | ✅ **SÍ (v3.1)** | Gateway checa totalSupply() REAL, no contador interno |
-| **Supply drift no detectado** | ✅ **SÍ (v3.1)** | hasSupplyDrift() detecta minting externo |
+| **Gateway excede 22M por drift externo** | ✅ **SÍ (v3.2)** | Gateway checa totalSupply() REAL antes de mintear |
+| **Supply drift no detectado** | ✅ **SÍ (v3.2)** | hasSupplyDrift() detecta minting externo |
+| **Otro minter excede 22M** | ❌ **NO** | CGCToken NO tiene cap; otro minter puede exceder |
 
 ### Lo Que NO Protege (Honestidad)
 
@@ -615,6 +636,34 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 | Multisig 3/5 se compromete | Gateway owner comprometido = callers manipulables |
 | Timelock + DAO maliciosos coordinados | Pueden bypass después de delay |
 | Guardian spamea pausas | **MITIGADO** - ver sección siguiente |
+| **Otro minter excede supply total de 22M** | **NO PROTEGIDO** - CGCToken no tiene cap, Gateway solo se auto-limita |
+
+### ⚠️ LIMITACIÓN CRÍTICA: EL GATEWAY NO CONTROLA OTROS MINTERS
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    VERDAD SOBRE LA PROTECCIÓN DE 22M                         ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║   LO QUE EL GATEWAY SÍ HACE:                                                ║
+║   ✅ Se auto-limita a no mintear si totalSupply() >= 22M                    ║
+║   ✅ Detecta drift con hasSupplyDrift()                                      ║
+║   ✅ No agrava el problema si otro minter ya excedió                        ║
+║                                                                              ║
+║   LO QUE EL GATEWAY NO PUEDE HACER:                                         ║
+║   ❌ Prevenir que otro minter (añadido vía Timelock) mintee > 22M          ║
+║   ❌ Forzar el cap de 22M a nivel del token CGC (no tiene cap nativo)      ║
+║                                                                              ║
+║   CONSECUENCIA:                                                              ║
+║   Si el DAO añade otro minter y ese minter NO tiene cap interno,            ║
+║   la supply total PUEDE exceder 22M.                                        ║
+║   El Gateway no puede evitar eso - solo puede evitar contribuir al exceso.  ║
+║                                                                              ║
+║   SOLUCIÓN REAL PARA CAP ABSOLUTO:                                          ║
+║   Modificar CGCToken con un cap nativo (requiere upgrade o nuevo deploy)   ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
 
 ### 🛑 Mitigación de Guardian Spam (Brecha #4)
 
@@ -674,10 +723,10 @@ function emergencyPause(string calldata reason) external {
 
 ---
 
-## 📊 TESTS REQUERIDOS (v3.1)
+## 📊 TESTS REQUERIDOS (v3.2)
 
 ```javascript
-// Tests CORE (v3.0):
+// Tests CORE:
 test_cannotMintOverCap()
 test_onlyAuthorizedCanMint()
 test_correctInitialSupplyReading()
@@ -688,12 +737,17 @@ test_guardianCannotUnpause()
 test_ownerCanUnpause()
 test_decimalsVerification()
 
-// Tests NUEVOS (v3.1 - Global Cap):
+// Tests GLOBAL CAP (v3.1+):
 test_globalCapEnforcedAgainstTotalSupply()    // ← CRÍTICO
 test_cannotExceed22MEvenIfAnotherMinterExists()  // Simular otro minter
 test_getGlobalRemainingReflectsActualSupply()
 test_hasSupplyDriftDetectsExternalMinting()
 test_mintFailsWhenGlobalCapReached()
+
+// Tests UNDERFLOW FIX (v3.2):
+test_getGatewayRemainingReturnsZeroAfterBurn()  // ← NUEVO v3.2
+test_getSupplyInfoDoesNotRevertAfterBurn()      // ← NUEVO v3.2
+// Escenario: mint 19M, burn 5M, mint 2M más → gatewayRemaining debe ser 0 (no revert)
 
 // Test de Simulación de Bypass:
 // 1. Deploy Gateway
@@ -708,7 +762,7 @@ test_mintFailsWhenGlobalCapReached()
 
 ---
 
-## 🎯 CRITERIO GO/NO-GO (v3.1)
+## 🎯 CRITERIO GO/NO-GO (v3.2)
 
 | Criterio | Estado |
 |----------|--------|
@@ -718,11 +772,34 @@ test_mintFailsWhenGlobalCapReached()
 | Postura Timelock honesta | ✅ |
 | Política pause/unpause clara | ✅ |
 | CGC decimals verificado (18) | ✅ |
-| **Cap validado contra totalSupply() real (Brecha #1)** | ✅ v3.1 |
-| **Migración atómica documentada (Brecha #3)** | ✅ v3.1 |
-| **Guardian spam mitigación documentada (Brecha #4)** | ✅ v3.1 |
+| **Cap validado contra totalSupply() real** | ✅ v3.1 |
+| **Migración atómica documentada** | ✅ v3.1 |
+| **Guardian spam mitigación documentada** | ✅ v3.1 |
+| **Wording honesto: Gateway no protege otros minters** | ✅ v3.2 |
+| **getGatewayRemaining() con clamp anti-underflow** | ✅ v3.2 |
+| **OpenZeppelin version clarificada (v4/v5)** | ✅ v3.2 |
 
-**VEREDICTO: GO** - Este documento v3.1 está listo para implementación.
+**VEREDICTO: GO** - Este documento v3.2 está listo para implementación.
+
+### ⚠️ ADVERTENCIA FINAL PARA EL IMPLEMENTADOR
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║   ANTES DE DEPLOY EN MAINNET, ASEGURATE DE ENTENDER ESTAS LIMITACIONES:     ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║   1. El Gateway SOLO se limita a sí mismo - NO puede controlar otros        ║
+║      minters que el DAO añada en el futuro vía Timelock.                    ║
+║                                                                              ║
+║   2. Si necesitas un cap ABSOLUTO de 22M en TODO el sistema, debes          ║
+║      modificar CGCToken directamente (requiere upgrade o nuevo deploy).     ║
+║                                                                              ║
+║   3. El Gateway es una CAPA DE SEGURIDAD ADICIONAL, no la única.           ║
+║                                                                              ║
+║   4. Guardian DEBE ser Multisig 2/3 en mainnet (no EOA).                   ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
 
 ---
 
@@ -739,11 +816,21 @@ DAO Aragon:        0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31 (owner actual)
 
 **Made by mbxarts.com The Moon in a Box property**
 **Co-Author: Godez22**
-**Versión: 3.1 FINAL - 13 Diciembre 2025**
+**Versión: 3.2 FINAL - 13 Diciembre 2025**
 
 ---
 
 ## 📝 CHANGELOG
+
+### v3.2 (13 Dic 2025) - Wording Honesto + Underflow Fix
+- **FIX CRÍTICO**: `getGatewayRemaining()` ahora usa clamp para evitar underflow en escenario burn
+- **WORDING HONESTO**: Matriz de seguridad ahora dice claramente que otro minter SÍ puede exceder 22M
+- **NUEVO**: Sección "LIMITACIÓN CRÍTICA: EL GATEWAY NO CONTROLA OTROS MINTERS"
+- **ACTUALIZADO**: Contract header clarifica que Gateway solo se limita a sí mismo
+- **ACTUALIZADO**: OpenZeppelin version clarificada (v4.x vs v5.x paths)
+- **ACTUALIZADO**: Guardian recomendación reforzada: Multisig 2/3 obligatorio para mainnet
+- **ACTUALIZADO**: Advertencia final para implementador con 4 puntos críticos
+- **TESTS NUEVOS**: `test_getGatewayRemainingReturnsZeroAfterBurn()`, `test_getSupplyInfoDoesNotRevertAfterBurn()`
 
 ### v3.1 (13 Dic 2025) - Brechas Críticas Corregidas
 - **Brecha #1 (CRÍTICA)**: mint() ahora valida contra `MAX_TOTAL_SUPPLY - cgcToken.totalSupply()` (cap global real)
