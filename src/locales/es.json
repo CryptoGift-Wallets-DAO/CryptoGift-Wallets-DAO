@@ -1,111 +1,111 @@
 {
   "landing": {
     "hero": {
-      "badge": "Plataforma de Educación Web3 en Base",
-      "title1": "Aprende Web3.",
-      "title2": "Gana Gobernanza.",
-      "subtitle": "La primera plataforma donde tu esfuerzo educativo se convierte en poder de decisión. Completa tareas, gana tokens CGC y co-gobierna el futuro de la educación descentralizada.",
-      "cta1": "Comienza a Aprender",
-      "cta2": "Leer Docs",
+      "badge": "Donde cada regalo se vuelve capital",
+      "title1": "Regala el Futuro.",
+      "title2": "Transforma Vidas.",
+      "subtitle": "El sistema que convierte a tu amigo que 'no entiende crypto' en holder, contribuidor DAO y protagonista de su libertad financiera. Sin gas. Sin complicaciones. Sin miedo.",
+      "cta1": "Comienza Ahora",
+      "cta2": "Ver Cómo Funciona",
       "trust1": "Contratos Verificados",
       "trust2": "Base Mainnet",
-      "trust3": "Onboarding sin Gas",
+      "trust3": "Gas = $0",
       "card": {
         "title": "Tu Progreso",
-        "subtitle": "Miembro Activo",
-        "learn": "Progreso de Aprendizaje",
-        "earn": "Ganancias por Referidos",
-        "govern": "Poder de Gobernanza",
+        "subtitle": "Futuro Holder",
+        "learn": "Aprendizaje Completado",
+        "earn": "Recompensas Ganadas",
+        "govern": "Poder de Voto",
         "active": "Activo"
       },
       "floating": {
-        "verified": "Contrato Verificado",
-        "gasless": "Cero Comisiones de Gas"
+        "verified": "100% On-Chain",
+        "gasless": "Sin Comisiones"
       }
     },
     "stats": {
-      "community": "Miembros de la Comunidad",
-      "tasksCompleted": "Tareas Completadas",
-      "distributed": "Tokens Distribuidos",
-      "milestones": "Milestones Logrados"
+      "community": "Futuros Holders",
+      "tasksCompleted": "Misiones Cumplidas",
+      "distributed": "Capital Regalado",
+      "milestones": "Vidas Transformadas"
     },
     "problem": {
-      "title": "Web3 Tiene un Problema",
-      "subtitle": "La barrera de entrada es demasiado alta. Estamos cambiando eso.",
-      "problemTitle": "La Realidad Actual",
-      "problem1": "La jerga técnica compleja intimida a los nuevos usuarios",
-      "problem2": "No hay un camino claro de principiante a contribuidor",
-      "problem3": "La educación tradicional no recompensa el progreso",
-      "problem4": "La gobernanza está dominada por early adopters con capital",
-      "solutionTitle": "Nuestra Solución",
-      "solution1": "Aprendizaje gamificado con rutas de progresión claras",
-      "solution2": "Gana tokens de gobernanza completando tareas educativas",
-      "solution3": "Sistema de referidos multinivel recompensa el crecimiento comunitario",
-      "solution4": "Tu esfuerzo equivale a tu voz en la gobernanza"
+      "title": "La Adopción Se Rompe en el Primer Paso",
+      "subtitle": "El 73% dice que crypto es 'muy complicado'. Pero el 89% de esas mismas personas ha regalado dinero alguna vez. ¿Y si el REGALO fuera la puerta de entrada a Web3?",
+      "problemTitle": "La Brecha Actual",
+      "problem1": "Instalar wallet, guardar seed phrase, pagar gas... demasiadas barreras",
+      "problem2": "La mayoría de las entradas a crypto son frías y transaccionales",
+      "problem3": "Tutoriales intimidantes que generan miedo, no confianza",
+      "problem4": "La adopción real solo sucede cuando hay vínculo emocional",
+      "solutionTitle": "Nuestra Tesis",
+      "solution1": "Un regalo significativo convierte la curiosidad en confianza",
+      "solution2": "Tu NFT ES una wallet real (ERC-6551 Token Bound Account)",
+      "solution3": "El arte abre la bóveda; la bóveda escala a millones",
+      "solution4": "Regalar libertad financiera: un pacto de futuro"
     },
     "howItWorks": {
-      "title": "Cómo Funciona",
-      "subtitle": "Tres simples pasos para ir de cero a contribuidor Web3",
+      "title": "La Magia en 3 Pasos",
+      "subtitle": "De 'no entiendo crypto' a holder en 5 minutos. Así de simple.",
       "step1": {
-        "title": "Conecta",
-        "desc": "Conecta cualquier wallet o crea una al instante. No se requieren comisiones de gas para comenzar."
+        "title": "Recibe el Regalo",
+        "desc": "Un link o QR con algo que importa: una foto, un recuerdo, un mensaje. Sin seed phrases, sin gas, sin miedo."
       },
       "step2": {
-        "title": "Aprende y Gana",
-        "desc": "Completa tareas educativas y quests. Cada completación te da tokens de gobernanza CGC."
+        "title": "Aprende lo Esencial",
+        "desc": "Módulos cortos de la Academy desbloquean tu regalo. El factor emocional impulsa el aprendizaje."
       },
       "step3": {
-        "title": "Co-Gobierna",
-        "desc": "Usa tus tokens para votar propuestas, crear iniciativas y dar forma al futuro de la plataforma."
+        "title": "Ya Eres Holder",
+        "desc": "Primera wallet no-custodial + fondos + criterio para moverte en Web3. Tu historia como holder comienza."
       }
     },
     "features": {
-      "title": "Construido para el Futuro",
-      "subtitle": "Tecnología de vanguardia combinada con diseño intuitivo",
+      "title": "Tecnología que Desaparece",
+      "subtitle": "La complejidad se evapora. Solo queda la magia del regalo.",
       "nftWallet": {
-        "title": "NFT = Wallet (ERC-6551)",
-        "desc": "Cuentas revolucionarias token-bound convierten tus NFTs en wallets completamente funcionales."
+        "title": "Tu NFT ES tu Wallet",
+        "desc": "Como si tu foto de perfil pudiera guardar dinero. ERC-6551 convierte arte en bóveda."
       },
       "gasless": {
-        "title": "Cero Comisiones de Gas",
-        "desc": "La abstracción de cuentas permite transacciones sin gas para un onboarding perfecto."
+        "title": "Gas = $0 Siempre",
+        "desc": "Account Abstraction elimina la fricción. Cero comisiones. Cero excusas."
       },
       "learn": {
-        "title": "Aprende para Ganar",
-        "desc": "Academia estructurada con quests que recompensan logros educativos reales."
+        "title": "Academy Emocional",
+        "desc": "El regalo no se libera hasta completar el aprendizaje. Motivación real, no tutoriales fríos."
       },
       "referrals": {
-        "title": "Referidos de 3 Niveles",
-        "desc": "Sistema de referidos multinivel con distribución automática de recompensas on-chain."
+        "title": "El Efecto Viral",
+        "desc": "Cada amigo regalado tiende a regalar al siguiente. 3 niveles de recompensas on-chain."
       },
       "governance": {
-        "title": "Gobernanza DAO",
-        "desc": "Impulsado por Aragon OSx con votación por tokens para decisiones transparentes y descentralizadas."
+        "title": "Tu Voz, Tu Poder",
+        "desc": "Gobernanza DAO real con Aragon. Propuestas, votos, tesorería. Tu esfuerzo = tu voto."
       },
       "security": {
-        "title": "Seguridad Enterprise",
-        "desc": "Smart contracts verificados con treasury multi-firma y auditoría completa."
+        "title": "Transparencia Radical",
+        "desc": "Todo on-chain, auditable en tiempo real. Sin cajas negras. Sin custodios. Sin trucos."
       }
     },
     "token": {
-      "badge": "Token CGC",
-      "title": "El Token CGC",
-      "desc": "Un token de gobernanza puro sin derechos económicos. Tu CGC representa tu voz en el DAO.",
+      "badge": "El Corazón del DAO",
+      "title": "CryptoGift Coin",
+      "desc": "CGC es más que un token: es tu voz en una comunidad que cree en la adopción humana de Web3. Cada CGC representa participación real.",
       "initial": "Supply Inicial",
       "max": "Supply Máximo (vía Milestones)",
       "emission": "Modelo de Emisión",
-      "emissionValue": "Basado en Milestones",
-      "governance": "Token de Gobernanza",
+      "emissionValue": "Basado en Logros",
+      "governance": "Gobernanza Pura",
       "verified": "Verificado",
-      "secure": "Seguro"
+      "secure": "Auditado"
     },
     "cta": {
-      "title": "¿Listo para Comenzar?",
-      "subtitle": "Únete a cientos de aprendices que ya están ganando poder de gobernanza. Tu viaje Web3 comienza aquí.",
-      "button1": "Comienza tu Viaje",
-      "button2": "Invita Amigos",
-      "joined": "500+ miembros unidos",
-      "rating": "5.0 valoración comunidad"
+      "title": "El Mejor Regalo Nunca Fue el Objeto",
+      "subtitle": "Fue la puerta que abre. Hoy esa puerta es blockchain, y la llave cabe en un NFT-wallet que late con historia, con valor... y con futuro.",
+      "button1": "Regala el Futuro",
+      "button2": "Invita y Gana",
+      "joined": "500+ vidas transformadas",
+      "rating": "La adopción más humana"
     }
   },
   "navigation": {

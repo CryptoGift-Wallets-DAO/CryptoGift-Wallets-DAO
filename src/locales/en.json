@@ -1,111 +1,111 @@
 {
   "landing": {
     "hero": {
-      "badge": "Web3 Education Platform on Base",
-      "title1": "Learn Web3.",
-      "title2": "Earn Governance.",
-      "subtitle": "The first platform where your educational effort becomes decision-making power. Complete tasks, earn CGC tokens, and co-govern the future of decentralized education.",
-      "cta1": "Start Learning",
-      "cta2": "Read Docs",
+      "badge": "Where every gift becomes capital",
+      "title1": "Gift the Future.",
+      "title2": "Transform Lives.",
+      "subtitle": "The system that turns your friend who 'doesn't get crypto' into a holder, DAO contributor, and protagonist of their financial freedom. No gas. No complexity. No fear.",
+      "cta1": "Start Now",
+      "cta2": "See How It Works",
       "trust1": "Verified Contracts",
       "trust2": "Base Mainnet",
-      "trust3": "Gasless Onboarding",
+      "trust3": "Gas = $0",
       "card": {
         "title": "Your Progress",
-        "subtitle": "Active Member",
-        "learn": "Learning Progress",
-        "earn": "Referral Earnings",
-        "govern": "Governance Power",
+        "subtitle": "Future Holder",
+        "learn": "Learning Complete",
+        "earn": "Rewards Earned",
+        "govern": "Voting Power",
         "active": "Active"
       },
       "floating": {
-        "verified": "Contract Verified",
-        "gasless": "Zero Gas Fees"
+        "verified": "100% On-Chain",
+        "gasless": "Zero Fees"
       }
     },
     "stats": {
-      "community": "Community Members",
-      "tasksCompleted": "Tasks Completed",
-      "distributed": "Tokens Distributed",
-      "milestones": "Milestones Achieved"
+      "community": "Future Holders",
+      "tasksCompleted": "Missions Complete",
+      "distributed": "Capital Gifted",
+      "milestones": "Lives Transformed"
     },
     "problem": {
-      "title": "Web3 Has a Problem",
-      "subtitle": "The barrier to entry is too high. We are changing that.",
-      "problemTitle": "The Current Reality",
-      "problem1": "Complex technical jargon intimidates newcomers",
-      "problem2": "No clear path from beginner to contributor",
-      "problem3": "Traditional education doesn't reward progress",
-      "problem4": "Governance is dominated by early adopters with capital",
-      "solutionTitle": "Our Solution",
-      "solution1": "Gamified learning with clear progression paths",
-      "solution2": "Earn governance tokens by completing educational tasks",
-      "solution3": "Multi-level referral system rewards community growth",
-      "solution4": "Your effort equals your voice in governance"
+      "title": "Adoption Breaks at the First Step",
+      "subtitle": "73% say crypto is 'too complicated'. But 89% of those same people have gifted money at least once. What if the GIFT was the door to Web3?",
+      "problemTitle": "The Current Gap",
+      "problem1": "Install wallet, save seed phrase, pay gas... too many barriers",
+      "problem2": "Most crypto on-ramps are cold and transactional",
+      "problem3": "Intimidating tutorials that generate fear, not trust",
+      "problem4": "Real adoption only happens when there's emotional connection",
+      "solutionTitle": "Our Thesis",
+      "solution1": "A meaningful gift turns curiosity into trust",
+      "solution2": "Your NFT IS a real wallet (ERC-6551 Token Bound Account)",
+      "solution3": "Art opens the vault; the vault scales to millions",
+      "solution4": "Gifting financial freedom: a pact with the future"
     },
     "howItWorks": {
-      "title": "How It Works",
-      "subtitle": "Three simple steps to go from zero to Web3 contributor",
+      "title": "The Magic in 3 Steps",
+      "subtitle": "From 'I don't get crypto' to holder in 5 minutes. That simple.",
       "step1": {
-        "title": "Connect",
-        "desc": "Connect any wallet or create one instantly. No gas fees required to get started."
+        "title": "Receive the Gift",
+        "desc": "A link or QR with something that matters: a photo, a memory, a message. No seed phrases, no gas, no fear."
       },
       "step2": {
-        "title": "Learn & Earn",
-        "desc": "Complete educational tasks and quests. Each completion earns you CGC governance tokens."
+        "title": "Learn the Essentials",
+        "desc": "Short Academy modules unlock your gift. The emotional factor drives real learning."
       },
       "step3": {
-        "title": "Co-Govern",
-        "desc": "Use your tokens to vote on proposals, create initiatives, and shape the future of the platform."
+        "title": "You're a Holder",
+        "desc": "First non-custodial wallet + funds + knowledge to move in Web3. Your story as a holder begins."
       }
     },
     "features": {
-      "title": "Built for the Future",
-      "subtitle": "Cutting-edge technology meets intuitive design",
+      "title": "Technology That Disappears",
+      "subtitle": "Complexity evaporates. Only the magic of the gift remains.",
       "nftWallet": {
-        "title": "NFT = Wallet (ERC-6551)",
-        "desc": "Revolutionary token-bound accounts turn your NFTs into fully functional wallets."
+        "title": "Your NFT IS Your Wallet",
+        "desc": "Like if your profile picture could hold money. ERC-6551 turns art into vault."
       },
       "gasless": {
-        "title": "Zero Gas Fees",
-        "desc": "Account abstraction enables gasless transactions for seamless onboarding."
+        "title": "Gas = $0 Always",
+        "desc": "Account Abstraction eliminates friction. Zero fees. Zero excuses."
       },
       "learn": {
-        "title": "Learn to Earn",
-        "desc": "Structured academy with quests that reward real educational achievement."
+        "title": "Emotional Academy",
+        "desc": "The gift isn't released until learning is complete. Real motivation, not cold tutorials."
       },
       "referrals": {
-        "title": "3-Level Referrals",
-        "desc": "Multi-level referral system with automatic on-chain rewards distribution."
+        "title": "The Viral Effect",
+        "desc": "Every gifted friend tends to gift the next one. 3 levels of on-chain rewards."
       },
       "governance": {
-        "title": "DAO Governance",
-        "desc": "Powered by Aragon OSx with token voting for transparent, decentralized decisions."
+        "title": "Your Voice, Your Power",
+        "desc": "Real DAO governance with Aragon. Proposals, votes, treasury. Your effort = your vote."
       },
       "security": {
-        "title": "Enterprise Security",
-        "desc": "Verified smart contracts with multi-sig treasury and comprehensive audit trail."
+        "title": "Radical Transparency",
+        "desc": "Everything on-chain, auditable in real-time. No black boxes. No custodians. No tricks."
       }
     },
     "token": {
-      "badge": "CGC Token",
-      "title": "The CGC Token",
-      "desc": "A pure governance token with no economic rights. Your CGC represents your voice in the DAO.",
+      "badge": "The Heart of the DAO",
+      "title": "CryptoGift Coin",
+      "desc": "CGC is more than a token: it's your voice in a community that believes in the human adoption of Web3. Each CGC represents real participation.",
       "initial": "Initial Supply",
       "max": "Max Supply (via Milestones)",
       "emission": "Emission Model",
-      "emissionValue": "Milestone-based",
-      "governance": "Governance Token",
+      "emissionValue": "Achievement-based",
+      "governance": "Pure Governance",
       "verified": "Verified",
-      "secure": "Secure"
+      "secure": "Audited"
     },
     "cta": {
-      "title": "Ready to Start?",
-      "subtitle": "Join hundreds of learners already earning governance power. Your Web3 journey starts here.",
-      "button1": "Start Your Journey",
-      "button2": "Invite Friends",
-      "joined": "500+ members joined",
-      "rating": "5.0 community rating"
+      "title": "The Best Gift Was Never the Object",
+      "subtitle": "It was the door it opens. Today that door is blockchain, and the key fits in an NFT-wallet that beats with story, with value... and with future.",
+      "button1": "Gift the Future",
+      "button2": "Invite & Earn",
+      "joined": "500+ lives transformed",
+      "rating": "The most human adoption"
     }
   },
   "navigation": {
