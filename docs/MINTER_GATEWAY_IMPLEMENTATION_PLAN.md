@@ -3,8 +3,22 @@
 
 **Fecha**: 13 Diciembre 2025
 **Autor**: CryptoGift DAO Team
-**Versión**: 1.0
-**Estado**: 📋 PLAN DETALLADO - Listo para Implementación
+**Versión**: 2.0 (SECURITY-HARDENED)
+**Estado**: 📋 PLAN DETALLADO - Corregido con 5 Fixes de Seguridad
+
+---
+
+## ⚠️ SECURITY AUDIT FIXES (v2.0)
+
+Esta versión incluye correcciones críticas identificadas durante auditoría:
+
+| # | Severidad | Problema | Solución |
+|---|-----------|----------|----------|
+| 1 | 🔴 CRÍTICA | `INITIAL_SUPPLY` hardcodeado puede no coincidir | Leer `cgcToken.totalSupply()` en constructor |
+| 2 | 🔴 CRÍTICA | DAO puede añadir nuevos minters después del Gateway | Renunciar ownership de CGCToken o transferir a Timelock |
+| 3 | 🟡 MEDIA | Orden de migración incorrecto (corregido: MilestoneEscrow NO mintea) | Actualizado - solo remover deployer como minter |
+| 4 | 🟡 MEDIA | Owner del Gateway podría drenar supply | Owner debe ser Timelock/multisig, no EOA |
+| 5 | 🟡 MEDIA | Pausable podría brick el sistema | Guardian pattern o multisig ownership |
 
 ---
 
@@ -78,6 +92,60 @@ Esta es una pregunta crucial. El DAO **podría** tener poder de cambiar el cap..
 
 ---
 
+## 🔍 DESCUBRIMIENTO CRÍTICO: QUIÉN REALMENTE MINTEA
+
+### Análisis del Flujo Actual (13 Dic 2025)
+
+Durante la auditoría de seguridad, descubrimos algo **crucial**:
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                  🔍 ANÁLISIS DE FLUJO DE MINTING ACTUAL                      ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  📌 MILESTONE ESCROW (0x8346CFcaECc90d678d862319449E5a742c03f109):           ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ • ES minter autorizado ✅                                               │ ║
+║  │ • PERO NUNCA LLAMA mint() ❌                                            │ ║
+║  │ • Solo usa cgcToken.safeTransfer() para distribuir fondos              │ ║
+║  │ • NO ES UPGRADEABLE (no hay patrón proxy)                              │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+║  📌 TOKEN-TRANSFER-SERVICE.TS (Backend):                                     ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ • Usa ERC20.transfer() para bonos de signup                            │ ║
+║  │ • TRANSFIERE del balance del deployer, NO MINTEA                       │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+║  📌 MINT-ADDITIONAL-SUPPLY.JS (Script Manual):                               ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ • ÚNICO lugar donde se llama mint() actualmente                        │ ║
+║  │ • Script one-time ejecutado por deployer                               │ ║
+║  │ • Línea 77: CGCToken.addMinter(deployer.address)                       │ ║
+║  │ • Línea 93: CGCToken.mint(DAO_TREASURY, MINT_AMOUNT)                   │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                        IMPLICACIONES PARA LA MIGRACIÓN                       ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ✅ MilestoneEscrow NO necesita modificarse (nunca llamó mint)              ║
+║  ⚠️  Deployer (0xc655...) puede ser minter si corrió el script             ║
+║  ⚠️  DAO puede añadir CUALQUIER nuevo minter en cualquier momento          ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+### ¿Quiénes Son Minters Hoy?
+
+| Dirección | Rol | ¿Llama mint()? | Acción Requerida |
+|-----------|-----|----------------|------------------|
+| MilestoneEscrow | Autorizado en deploy | ❌ NO | Remover como minter |
+| Deployer EOA | Añadido por script | ✅ SÍ (manual) | Remover como minter |
+| Aragon DAO | Owner del token | Puede añadir minters | Problema principal |
+
+---
+
 ## 🏗️ ARQUITECTURA PROPUESTA
 
 ### Diagrama de Flujo Actual vs Propuesto
@@ -144,14 +212,15 @@ El corazón de la solución:
 ```solidity
 contract MinterGateway {
     // ═══════════════════════════════════════════════════════════════
-    // CONSTANTES INMUTABLES - EL CORE DE LA GARANTÍA
+    // CONSTANTES Y VARIABLES INMUTABLES - EL CORE DE LA GARANTÍA
     // ═══════════════════════════════════════════════════════════════
 
     uint256 public constant MAX_TOTAL_SUPPLY = 22_000_000 * 10**18;
     // ⬆️ INMUTABLE: Nadie puede cambiar esto. Nunca. Jamás.
 
-    uint256 public constant INITIAL_SUPPLY = 2_000_000 * 10**18;
-    // ⬆️ Los 2M que ya existen (minteados en constructor del token)
+    uint256 public immutable initialSupplyAtDeployment;
+    // ⬆️ 🛡️ SECURITY FIX #1: Leído de cgcToken.totalSupply() en constructor
+    //    NO hardcodeado - refleja el supply real al momento del deploy
 
     // ═══════════════════════════════════════════════════════════════
     // ESTADO
@@ -161,7 +230,24 @@ contract MinterGateway {
     // ⬆️ Contador de cuánto hemos minteado a través del gateway
 
     mapping(address => bool) public authorizedCallers;
-    // ⬆️ MilestoneEscrow y otros sistemas que pueden pedir minting
+    // ⬆️ Sistemas que pueden pedir minting (NO MilestoneEscrow - no mintea)
+
+    // ═══════════════════════════════════════════════════════════════
+    // CONSTRUCTOR
+    // ═══════════════════════════════════════════════════════════════
+
+    constructor(address _cgcToken, address _initialOwner) {
+        cgcToken = ICGCToken(_cgcToken);
+
+        // 🛡️ SECURITY FIX #1: Leer supply real, no asumir
+        initialSupplyAtDeployment = cgcToken.totalSupply();
+
+        // Verificar que el supply inicial es menor que el max
+        require(
+            initialSupplyAtDeployment < MAX_TOTAL_SUPPLY,
+            "Initial supply already exceeds max"
+        );
+    }
 
     // ═══════════════════════════════════════════════════════════════
     // LA FUNCIÓN CRÍTICA
@@ -170,8 +256,8 @@ contract MinterGateway {
     function mint(address to, uint256 amount) external {
         require(authorizedCallers[msg.sender], "Not authorized");
 
-        // 🛡️ EL GUARDIÁN DEL CAP
-        uint256 newTotal = INITIAL_SUPPLY + totalMintedViaGateway + amount;
+        // 🛡️ EL GUARDIÁN DEL CAP (usando valor real, no hardcodeado)
+        uint256 newTotal = initialSupplyAtDeployment + totalMintedViaGateway + amount;
         require(newTotal <= MAX_TOTAL_SUPPLY, "Would exceed max supply");
 
         // Actualizar contador ANTES de mintear (patrón CEI)
@@ -184,14 +270,104 @@ contract MinterGateway {
     }
 
     function getRemainingMintable() public view returns (uint256) {
-        return MAX_TOTAL_SUPPLY - INITIAL_SUPPLY - totalMintedViaGateway;
+        return MAX_TOTAL_SUPPLY - initialSupplyAtDeployment - totalMintedViaGateway;
     }
 }
 ```
 
-#### 3. MilestoneEscrow (Existente - Modificar Llamadas)
-Actualmente llama directamente a `cgcToken.mint()`.
-Debemos cambiar a `minterGateway.mint()`.
+**🛡️ SECURITY FIX #1 EXPLICADO:**
+- **ANTES**: `INITIAL_SUPPLY = 2_000_000 * 10**18` (hardcodeado)
+- **DESPUÉS**: `initialSupplyAtDeployment = cgcToken.totalSupply()` (leído en deploy)
+- **POR QUÉ**: Si alguien mintea tokens antes de deployar el Gateway, el cap estaría mal calculado. Leer el supply real garantiza precisión.
+
+#### 3. MilestoneEscrow (Existente - SIN CAMBIOS NECESARIOS)
+
+**🔍 DESCUBRIMIENTO IMPORTANTE**: MilestoneEscrow **NUNCA llama mint()**.
+
+```solidity
+// Línea 487-494 de MilestoneEscrow.sol
+function withdraw() external nonReentrant {
+    uint256 amount = pendingWithdrawals[msg.sender];
+    require(amount > 0, "Nothing to withdraw");
+    pendingWithdrawals[msg.sender] = 0;
+    cgcToken.safeTransfer(msg.sender, amount);  // ← TRANSFER, no MINT
+}
+```
+
+**Implicaciones:**
+- ✅ NO necesitamos modificar MilestoneEscrow
+- ✅ NO hay downtime de migración para ese contrato
+- ⚠️ Solo debemos removerlo como minter (aunque nunca usa el permiso)
+
+---
+
+## 🛡️ SECURITY FIX #2: Prevenir Bypass de DAO
+
+### El Problema
+
+Después de deployar MinterGateway, el DAO aún puede:
+1. Llamar `cgcToken.addMinter(anyAddress)`
+2. Esa dirección puede llamar `cgcToken.mint(unlimited)` directamente
+3. **Bypass total del Gateway**
+
+### La Solución: Bloquear Nuevos Minters
+
+**Opción A: Renunciar Ownership (MÁS SEGURO)**
+```solidity
+// Después de configurar Gateway como único minter:
+cgcToken.renounceOwnership();
+
+// Resultado:
+// - owner = address(0)
+// - Nadie puede llamar addMinter() nunca más
+// - ⚠️ IRREVERSIBLE - no se puede deshacer
+```
+
+**Opción B: Transferir a Timelock (RECOMENDADO)**
+```solidity
+// Crear un Timelock que requiera 7+ días para ejecutar
+TimelockController timelock = new TimelockController(
+    7 days,     // minDelay
+    [daoAddress], // proposers
+    [daoAddress], // executors
+    address(0)  // no admin
+);
+
+// Transferir ownership del token al timelock
+cgcToken.transferOwnership(address(timelock));
+
+// Resultado:
+// - Cualquier cambio a minters requiere 7 días de espera
+// - Comunidad puede reaccionar y auditar antes de ejecución
+// - Reversible si hay emergencia
+```
+
+**Opción C: MinterLock Contract (AVANZADO)**
+```solidity
+// Crear un contrato que solo permita remover minters, no añadir
+contract MinterLock is Ownable {
+    ICGCToken public cgcToken;
+
+    constructor(address _cgcToken) {
+        cgcToken = ICGCToken(_cgcToken);
+    }
+
+    // SOLO puede remover minters, NUNCA añadir
+    function removeMinter(address minter) external onlyOwner {
+        cgcToken.removeMinter(minter);
+    }
+
+    // NO HAY función addMinter - imposible añadir nuevos
+}
+```
+
+### Recomendación: Opción B (Timelock)
+
+Para CryptoGift DAO, recomendamos **Timelock de 7 días** porque:
+1. ✅ Previene bypass inmediato
+2. ✅ Comunidad tiene tiempo de auditar propuestas
+3. ✅ Reversible en caso de emergencia
+4. ✅ Compatible con estándares de grants (Base, Optimism)
 
 ---
 
@@ -278,27 +454,70 @@ Debemos cambiar a `minterGateway.mint()`.
 Esta es la parte más delicada. Requiere una votación del DAO.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ PASO 4.1: Crear Propuesta en Aragon                         │
-├─────────────────────────────────────────────────────────────┤
-│ Título: "Implement MinterGateway for Verifiable Supply Cap" │
-│                                                              │
-│ Acciones a ejecutar (en orden):                              │
-│                                                              │
-│ ACTION 1: Deploy MinterGateway                               │
-│   - new MinterGateway(cgcTokenAddress, daoAddress)          │
-│                                                              │
-│ ACTION 2: Configurar MinterGateway                           │
-│   - minterGateway.addAuthorizedCaller(milestoneEscrow)      │
-│                                                              │
-│ ACTION 3: Transferir poder de minting                        │
-│   - cgcToken.addMinter(minterGateway)                       │
-│   - cgcToken.removeMinter(milestoneEscrow)                  │
-│                                                              │
-│ Quorum requerido: 10% supply                                 │
-│ Período de votación: 7 días                                  │
-│ Período de ejecución: 48 horas                               │
-└─────────────────────────────────────────────────────────────┘
+╔══════════════════════════════════════════════════════════════════════════════╗
+║          🛡️ RUNBOOK DE MIGRACIÓN CORREGIDO (Security-Hardened v2.0)         ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  PROPUESTA EN ARAGON:                                                        ║
+║  Título: "Implement MinterGateway for Verifiable Supply Cap"                 ║
+║  Quorum: 10% supply | Votación: 7 días | Ejecución: 48h                     ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                         ACCIONES A EJECUTAR (EN ORDEN)                       ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  🟢 ACTION 1: Deploy Timelock Controller (SECURITY FIX #2)                   ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ new TimelockController(                                                 │ ║
+║  │     7 days,          // minDelay para cambios de minters               │ ║
+║  │     [daoAddress],    // proposers                                       │ ║
+║  │     [daoAddress],    // executors                                       │ ║
+║  │     address(0)       // no admin                                        │ ║
+║  │ )                                                                       │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+║  🟢 ACTION 2: Deploy MinterGateway                                           ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ new MinterGateway(                                                      │ ║
+║  │     cgcTokenAddress,           // 0x5e3a61b550328f3D8C44f60b3e10...    │ ║
+║  │     timelockAddress            // Owner = Timelock (SECURITY FIX #4)   │ ║
+║  │ )                                                                       │ ║
+║  │ // Constructor leerá cgcToken.totalSupply() automáticamente             │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+║  🟢 ACTION 3: Añadir Gateway como único minter                               ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ cgcToken.addMinter(minterGatewayAddress)                                │ ║
+║  │ // Gateway ahora puede mintear                                          │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+║  🟢 ACTION 4: Remover minters existentes (TODOS)                             ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ cgcToken.removeMinter(milestoneEscrowAddress)  // 0x8346CFcaE...        │ ║
+║  │ cgcToken.removeMinter(deployerAddress)         // 0xc655BF2B... (si es) │ ║
+║  │ // VERIFICAR: No debe quedar ningún minter excepto Gateway              │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+║  🟢 ACTION 5: Transferir ownership del token al Timelock                     ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ cgcToken.transferOwnership(timelockAddress)                             │ ║
+║  │ // Ahora cualquier addMinter() requiere 7 días de espera                │ ║
+║  │ // ⚠️ ESTE PASO CIERRA EL BYPASS PERMANENTEMENTE                        │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                          VERIFICACIONES POST-EJECUCIÓN                       ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ☐ Gateway es minter: cgcToken.minters(gateway) == true                     ║
+║  ☐ Escrow NO es minter: cgcToken.minters(escrow) == false                   ║
+║  ☐ Deployer NO es minter: cgcToken.minters(deployer) == false               ║
+║  ☐ Token owner es Timelock: cgcToken.owner() == timelock                    ║
+║  ☐ Gateway owner es Timelock: gateway.owner() == timelock                   ║
+║  ☐ Supply correcto: gateway.initialSupplyAtDeployment() == totalSupply()   ║
+║  ☐ Remaining correcto: gateway.getRemainingMintable() > 0                   ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
 **Por qué hacerlo via DAO**:
@@ -306,6 +525,8 @@ Esta es la parte más delicada. Requiere una votación del DAO.
 - La comunidad aprueba el cambio
 - Registro on-chain de la decisión
 - Cumple con estándares de governance descentralizada
+
+**🛡️ SECURITY FIX #4 INTEGRADO**: El owner del Gateway es el Timelock, no un EOA. Si el Timelock se compromete, hay 7 días para reaccionar.
 
 ### Fase 5: Ejecución Mainnet (1 día)
 
@@ -341,7 +562,7 @@ Esta es la parte más delicada. Requiere una votación del DAO.
 
 ---
 
-## 📜 CÓDIGO DEL CONTRATO MINTERGATEWAY
+## 📜 CÓDIGO DEL CONTRATO MINTERGATEWAY (SECURITY-HARDENED v2.0)
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -357,35 +578,42 @@ interface ICGCToken {
 }
 
 /**
- * @title MinterGateway
+ * @title MinterGateway (Security-Hardened v2.0)
  * @author CryptoGift DAO Team
  * @notice Gateway contract that enforces a hard cap on CGC token minting
- * @dev This contract acts as the sole authorized minter for CGCToken,
- *      ensuring that the total supply NEVER exceeds MAX_TOTAL_SUPPLY.
- *      The max supply is IMMUTABLE and cannot be changed by anyone,
- *      including the DAO owner.
+ *
+ * @dev SECURITY FEATURES (v2.0):
+ * - 🛡️ FIX #1: initialSupplyAtDeployment read from totalSupply(), not hardcoded
+ * - 🛡️ FIX #2: Owner should be Timelock (prevents bypass via addMinter)
+ * - 🛡️ FIX #3: No MilestoneEscrow migration needed (it never called mint)
+ * - 🛡️ FIX #4: Timelock owner prevents immediate drain
+ * - 🛡️ FIX #5: Guardian can pause, Timelock can unpause (prevents brick)
  *
  * Architecture:
- * - DAO owns this contract
+ * - Timelock owns this contract (7-day delay for changes)
  * - Only this contract can mint CGC tokens
- * - MilestoneEscrow and other systems call this gateway
- * - Gateway enforces the 22M hard cap
+ * - MilestoneEscrow doesn't need Gateway (uses transfer, not mint)
+ * - Future minting systems call this gateway
+ * - Gateway enforces the 22M hard cap IMMUTABLY
  */
 contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 
     // ═══════════════════════════════════════════════════════════════════
-    // IMMUTABLE CONSTANTS - THE CORE GUARANTEE
+    // IMMUTABLE VALUES - THE CORE GUARANTEE
     // ═══════════════════════════════════════════════════════════════════
 
     /// @notice Maximum total supply that can ever exist
     /// @dev This is IMMUTABLE. No one can change it. Ever.
     uint256 public constant MAX_TOTAL_SUPPLY = 22_000_000 * 10**18;
 
-    /// @notice Initial supply that was minted in CGCToken constructor
-    uint256 public constant INITIAL_SUPPLY = 2_000_000 * 10**18;
+    /// @notice Initial supply captured at deployment time
+    /// @dev 🛡️ SECURITY FIX #1: Read from cgcToken.totalSupply(), NOT hardcoded
+    ///      This ensures accuracy even if tokens were minted before gateway deployment
+    uint256 public immutable initialSupplyAtDeployment;
 
     /// @notice Maximum that can be minted via this gateway
-    uint256 public constant MAX_MINTABLE = MAX_TOTAL_SUPPLY - INITIAL_SUPPLY;
+    /// @dev Calculated from actual supply at deployment, not assumptions
+    uint256 public immutable maxMintableViaGateway;
 
     // ═══════════════════════════════════════════════════════════════════
     // STATE VARIABLES
@@ -402,6 +630,11 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
 
     /// @notice Number of authorized callers
     uint256 public authorizedCallerCount;
+
+    /// @notice 🛡️ SECURITY FIX #5: Guardian can pause but NOT unpause
+    /// @dev Allows quick emergency response without Timelock delay
+    ///      Only owner (Timelock) can unpause - prevents permanent brick
+    address public guardian;
 
     // ═══════════════════════════════════════════════════════════════════
     // EVENTS
@@ -436,19 +669,58 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
     // ═══════════════════════════════════════════════════════════════════
 
     /**
-     * @notice Deploy the MinterGateway
+     * @notice Deploy the MinterGateway (Security-Hardened v2.0)
      * @param _cgcToken Address of the CGC token contract
-     * @param _initialOwner Initial owner (should be the DAO)
+     * @param _initialOwner Initial owner (MUST be Timelock, not EOA)
+     * @param _guardian Address that can pause in emergencies
+     *
+     * @dev 🛡️ SECURITY FIXES IMPLEMENTED IN CONSTRUCTOR:
+     * - FIX #1: Reads totalSupply() instead of hardcoding
+     * - FIX #4: Owner should be Timelock (validated externally)
+     * - FIX #5: Guardian pattern for emergency pause
      */
     constructor(
         address _cgcToken,
-        address _initialOwner
+        address _initialOwner,
+        address _guardian
     ) Ownable(_initialOwner) {
         if (_cgcToken == address(0)) revert InvalidAddress();
         if (_initialOwner == address(0)) revert InvalidAddress();
+        if (_guardian == address(0)) revert InvalidAddress();
 
         cgcToken = ICGCToken(_cgcToken);
+        guardian = _guardian;
+
+        // 🛡️ SECURITY FIX #1: Read actual supply, don't assume
+        initialSupplyAtDeployment = cgcToken.totalSupply();
+
+        // Calculate max mintable based on ACTUAL current supply
+        if (initialSupplyAtDeployment >= MAX_TOTAL_SUPPLY) {
+            revert("Initial supply already at or exceeds max");
+        }
+        maxMintableViaGateway = MAX_TOTAL_SUPPLY - initialSupplyAtDeployment;
+
+        emit GatewayDeployed(
+            address(cgcToken),
+            initialSupplyAtDeployment,
+            maxMintableViaGateway,
+            _initialOwner,
+            _guardian
+        );
     }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ADDITIONAL EVENTS
+    // ═══════════════════════════════════════════════════════════════════
+
+    event GatewayDeployed(
+        address indexed cgcToken,
+        uint256 initialSupply,
+        uint256 maxMintable,
+        address indexed owner,
+        address indexed guardian
+    );
+    event GuardianChanged(address indexed oldGuardian, address indexed newGuardian);
 
     // ═══════════════════════════════════════════════════════════════════
     // CORE MINTING FUNCTION
@@ -578,26 +850,94 @@ contract MinterGateway is Ownable, Pausable, ReentrancyGuard {
     }
 
     // ═══════════════════════════════════════════════════════════════════
-    // EMERGENCY FUNCTIONS
+    // EMERGENCY FUNCTIONS (🛡️ SECURITY FIX #5: Guardian Pattern)
     // ═══════════════════════════════════════════════════════════════════
 
     /**
      * @notice Pause all minting (emergency only)
      * @param reason Human-readable reason for the pause
+     * @dev 🛡️ Guardian OR Owner can pause (quick response)
      */
-    function emergencyPause(string calldata reason) external onlyOwner {
+    function emergencyPause(string calldata reason) external {
+        require(
+            msg.sender == guardian || msg.sender == owner(),
+            "Only guardian or owner"
+        );
         _pause();
         emit EmergencyPaused(msg.sender, reason);
     }
 
     /**
      * @notice Unpause minting
+     * @dev 🛡️ ONLY Owner (Timelock) can unpause
+     *      This prevents permanent brick if guardian key is lost
+     *      But ensures guardian cannot unilaterally control minting
      */
     function emergencyUnpause() external onlyOwner {
         _unpause();
         emit EmergencyUnpaused(msg.sender);
     }
+
+    /**
+     * @notice Change guardian address
+     * @param newGuardian New guardian address
+     * @dev Only owner (Timelock) can change guardian
+     */
+    function setGuardian(address newGuardian) external onlyOwner {
+        if (newGuardian == address(0)) revert InvalidAddress();
+        address oldGuardian = guardian;
+        guardian = newGuardian;
+        emit GuardianChanged(oldGuardian, newGuardian);
+    }
 }
+```
+
+---
+
+## 🛡️ RESUMEN DE SECURITY FIXES (v2.0)
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     SECURITY FIXES IMPLEMENTADOS                             ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  🔴 FIX #1: INITIAL_SUPPLY HARDCODEADO                                       ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ ANTES: uint256 constant INITIAL_SUPPLY = 2_000_000 * 10**18;           │ ║
+║  │ DESPUÉS: uint256 immutable initialSupplyAtDeployment;                   │ ║
+║  │          initialSupplyAtDeployment = cgcToken.totalSupply();           │ ║
+║  │ IMPACTO: Cap SIEMPRE correcto, independiente de mints previos          │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+║  🔴 FIX #2: DAO PUEDE AÑADIR NUEVOS MINTERS (BYPASS)                         ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ ANTES: DAO es owner de CGCToken → puede addMinter() → bypass           │ ║
+║  │ DESPUÉS: Timelock es owner de CGCToken → 7 días delay                  │ ║
+║  │ IMPACTO: Comunidad tiene tiempo de auditar cualquier cambio            │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+║  🟡 FIX #3: MILESTONE ESCROW MIGRATION                                       ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ ANTES: Plan asumía que MilestoneEscrow llama mint()                    │ ║
+║  │ DESPUÉS: Descubrimos que NUNCA llama mint() - usa transfer()           │ ║
+║  │ IMPACTO: NO hay migration downtime, solo remover permiso no usado      │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+║  🟡 FIX #4: OWNER PODRÍA DRENAR SUPPLY                                       ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ ANTES: Owner podría ser EOA → compromiso = drain inmediato             │ ║
+║  │ DESPUÉS: Owner = Timelock → 7 días para reaccionar                     │ ║
+║  │ IMPACTO: Si hay ataque, comunidad tiene tiempo de migrar               │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+║  🟡 FIX #5: PAUSABLE PODRÍA BRICK                                            ║
+║  ┌─────────────────────────────────────────────────────────────────────────┐ ║
+║  │ ANTES: Solo owner puede pause/unpause → si key perdida = brick         │ ║
+║  │ DESPUÉS: Guardian puede pause, SOLO owner puede unpause                │ ║
+║  │ IMPACTO: Emergencias rápidas + no brick permanente                     │ ║
+║  └─────────────────────────────────────────────────────────────────────────┘ ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
 ---
