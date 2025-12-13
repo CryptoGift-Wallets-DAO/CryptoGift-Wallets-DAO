@@ -14,9 +14,9 @@
  */
 
 import { useState, useRef, useCallback } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
-import { ChevronLeft, ChevronRight, Play, Pause, Maximize2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Maximize2 } from 'lucide-react';
 
 // Lazy load MUX Player
 const MuxPlayer = dynamic(
@@ -61,7 +61,6 @@ const VIDEOS = {
 };
 
 export function VideoCarousel() {
-  const t = useTranslations('landing');
   const locale = useLocale() as 'es' | 'en';
   const videos = VIDEOS[locale] || VIDEOS.en;
 
@@ -212,19 +211,38 @@ export function VideoCarousel() {
         </div>
       </div>
 
-      {/* Floating elements similar to hero card */}
-      <div className="absolute -top-4 -right-12 lg:-right-16 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 1s' }}>
-        <div className="flex items-center gap-1.5">
-          <Play className="w-3.5 h-3.5 text-purple-500 fill-purple-500" />
-          <span className="font-medium text-gray-700 dark:text-white">{t('videoCarousel.watch')}</span>
-        </div>
+      {/* Floating elements - RIGHT SIDE */}
+      <div className="absolute -top-6 -right-16 lg:-right-24 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 0.5s' }}>
+        <span className="font-medium text-purple-600 dark:text-purple-400">Open</span>
       </div>
 
-      <div className="absolute -bottom-4 -left-12 lg:-left-16 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }}>
-        <div className="flex items-center gap-1.5">
-          <span className="text-green-500 font-bold">HD</span>
-          <span className="font-medium text-gray-700 dark:text-white">{t('videoCarousel.quality')}</span>
-        </div>
+      <div className="absolute top-8 -right-20 lg:-right-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 1s' }}>
+        <span className="font-medium text-blue-600 dark:text-blue-400">Secure</span>
+      </div>
+
+      <div className="absolute top-24 -right-14 lg:-right-20 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.5s ease-in-out infinite 0.2s' }}>
+        <span className="font-medium text-green-600 dark:text-green-400">Human</span>
+      </div>
+
+      <div className="absolute bottom-16 -right-24 lg:-right-36 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
+        <span className="font-medium text-cyan-600 dark:text-cyan-400">Gift in 5 min</span>
+      </div>
+
+      {/* Floating elements - LEFT SIDE */}
+      <div className="absolute -top-4 -left-14 lg:-left-20 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 0.8s' }}>
+        <span className="font-medium text-emerald-600 dark:text-emerald-400">No gas</span>
+      </div>
+
+      <div className="absolute top-12 -left-20 lg:-left-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.2s ease-in-out infinite 0.3s' }}>
+        <span className="font-medium text-amber-600 dark:text-amber-400">No complications</span>
+      </div>
+
+      <div className="absolute top-28 -left-12 lg:-left-16 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.2s ease-in-out infinite 1.2s' }}>
+        <span className="font-medium text-rose-600 dark:text-rose-400">No fear</span>
+      </div>
+
+      <div className="absolute bottom-8 -left-24 lg:-left-36 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.8s ease-in-out infinite 0.6s' }}>
+        <span className="font-medium text-indigo-600 dark:text-indigo-400">100% yours</span>
       </div>
     </div>
   );
