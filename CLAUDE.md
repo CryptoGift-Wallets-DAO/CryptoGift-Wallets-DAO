@@ -2,12 +2,12 @@
 
 ## 🎯 INFORMACIÓN CRÍTICA DEL PROYECTO
 
-### ESTADO ACTUAL (12 DIC 2025) - GRANTS SYSTEM + TWITTER + QR CODE ✅
-- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **GRANTS COMPLETO** ✅
-- **Fase actual**: Sistema DAO con grants actualizados, Twitter corregido, QR con logo
-- **Último Deploy**: Top 5 Grants con links correctos, guías paso a paso, tips y modales
-- **Critical Update**: Twitter handle corregido en 30+ archivos (@cryptogiftdao)
-- **Último Commit**: `ef35cc8` - feat: complete overhaul of Top 5 Grants with correct links, step-by-step guides, and tips
+### ESTADO ACTUAL (14 DIC 2025) - MINTERGATEWAY + AUTO-DELEGATION ✅
+- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **GOVERNANCE COMPLETO** ✅
+- **Fase actual**: Sistema DAO con MinterGateway v3.3 + TimelockController desplegados
+- **Último Deploy**: Governance contracts + Auto-delegation voting power
+- **Critical Update**: New governance model: Aragon DAO → TimelockController → CGC Token
+- **Nuevo**: Sistema auto-delegación ERC20Votes para activación de voting power en claim flow
 
 ### 🎮 DISCORD SERVER CONFIGURADO (9 DIC 2025) ✅
 ```
@@ -160,6 +160,48 @@ Base Mainnet (Chain ID: 8453) - DEPLOYMENT COMPLETO CON MÁXIMA CALIDAD
 - MilestoneEscrow: 0x8346CFcaECc90d678d862319449E5a742c03f109 (Custody layer + Authorized Minter)
 ```
 
+### 🔐 MINTERGATEWAY SYSTEM (13 DIC 2025) - DESPLEGADO ✅
+```
+CONTRATOS DESPLEGADOS EN BASE MAINNET:
+├── TimelockController: 0x9753d772C632e2d117b81d96939B878D74fB5166
+│   ├── Min Delay: 7 días (604800 seconds)
+│   ├── Proposer: DAO Aragon (0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31)
+│   └── Executor: DAO Aragon (0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31)
+│
+└── MinterGateway v3.3: 0xdd10540847a4495e21f01230a0d39C7c6785598F
+    ├── Owner: Safe 3/5 (0x11323672b5f9bB899Fa332D5d464CC4e66637b42)
+    ├── Guardian: Safe 2/3 (0xe9411DD1f2AF42186b2bCE828B6e7d0dd0D7a6bc)
+    ├── Initial Supply: 2,000,000 CGC
+    └── Max Mintable via Gateway: 20,000,000 CGC
+
+GNOSIS SAFE MULTISIGS:
+├── Safe Owner (3/5): 0x11323672b5f9bB899Fa332D5d464CC4e66637b42
+│   ├── Controla: MinterGateway (unpause, addAuthorizedCaller)
+│   ├── Threshold: 3 de 4 (pendiente 5to signer)
+│   └── Signers:
+│       ├── LEGRA: 0xB5a639149dF81c673131F9082b9429ad00842420
+│       ├── 0x57D32c363555f2ae35045Dc3797cA68c4096C9FE
+│       ├── 0x3514433534c281D546B3c3b913c908Bd90689D29
+│       └── Deployer: 0xc655BF2Bd9AfA997c757Bef290A9Bb6ca41c5dE6
+│
+└── Safe Guardian (2/3): 0xe9411DD1f2AF42186b2bCE828B6e7d0dd0D7a6bc
+    ├── Controla: Pause emergencia del Gateway
+    └── NO puede: unpause (solo Safe Owner puede)
+
+ACCIONES PENDIENTES (MANUAL):
+├── ACTION 3: Batch atómico en Gnosis Safe (4 llamadas a CGCToken)
+│   ├── cgcToken.addMinter(0xdd10540847a4495e21f01230a0d39C7c6785598F)
+│   ├── cgcToken.removeMinter(0x8346CFcaECc90d678d862319449E5a742c03f109)
+│   ├── cgcToken.removeMinter(0xc655BF2Bd9AfA997c757Bef290A9Bb6ca41c5dE6)
+│   └── cgcToken.transferOwnership(0x9753d772C632e2d117b81d96939B878D74fB5166)
+│
+└── ACTION 5: addAuthorizedCaller desde Safe Owner
+    └── gateway.addAuthorizedCaller(<rewards_system_address>)
+
+DOCUMENTACIÓN:
+└── docs/MINTER_GATEWAY_IMPLEMENTATION_PLAN.md (v3.3 FINAL - Copy-Paste Ready)
+```
+
 ### CONTRATOS ANTERIORES (DEPRECATED)
 ```
 NOTA: Los contratos siguientes fueron reemplazados por el nuevo sistema:
@@ -169,13 +211,19 @@ NOTA: Los contratos siguientes fueron reemplazados por el nuevo sistema:
 - MerklePayouts: 0xC75Be1A1fCb412078102b7C286d12E8ACc75b922 (funcionalidad en Escrow)
 ```
 
-### DATOS CRÍTICOS (ACTUALIZADOS 9 ENE 2025)
+### DATOS CRÍTICOS (ACTUALIZADOS 14 DIC 2025)
 - **Deployer**: 0xc655BF2Bd9AfA997c757Bef290A9Bb6ca41c5dE6
 - **Balance**: ~0.003 ETH (post-deployment, suficiente para operaciones)
 - **DAO Aragon**: 0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
-- **Token Supply**: Milestone-Based Progressive Emission (Initial: 2M CGC circulating → Max: 22M CGC theoretical)
+- **TimelockController**: 0x9753d772C632e2d117b81d96939B878D74fB5166 (7-day delay, owner de CGC Token)
+- **MinterGateway v3.3**: 0xdd10540847a4495e21f01230a0d39C7c6785598F (20M max mintable)
+- **Safe Owner (3/5)**: 0x11323672b5f9bB899Fa332D5d464CC4e66637b42
+- **Safe Guardian (2/3)**: 0xe9411DD1f2AF42186b2bCE828B6e7d0dd0D7a6bc
+- **Token Supply**: Milestone-Based Progressive Emission (Initial: 2M CGC → Max via Gateway: 20M → Total Max: 22M)
 - **Sistema Status**: ✅ 100% OPERATIONAL - Sistema DAO con mecánicas competitivas
 - **Verificación**: ✅ Todos los contratos verificados en BaseScan con badge verde
+- **🔐 MinterGateway**: ✅ DESPLEGADO - TimelockController + MinterGateway v3.3 en mainnet
+- **🗳️ Auto-Delegation**: ✅ Sistema ERC20Votes con activación automática de voting power
 - **🤖 apeX Agent**: ✅ GPT-5 con máximo reasoning + MCP tools + UI mejorada
 - **🎯 Task System**: ✅ Sistema competitivo con timeouts automáticos y confirmación
 - **👨‍💼 Admin Panel**: ✅ Validación segura con autorización wallet-based
@@ -441,7 +489,7 @@ npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
 
 ## 🎯 ROADMAP INMEDIATO
 
-### 🔥 PRÓXIMOS PASOS CRÍTICOS (ACTUALIZADOS 11 DIC 2025)
+### 🔥 PRÓXIMOS PASOS CRÍTICOS (ACTUALIZADOS 14 DIC 2025)
 1. ✅ **Deployment completo** - COMPLETADO CON MÁXIMA EXCELENCIA
 2. ✅ **Verificar contratos en BaseScan** - COMPLETADO (todos con badge verde)
 3. ✅ **Implementar sistema completo** - COMPLETADO (3 capas de seguridad)
@@ -457,23 +505,34 @@ npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
 13. ✅ **Domain Migration** - COMPLETADO (mbxarts.com configurado con Vercel)
 14. ✅ **Collab.Land Integration** - COMPLETADO (instalado en Discord para token gating)
 15. ✅ **Funding Application Guide** - COMPLETADO (16 secciones bilingües, Top 5 grants, PDF)
-16. 🔄 **Apply Base Builder Grants** - Usar guía para enviar solicitud
-17. 🔄 **Register Optimism Atlas** - Crear perfil en atlas.optimism.io
-18. 🔄 **Register Gitcoin Grants** - Preparar para GG22
-19. 🔄 **BaseScan Logo Submission** - Enviar 32x32 SVG a BaseScan
-20. 🔄 **CoinGecko Form Submission** - Completar form con APIs y documentación
-21. 🔄 **Collab.Land TGR Config** - Configurar Token Gating Rules
-22. 🔄 **DAO Integration** - Transferir CGC tokens al vault de Aragon
-23. 🔄 **Production Testing** - Test completo con usuarios reales
+16. ✅ **MinterGateway v3.3** - COMPLETADO (TimelockController + Gateway desplegados)
+17. ✅ **Auto-Delegation System** - COMPLETADO (ERC20Votes voting power activation)
+18. 🔄 **Apply Base Builder Grants** - Usar guía para enviar solicitud
+19. 🔄 **Register Optimism Atlas** - Crear perfil en atlas.optimism.io
+20. 🔄 **Register Gitcoin Grants** - Preparar para GG22
+21. 🔄 **BaseScan Logo Submission** - Enviar 32x32 SVG a BaseScan
+22. 🔄 **CoinGecko Form Submission** - Completar form con APIs y documentación
+23. 🔄 **Collab.Land TGR Config** - Configurar Token Gating Rules
+24. 🔄 **Execute Gateway Migration** - Ejecutar batch atómico para activar MinterGateway
+25. 🔄 **Production Testing** - Test completo con usuarios reales
 
-### Estado de Tokens (ACTUALIZADO 7 DIC 2025)
+### Estado de Tokens (ACTUALIZADO 14 DIC 2025)
 ```bash
-# SISTEMA MILESTONE-BASED EMISSION OPERACIONAL
+# GOVERNANCE MODEL - NUEVO SISTEMA DE MINTING
 # CGC Token: 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
-# Emission Model: Milestone-Based Progressive Minting
-# Current Circulating Supply: 2,000,000 CGC (initial emission)
-# Max Theoretical Supply: 22,000,000 CGC (via DAO milestone completion)
-# Minter autorizado: MilestoneEscrow (0x8346CFcaECc90d678d862319449E5a742c03f109)
+# Token Owner: TimelockController (0x9753d772C632e2d117b81d96939B878D74fB5166)
+# Timelock Delay: 7 días para operaciones de owner
+# Primary Minter: MinterGateway v3.3 (0xdd10540847a4495e21f01230a0d39C7c6785598F)
+#
+# SUPPLY MODEL:
+# Initial Supply: 2,000,000 CGC (circulating)
+# Max Mintable via Gateway: 20,000,000 CGC
+# Total Max Supply: 22,000,000 CGC
+#
+# GOVERNANCE CHAIN:
+# Aragon DAO → TimelockController → CGC Token Owner
+# MinterGateway requires authorized caller approval for minting
+#
 # Logo: GitHub logo funcionando en todos los exploradores
 ```
 

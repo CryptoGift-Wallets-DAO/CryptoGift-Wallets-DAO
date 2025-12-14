@@ -1,11 +1,12 @@
-# 📘 CRYPTOGIFT WALLETS DAO - WHITEPAPER v1.2
+# 📘 CRYPTOGIFT WALLETS DAO - WHITEPAPER v1.2.2
 
 **Official Technical Documentation**
 
-**Version**: 1.2
-**Last Updated**: December 7, 2025
+**Version**: 1.2.2
+**Last Updated**: December 14, 2025
 **Network**: Base Mainnet (Chain ID: 8453)
 **Token Contract**: `0x5e3a61b550328f3D8C44f60b3e10a49D3d806175`
+**Token Owner**: TimelockController `0x9753d772C632e2d117b81d96939B878D74fB5166`
 
 Made by mbxarts.com The Moon in a Box property
 
@@ -142,23 +143,42 @@ Unlike traditional fixed-supply or time-based emission models, CGC uses a **valu
 - **Revenue & Adoption Milestones** → New tokens minted
 - **DAO Governance Decisions** → Can trigger strategic emissions
 
-**Authorized Minter**: MilestoneEscrow contract (`0x8346CFcaECc90d678d862319449E5a742c03f109`)
+**Primary Minter**: MinterGateway v3.3 (`0xdd10540847a4495e21f01230a0d39C7c6785598F`)
 
 This ensures token supply expansion is always backed by real value creation, preventing dilution while allowing sustainable growth.
 
-### Emission Controls
+### Emission Controls (Updated December 2025)
 
-The CGC token uses a **governance-controlled emission architecture**:
+The CGC token uses a **governance-controlled emission architecture** with multiple security layers:
 
-- **Authorized Minter System**: The contract owner (DAO) controls which addresses can mint tokens
-- **Current Authorized Minter**: Only MilestoneEscrow contract (`0x8346CFcaECc90d678d862319449E5a742c03f109`)
-- **DAO Governance Required**: Adding new minters requires DAO owner approval
-- **Milestone Verification**: Emissions are tied to verifiable on-chain attestations via EAS
-- **Transparency**: All minter additions/removals emit on-chain events for full auditability
+#### Governance Chain
+```
+Aragon DAO → TimelockController (7-day delay) → CGC Token Owner
+```
 
-**Important Technical Note**: The token contract does not enforce a hard cap at the code level. Instead, emission control is achieved through the minter authorization system—only addresses explicitly approved by the DAO owner can mint new tokens. This design allows flexibility for future governance decisions while maintaining transparency through on-chain events.
+- **TimelockController**: `0x9753d772C632e2d117b81d96939B878D74fB5166`
+  - 7-day delay for all CGC token owner operations
+  - Proposer/Executor: Aragon DAO
+  - Prevents immediate malicious changes
 
-**Target Maximum Supply**: 22,000,000 CGC. This is a governance-enforced target, not a code-enforced cap. The DAO commits to this limit through its governance processes and milestone-based emission schedule.
+- **MinterGateway v3.3**: `0xdd10540847a4495e21f01230a0d39C7c6785598F`
+  - Primary minting mechanism with hard supply cap
+  - Max Mintable: 20,000,000 CGC (enforced at contract level)
+  - Requires authorized caller approval for minting
+  - Owner: Safe 3/5 Multisig (`0x11323672b5f9bB899Fa332D5d464CC4e66637b42`)
+  - Guardian (pause only): Safe 2/3 Multisig
+
+- **MilestoneEscrow**: `0x8346CFcaECc90d678d862319449E5a742c03f109`
+  - Task reward distribution (transfers from treasury, no minting)
+  - EIP-712 verification for secure claims
+
+**Security Model**:
+- Token owner is TimelockController, NOT an EOA
+- All owner operations have 7-day delay for community review
+- MinterGateway enforces 20M max mintable cap at contract level
+- Multiple multisig controls prevent single point of failure
+
+**Maximum Supply**: 22,000,000 CGC total (2M initial + 20M max via Gateway)
 
 ### Initial Distribution (2M CGC)
 
@@ -204,7 +224,7 @@ The milestones listed above are **illustrative examples** of the types of achiev
 2. **Specification**: The proposal must include specific, measurable criteria for the milestone
 3. **Voting**: The DAO votes on whether the milestone has been achieved
 4. **Verification**: Achievement is verified through on-chain attestations (EAS) or other verifiable evidence
-5. **Execution**: Upon approval, the MilestoneEscrow contract releases the specified tokens
+5. **Execution**: Upon approval, new tokens are minted via MinterGateway (requires authorized caller)
 
 This governance-driven approach ensures that milestone definitions evolve with community consensus rather than being fixed at launch. Metrics like "Active Users" or "ARR" will be defined by the DAO through specific proposals that include measurement methodology and verification sources.
 
@@ -227,27 +247,48 @@ This governance-driven approach ensures that milestone definitions evolve with c
 
 ---
 
-## 🔧 SMART CONTRACTS ARCHITECTURE
+## 🔧 SMART CONTRACTS ARCHITECTURE (Updated December 2025)
 
 All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 
-### Contract Suite
+### Governance & Token Contracts
 
-#### 1. CGC Token
+#### 1. CGC Token (ERC20Votes)
 **Address**: `0x5e3a61b550328f3D8C44f60b3e10a49D3d806175`
-**Function**: ERC-20 governance token for the DAO ecosystem
-**Supply**: 2,000,000 CGC initial (22,000,000 CGC max via milestone-based emission)
+**Function**: ERC-20 governance token with voting power delegation
+**Supply**: 2,000,000 CGC initial (22,000,000 CGC max via MinterGateway)
+**Owner**: TimelockController (NOT an EOA)
 
-#### 2. MilestoneEscrow
+#### 2. Aragon DAO
+**Address**: `0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31`
+**Function**: Decentralized governance with Token Voting plugin
+**Framework**: Aragon OSx v1.4.0
+**Controls**: TimelockController proposer/executor
+
+#### 3. TimelockController (NEW - December 2025)
+**Address**: `0x9753d772C632e2d117b81d96939B878D74fB5166`
+**Function**: 7-day delay for CGC token owner operations
+**Proposer/Executor**: Aragon DAO
+**Security**: Prevents immediate malicious changes to token
+
+#### 4. MinterGateway v3.3 (NEW - December 2025)
+**Address**: `0xdd10540847a4495e21f01230a0d39C7c6785598F`
+**Function**: Primary minting mechanism with supply cap
+**Max Mintable**: 20,000,000 CGC (enforced at contract level)
+**Owner**: Safe 3/5 Multisig (`0x11323672b5f9bB899Fa332D5d464CC4e66637b42`)
+**Guardian**: Safe 2/3 Multisig (pause only)
+
+### Task System Contracts
+
+#### 5. MilestoneEscrow
 **Address**: `0x8346CFcaECc90d678d862319449E5a742c03f109`
-**Function**: Custody and programmatic release of CGC tokens with EIP-712 verification
+**Function**: Task reward distribution with EIP-712 verification
 **Features**:
-- Secure token custody
-- Automated distribution based on milestones
+- Transfers from treasury (no minting)
 - EIP-712 signature verification
 - Integration with task validation system
 
-#### 3. MasterEIP712Controller
+#### 6. MasterEIP712Controller
 **Address**: `0x67D9a01A3F7b5D38694Bb78dD39286Db75D7D869`
 **Function**: Centralized authorization control for all system permissions
 **Features**:
@@ -255,7 +296,7 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 - Signer authorization management
 - System-wide permission gateway
 
-#### 4. TaskRulesEIP712
+#### 7. TaskRulesEIP712
 **Address**: `0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb`
 **Function**: Task validation rules and completion verification logic
 **Features**:
@@ -263,18 +304,15 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 - Rule-based task verification
 - Integration with EAS attestations
 
-#### 5. Aragon DAO
-**Address**: `0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31`
-**Function**: Governance contract for proposals and voting
-**Framework**: Aragon OSx v1.4.0
-
 ### Security Features
 
 - ✅ All contracts verified on BaseScan
 - ✅ OpenZeppelin battle-tested libraries
+- ✅ 7-day timelock via TimelockController
+- ✅ MinterGateway enforces 20M supply cap
+- ✅ Multiple multisig controls (3/5 owner, 2/3 guardian)
+- ✅ Emergency pause mechanism
 - ✅ Bug bounty program (up to 100,000 CGC)
-- ✅ 48h timelock on critical functions
-- ✅ Emergency pause mechanism (multisig 3/5)
 - 📋 External audit planned for Q2 2026
 
 ---
@@ -288,7 +326,7 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 
 ### Proposal Types
 
-1. **Token Release**: Distribution of rewards via MilestoneEscrow
+1. **Token Minting**: New token emissions via MinterGateway (requires governance approval)
 2. **Parameter Changes**: Adjustment of caps, limits, multipliers
 3. **Integrations**: New quest platforms and educational partners
 4. **Treasury Management**: Use of DAO funds for development
@@ -337,13 +375,17 @@ All contracts deployed and verified on Base Mainnet (Chain ID: 8453)
 - ✅ Publish Whitepaper v1.2.1
 - ✅ Implement bilingual i18n system (ES/EN)
 
-### Q4 2025 - Community & Listings ✅ NOW (December 2025)
+### Q4 2025 - Governance & Listings ✅ NOW (December 2025)
 
+- ✅ Deploy TimelockController (7-day delay for token owner ops)
+- ✅ Deploy MinterGateway v3.3 (20M max supply cap)
+- ✅ Implement auto-delegation system (ERC20Votes activation)
 - ✅ Complete Discord server (21 channels, 10 roles)
 - ✅ Domain migration to mbxarts.com
 - ✅ Collab.Land installed for token gating
 - ✅ Complete Funding Application Guide (Top 5 grants)
 - ✅ SEO optimized (robots.txt, sitemap, metadata)
+- 🔄 Execute Gateway migration (atomic batch via Gnosis Safe)
 - 🔄 CoinGecko listing (re-applying with traction)
 - 🔄 BaseScan logo verification (submitted)
 - 🔄 Base Builder Grants application (ready)
@@ -538,6 +580,7 @@ For technical support, partnership inquiries, or general questions, please visit
 
 ### Version History
 
+- **v1.2.2** (December 14, 2025): Added TimelockController and MinterGateway v3.3 contracts, updated governance model (Aragon DAO → Timelock → Token), documented auto-delegation system, updated smart contracts architecture section
 - **v1.2.1** (December 11, 2025): Added CryptoGift Wallets product description, governance risks section, team information, anti-dilution protections, milestone verification process, updated audit status for transparency
 - **v1.2** (December 7, 2025): Updated with milestone-based emission model, referral system, API endpoints, progressive tokenomics (2M initial → 22M max supply)
 - **v1.1** (January 9, 2025): Updated supply to 2M, added new contracts

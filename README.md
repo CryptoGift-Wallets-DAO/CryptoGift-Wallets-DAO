@@ -98,23 +98,25 @@ pnpm exec hardhat run scripts/deploy-production-final.js --network base
 npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
 ```
 
-### Deployment (✅ COMPLETADO CON MÁXIMA EXCELENCIA - 31 ENE 2025)
+### Deployment (✅ COMPLETADO - GOVERNANCE UPDATE DIC 2025)
 
 ```bash
-# ✅ NUEVO SISTEMA COMPLETO - PRODUCTION READY
-# CGC Token (2M): 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
+# ✅ CORE CONTRACTS
+# CGC Token (2M initial, 22M max): 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
+# Aragon DAO: 0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
+
+# ✅ GOVERNANCE CONTRACTS (NEW - DIC 2025)
+# TimelockController (7-day delay): 0x9753d772C632e2d117b81d96939B878D74fB5166
+# MinterGateway v3.3 (20M max): 0xdd10540847a4495e21f01230a0d39C7c6785598F
+
+# ✅ TASK SYSTEM CONTRACTS
 # MasterEIP712Controller: 0x67D9a01A3F7b5D38694Bb78dD39286Db75D7D869
 # TaskRulesEIP712: 0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb
 # MilestoneEscrow: 0x8346CFcaECc90d678d862319449E5a742c03f109
 
 # ✅ VERIFICACIÓN BASESCAN: Todos los contratos muestran badge verde "Source Code"
-# ✅ TESTING: Sistema completamente probado y operacional
 
-# CONTRATOS ANTERIORES (DEPRECATED):
-# CGC Token OLD (1M): 0xe8AF8cF18DA5c540daffe76Ae5fEE31C80c74899
-# GovTokenVault: 0xF5606020e772308cc66F2fC3D0832bf9E17E68e0 
-# AllowedSignersCondition: 0x6101CAAAD91A848d911171B82369CF90B8B00597
-# MerklePayouts: 0xC75Be1A1fCb412078102b7C286d12E8ACc75b922
+# GOVERNANCE CHAIN: Aragon DAO → TimelockController → CGC Token Owner
 ```
 
 ## 🏗️ Arquitectura
@@ -159,18 +161,31 @@ cryptogift-wallets-DAO/
 └── tests/              # Tests
 ```
 
-## 🔧 Contratos Principales (✅ DESPLEGADOS 31 ENE 2025)
+## 🔧 Contratos Principales (✅ ACTUALIZADO DIC 2025)
 
 ### CGC Token
-- **Tipo**: ERC-20 with Votes & Permit
+- **Tipo**: ERC-20 with Votes & Permit (ERC20Votes)
 - **Initial Supply**: 2,000,000 CGC (current circulating)
-- **Max Supply**: 22,000,000 CGC (via milestone-based progressive emission)
-- **Emission Model**: Progressive minting tied to verified DAO milestone achievements
+- **Max Supply**: 22,000,000 CGC (via MinterGateway progressive emission)
+- **Owner**: TimelockController (7-day delay for security)
 - **Logo**: GitHub CDN integrado + BaseScan compatible
 - **Metadata**: Logos optimizados (64x64, 256x256, 512x512), SVG, tokenlist
 - **APIs**: Total Supply + Circulating Supply (CoinGecko compliant)
 - **Decimales**: 18
 - **Address**: `0x5e3a61b550328f3D8C44f60b3e10a49D3d806175`
+
+### TimelockController (NEW - DIC 2025)
+- **Función**: 7-day delay for CGC token owner operations
+- **Proposer/Executor**: Aragon DAO (`0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31`)
+- **Seguridad**: Prevents immediate malicious changes to token
+- **Address**: `0x9753d772C632e2d117b81d96939B878D74fB5166`
+
+### MinterGateway v3.3 (NEW - DIC 2025)
+- **Función**: Primary minting mechanism with supply cap
+- **Max Mintable**: 20,000,000 CGC (total max supply: 22M)
+- **Seguridad**: Requires authorized caller approval, pausable
+- **Owner**: Safe 3/5 Multisig
+- **Address**: `0xdd10540847a4495e21f01230a0d39C7c6785598F`
 
 ### MasterEIP712Controller
 - **Función**: Control de autorizaciones EIP-712
@@ -178,15 +193,15 @@ cryptogift-wallets-DAO/
 - **Seguridad**: 3-layer authorization system
 - **Address**: `0x67D9a01A3F7b5D38694Bb78dD39286Db75D7D869`
 
-### TaskRulesEIP712  
+### TaskRulesEIP712
 - **Función**: Validación de tareas y cálculo de recompensas
 - **Features**: Complexity levels 1-5, Custom rewards sin límites
 - **Integración**: EIP-712 structured signing
 - **Address**: `0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb`
 
 ### MilestoneEscrow
-- **Función**: Custody y liberación programática de tokens
-- **Features**: Batch operations, Secure custody, Minting integration
+- **Función**: Task reward distribution (transfers, no minting)
+- **Features**: Batch operations, Secure custody, EIP-712 verification
 - **Seguridad**: Master-controlled authorization
 - **Address**: `0x8346CFcaECc90d678d862319449E5a742c03f109`
 
@@ -226,11 +241,12 @@ cryptogift-wallets-DAO/
 | Reserva Emergencia | 5% | 100,000 CGC |
 
 **Initial Supply**: 2,000,000 CGC (current circulating)
-**Max Supply**: 22,000,000 CGC (theoretical maximum via milestone completion)
-**Emission Model**: Progressive Milestone-Based Minting
-- New tokens minted ONLY when DAO completes verified milestones
-- Supply growth tied to actual value creation (platform development, community growth, revenue milestones)
-- Authorized Minter: MilestoneEscrow contract (`0x8346CFcaECc90d678d862319449E5a742c03f109`)
+**Max Supply**: 22,000,000 CGC (theoretical maximum via MinterGateway)
+**Emission Model**: Governance-Controlled Progressive Minting
+- New tokens minted via MinterGateway v3.3 (`0xdd10540847a4495e21f01230a0d39C7c6785598F`)
+- Gateway enforces 20M max mintable cap (total 22M with initial 2M)
+- CGC Token owner: TimelockController (7-day delay for security)
+- Governance chain: Aragon DAO → TimelockController → CGC Token
 - Prevents arbitrary dilution while enabling sustainable ecosystem growth
 
 ## 🏛️ Gobernanza

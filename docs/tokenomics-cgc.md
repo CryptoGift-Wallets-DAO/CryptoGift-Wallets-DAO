@@ -17,7 +17,14 @@ CGC uses a **milestone-based progressive emission model** where new tokens are m
 - **Revenue & Sustainability Milestones** → New tokens minted (target: 5M CGC)
 - **DAO Governance Decisions** → Can trigger strategic emissions
 
-**Authorized Minter:** MilestoneEscrow contract (`0x8346CFcaECc90d678d862319449E5a742c03f109`)
+**Primary Minter:** MinterGateway v3.3 (`0xdd10540847a4495e21f01230a0d39C7c6785598F`)
+- Max Mintable: 20,000,000 CGC (enforced at contract level)
+- Requires authorized caller approval for minting
+- Owner: Safe 3/5 Multisig
+
+**Token Owner:** TimelockController (`0x9753d772C632e2d117b81d96939B878D74fB5166`)
+- 7-day delay for all CGC token owner operations
+- Governance Chain: Aragon DAO → TimelockController → CGC Token Owner
 
 This ensures token supply expansion is always backed by real value creation, preventing dilution while allowing sustainable growth.
 
@@ -68,9 +75,13 @@ This ensures token supply expansion is always backed by real value creation, pre
 ### Token Contract
 - **CGC Token:** `0x5e3a61b550328f3D8C44f60b3e10a49D3d806175`
 
-### Custody & Control Contracts
-- **MilestoneEscrow (Rewards):** `0x8346CFcaECc90d678d862319449E5a742c03f109`
+### Governance Contracts (NEW - December 2025)
+- **TimelockController (7-day delay):** `0x9753d772C632e2d117b81d96939B878D74fB5166`
+- **MinterGateway v3.3 (Primary Minter):** `0xdd10540847a4495e21f01230a0d39C7c6785598F`
 - **DAO Treasury (Aragon):** `0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31`
+
+### Task System Contracts
+- **MilestoneEscrow (Transfers only):** `0x8346CFcaECc90d678d862319449E5a742c03f109`
 - **MasterEIP712Controller:** `0x67D9a01A3F7b5D38694Bb78dD39286Db75D7D869`
 - **TaskRulesEIP712:** `0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb`
 
@@ -122,10 +133,10 @@ Circulating Supply = Total Supply - (Treasury Locked + Vested/Locked + Burned + 
 
 ### Governance Controls
 All token emissions and distributions are controlled by:
-1. **Smart Contract Caps:** Hard limits in MilestoneEscrow
-2. **DAO Proposals:** Required for treasury and major allocations
-3. **Timelock:** 48-hour delay on critical changes
-4. **Multisig:** Emergency functions require 3/5 signatures
+1. **MinterGateway Cap:** Hard 20M limit enforced at contract level
+2. **TimelockController:** 7-day delay for token owner operations
+3. **DAO Proposals:** Required for treasury and major allocations
+4. **Multisig:** 3/5 for MinterGateway owner, 2/3 for guardian (pause)
 
 ## Token Utility
 
@@ -181,10 +192,10 @@ Any changes to tokenomics require:
 
 ---
 
-**Last Updated:** January 9, 2025  
-**Version:** 1.0  
-**Status:** Pre-TGE  
-**Next Review:** Post-TGE (February 2025)
+**Last Updated:** December 14, 2025
+**Version:** 1.1 (Governance Update)
+**Status:** Production
+**Next Review:** Q1 2026
 
 ## Resources
 

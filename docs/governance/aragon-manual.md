@@ -4,11 +4,13 @@
 
 ### 1.1 Datos de Implementación
 - **Nombre**: CryptoGift Wallets
-- **Chain**: Base Mainnet
+- **Chain**: Base Mainnet (Chain ID: 8453)
 - **DAO Address**: `0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31`
 - **Framework**: Aragon OSx v1.4.0
-- **Token Voting Plugin**: `0x8Bf2C7555B9d0b96b9bC7782671553C91E6Fcd2b`
-- **Admin Plugin**: `0xaaAC7a7e1b9f5e14711903d9418C36D01E143667`
+- **Token Voting Plugin**: `0x5ADD5dc0a677dbB48fAC5e1DE4ca336d40B161a2`
+- **CGC Token**: `0x5e3a61b550328f3D8C44f60b3e10a49D3d806175`
+- **TimelockController**: `0x9753d772C632e2d117b81d96939B878D74fB5166` (7-day delay)
+- **MinterGateway v3.3**: `0xdd10540847a4495e21f01230a0d39C7c6785598F` (Primary Minter)
 
 ### 1.2 Acceso al DAO
 - **App URL**: https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
@@ -49,15 +51,17 @@ Control de emergencia durante fase inicial (a remover en v2)
 
 ## 3. Sistema de Permisos
 
-### 3.1 Matriz de Permisos Actual
+### 3.1 Matriz de Permisos Actual (Updated December 2025)
 
 | Permiso | Origen | Destino | Condición |
 |---------|--------|---------|-----------|
 | `EXECUTE_PERMISSION` | Token Voting | DAO | - |
 | `UPDATE_VOTING_SETTINGS_PERMISSION` | DAO | Token Voting | - |
-| `MINT_PERMISSION` | DAO | CGC Token | - |
-| `RELEASE_PERMISSION` | DAO | GovTokenVault | AllowedSignersCondition |
-| `PAUSE_PERMISSION` | Admin | GovTokenVault | - |
+| `OWNER_ROLE` | TimelockController | CGC Token | 7-day delay |
+| `PROPOSER_ROLE` | Aragon DAO | TimelockController | - |
+| `EXECUTOR_ROLE` | Aragon DAO | TimelockController | - |
+| `AUTHORIZED_CALLER` | Safe 3/5 | MinterGateway | Minting cap enforced |
+| `GUARDIAN_ROLE` | Safe 2/3 | MinterGateway | Pause only |
 
 ### 3.2 Gestión de Permisos
 
@@ -72,11 +76,12 @@ dao.grant(
 
 #### Grant with Condition
 ```solidity
+// Example: Grant authorized caller role to MinterGateway
 dao.grantWithCondition(
-    _where: GovTokenVault,
-    _who: ANY_ADDRESS,
-    _permissionId: RELEASE_PERMISSION_ID,
-    _condition: AllowedSignersCondition
+    _where: MinterGateway,
+    _who: authorizedCallerAddress,
+    _permissionId: MINT_CALLER_ROLE,
+    _condition: none // Enforced at contract level
 );
 ```
 
@@ -109,7 +114,7 @@ dao.revoke(_where, _who, _permissionId);
 ```javascript
 [
   {
-    to: GovTokenVault,
+    to: MilestoneEscrow, // 0x8346CFcaECc90d678d862319449E5a742c03f109
     value: 0,
     data: encodeFunctionData("updateCaps", [newDailyCap, newWeeklyCap, newMonthlyCap])
   }
@@ -170,10 +175,10 @@ const metadata = {
 ```javascript
 const actions = [
   {
-    to: "0x...", // GovTokenVault address
+    to: "0x8346CFcaECc90d678d862319449E5a742c03f109", // MilestoneEscrow address
     value: 0,
     data: encodeFunctionData({
-      abi: GovTokenVaultABI,
+      abi: MilestoneEscrowABI,
       functionName: "updateCaps",
       args: [10000, 60000, 200000]
     })
@@ -252,14 +257,14 @@ await dao.execute(
 
 ## 7. Escenarios Comunes
 
-### 7.1 Actualizar Caps del Vault
+### 7.1 Actualizar Caps del Escrow
 
 **Propuesta**:
 ```javascript
 {
   title: "Incrementar Caps Mensuales",
   actions: [{
-    to: GovTokenVault,
+    to: MilestoneEscrow, // 0x8346CFcaECc90d678d862319449E5a742c03f109
     data: updateCaps(5000, 30000, 100000)
   }]
 }
@@ -283,10 +288,10 @@ await dao.execute(
 **Propuesta**:
 ```javascript
 {
-  title: "EMERGENCIA: Pausar Vault",
+  title: "EMERGENCIA: Pausar MinterGateway",
   actions: [{
-    to: GovTokenVault,
-    data: pause()
+    to: MinterGateway, // 0xdd10540847a4495e21f01230a0d39C7c6785598F
+    data: pause() // Requires Guardian role (Safe 2/3)
   }]
 }
 ```
@@ -372,10 +377,10 @@ console.log({
 
 ### 10.1 Plan de Descentralización
 
-**Fase 1 (Actual)**: Admin plugin activo
-**Fase 2 (Q1 2025)**: Remover admin plugin
-**Fase 3 (Q2 2025)**: Implementar optimistic voting
-**Fase 4 (Q3 2025)**: Multi-chain governance
+**Fase 1 (Completada Q4 2024)**: DAO deployed, Admin plugin activo
+**Fase 2 (Completada Q4 2025)**: TimelockController + MinterGateway deployed
+**Fase 3 (Q1-Q2 2026)**: Remover admin plugin, full DAO autonomy
+**Fase 4 (Q3-Q4 2026)**: Implementar optimistic voting
 
 ### 10.2 Proceso de Upgrade
 
@@ -407,7 +412,7 @@ console.log({
 ## 12. FAQ
 
 **Q: ¿Cuánto CGC necesito para crear una propuesta?**
-A: 1,000 CGC (0.1% del supply total)
+A: 1,000 CGC (0.05% del supply inicial de 2M)
 
 **Q: ¿Puedo cancelar una propuesta activa?**
 A: No, una vez publicada debe completar su ciclo
@@ -424,5 +429,5 @@ A: Sí, si el contrato de staking implementa delegation
 ---
 
 *Manual actualizado para Aragon OSx v1.4.0*
-*Última revisión: Agosto 28, 2025*
-*Versión: 1.0*
+*Última revisión: Diciembre 14, 2025*
+*Versión: 1.1 (Governance Update - TimelockController + MinterGateway)*

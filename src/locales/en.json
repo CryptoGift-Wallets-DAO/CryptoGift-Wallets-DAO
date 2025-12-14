@@ -1226,14 +1226,30 @@
     },
     "contracts": {
       "title": "Smart Contracts",
-      "subtitle": "All contracts deployed and verified on Base Mainnet",
+      "subtitle": "All contracts deployed and verified on Base Mainnet (Dec 2025)",
+      "sections": {
+        "governance": "Core Token & Governance",
+        "taskSystem": "Task & Validation System"
+      },
       "cgcToken": {
-        "title": "CGC Token",
-        "desc": "Governance token for the DAO ecosystem"
+        "title": "CGC Token (ERC20Votes)",
+        "desc": "Governance token with voting power delegation. Owned by Aragon DAO via TimelockController"
+      },
+      "aragonDAO": {
+        "title": "Aragon DAO",
+        "desc": "Decentralized governance with Token Voting plugin. Controls TimelockController"
+      },
+      "timelockController": {
+        "title": "TimelockController",
+        "desc": "7-day delay for CGC token owner operations. Prevents immediate malicious changes"
+      },
+      "minterGateway": {
+        "title": "MinterGateway v3.3",
+        "desc": "Primary minting mechanism with 20M supply cap. Requires authorized caller approval"
       },
       "milestoneEscrow": {
         "title": "MilestoneEscrow",
-        "desc": "Custody and programmatic release of CGC tokens with EIP-712 verification"
+        "desc": "Task reward distribution with EIP-712 verification. Transfers from treasury (no minting)"
       },
       "masterController": {
         "title": "MasterEIP712Controller",
@@ -1243,9 +1259,14 @@
         "title": "TaskRulesEIP712",
         "desc": "Task validation rules and completion verification logic"
       },
-      "aragonDAO": {
-        "title": "Aragon DAO",
-        "desc": "Governance contract for proposals and voting"
+      "ownership": {
+        "title": "Governance & Ownership Model",
+        "description": "CGC Token ownership follows a secure governance chain: Aragon DAO controls the TimelockController, which owns the CGC Token. This ensures all owner operations have a 7-day delay for community review.",
+        "flow": "Aragon DAO → TimelockController (7-day delay) → CGC Token Owner → MinterGateway (authorized caller)",
+        "tokenOwner": "CGC Token Owner",
+        "tokenOwnerValue": "TimelockController (controlled by Aragon DAO)",
+        "mintingCap": "Max Mintable Supply",
+        "mintingCapValue": "20M CGC via MinterGateway (Total Max: 22M)"
       },
       "viewOnBaseScan": "View on BaseScan",
       "verificationBadge": "Verified"

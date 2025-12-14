@@ -43,13 +43,15 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
-// Contract addresses
+// Contract addresses - Updated December 2025 with new governance model
 const CONTRACTS = {
   cgcToken: '0x5e3a61b550328f3D8C44f60b3e10a49D3d806175',
+  aragonDAO: '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31',
+  timelockController: '0x9753d772C632e2d117b81d96939B878D74fB5166',
+  minterGateway: '0xdd10540847a4495e21f01230a0d39C7c6785598F',
   milestoneEscrow: '0x8346CFcaECc90d678d862319449E5a742c03f109',
   masterController: '0x67D9a01A3F7b5D38694Bb78dD39286Db75D7D869',
   taskRules: '0xdDcfFF04eC6D8148CDdE3dBde42456fB32bcC5bb',
-  aragonDAO: '0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31',
 };
 
 // Distribution data - Aligned with Whitepaper v1.2 (December 2025)
@@ -526,38 +528,105 @@ export default function DocsPage() {
                 </CardHeader>
               </Card>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <ContractCard
-                  title={t('contracts.cgcToken.title')}
-                  desc={t('contracts.cgcToken.desc')}
-                  address={CONTRACTS.cgcToken}
-                  icon={Coins}
-                />
-                <ContractCard
-                  title={t('contracts.milestoneEscrow.title')}
-                  desc={t('contracts.milestoneEscrow.desc')}
-                  address={CONTRACTS.milestoneEscrow}
-                  icon={Shield}
-                />
-                <ContractCard
-                  title={t('contracts.masterController.title')}
-                  desc={t('contracts.masterController.desc')}
-                  address={CONTRACTS.masterController}
-                  icon={Code}
-                />
-                <ContractCard
-                  title={t('contracts.taskRules.title')}
-                  desc={t('contracts.taskRules.desc')}
-                  address={CONTRACTS.taskRules}
-                  icon={CheckCircle2}
-                />
-                <ContractCard
-                  title={t('contracts.aragonDAO.title')}
-                  desc={t('contracts.aragonDAO.desc')}
-                  address={CONTRACTS.aragonDAO}
-                  icon={Vote}
-                />
+              {/* Core Token & Governance */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Vote className="h-5 w-5 text-purple-500" />
+                  {t('contracts.sections.governance')}
+                </h3>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <ContractCard
+                    title={t('contracts.cgcToken.title')}
+                    desc={t('contracts.cgcToken.desc')}
+                    address={CONTRACTS.cgcToken}
+                    icon={Coins}
+                  />
+                  <ContractCard
+                    title={t('contracts.aragonDAO.title')}
+                    desc={t('contracts.aragonDAO.desc')}
+                    address={CONTRACTS.aragonDAO}
+                    icon={Vote}
+                  />
+                  <ContractCard
+                    title={t('contracts.timelockController.title')}
+                    desc={t('contracts.timelockController.desc')}
+                    address={CONTRACTS.timelockController}
+                    icon={Clock}
+                  />
+                  <ContractCard
+                    title={t('contracts.minterGateway.title')}
+                    desc={t('contracts.minterGateway.desc')}
+                    address={CONTRACTS.minterGateway}
+                    icon={Zap}
+                  />
+                </div>
               </div>
+
+              {/* Task System */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Target className="h-5 w-5 text-blue-500" />
+                  {t('contracts.sections.taskSystem')}
+                </h3>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <ContractCard
+                    title={t('contracts.milestoneEscrow.title')}
+                    desc={t('contracts.milestoneEscrow.desc')}
+                    address={CONTRACTS.milestoneEscrow}
+                    icon={Shield}
+                  />
+                  <ContractCard
+                    title={t('contracts.masterController.title')}
+                    desc={t('contracts.masterController.desc')}
+                    address={CONTRACTS.masterController}
+                    icon={Code}
+                  />
+                  <ContractCard
+                    title={t('contracts.taskRules.title')}
+                    desc={t('contracts.taskRules.desc')}
+                    address={CONTRACTS.taskRules}
+                    icon={CheckCircle2}
+                  />
+                </div>
+              </div>
+
+              {/* Ownership Model Info */}
+              <Card className="glass-panel border-l-4 border-l-purple-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
+                    <Shield className="h-5 w-5 text-purple-500" />
+                    <span>{t('contracts.ownership.title')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-gray-700 dark:text-gray-300">
+                    {t('contracts.ownership.description')}
+                  </p>
+                  <div className="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg">
+                    <code className="text-sm text-gray-800 dark:text-gray-200">
+                      {t('contracts.ownership.flow')}
+                    </code>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+                      <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-1">
+                        {t('contracts.ownership.tokenOwner')}
+                      </h4>
+                      <p className="text-sm text-purple-700 dark:text-purple-300">
+                        {t('contracts.ownership.tokenOwnerValue')}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                      <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                        {t('contracts.ownership.mintingCap')}
+                      </h4>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        {t('contracts.ownership.mintingCapValue')}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* Governance Tab */}

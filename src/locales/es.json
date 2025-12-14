@@ -1328,14 +1328,30 @@
     },
     "contracts": {
       "title": "Smart Contracts",
-      "subtitle": "Todos los contratos desplegados y verificados en Base Mainnet",
+      "subtitle": "Todos los contratos desplegados y verificados en Base Mainnet (Dic 2025)",
+      "sections": {
+        "governance": "Token Principal y Gobernanza",
+        "taskSystem": "Sistema de Tareas y Validación"
+      },
       "cgcToken": {
-        "title": "Token CGC",
-        "desc": "Token de gobernanza para el ecosistema DAO"
+        "title": "CGC Token (ERC20Votes)",
+        "desc": "Token de gobernanza con delegación de poder de voto. Propiedad del DAO Aragon via TimelockController"
+      },
+      "aragonDAO": {
+        "title": "Aragon DAO",
+        "desc": "Gobernanza descentralizada con plugin Token Voting. Controla TimelockController"
+      },
+      "timelockController": {
+        "title": "TimelockController",
+        "desc": "7 días de retraso para operaciones de owner del token CGC. Previene cambios maliciosos inmediatos"
+      },
+      "minterGateway": {
+        "title": "MinterGateway v3.3",
+        "desc": "Mecanismo principal de acuñación con tope de 20M. Requiere aprobación de caller autorizado"
       },
       "milestoneEscrow": {
         "title": "MilestoneEscrow",
-        "desc": "Custodia y liberación programática de tokens CGC con verificación EIP-712"
+        "desc": "Distribución de recompensas de tareas con verificación EIP-712. Transfiere del treasury (no acuña)"
       },
       "masterController": {
         "title": "MasterEIP712Controller",
@@ -1345,9 +1361,14 @@
         "title": "TaskRulesEIP712",
         "desc": "Reglas de validación de tareas y lógica de verificación de completitud"
       },
-      "aragonDAO": {
-        "title": "Aragon DAO",
-        "desc": "Contrato de gobernanza para propuestas y votación"
+      "ownership": {
+        "title": "Modelo de Gobernanza y Propiedad",
+        "description": "La propiedad del Token CGC sigue una cadena de gobernanza segura: Aragon DAO controla el TimelockController, que es dueño del Token CGC. Esto asegura que todas las operaciones de owner tengan 7 días de retraso para revisión de la comunidad.",
+        "flow": "Aragon DAO → TimelockController (7 días de retraso) → Owner del Token CGC → MinterGateway (caller autorizado)",
+        "tokenOwner": "Owner del Token CGC",
+        "tokenOwnerValue": "TimelockController (controlado por Aragon DAO)",
+        "mintingCap": "Suministro Máximo Acuñable",
+        "mintingCapValue": "20M CGC via MinterGateway (Total Máx: 22M)"
       },
       "viewOnBaseScan": "Ver en BaseScan",
       "verificationBadge": "Verificado"
