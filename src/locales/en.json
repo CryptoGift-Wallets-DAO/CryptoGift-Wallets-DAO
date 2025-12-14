@@ -1474,6 +1474,24 @@
       "tier": "Tier",
       "tierProgress": "Progress to next tier"
     },
+    "votingPower": {
+      "activated": "Voting Power Activated",
+      "activatedDesc": "Your CGC tokens now have full voting power in the DAO. You can participate in governance proposals.",
+      "notActivated": "Activate Your Voting Power",
+      "notActivatedDesc": "Your CGC tokens need to be activated to gain voting power in the DAO.",
+      "activateButton": "Activate Voting Power",
+      "activating": "Activating...",
+      "success": "Voting power activated!",
+      "balance": "CGC Balance",
+      "power": "Voting Power",
+      "currentPower": "Current Voting Power",
+      "yourBalance": "Your Balance",
+      "delegatedTo": "Delegated To",
+      "self": "Yourself",
+      "showDetails": "Show Details",
+      "explanation": "CGC uses ERC20Votes standard. You must activate (delegate to yourself) to convert your token balance into voting power.",
+      "gasNote": "This transaction requires a small gas fee (~$0.01)"
+    },
     "form": {
       "username": "Username",
       "usernamePlaceholder": "Choose a unique username",
@@ -1643,6 +1661,21 @@
       "educationCompleted": "Education completed",
       "inviteClaimed": "Invitation claimed",
       "dashboardButton": "Go to Dashboard"
+    },
+    "delegation": {
+      "title": "Activate Your Voting Power",
+      "subtitle": "One final step to fully participate in DAO governance",
+      "benefitsTitle": "Why Activate?",
+      "benefit1": "Vote on DAO proposals and decisions",
+      "benefit2": "Your voice matters in governance",
+      "benefit3": "Participate in treasury management",
+      "activateButton": "Activate Voting Power",
+      "activating": "Activating...",
+      "success": "Voting Power Activated!",
+      "successDesc": "You can now participate in all DAO governance activities",
+      "error": "Activation Failed",
+      "skipButton": "Skip for now",
+      "gasNote": "Small gas fee required (~$0.01 on Base)"
     },
     "card": {
       "name": "Special Invite DAO",

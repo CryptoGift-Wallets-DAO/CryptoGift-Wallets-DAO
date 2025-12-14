@@ -1182,6 +1182,21 @@
       "inviteClaimed": "Invitacion reclamada",
       "dashboardButton": "Ir al Dashboard"
     },
+    "delegation": {
+      "title": "Activa tu Poder de Voto",
+      "subtitle": "Un ultimo paso para participar completamente en la gobernanza del DAO",
+      "benefitsTitle": "¿Por que Activar?",
+      "benefit1": "Vota en propuestas y decisiones del DAO",
+      "benefit2": "Tu voz importa en la gobernanza",
+      "benefit3": "Participa en la gestion del tesoro",
+      "activateButton": "Activar Poder de Voto",
+      "activating": "Activando...",
+      "success": "¡Poder de Voto Activado!",
+      "successDesc": "Ahora puedes participar en todas las actividades de gobernanza del DAO",
+      "error": "Fallo la Activacion",
+      "skipButton": "Saltar por ahora",
+      "gasNote": "Pequeña tarifa de gas requerida (~$0.01 en Base)"
+    },
     "card": {
       "name": "Invitacion Especial DAO",
       "tokensTitle": "Tokens CGC",
@@ -1543,6 +1558,24 @@
       "reputation": "Reputación",
       "tier": "Nivel",
       "tierProgress": "Progreso al siguiente nivel"
+    },
+    "votingPower": {
+      "activated": "Poder de Voto Activado",
+      "activatedDesc": "Tus tokens CGC ahora tienen poder de voto completo en la DAO. Puedes participar en propuestas de gobernanza.",
+      "notActivated": "Activa tu Poder de Voto",
+      "notActivatedDesc": "Tus tokens CGC necesitan ser activados para obtener poder de voto en la DAO.",
+      "activateButton": "Activar Poder de Voto",
+      "activating": "Activando...",
+      "success": "¡Poder de voto activado!",
+      "balance": "Balance CGC",
+      "power": "Poder de Voto",
+      "currentPower": "Poder de Voto Actual",
+      "yourBalance": "Tu Balance",
+      "delegatedTo": "Delegado a",
+      "self": "Ti mismo",
+      "showDetails": "Ver Detalles",
+      "explanation": "CGC usa el estándar ERC20Votes. Debes activar (delegar a ti mismo) para convertir tu balance de tokens en poder de voto.",
+      "gasNote": "Esta transacción requiere una pequeña tarifa de gas (~$0.01)"
     },
     "form": {
       "username": "Nombre de Usuario",

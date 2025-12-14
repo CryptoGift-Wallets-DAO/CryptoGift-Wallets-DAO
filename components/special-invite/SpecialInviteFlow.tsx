@@ -22,6 +22,7 @@ import Image from 'next/image';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
 import { client } from '@/lib/thirdweb/client';
 import { InviteImageCard } from './InviteImageCard';
+import { DelegationStep } from './DelegationStep';
 import { EmailVerificationModal } from '@/components/email/EmailVerificationModal';
 import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -111,7 +112,7 @@ interface SpecialInviteFlowProps {
   className?: string;
 }
 
-type FlowStep = 'welcome' | 'password' | 'education' | 'connect' | 'complete';
+type FlowStep = 'welcome' | 'password' | 'education' | 'connect' | 'delegate' | 'complete';
 
 export function SpecialInviteFlow({
   inviteData,
@@ -248,7 +249,8 @@ export function SpecialInviteFlow({
       const data = await response.json();
 
       if (data.success) {
-        setCurrentStep('complete');
+        // Go to delegation step instead of complete
+        setCurrentStep('delegate');
         triggerConfetti();
         onClaimComplete(account.address);
       }
@@ -256,6 +258,12 @@ export function SpecialInviteFlow({
       console.error('Error claiming invite:', error);
     }
   }, [account?.address, inviteData.code, onClaimComplete, isPermanent]);
+
+  // Handle delegation completion
+  const handleDelegationComplete = useCallback(() => {
+    setCurrentStep('complete');
+    triggerConfetti();
+  }, []);
 
   // Start flow
   const handleStartFlow = () => {
@@ -644,6 +652,14 @@ export function SpecialInviteFlow({
           </motion.div>
         );
 
+      case 'delegate':
+        return (
+          <DelegationStep
+            onComplete={handleDelegationComplete}
+            allowSkip={true}
+          />
+        );
+
       case 'complete':
         return (
           <motion.div
@@ -819,8 +835,8 @@ export function SpecialInviteFlow({
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 relative">
           {/* Step Indicator */}
           <div className="flex justify-center gap-2 mb-6">
-            {['welcome', 'password', 'education', 'connect', 'complete'].map((step, idx) => {
-              const stepOrder = ['welcome', 'password', 'education', 'connect', 'complete'];
+            {['welcome', 'password', 'education', 'connect', 'delegate', 'complete'].map((step, idx) => {
+              const stepOrder = ['welcome', 'password', 'education', 'connect', 'delegate', 'complete'];
               const currentIdx = stepOrder.indexOf(currentStep);
               const stepIdx = stepOrder.indexOf(step);
               const isActive = stepIdx === currentIdx;

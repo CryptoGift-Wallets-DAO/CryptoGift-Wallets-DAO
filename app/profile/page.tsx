@@ -368,9 +368,18 @@ function OverviewTab({ profile, t, address, onProfileUpdate }: { profile: any; t
 
   // Dynamically import the EmailVerificationCard to avoid circular deps
   const { EmailVerificationCard } = require('@/components/profile/EmailVerificationCard');
+  const { VotingPowerCard } = require('@/components/profile/VotingPowerCard');
 
   return (
     <div className="p-6">
+      {/* Voting Power Card - Prominent CTA for DAO governance */}
+      <div className="mb-6">
+        <VotingPowerCard
+          wallet={address}
+          onActivated={onProfileUpdate}
+        />
+      </div>
+
       {/* Email Verification Card - Prominent at top if not verified */}
       <div className="mb-6">
         <EmailVerificationCard
