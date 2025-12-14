@@ -697,6 +697,65 @@ export function SpecialInviteFlow({
               </div>
             </div>
 
+            {/* Token Import Instructions Card */}
+            <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-5 border-2 border-amber-300 dark:border-amber-600 text-left">
+              <h3 className="font-bold text-amber-800 dark:text-amber-300 mb-3">
+                {t('complete.importToken.title')}
+              </h3>
+              <p className="text-sm text-amber-700 dark:text-amber-400 mb-4">
+                {t('complete.importToken.description')}
+              </p>
+
+              {/* What you already have */}
+              <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-3 mb-4">
+                <p className="font-medium text-green-800 dark:text-green-300 text-sm mb-2">
+                  {t('complete.importToken.alreadyHave')}
+                </p>
+                <div className="space-y-1 text-xs text-green-700 dark:text-green-400">
+                  <p>{t('complete.importToken.votingPower')}</p>
+                  <p>{t('complete.importToken.communityAccess')}</p>
+                  <p>{t('complete.importToken.daoMember')}</p>
+                </div>
+              </div>
+
+              {/* Import steps */}
+              <p className="font-medium text-amber-800 dark:text-amber-300 text-sm mb-2">
+                {t('complete.importToken.howToImport')}
+              </p>
+              <ol className="text-xs text-amber-700 dark:text-amber-400 space-y-2 mb-4">
+                <li>1. {t('complete.importToken.step1')}</li>
+                <li>2. {t('complete.importToken.step2')}</li>
+                <li className="flex flex-col gap-1">
+                  <span>3. {t('complete.importToken.step3')}</span>
+                  <div className="flex items-center gap-2 bg-white dark:bg-slate-800 rounded p-2 font-mono text-xs">
+                    <span className="truncate flex-1">0x5e3a61b550328f3D8C44f60b3e10a49D3d806175</span>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText('0x5e3a61b550328f3D8C44f60b3e10a49D3d806175');
+                        // Simple visual feedback
+                        const btn = document.getElementById('copy-cgc-btn');
+                        if (btn) {
+                          btn.textContent = t('complete.importToken.copied');
+                          setTimeout(() => {
+                            btn.textContent = t('complete.importToken.copyAddress');
+                          }, 2000);
+                        }
+                      }}
+                      id="copy-cgc-btn"
+                      className="px-2 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs whitespace-nowrap"
+                    >
+                      {t('complete.importToken.copyAddress')}
+                    </button>
+                  </div>
+                </li>
+                <li>4. {t('complete.importToken.step4')}</li>
+              </ol>
+
+              <p className="text-xs text-amber-600 dark:text-amber-500 italic">
+                {t('complete.importToken.checkHistory')}
+              </p>
+            </div>
+
             <div className="pt-4">
               <a
                 href="/"

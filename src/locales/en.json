@@ -1660,7 +1660,23 @@
       "walletConnected": "Wallet connected",
       "educationCompleted": "Education completed",
       "inviteClaimed": "Invitation claimed",
-      "dashboardButton": "Go to Dashboard"
+      "dashboardButton": "Go to Dashboard",
+      "importToken": {
+        "title": "⚠️ Important: View CGC in Your Wallet",
+        "description": "We're in the CoinGecko/BaseScan listing process. For now, you need to import CGC manually to see it in your wallet.",
+        "alreadyHave": "You already have:",
+        "votingPower": "✅ Voting power in the DAO",
+        "communityAccess": "✅ Community access",
+        "daoMember": "✅ Full DAO membership",
+        "howToImport": "To see CGC in your wallet:",
+        "step1": "Open your wallet and tap '+' or 'Add Token'",
+        "step2": "Select 'Custom Token' and choose Base network",
+        "step3": "Paste the CGC address:",
+        "step4": "Name: CGC, Decimals: 18 (should auto-fill)",
+        "checkHistory": "💡 Check your transaction history to confirm receipt",
+        "copyAddress": "Copy Address",
+        "copied": "Copied!"
+      }
     },
     "delegation": {
       "title": "Activate Your Voting Power",
@@ -1675,7 +1691,8 @@
       "successDesc": "You can now participate in all DAO governance activities",
       "error": "Activation Failed",
       "skipButton": "Skip for now",
-      "gasNote": "Small gas fee required (~$0.01 on Base)"
+      "gasNote": "🆓 FREE - Only requires a signature, no gas fee",
+      "signatureNote": "This is a signature request, not a payment"
     },
     "card": {
       "name": "Special Invite DAO",

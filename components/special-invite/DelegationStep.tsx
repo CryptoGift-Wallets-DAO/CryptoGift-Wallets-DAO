@@ -207,9 +207,15 @@ export function DelegationStep({ onComplete, allowSkip = true }: DelegationStepP
             </button>
           )}
 
-          <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-            {t('delegation.gasNote')}
-          </p>
+          {/* Gasless/Free signing notice */}
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-3 text-center">
+            <p className="text-sm font-medium text-green-700 dark:text-green-400">
+              {t('delegation.gasNote')}
+            </p>
+            <p className="text-xs text-green-600 dark:text-green-500 mt-1">
+              {t('delegation.signatureNote')}
+            </p>
+          </div>
         </div>
       )}
     </motion.div>
