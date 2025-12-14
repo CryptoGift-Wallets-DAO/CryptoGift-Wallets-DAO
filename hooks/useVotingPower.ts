@@ -8,19 +8,26 @@
  * explicitly delegate their votes (to themselves or others) before
  * their token balance counts as voting power in the DAO.
  *
+ * Uses Thirdweb v5 for transaction signing (not Wagmi's useWriteContract
+ * because Wagmi doesn't have connectors configured in this project).
+ *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useReadContract } from 'wagmi';
 import { parseAbi, type Address } from 'viem';
 import { useAccount } from '@/lib/thirdweb';
+import { useSendTransaction, useActiveAccount } from 'thirdweb/react';
+import { prepareContractCall, getContract } from 'thirdweb';
+import { getClientSafe } from '@/lib/thirdweb/client';
+import { base } from 'thirdweb/chains';
 
 // CGC Token Contract Address (Base Mainnet)
-const CGC_TOKEN_ADDRESS = '0x5e3a61b550328f3D8C44f60b3e10a49D3d806175' as const;
+const CGC_TOKEN_ADDRESS: Address = '0x5e3a61b550328f3D8C44f60b3e10a49D3d806175';
 
-// Minimal ABI for ERC20Votes delegation functions
+// Minimal ABI for ERC20Votes delegation functions (for wagmi reads)
 const ERC20_VOTES_ABI = parseAbi([
   'function delegate(address delegatee) external',
   'function delegates(address account) view returns (address)',
@@ -49,15 +56,15 @@ export interface UseVotingPowerReturn {
   /** Error if any */
   error: Error | null;
   /** Activate voting power by delegating to self */
-  activateVotingPower: () => Promise<void>;
+  activateVotingPower: () => void;
   /** Delegate to a specific address */
-  delegateTo: (delegatee: Address) => Promise<void>;
+  delegateTo: (delegatee: Address) => void;
   /** Whether a delegation transaction is pending */
   isPending: boolean;
   /** Whether the last delegation was successful */
   isSuccess: boolean;
   /** Transaction hash of pending/completed delegation */
-  txHash: `0x${string}` | undefined;
+  txHash: string | undefined;
   /** Refetch the voting power status */
   refetch: () => void;
 }
@@ -69,9 +76,22 @@ export interface UseVotingPowerReturn {
  */
 export function useVotingPower(): UseVotingPowerReturn {
   const { address, isConnected } = useAccount();
+  const activeAccount = useActiveAccount();
   const [error, setError] = useState<Error | null>(null);
+  const [txHash, setTxHash] = useState<string | undefined>(undefined);
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  // Read balance
+  // Thirdweb send transaction hook
+  const {
+    mutate: sendTransaction,
+    isPending: isSending,
+    error: sendError,
+  } = useSendTransaction();
+
+  // Cast address to proper type for contract calls
+  const userAddress = address as Address | undefined;
+
+  // Read balance (using Wagmi - reads don't need wallet)
   const {
     data: balance,
     isLoading: isLoadingBalance,
@@ -80,9 +100,9 @@ export function useVotingPower(): UseVotingPowerReturn {
     address: CGC_TOKEN_ADDRESS,
     abi: ERC20_VOTES_ABI,
     functionName: 'balanceOf',
-    args: address ? [address] : undefined,
+    args: userAddress ? [userAddress] : undefined,
     query: {
-      enabled: isConnected && !!address,
+      enabled: isConnected && !!userAddress,
     },
   });
 
@@ -95,9 +115,9 @@ export function useVotingPower(): UseVotingPowerReturn {
     address: CGC_TOKEN_ADDRESS,
     abi: ERC20_VOTES_ABI,
     functionName: 'getVotes',
-    args: address ? [address] : undefined,
+    args: userAddress ? [userAddress] : undefined,
     query: {
-      enabled: isConnected && !!address,
+      enabled: isConnected && !!userAddress,
     },
   });
 
@@ -110,28 +130,10 @@ export function useVotingPower(): UseVotingPowerReturn {
     address: CGC_TOKEN_ADDRESS,
     abi: ERC20_VOTES_ABI,
     functionName: 'delegates',
-    args: address ? [address] : undefined,
+    args: userAddress ? [userAddress] : undefined,
     query: {
-      enabled: isConnected && !!address,
+      enabled: isConnected && !!userAddress,
     },
-  });
-
-  // Write contract for delegation
-  const {
-    writeContract,
-    data: txHash,
-    isPending: isWritePending,
-    error: writeError,
-    reset: resetWrite,
-  } = useWriteContract();
-
-  // Wait for transaction receipt
-  const {
-    isLoading: isConfirming,
-    isSuccess,
-    error: confirmError,
-  } = useWaitForTransactionReceipt({
-    hash: txHash,
   });
 
   // Compute status
@@ -139,7 +141,7 @@ export function useVotingPower(): UseVotingPowerReturn {
     balance: balance ?? 0n,
     votingPower: votingPower ?? 0n,
     delegatee: delegatee === '0x0000000000000000000000000000000000000000' ? null : (delegatee as Address),
-    isActivated: delegatee !== '0x0000000000000000000000000000000000000000',
+    isActivated: delegatee !== undefined && delegatee !== '0x0000000000000000000000000000000000000000',
     needsActivation: (balance ?? 0n) > 0n && (votingPower ?? 0n) === 0n,
   } : null;
 
@@ -150,69 +152,122 @@ export function useVotingPower(): UseVotingPowerReturn {
     refetchDelegatee();
   }, [refetchBalance, refetchVotes, refetchDelegatee]);
 
-  // Refetch after successful transaction
+  // Handle send errors
   useEffect(() => {
-    if (isSuccess) {
-      // Wait a bit for the blockchain to update
-      const timeout = setTimeout(() => {
-        refetch();
-      }, 2000);
-      return () => clearTimeout(timeout);
+    if (sendError) {
+      setError(sendError);
     }
-  }, [isSuccess, refetch]);
-
-  // Handle errors
-  useEffect(() => {
-    if (writeError) {
-      setError(writeError);
-    } else if (confirmError) {
-      setError(confirmError);
-    }
-  }, [writeError, confirmError]);
+  }, [sendError]);
 
   // Activate voting power by delegating to self
-  const activateVotingPower = useCallback(async () => {
-    if (!address) {
+  const activateVotingPower = useCallback(() => {
+    if (!activeAccount || !userAddress) {
       setError(new Error('Wallet not connected'));
       return;
     }
 
+    // Get client safely (may be null during SSR)
+    const thirdwebClient = getClientSafe();
+    if (!thirdwebClient) {
+      setError(new Error('Thirdweb client not available'));
+      return;
+    }
+
     setError(null);
-    resetWrite();
+    setIsSuccess(false);
+    setTxHash(undefined);
 
     try {
-      writeContract({
+      // Create contract instance with current client
+      const cgcContract = getContract({
+        client: thirdwebClient,
+        chain: base,
         address: CGC_TOKEN_ADDRESS,
-        abi: ERC20_VOTES_ABI,
-        functionName: 'delegate',
-        args: [address],
+      });
+
+      // Prepare the delegate transaction using Thirdweb
+      const transaction = prepareContractCall({
+        contract: cgcContract,
+        method: 'function delegate(address delegatee)',
+        params: [userAddress],
+      });
+
+      // Send the transaction
+      sendTransaction(transaction, {
+        onSuccess: (result) => {
+          console.log('[VotingPower] Delegation transaction sent:', result.transactionHash);
+          setTxHash(result.transactionHash);
+          setIsSuccess(true);
+          // Refetch after a delay to allow blockchain to update
+          setTimeout(() => {
+            refetch();
+          }, 3000);
+        },
+        onError: (err) => {
+          console.error('[VotingPower] Delegation failed:', err);
+          setError(err);
+        },
       });
     } catch (err) {
+      console.error('[VotingPower] Error preparing transaction:', err);
       setError(err instanceof Error ? err : new Error('Failed to activate voting power'));
     }
-  }, [address, writeContract, resetWrite]);
+  }, [activeAccount, userAddress, sendTransaction, refetch]);
 
   // Delegate to a specific address
-  const delegateTo = useCallback(async (delegateeAddress: Address) => {
-    if (!address) {
+  const delegateTo = useCallback((delegateeAddress: Address) => {
+    if (!activeAccount || !userAddress) {
       setError(new Error('Wallet not connected'));
       return;
     }
 
+    // Get client safely (may be null during SSR)
+    const thirdwebClient = getClientSafe();
+    if (!thirdwebClient) {
+      setError(new Error('Thirdweb client not available'));
+      return;
+    }
+
     setError(null);
-    resetWrite();
+    setIsSuccess(false);
+    setTxHash(undefined);
 
     try {
-      writeContract({
+      // Create contract instance with current client
+      const cgcContract = getContract({
+        client: thirdwebClient,
+        chain: base,
         address: CGC_TOKEN_ADDRESS,
-        abi: ERC20_VOTES_ABI,
-        functionName: 'delegate',
-        args: [delegateeAddress],
+      });
+
+      // Prepare the delegate transaction using Thirdweb
+      const transaction = prepareContractCall({
+        contract: cgcContract,
+        method: 'function delegate(address delegatee)',
+        params: [delegateeAddress],
+      });
+
+      // Send the transaction
+      sendTransaction(transaction, {
+        onSuccess: (result) => {
+          console.log('[VotingPower] Delegation transaction sent:', result.transactionHash);
+          setTxHash(result.transactionHash);
+          setIsSuccess(true);
+          // Refetch after a delay to allow blockchain to update
+          setTimeout(() => {
+            refetch();
+          }, 3000);
+        },
+        onError: (err) => {
+          console.error('[VotingPower] Delegation failed:', err);
+          setError(err);
+        },
       });
     } catch (err) {
+      console.error('[VotingPower] Error preparing transaction:', err);
       setError(err instanceof Error ? err : new Error('Failed to delegate'));
     }
-  }, [address, writeContract, resetWrite]);
+  }, [activeAccount, userAddress, sendTransaction, refetch]);
 
   return {
     status,
@@ -220,7 +275,7 @@ export function useVotingPower(): UseVotingPowerReturn {
     error,
     activateVotingPower,
     delegateTo,
-    isPending: isWritePending || isConfirming,
+    isPending: isSending,
     isSuccess,
     txHash,
     refetch,
