@@ -13,8 +13,9 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseAbi, type Address } from 'viem';
+import { useAccount } from '@/lib/thirdweb';
 
 // CGC Token Contract Address (Base Mainnet)
 const CGC_TOKEN_ADDRESS = '0x5e3a61b550328f3D8C44f60b3e10a49D3d806175' as const;
