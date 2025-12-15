@@ -539,6 +539,31 @@
       "failedToLoadStatsDesc": "Please try again later",
       "refreshing": "Refreshing data...",
       "refreshingDesc": "Updating tasks and leaderboard"
+    },
+    "gate": {
+      "title": "Community Members Only",
+      "description": "The Tasks section is reserved for CryptoGift Wallets DAO community members.",
+      "whatAreTasksTitle": "What are Tasks?",
+      "whatAreTasksDesc": "Tasks are real opportunities to contribute to building the CryptoGift ecosystem. Each task is a paid gig—complete it, get validated, and receive CGC tokens directly to your wallet.",
+      "features": {
+        "title": "Why Join the Task Force?",
+        "item1": "Earn CGC tokens for every completed task",
+        "item2": "Build your on-chain reputation and level up",
+        "item3": "Contribute to a decentralized future",
+        "item4": "Compete on the leaderboard for bonus rewards"
+      },
+      "requirement": {
+        "title": "Access Requirement",
+        "description": "Hold at least 1 CGC token in your wallet to access the Tasks section.",
+        "currentBalance": "Your current balance",
+        "required": "Required"
+      },
+      "cta": {
+        "title": "Don't have CGC yet?",
+        "description": "Join our community through a special referral invite and receive 200 CGC tokens instantly—enough to unlock Tasks and start earning!",
+        "buttonText": "Get 200 CGC Free",
+        "rewardBadge": "+200 CGC Bonus"
+      }
     }
   },
   "leaderboard": {

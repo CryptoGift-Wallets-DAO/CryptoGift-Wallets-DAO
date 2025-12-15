@@ -59,6 +59,12 @@ interface CGCAccessGateProps {
   requiredBalance?: string // Minimum CGC balance required (default: "0.01")
   title?: string
   description?: string
+  // Custom not connected state (optional) - shows BEFORE wallet connection
+  notConnectedContent?: React.ReactNode // Custom content to show when wallet not connected
+  // Custom insufficient balance state (optional) - shows AFTER wallet connection
+  insufficientTitle?: string
+  insufficientDescription?: string
+  insufficientContent?: React.ReactNode // Custom content to show below the description
 }
 
 /**
@@ -70,7 +76,11 @@ export function CGCAccessGate({
   children,
   requiredBalance = "0.01",
   title = "CGC Token Required",
-  description = "This feature is exclusive to CGC token holders. Connect your wallet and hold at least 0.01 CGC tokens to continue."
+  description = "This feature is exclusive to CGC token holders. Connect your wallet and hold at least 0.01 CGC tokens to continue.",
+  notConnectedContent,
+  insufficientTitle,
+  insufficientDescription,
+  insufficientContent
 }: CGCAccessGateProps) {
   const { address, isConnected } = useAccount()
   const { chainId } = useNetwork()
@@ -103,9 +113,12 @@ export function CGCAccessGate({
 
   // Not connected
   if (!isConnected || !address) {
+    // Use larger card width if custom content is provided
+    const cardWidth = notConnectedContent ? 'max-w-lg' : 'max-w-md'
+
     return (
       <GateBackground>
-        <Card className="w-full max-w-md glass-panel border-white/20 dark:border-slate-700/50">
+        <Card className={`w-full ${cardWidth} glass-panel border-white/20 dark:border-slate-700/50`}>
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <ApexAvatar className="h-20 w-20" />
@@ -117,7 +130,18 @@ export function CGCAccessGate({
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-gray-600 dark:text-gray-400 text-sm text-center">{description}</p>
-            <ConnectButtonDAO fullWidth />
+
+            {/* Custom content section - shows BEFORE connect button */}
+            {notConnectedContent && (
+              <div className="pt-2">
+                {notConnectedContent}
+              </div>
+            )}
+
+            {/* Connect wallet button at the bottom */}
+            <div className="pt-2">
+              <ConnectButtonDAO fullWidth />
+            </div>
           </CardContent>
         </Card>
       </GateBackground>
@@ -159,14 +183,14 @@ export function CGCAccessGate({
 
     return (
       <GateBackground>
-        <Card className="w-full max-w-md glass-panel border-white/20 dark:border-slate-700/50">
+        <Card className="w-full max-w-lg glass-panel border-white/20 dark:border-slate-700/50">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <ApexAvatar className="h-20 w-20" />
             </div>
             <CardTitle className="flex items-center justify-center space-x-2 text-gray-900 dark:text-white">
               <Coins className="h-5 w-5 text-amber-500 dark:text-amber-400" />
-              <span>Insufficient CGC Balance</span>
+              <span>{insufficientTitle || 'Insufficient CGC Balance'}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -180,24 +204,40 @@ export function CGCAccessGate({
                 </p>
               </div>
 
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
-                You need to hold at least {requiredBalance} CGC tokens to access this feature.
-              </p>
-
-              <div className="space-y-2">
-                <a
-                  href={cgcTokenUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
-                >
-                  <span>View CGC Token Contract</span>
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-                <p className="text-xs text-gray-500 dark:text-gray-500">
-                  Get CGC tokens through DAO participation or token swaps
+              {insufficientDescription ? (
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  {insufficientDescription}
                 </p>
-              </div>
+              ) : (
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  You need to hold at least {requiredBalance} CGC tokens to access this feature.
+                </p>
+              )}
+
+              {/* Custom content section */}
+              {insufficientContent && (
+                <div className="pt-2">
+                  {insufficientContent}
+                </div>
+              )}
+
+              {/* Default content if no custom content provided */}
+              {!insufficientContent && (
+                <div className="space-y-2">
+                  <a
+                    href={cgcTokenUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
+                  >
+                    <span>View CGC Token Contract</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                  <p className="text-xs text-gray-500 dark:text-gray-500">
+                    Get CGC tokens through DAO participation or token swaps
+                  </p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

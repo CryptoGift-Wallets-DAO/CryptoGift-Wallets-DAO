@@ -539,6 +539,31 @@
       "failedToLoadStatsDesc": "Por favor intenta de nuevo más tarde",
       "refreshing": "Actualizando datos...",
       "refreshingDesc": "Actualizando tareas y clasificación"
+    },
+    "gate": {
+      "title": "Solo Miembros de la Comunidad",
+      "description": "La sección de Tareas está reservada para miembros de la comunidad CryptoGift Wallets DAO.",
+      "whatAreTasksTitle": "¿Qué son las Tareas?",
+      "whatAreTasksDesc": "Las Tareas son oportunidades reales para contribuir a construir el ecosistema CryptoGift. Cada tarea es un trabajo pagado—complétala, recibe validación y obtén tokens CGC directamente en tu wallet.",
+      "features": {
+        "title": "¿Por qué unirte al Equipo de Tareas?",
+        "item1": "Gana tokens CGC por cada tarea completada",
+        "item2": "Construye tu reputación on-chain y sube de nivel",
+        "item3": "Contribuye a un futuro descentralizado",
+        "item4": "Compite en la clasificación por recompensas extra"
+      },
+      "requirement": {
+        "title": "Requisito de Acceso",
+        "description": "Ten al menos 1 token CGC en tu wallet para acceder a la sección de Tareas.",
+        "currentBalance": "Tu balance actual",
+        "required": "Requerido"
+      },
+      "cta": {
+        "title": "¿Aún no tienes CGC?",
+        "description": "Únete a nuestra comunidad a través de una invitación especial de referido y recibe 200 tokens CGC al instante—suficiente para desbloquear Tareas y empezar a ganar!",
+        "buttonText": "Obtén 200 CGC Gratis",
+        "rewardBadge": "+200 CGC Bono"
+      }
     }
   },
   "leaderboard": {
