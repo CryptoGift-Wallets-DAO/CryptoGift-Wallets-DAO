@@ -30,6 +30,7 @@ import { Button } from '@/components/ui/button';
 import { SpecialInviteFlow } from '@/components/special-invite/SpecialInviteFlow';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
+import { useTranslations } from 'next-intl';
 
 interface PermanentInviteData {
   code: string;
@@ -55,6 +56,7 @@ export default function PermanentInvitePage() {
   const params = useParams();
   const router = useRouter();
   const inviteCode = params.code as string;
+  const t = useTranslations('invite');
 
   // State
   const [pageState, setPageState] = useState<PageState>('loading');
@@ -132,7 +134,7 @@ export default function PermanentInvitePage() {
             <CardContent className="p-8">
               <div className="flex flex-col items-center justify-center min-h-[400px]">
                 <Loader2 className="h-12 w-12 text-purple-500 animate-spin mb-4" />
-                <p className="text-gray-600 dark:text-gray-400">Cargando tu invitacion permanente...</p>
+                <p className="text-gray-600 dark:text-gray-400">{t('loading')}</p>
               </div>
             </CardContent>
           </Card>
@@ -147,19 +149,19 @@ export default function PermanentInvitePage() {
                   <Star className="h-12 w-12 text-blue-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  Ya Reclamaste Esta Invitacion
+                  {t('alreadyClaimed.title')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-2 max-w-md">
-                  Ya eres parte de CryptoGift DAO a traves de este enlace permanente.
+                  {t('alreadyClaimed.desc')}
                 </p>
                 <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 mb-6">
                   <p className="text-sm text-purple-700 dark:text-purple-300 flex items-center gap-2">
                     <Infinity className="h-4 w-4" />
-                    Este es un enlace permanente - Puedes compartirlo con otros!
+                    {t('alreadyClaimed.shareTip')}
                   </p>
                 </div>
                 <Button onClick={() => router.push('/dashboard')}>
-                  Ir al Dashboard
+                  {t('alreadyClaimed.goToDashboard')}
                 </Button>
               </div>
             </CardContent>
@@ -175,13 +177,13 @@ export default function PermanentInvitePage() {
                   <AlertCircle className="h-12 w-12 text-orange-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  Limite Alcanzado
+                  {t('maxReached.title')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-                  Este enlace ha alcanzado su limite maximo de {inviteData?.maxClaims} reclamaciones.
+                  {t('maxReached.desc', { max: inviteData?.maxClaims ?? 0 })}
                 </p>
                 <Button onClick={() => router.push('/')}>
-                  Ir al Inicio
+                  {t('maxReached.goHome')}
                 </Button>
               </div>
             </CardContent>
@@ -197,13 +199,13 @@ export default function PermanentInvitePage() {
                   <AlertCircle className="h-12 w-12 text-red-500" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  Invitacion Invalida
+                  {t('invalid.title')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-                  {error || 'Este enlace de invitacion no es valido o ha sido deshabilitado.'}
+                  {error || t('invalid.desc')}
                 </p>
                 <Button onClick={() => router.push('/')}>
-                  Ir al Inicio
+                  {t('invalid.goHome')}
                 </Button>
               </div>
             </CardContent>
@@ -250,8 +252,8 @@ export default function PermanentInvitePage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-600">
-                <GraduationCap className="h-6 w-6 text-white" />
+              <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-600 overflow-hidden">
+                <img src="/apeX.png" alt="CryptoGift DAO" className="h-6 w-6 object-contain" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">

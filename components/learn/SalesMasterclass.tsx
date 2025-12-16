@@ -2738,7 +2738,7 @@ const CaptureBlock: React.FC<{
                   {selectedPath === 'Integration Partner' && (
                     <>🔧 Como <strong className="text-purple-300">Integration Partner</strong>, llevarás la tecnología CryptoGift a nuevas fronteras. Cada integración que desarrolles no solo expandirá el ecosistema, sino que te posicionará como pionero y serás recompensado con <strong className="text-yellow-400">tokens CGC de gobernanza</strong> proporcionales a tu impacto.</>
                   )}
-                  {selectedPath === 'Community Member' && (
+                  {selectedPath === 'Community' && (
                     <>🌟 Como <strong className="text-purple-300">Community Member</strong>, eres el corazón de CryptoGift. Tu participación activa, feedback y apoyo son invaluables. Por tu compromiso recibirás <strong className="text-yellow-400">tokens CGC de gobernanza</strong> que te dan voz y voto en el futuro de la plataforma.</>
                   )}
                   {selectedPath === 'Investor' && (
@@ -2758,8 +2758,8 @@ const CaptureBlock: React.FC<{
                 shadow-2xl shadow-blue-500/10 
                 space-y-4">
                 <h3 className="text-xl font-bold mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center gap-3">
-                  <span className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center backdrop-blur-xl border border-blue-500/30">
-                    ✨
+                  <span className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center backdrop-blur-xl border border-blue-500/30 overflow-hidden">
+                    <img src="/apeX.png" alt="apeX" className="w-8 h-8 object-contain" />
                   </span>
                   Únete a Nuestra Comunidad
                 </h3>
