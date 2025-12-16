@@ -2484,6 +2484,10 @@ const CaptureBlock: React.FC<{
   const [twitterChecked, setTwitterChecked] = useState(false);
   const [discordChecked, setDiscordChecked] = useState(false);
 
+  // Track if verification is in progress (for loading state)
+  const [twitterVerifying, setTwitterVerifying] = useState(false);
+  const [discordVerifying, setDiscordVerifying] = useState(false);
+
   // Roles que requieren Calendly (Investor y White-Label)
   const CALENDLY_ROLES = ['Investor', 'White-Label'];
   // Determinar si el rol seleccionado requiere Calendly o social engagement
@@ -2550,30 +2554,96 @@ const CaptureBlock: React.FC<{
     setProcessingCalendar(false);
   };
 
-  // NEW: Handler para Twitter Follow - Uses OAuth popup for automatic verification
+  // 🚀 ONE-CLICK AUTOMATIC FLOW: Twitter Follow
+  // 1. Opens popup with follow intent
+  // 2. Monitors when popup closes
+  // 3. Automatically triggers OAuth verification
+  // 4. Marks as verified if successful
   const handleTwitterCheckbox = async () => {
-    if (twitterFollowed || processingTwitter) return;
+    if (twitterFollowed || twitterVerifying) return;
 
+    console.log('🐦 Opening Twitter follow intent (one-click flow)');
+    setTwitterVerifying(true);
     setTwitterChecked(true);
-    console.log('🐦 Twitter checkbox clicked - starting OAuth verification');
 
-    // Use OAuth popup to verify Twitter follow
-    // The useSocialOAuth hook handles the popup, callback, and verification
-    verifyTwitter();
-    // The hook will update twitterFollowed automatically when verified
+    // Open popup with Twitter follow intent
+    const width = 600;
+    const height = 500;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+
+    const popup = window.open(
+      'https://twitter.com/intent/follow?screen_name=cryptogiftdao',
+      'twitterFollow',
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+    );
+
+    // Monitor popup - when it closes, automatically verify
+    const checkPopupClosed = setInterval(() => {
+      if (!popup || popup.closed) {
+        clearInterval(checkPopupClosed);
+        console.log('🐦 Popup closed - triggering automatic OAuth verification');
+
+        // Small delay to ensure Twitter has processed the follow
+        setTimeout(() => {
+          verifyTwitter();
+        }, 500);
+      }
+    }, 500);
+
+    // Safety timeout - if popup doesn't close in 2 minutes, stop monitoring
+    setTimeout(() => {
+      clearInterval(checkPopupClosed);
+      if (popup && !popup.closed) {
+        console.log('🐦 Timeout reached - user can close popup when ready');
+      }
+    }, 120000);
   };
 
-  // NEW: Handler para Discord Join - Uses OAuth popup for automatic verification
+  // 🚀 ONE-CLICK AUTOMATIC FLOW: Discord Join
+  // 1. Opens popup with Discord invite
+  // 2. Monitors when popup closes
+  // 3. Automatically triggers OAuth verification
+  // 4. Marks as verified if successful
   const handleDiscordCheckbox = async () => {
-    if (discordJoined || processingDiscord) return;
+    if (discordJoined || discordVerifying) return;
 
+    console.log('💬 Opening Discord invite (one-click flow)');
+    setDiscordVerifying(true);
     setDiscordChecked(true);
-    console.log('💬 Discord checkbox clicked - starting OAuth verification');
 
-    // Use OAuth popup to verify Discord membership
-    // The useSocialOAuth hook handles the popup, callback, and verification
-    verifyDiscord();
-    // The hook will update discordJoined automatically when verified
+    // Open popup with Discord invite
+    const width = 600;
+    const height = 700;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+
+    const popup = window.open(
+      'https://discord.gg/XzmKkrvhHc',
+      'discordJoin',
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+    );
+
+    // Monitor popup - when it closes, automatically verify
+    const checkPopupClosed = setInterval(() => {
+      if (!popup || popup.closed) {
+        clearInterval(checkPopupClosed);
+        console.log('💬 Popup closed - triggering automatic OAuth verification');
+
+        // Small delay to ensure Discord has processed the join
+        setTimeout(() => {
+          verifyDiscord();
+        }, 500);
+      }
+    }, 500);
+
+    // Safety timeout - if popup doesn't close in 2 minutes, stop monitoring
+    setTimeout(() => {
+      clearInterval(checkPopupClosed);
+      if (popup && !popup.closed) {
+        console.log('💬 Timeout reached - user can close popup when ready');
+      }
+    }, 120000);
   };
 
   // Verificar si los checkboxes requeridos están completos (role-specific)
@@ -2769,6 +2839,16 @@ const CaptureBlock: React.FC<{
                   voz en las decisiones del ecosistema. Esta comunidad es de todos los que la integramos, y tu presencia la fortalece.
                 </p>
 
+                {/* Privacy notice - no data collection */}
+                {requiresSocialEngagement && (
+                  <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start gap-2">
+                    <span className="text-blue-400 mt-0.5">🔒</span>
+                    <p className="text-xs text-blue-300/80">
+                      <strong>Solo verificamos que sigas/te unas</strong> — no recopilamos ni almacenamos ningún dato personal de tus cuentas.
+                    </p>
+                  </div>
+                )}
+
                 {/* Error display for OAuth */}
                 {socialOAuthError && (
                   <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2">
@@ -2879,27 +2959,17 @@ const CaptureBlock: React.FC<{
                 ) : (
                   /* Social Engagement Checkboxes - For Quest Creator, Integration Partner, Community */
                   <>
-                    {/* Twitter Follow Checkbox */}
+                    {/* Twitter Follow - One-Click Automatic Flow */}
                     <div className="group flex items-start p-4 rounded-xl
                       bg-gradient-to-r from-sky-500/5 to-blue-500/5
                       hover:from-sky-500/10 hover:to-blue-500/10
                       border border-transparent hover:border-sky-500/20
                       transition-all duration-300">
-                      <input
-                        type="checkbox"
-                        id="twitter-checkbox"
-                        checked={twitterChecked}
-                        onChange={handleTwitterCheckbox}
-                        disabled={twitterFollowed || processingTwitter}
-                        className="mt-1 mr-3 w-5 h-5 rounded border-2 border-sky-400/50 text-sky-600
-                          focus:ring-2 focus:ring-sky-500/50 disabled:opacity-50 cursor-pointer
-                          checked:bg-gradient-to-r checked:from-sky-500 checked:to-blue-500"
-                      />
-                      <label htmlFor="twitter-checkbox" className="flex-1 cursor-pointer">
-                        <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
                           <div className="w-8 h-8 bg-gradient-to-br from-sky-500/20 to-blue-500/20
                             rounded-lg flex items-center justify-center backdrop-blur-xl
-                            border border-sky-500/30 group-hover:scale-110 transition-transform">
+                            border border-sky-500/30">
                             <Twitter className="w-4 h-4 text-sky-400" />
                           </div>
                           <span className="font-semibold text-gray-800 dark:text-white">
@@ -2908,48 +2978,61 @@ const CaptureBlock: React.FC<{
                           {twitterFollowed && (
                             <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
                               border border-green-500/30 backdrop-blur-xl">
-                              ✓ Seguido
-                            </span>
-                          )}
-                          {processingTwitter && (
-                            <span className="px-2 py-1 bg-sky-500/20 text-sky-400 text-xs rounded-full
-                              border border-sky-500/30 backdrop-blur-xl animate-pulse">
-                              Abriendo...
+                              ✓ Verificado
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
+
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 ml-11">
                           {selectedPath === 'Quest Creator'
-                            ? 'Síguenos para ver ejemplos de quests exitosas y conectar con otros creators'
+                            ? 'Síguenos para ver ejemplos de quests exitosas'
                             : selectedPath === 'Integration Partner'
-                            ? 'Mantente al día con actualizaciones del SDK y nuevas integraciones'
-                            : 'Únete a la conversación y comparte tu experiencia con la comunidad cripto'
+                            ? 'Mantente al día con actualizaciones del SDK'
+                            : 'Únete a la conversación de la comunidad cripto'
                           }
                         </p>
-                      </label>
+
+                        {/* One-click automatic button */}
+                        {!twitterFollowed && (
+                          <div className="flex gap-2 ml-11">
+                            <button
+                              type="button"
+                              onClick={handleTwitterCheckbox}
+                              disabled={twitterVerifying || processingTwitter}
+                              className={`px-4 py-2 text-white text-sm font-semibold rounded-lg transition-all flex items-center gap-2 disabled:opacity-70
+                                ${twitterVerifying || processingTwitter
+                                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 cursor-wait'
+                                  : 'bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600'
+                                }`}
+                            >
+                              {twitterVerifying || processingTwitter ? (
+                                <>
+                                  <span className="animate-spin">⏳</span>
+                                  Verificando...
+                                </>
+                              ) : (
+                                <>
+                                  <Twitter className="w-4 h-4" />
+                                  Seguir @cryptogiftdao
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Discord Join Checkbox */}
+                    {/* Discord Join - One-Click Automatic Flow */}
                     <div className="group flex items-start p-4 rounded-xl
                       bg-gradient-to-r from-indigo-500/5 to-purple-500/5
                       hover:from-indigo-500/10 hover:to-purple-500/10
                       border border-transparent hover:border-indigo-500/20
                       transition-all duration-300">
-                      <input
-                        type="checkbox"
-                        id="discord-checkbox"
-                        checked={discordChecked}
-                        onChange={handleDiscordCheckbox}
-                        disabled={discordJoined || processingDiscord}
-                        className="mt-1 mr-3 w-5 h-5 rounded border-2 border-indigo-400/50 text-indigo-600
-                          focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-50 cursor-pointer
-                          checked:bg-gradient-to-r checked:from-indigo-500 checked:to-purple-500"
-                      />
-                      <label htmlFor="discord-checkbox" className="flex-1 cursor-pointer">
-                        <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
                           <div className="w-8 h-8 bg-gradient-to-br from-indigo-500/20 to-purple-500/20
                             rounded-lg flex items-center justify-center backdrop-blur-xl
-                            border border-indigo-500/30 group-hover:scale-110 transition-transform">
+                            border border-indigo-500/30">
                             <MessageSquare className="w-4 h-4 text-indigo-400" />
                           </div>
                           <span className="font-semibold text-gray-800 dark:text-white">
@@ -2958,25 +3041,48 @@ const CaptureBlock: React.FC<{
                           {discordJoined && (
                             <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
                               border border-green-500/30 backdrop-blur-xl">
-                              ✓ Unido
-                            </span>
-                          )}
-                          {processingDiscord && (
-                            <span className="px-2 py-1 bg-indigo-500/20 text-indigo-400 text-xs rounded-full
-                              border border-indigo-500/30 backdrop-blur-xl animate-pulse">
-                              Abriendo...
+                              ✓ Verificado
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
+
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 ml-11">
                           {selectedPath === 'Quest Creator'
-                            ? 'Accede al canal exclusivo de creators y recibe feedback de tu primera quest'
+                            ? 'Accede al canal exclusivo de creators'
                             : selectedPath === 'Integration Partner'
-                            ? 'Soporte técnico directo del equipo y acceso anticipado a nuevas features'
-                            : 'Conecta con otros embajadores, participa en eventos y gana recompensas exclusivas'
+                            ? 'Soporte técnico directo del equipo'
+                            : 'Conecta con la comunidad y participa en eventos'
                           }
                         </p>
-                      </label>
+
+                        {/* One-click automatic button */}
+                        {!discordJoined && (
+                          <div className="flex gap-2 ml-11">
+                            <button
+                              type="button"
+                              onClick={handleDiscordCheckbox}
+                              disabled={discordVerifying || processingDiscord}
+                              className={`px-4 py-2 text-white text-sm font-semibold rounded-lg transition-all flex items-center gap-2 disabled:opacity-70
+                                ${discordVerifying || processingDiscord
+                                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 cursor-wait'
+                                  : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
+                                }`}
+                            >
+                              {discordVerifying || processingDiscord ? (
+                                <>
+                                  <span className="animate-spin">⏳</span>
+                                  Verificando...
+                                </>
+                              ) : (
+                                <>
+                                  <MessageSquare className="w-4 h-4" />
+                                  Unirse al Discord
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </>
                 )}
