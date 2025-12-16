@@ -2554,96 +2554,54 @@ const CaptureBlock: React.FC<{
     setProcessingCalendar(false);
   };
 
-  // 🚀 ONE-CLICK AUTOMATIC FLOW: Twitter Follow
-  // 1. Opens popup with follow intent
-  // 2. Monitors when popup closes
-  // 3. Automatically triggers OAuth verification
-  // 4. Marks as verified if successful
+  // 🚀 ALL-IN-ONE POPUP FLOW: Twitter Follow
+  // Opens our verification page that handles: OAuth → Follow → Verify → Close
   const handleTwitterCheckbox = async () => {
     if (twitterFollowed || twitterVerifying) return;
 
-    console.log('🐦 Opening Twitter follow intent (one-click flow)');
+    console.log('🐦 Opening Twitter verification flow (all-in-one popup)');
     setTwitterVerifying(true);
     setTwitterChecked(true);
 
-    // Open popup with Twitter follow intent
-    const width = 600;
-    const height = 500;
+    // Open our verification page that handles everything
+    const width = 500;
+    const height = 650;
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
-    const popup = window.open(
-      'https://twitter.com/intent/follow?screen_name=cryptogiftdao',
-      'twitterFollow',
+    window.open(
+      '/social/verify?platform=twitter',
+      'twitterVerify',
       `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
     );
 
-    // Monitor popup - when it closes, automatically verify
-    const checkPopupClosed = setInterval(() => {
-      if (!popup || popup.closed) {
-        clearInterval(checkPopupClosed);
-        console.log('🐦 Popup closed - triggering automatic OAuth verification');
-
-        // Small delay to ensure Twitter has processed the follow
-        setTimeout(() => {
-          verifyTwitter();
-        }, 500);
-      }
-    }, 500);
-
-    // Safety timeout - if popup doesn't close in 2 minutes, stop monitoring
-    setTimeout(() => {
-      clearInterval(checkPopupClosed);
-      if (popup && !popup.closed) {
-        console.log('🐦 Timeout reached - user can close popup when ready');
-      }
-    }, 120000);
+    // The useSocialOAuth hook listens for postMessage from the popup
+    // When verified, it updates twitterFollowed automatically
   };
 
-  // 🚀 ONE-CLICK AUTOMATIC FLOW: Discord Join
-  // 1. Opens popup with Discord invite
-  // 2. Monitors when popup closes
-  // 3. Automatically triggers OAuth verification
-  // 4. Marks as verified if successful
+  // 🚀 ALL-IN-ONE POPUP FLOW: Discord Join
+  // Opens our verification page that handles: OAuth → Join → Verify → Close
   const handleDiscordCheckbox = async () => {
     if (discordJoined || discordVerifying) return;
 
-    console.log('💬 Opening Discord invite (one-click flow)');
+    console.log('💬 Opening Discord verification flow (all-in-one popup)');
     setDiscordVerifying(true);
     setDiscordChecked(true);
 
-    // Open popup with Discord invite
-    const width = 600;
-    const height = 700;
+    // Open our verification page that handles everything
+    const width = 500;
+    const height = 650;
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
-    const popup = window.open(
-      'https://discord.gg/XzmKkrvhHc',
-      'discordJoin',
+    window.open(
+      '/social/verify?platform=discord',
+      'discordVerify',
       `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
     );
 
-    // Monitor popup - when it closes, automatically verify
-    const checkPopupClosed = setInterval(() => {
-      if (!popup || popup.closed) {
-        clearInterval(checkPopupClosed);
-        console.log('💬 Popup closed - triggering automatic OAuth verification');
-
-        // Small delay to ensure Discord has processed the join
-        setTimeout(() => {
-          verifyDiscord();
-        }, 500);
-      }
-    }, 500);
-
-    // Safety timeout - if popup doesn't close in 2 minutes, stop monitoring
-    setTimeout(() => {
-      clearInterval(checkPopupClosed);
-      if (popup && !popup.closed) {
-        console.log('💬 Timeout reached - user can close popup when ready');
-      }
-    }, 120000);
+    // The useSocialOAuth hook listens for postMessage from the popup
+    // When verified, it updates discordJoined automatically
   };
 
   // Verificar si los checkboxes requeridos están completos (role-specific)

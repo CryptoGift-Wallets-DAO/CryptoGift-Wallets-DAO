@@ -185,9 +185,41 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code');
   const state = searchParams.get('state');
   const error = searchParams.get('error');
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mbxarts.com';
+
+  // Helper to redirect to verify page (for returnToVerify flow)
+  const redirectToVerify = (platform: string, success: boolean, verified: boolean, errorMsg?: string, accessToken?: string) => {
+    const params = new URLSearchParams({
+      platform,
+      oauth: 'complete',
+      verified: verified.toString(),
+    });
+    if (errorMsg) params.set('error', errorMsg);
+
+    const response = NextResponse.redirect(`${baseUrl}/social/verify?${params.toString()}`);
+
+    // Store access token in cookie if provided (for later verification)
+    if (accessToken) {
+      response.cookies.set(`${platform}_oauth_token`, accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        maxAge: 60 * 60, // 1 hour
+        path: '/',
+      });
+    }
+
+    return response;
+  };
 
   // Handle OAuth errors
   if (error) {
+    // Check if we should redirect to verify page
+    const oauthState = state ? getOAuthState(state) : null;
+    if (oauthState?.returnToVerify) {
+      return redirectToVerify(oauthState.platform, false, false, `OAuth error: ${error}`);
+    }
+
     return new NextResponse(
       generateCallbackHtml({
         success: false,
@@ -225,8 +257,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const { platform, codeVerifier } = oauthState;
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mbxarts.com';
+  const { platform, codeVerifier, returnToVerify } = oauthState;
   const redirectUri = `${baseUrl}/api/social/oauth-callback`;
 
   try {
@@ -239,6 +270,14 @@ export async function GET(request: NextRequest) {
       const isFollowing = await checkTwitterFollow(tokens.access_token, user.id);
 
       removeOAuthState(state);
+
+      // If returnToVerify, redirect back to verify page
+      if (returnToVerify) {
+        return redirectToVerify('twitter', true, isFollowing,
+          isFollowing ? undefined : 'Please follow @cryptogiftdao first',
+          tokens.access_token
+        );
+      }
 
       return new NextResponse(
         generateCallbackHtml({
@@ -262,6 +301,14 @@ export async function GET(request: NextRequest) {
       const isMember = await checkDiscordMembership(user.id);
 
       removeOAuthState(state);
+
+      // If returnToVerify, redirect back to verify page
+      if (returnToVerify) {
+        return redirectToVerify('discord', true, isMember,
+          isMember ? undefined : 'Please join our Discord server first',
+          tokens.access_token
+        );
+      }
 
       return new NextResponse(
         generateCallbackHtml({
@@ -287,6 +334,14 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error('[OAuth Callback] Error:', error);
+
+    // If returnToVerify, redirect with error
+    if (returnToVerify) {
+      return redirectToVerify(platform, false, false,
+        error instanceof Error ? error.message : 'Verification failed'
+      );
+    }
+
     return new NextResponse(
       generateCallbackHtml({
         success: false,

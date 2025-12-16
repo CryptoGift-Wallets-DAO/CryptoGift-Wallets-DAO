@@ -20,6 +20,7 @@ export interface OAuthState {
   nonce: string;
   expiresAt: number;
   codeVerifier?: string; // For PKCE
+  returnToVerify?: boolean; // If true, redirect back to /social/verify after OAuth
 }
 
 export interface TwitterTokenResponse {
@@ -181,7 +182,11 @@ export function removeOAuthState(state: string): void {
 /**
  * Generate Twitter OAuth 2.0 authorization URL
  */
-export function getTwitterAuthUrl(walletAddress: string, redirectUri: string): {
+export function getTwitterAuthUrl(
+  walletAddress: string,
+  redirectUri: string,
+  options?: { returnToVerify?: boolean }
+): {
   url: string;
   state: string;
   codeVerifier: string;
@@ -203,6 +208,7 @@ export function getTwitterAuthUrl(walletAddress: string, redirectUri: string): {
     nonce: state,
     expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
     codeVerifier,
+    returnToVerify: options?.returnToVerify,
   });
 
   const params = new URLSearchParams({
@@ -299,7 +305,11 @@ export async function getTwitterUser(accessToken: string): Promise<TwitterUser> 
 /**
  * Generate Discord OAuth 2.0 authorization URL
  */
-export function getDiscordAuthUrl(walletAddress: string, redirectUri: string): {
+export function getDiscordAuthUrl(
+  walletAddress: string,
+  redirectUri: string,
+  options?: { returnToVerify?: boolean }
+): {
   url: string;
   state: string;
 } {
@@ -318,6 +328,7 @@ export function getDiscordAuthUrl(walletAddress: string, redirectUri: string): {
     platform: 'discord',
     nonce: state,
     expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+    returnToVerify: options?.returnToVerify,
   });
 
   const params = new URLSearchParams({

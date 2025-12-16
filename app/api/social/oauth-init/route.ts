@@ -15,7 +15,7 @@ import {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { platform, walletAddress } = body;
+    const { platform, walletAddress, returnToVerify } = body;
 
     if (!platform || !['twitter', 'discord'].includes(platform)) {
       return NextResponse.json(
@@ -35,7 +35,9 @@ export async function POST(request: NextRequest) {
     const redirectUri = `${baseUrl}/api/social/oauth-callback`;
 
     if (platform === 'twitter') {
-      const { url, state } = getTwitterAuthUrl(walletAddress, redirectUri);
+      const { url, state } = getTwitterAuthUrl(walletAddress, redirectUri, {
+        returnToVerify: !!returnToVerify,
+      });
       return NextResponse.json({
         success: true,
         platform: 'twitter',
@@ -45,7 +47,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (platform === 'discord') {
-      const { url, state } = getDiscordAuthUrl(walletAddress, redirectUri);
+      const { url, state } = getDiscordAuthUrl(walletAddress, redirectUri, {
+        returnToVerify: !!returnToVerify,
+      });
       return NextResponse.json({
         success: true,
         platform: 'discord',
