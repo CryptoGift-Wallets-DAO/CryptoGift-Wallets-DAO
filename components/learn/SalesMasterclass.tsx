@@ -64,7 +64,9 @@ import {
   AtSign,
   Code,
   BookOpen,
-  Calendar
+  Calendar,
+  Twitter,
+  MessageSquare
 } from 'lucide-react';
 import { EmailVerificationModal } from '@/components/email/EmailVerificationModal';
 import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
@@ -648,6 +650,8 @@ interface SalesMasterclassProps {
   }) => void;
   onShowEmailVerification?: () => Promise<void>;
   onShowCalendar?: () => Promise<void>;
+  onShowTwitterFollow?: () => Promise<void>; // NEW: For social engagement
+  onShowDiscordJoin?: () => Promise<void>; // NEW: For community engagement
   verifiedEmail?: string;
 }
 
@@ -658,6 +662,8 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   onEducationComplete,
   onShowEmailVerification,
   onShowCalendar,
+  onShowTwitterFollow, // NEW: For social engagement
+  onShowDiscordJoin, // NEW: For community engagement
   verifiedEmail
 }) => {
   // Video configs from Spanish config file
@@ -1362,7 +1368,7 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
           timeLeft={timeLeft}
         />;
       case 'capture':
-        return <CaptureBlock 
+        return <CaptureBlock
           content={block.content}
           onSubmit={handleLeadSubmit}
           questionsScore={{
@@ -1373,6 +1379,9 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
           // Email verification props - Use parent's callbacks in educational mode
           onShowEmailVerification={educationalMode && onShowEmailVerification ? onShowEmailVerification : () => setShowEmailVerification(true)}
           onShowCalendar={educationalMode && onShowCalendar ? onShowCalendar : () => setShowCalendar(true)}
+          // Social engagement props - NEW for role-specific actions
+          onShowTwitterFollow={educationalMode && onShowTwitterFollow ? onShowTwitterFollow : undefined}
+          onShowDiscordJoin={educationalMode && onShowDiscordJoin ? onShowDiscordJoin : undefined}
           verifiedEmail={verifiedEmail}
         />;
       case 'success':
@@ -2423,15 +2432,17 @@ const CloseBlock: React.FC<{
   </div>
 );
 
-const CaptureBlock: React.FC<{ 
-  content: any; 
+const CaptureBlock: React.FC<{
+  content: any;
   onSubmit: (data: any) => void;
   questionsScore: { correct: number; total: number };
   educationalMode?: boolean;
   onShowEmailVerification?: () => void;
   onShowCalendar?: () => void;
+  onShowTwitterFollow?: () => void; // NEW: For social engagement
+  onShowDiscordJoin?: () => void; // NEW: For community engagement
   verifiedEmail?: string | null;
-}> = ({ content, onSubmit, questionsScore, educationalMode = false, onShowEmailVerification, onShowCalendar, verifiedEmail }) => {
+}> = ({ content, onSubmit, questionsScore, educationalMode = false, onShowEmailVerification, onShowCalendar, onShowTwitterFollow, onShowDiscordJoin, verifiedEmail }) => {
   const account = useActiveAccount(); 
   const [selectedPath, setSelectedPath] = useState<string>('');
   const [formData, setFormData] = useState({
@@ -2447,6 +2458,20 @@ const CaptureBlock: React.FC<{
   const [calendarScheduled, setCalendarScheduled] = useState(false);
   const [processingEmail, setProcessingEmail] = useState(false);
   const [processingCalendar, setProcessingCalendar] = useState(false);
+
+  // NEW: Estado para social engagement (Twitter y Discord)
+  const [twitterChecked, setTwitterChecked] = useState(false);
+  const [discordChecked, setDiscordChecked] = useState(false);
+  const [twitterFollowed, setTwitterFollowed] = useState(false);
+  const [discordJoined, setDiscordJoined] = useState(false);
+  const [processingTwitter, setProcessingTwitter] = useState(false);
+  const [processingDiscord, setProcessingDiscord] = useState(false);
+
+  // Roles que requieren Calendly (Investor y White-Label)
+  const CALENDLY_ROLES = ['Investor', 'White-Label'];
+  // Determinar si el rol seleccionado requiere Calendly o social engagement
+  const requiresCalendly = CALENDLY_ROLES.includes(selectedPath);
+  const requiresSocialEngagement = selectedPath && !CALENDLY_ROLES.includes(selectedPath);
 
   // FASE 1: Manejadores para checkboxes inline
   // IMPORTANT: The parent component (SpecialInviteFlow) provides promise-based callbacks
@@ -2507,9 +2532,69 @@ const CaptureBlock: React.FC<{
     }
     setProcessingCalendar(false);
   };
-  
-  // Verificar si ambos checkboxes están completos
-  const canProceed = emailVerified && calendarScheduled;
+
+  // NEW: Handler para Twitter Follow
+  const handleTwitterCheckbox = async () => {
+    if (twitterFollowed || processingTwitter) return;
+
+    setProcessingTwitter(true);
+    setTwitterChecked(true);
+    console.log('🐦 Twitter checkbox clicked - opening Twitter profile');
+
+    if (onShowTwitterFollow) {
+      try {
+        await onShowTwitterFollow();
+        setTwitterFollowed(true);
+        console.log('✅ Twitter follow completed successfully');
+      } catch (error) {
+        console.error('❌ Twitter follow error or cancelled:', error);
+        setTwitterChecked(false);
+        setTwitterFollowed(false);
+      }
+    } else {
+      // Open Twitter in new tab and mark as followed
+      window.open('https://x.com/cryptogiftdao', '_blank');
+      setTwitterFollowed(true);
+      console.log('✅ Twitter opened - marked as followed');
+    }
+    setProcessingTwitter(false);
+  };
+
+  // NEW: Handler para Discord Join
+  const handleDiscordCheckbox = async () => {
+    if (discordJoined || processingDiscord) return;
+
+    setProcessingDiscord(true);
+    setDiscordChecked(true);
+    console.log('💬 Discord checkbox clicked - opening Discord invite');
+
+    if (onShowDiscordJoin) {
+      try {
+        await onShowDiscordJoin();
+        setDiscordJoined(true);
+        console.log('✅ Discord join completed successfully');
+      } catch (error) {
+        console.error('❌ Discord join error or cancelled:', error);
+        setDiscordChecked(false);
+        setDiscordJoined(false);
+      }
+    } else {
+      // Open Discord invite in new tab and mark as joined
+      window.open('https://discord.gg/XzmKkrvhHc', '_blank');
+      setDiscordJoined(true);
+      console.log('✅ Discord opened - marked as joined');
+    }
+    setProcessingDiscord(false);
+  };
+
+  // Verificar si los checkboxes requeridos están completos (role-specific)
+  // Para Investor y White-Label: Email + Calendar
+  // Para otros roles: Email + Twitter + Discord
+  const canProceed = emailVerified && (
+    requiresCalendly
+      ? calendarScheduled
+      : (twitterFollowed && discordJoined)
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -2530,7 +2615,9 @@ const CaptureBlock: React.FC<{
       onSubmit({
         path: selectedPath,
         email: verifiedEmail,
-        calendarBooked: true,
+        calendarBooked: requiresCalendly ? calendarScheduled : false,
+        twitterFollowed: requiresSocialEngagement ? twitterFollowed : false,
+        discordJoined: requiresSocialEngagement ? discordJoined : false,
         questionsScore,
         educationalMode: true
       });
@@ -2724,51 +2811,160 @@ const CaptureBlock: React.FC<{
                   </label>
                 </div>
                 
-                {/* Calendar Booking Checkbox - GLASS STYLE */}
-                <div className="group flex items-start p-4 rounded-xl 
-                  bg-gradient-to-r from-purple-500/5 to-pink-500/5
-                  hover:from-purple-500/10 hover:to-pink-500/10
-                  border border-transparent hover:border-purple-500/20
-                  transition-all duration-300">
-                  <input
-                    type="checkbox"
-                    id="calendar-checkbox"
-                    checked={calendarChecked}
-                    onChange={handleCalendarCheckbox}
-                    disabled={calendarScheduled || processingCalendar}
-                    className="mt-1 mr-3 w-5 h-5 rounded border-2 border-purple-400/50 text-purple-600 
-                      focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 cursor-pointer
-                      checked:bg-gradient-to-r checked:from-purple-500 checked:to-pink-500"
-                  />
-                  <label htmlFor="calendar-checkbox" className="flex-1 cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500/20 to-pink-500/20 
-                        rounded-lg flex items-center justify-center backdrop-blur-xl 
-                        border border-purple-500/30 group-hover:scale-110 transition-transform">
-                        <span className="text-lg">📅</span>
+                {/* ROLE-SPECIFIC ACTIONS */}
+                {requiresCalendly ? (
+                  /* Calendar Booking Checkbox - For Investor and White-Label */
+                  <div className="group flex items-start p-4 rounded-xl
+                    bg-gradient-to-r from-purple-500/5 to-pink-500/5
+                    hover:from-purple-500/10 hover:to-pink-500/10
+                    border border-transparent hover:border-purple-500/20
+                    transition-all duration-300">
+                    <input
+                      type="checkbox"
+                      id="calendar-checkbox"
+                      checked={calendarChecked}
+                      onChange={handleCalendarCheckbox}
+                      disabled={calendarScheduled || processingCalendar}
+                      className="mt-1 mr-3 w-5 h-5 rounded border-2 border-purple-400/50 text-purple-600
+                        focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 cursor-pointer
+                        checked:bg-gradient-to-r checked:from-purple-500 checked:to-pink-500"
+                    />
+                    <label htmlFor="calendar-checkbox" className="flex-1 cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-purple-500/20 to-pink-500/20
+                          rounded-lg flex items-center justify-center backdrop-blur-xl
+                          border border-purple-500/30 group-hover:scale-110 transition-transform">
+                          <span className="text-lg">📅</span>
+                        </div>
+                        <span className="font-semibold text-gray-800 dark:text-white">
+                          Agendar una sesión gratuita
+                        </span>
+                        {calendarScheduled && (
+                          <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
+                            border border-green-500/30 backdrop-blur-xl">
+                            ✓ Agendado
+                          </span>
+                        )}
+                        {processingCalendar && (
+                          <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full
+                            border border-purple-500/30 backdrop-blur-xl animate-pulse">
+                            Procesando...
+                          </span>
+                        )}
                       </div>
-                      <span className="font-semibold text-gray-800 dark:text-white">
-                        Agendar una sesión gratuita
-                      </span>
-                      {calendarScheduled && (
-                        <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full 
-                          border border-green-500/30 backdrop-blur-xl">
-                          ✓ Agendado
-                        </span>
-                      )}
-                      {processingCalendar && (
-                        <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full 
-                          border border-purple-500/30 backdrop-blur-xl animate-pulse">
-                          Procesando...
-                        </span>
-                      )}
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
+                        {selectedPath === 'Investor'
+                          ? 'Agenda una llamada para discutir oportunidades de inversión y conocer nuestros números'
+                          : 'Agenda una demo personalizada para explorar opciones de White-Label para tu negocio'
+                        }
+                      </p>
+                    </label>
+                  </div>
+                ) : (
+                  /* Social Engagement Checkboxes - For Quest Creator, Integration Partner, Community */
+                  <>
+                    {/* Twitter Follow Checkbox */}
+                    <div className="group flex items-start p-4 rounded-xl
+                      bg-gradient-to-r from-sky-500/5 to-blue-500/5
+                      hover:from-sky-500/10 hover:to-blue-500/10
+                      border border-transparent hover:border-sky-500/20
+                      transition-all duration-300">
+                      <input
+                        type="checkbox"
+                        id="twitter-checkbox"
+                        checked={twitterChecked}
+                        onChange={handleTwitterCheckbox}
+                        disabled={twitterFollowed || processingTwitter}
+                        className="mt-1 mr-3 w-5 h-5 rounded border-2 border-sky-400/50 text-sky-600
+                          focus:ring-2 focus:ring-sky-500/50 disabled:opacity-50 cursor-pointer
+                          checked:bg-gradient-to-r checked:from-sky-500 checked:to-blue-500"
+                      />
+                      <label htmlFor="twitter-checkbox" className="flex-1 cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-sky-500/20 to-blue-500/20
+                            rounded-lg flex items-center justify-center backdrop-blur-xl
+                            border border-sky-500/30 group-hover:scale-110 transition-transform">
+                            <Twitter className="w-4 h-4 text-sky-400" />
+                          </div>
+                          <span className="font-semibold text-gray-800 dark:text-white">
+                            Seguir en X (Twitter)
+                          </span>
+                          {twitterFollowed && (
+                            <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
+                              border border-green-500/30 backdrop-blur-xl">
+                              ✓ Seguido
+                            </span>
+                          )}
+                          {processingTwitter && (
+                            <span className="px-2 py-1 bg-sky-500/20 text-sky-400 text-xs rounded-full
+                              border border-sky-500/30 backdrop-blur-xl animate-pulse">
+                              Abriendo...
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
+                          {selectedPath === 'Quest Creator'
+                            ? 'Síguenos para ver ejemplos de quests exitosas y conectar con otros creators'
+                            : selectedPath === 'Integration Partner'
+                            ? 'Mantente al día con actualizaciones del SDK y nuevas integraciones'
+                            : 'Únete a la conversación y comparte tu experiencia con la comunidad cripto'
+                          }
+                        </p>
+                      </label>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
-                      Descubre cómo CryptoGift puede transformar tu negocio (opcional pero recomendado)
-                    </p>
-                  </label>
-                </div>
-                
+
+                    {/* Discord Join Checkbox */}
+                    <div className="group flex items-start p-4 rounded-xl
+                      bg-gradient-to-r from-indigo-500/5 to-purple-500/5
+                      hover:from-indigo-500/10 hover:to-purple-500/10
+                      border border-transparent hover:border-indigo-500/20
+                      transition-all duration-300">
+                      <input
+                        type="checkbox"
+                        id="discord-checkbox"
+                        checked={discordChecked}
+                        onChange={handleDiscordCheckbox}
+                        disabled={discordJoined || processingDiscord}
+                        className="mt-1 mr-3 w-5 h-5 rounded border-2 border-indigo-400/50 text-indigo-600
+                          focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-50 cursor-pointer
+                          checked:bg-gradient-to-r checked:from-indigo-500 checked:to-purple-500"
+                      />
+                      <label htmlFor="discord-checkbox" className="flex-1 cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500/20 to-purple-500/20
+                            rounded-lg flex items-center justify-center backdrop-blur-xl
+                            border border-indigo-500/30 group-hover:scale-110 transition-transform">
+                            <MessageSquare className="w-4 h-4 text-indigo-400" />
+                          </div>
+                          <span className="font-semibold text-gray-800 dark:text-white">
+                            Unirse a Discord
+                          </span>
+                          {discordJoined && (
+                            <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
+                              border border-green-500/30 backdrop-blur-xl">
+                              ✓ Unido
+                            </span>
+                          )}
+                          {processingDiscord && (
+                            <span className="px-2 py-1 bg-indigo-500/20 text-indigo-400 text-xs rounded-full
+                              border border-indigo-500/30 backdrop-blur-xl animate-pulse">
+                              Abriendo...
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
+                          {selectedPath === 'Quest Creator'
+                            ? 'Accede al canal exclusivo de creators y recibe feedback de tu primera quest'
+                            : selectedPath === 'Integration Partner'
+                            ? 'Soporte técnico directo del equipo y acceso anticipado a nuevas features'
+                            : 'Conecta con otros embajadores, participa en eventos y gana recompensas exclusivas'
+                          }
+                        </p>
+                      </label>
+                    </div>
+                  </>
+                )}
+
                 {/* Progress indicator - GLASS STYLE */}
                 <div className="mt-6 pt-4 border-t border-white/10 dark:border-gray-700/30">
                   <div className="flex items-center justify-between p-3 rounded-xl
@@ -2790,15 +2986,21 @@ const CaptureBlock: React.FC<{
                             ⏳
                           </span>
                           <span className="text-gray-300">
-                            Completa ambos requisitos para continuar
+                            {requiresCalendly
+                              ? 'Completa ambos requisitos para continuar'
+                              : 'Completa los 3 requisitos para continuar'
+                            }
                           </span>
                         </>
                       )}
                     </span>
-                    <span className="px-3 py-1 bg-gradient-to-r from-blue-500/10 to-purple-500/10 
+                    <span className="px-3 py-1 bg-gradient-to-r from-blue-500/10 to-purple-500/10
                       rounded-full text-xs text-blue-400 font-mono
                       border border-blue-500/20 backdrop-blur-xl">
-                      {(emailVerified ? 1 : 0) + (calendarScheduled ? 1 : 0)} / 2
+                      {requiresCalendly
+                        ? `${(emailVerified ? 1 : 0) + (calendarScheduled ? 1 : 0)} / 2`
+                        : `${(emailVerified ? 1 : 0) + (twitterFollowed ? 1 : 0) + (discordJoined ? 1 : 0)} / 3`
+                      }
                     </span>
                   </div>
                 </div>
