@@ -188,7 +188,14 @@ export async function GET(request: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mbxarts.com';
 
   // Helper to redirect to verify page (for returnToVerify flow)
-  const redirectToVerify = (platform: string, success: boolean, verified: boolean, errorMsg?: string, accessToken?: string) => {
+  const redirectToVerify = (
+    platform: string,
+    success: boolean,
+    verified: boolean,
+    errorMsg?: string,
+    accessToken?: string,
+    userId?: string
+  ) => {
     const params = new URLSearchParams({
       platform,
       oauth: 'complete',
@@ -198,9 +205,18 @@ export async function GET(request: NextRequest) {
 
     const response = NextResponse.redirect(`${baseUrl}/social/verify?${params.toString()}`);
 
-    // Store access token in cookie if provided (for later verification)
+    // Store access token AND userId in cookies for later verification
     if (accessToken) {
       response.cookies.set(`${platform}_oauth_token`, accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        maxAge: 60 * 60, // 1 hour
+        path: '/',
+      });
+    }
+    if (userId) {
+      response.cookies.set(`${platform}_oauth_user_id`, userId, {
         httpOnly: true,
         secure: true,
         sameSite: 'lax',
@@ -271,11 +287,12 @@ export async function GET(request: NextRequest) {
 
       removeOAuthState(state);
 
-      // If returnToVerify, redirect back to verify page
+      // If returnToVerify, redirect back to verify page with credentials stored
       if (returnToVerify) {
         return redirectToVerify('twitter', true, isFollowing,
           isFollowing ? undefined : 'Please follow @cryptogiftdao first',
-          tokens.access_token
+          tokens.access_token,
+          user.id  // Store userId for later verification
         );
       }
 
@@ -302,11 +319,12 @@ export async function GET(request: NextRequest) {
 
       removeOAuthState(state);
 
-      // If returnToVerify, redirect back to verify page
+      // If returnToVerify, redirect back to verify page with credentials stored
       if (returnToVerify) {
         return redirectToVerify('discord', true, isMember,
           isMember ? undefined : 'Please join our Discord server first',
-          tokens.access_token
+          tokens.access_token,
+          user.id  // Store userId for later verification
         );
       }
 

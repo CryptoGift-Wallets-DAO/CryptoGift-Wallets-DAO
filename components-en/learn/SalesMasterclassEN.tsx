@@ -2458,6 +2458,21 @@ const CaptureBlock: React.FC<{
   const [twitterVerifying, setTwitterVerifying] = useState(false);
   const [discordVerifying, setDiscordVerifying] = useState(false);
 
+  // Reset verifying states when verification completes (via postMessage from popup)
+  useEffect(() => {
+    if (twitterFollowed) {
+      setTwitterVerifying(false);
+      setTwitterChecked(true);
+    }
+  }, [twitterFollowed]);
+
+  useEffect(() => {
+    if (discordJoined) {
+      setDiscordVerifying(false);
+      setDiscordChecked(true);
+    }
+  }, [discordJoined]);
+
   // Roles that require Calendly (Investor and White-Label)
   const CALENDLY_ROLES = ['Investor', 'White-Label'];
   // Determine if selected role requires Calendly or social engagement
