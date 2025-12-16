@@ -209,7 +209,8 @@ export function getTwitterAuthUrl(walletAddress: string, redirectUri: string): {
     response_type: 'code',
     client_id: clientId,
     redirect_uri: redirectUri,
-    scope: 'tweet.read users.read',
+    // Added follows.read to verify if user follows @cryptogiftdao
+    scope: 'tweet.read users.read follows.read',
     state,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
@@ -323,7 +324,8 @@ export function getDiscordAuthUrl(walletAddress: string, redirectUri: string): {
     response_type: 'code',
     client_id: clientId,
     redirect_uri: redirectUri,
-    scope: 'identify',
+    // Added guilds.members.read to verify guild membership
+    scope: 'identify guilds.members.read',
     state,
   });
 

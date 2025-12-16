@@ -71,6 +71,7 @@ import {
 import { EmailVerificationModal } from '@/components/email/EmailVerificationModal';
 import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
 import IntroVideoGate from '@/components-en/video/IntroVideoGateEN';
+import { useSocialOAuth } from '@/hooks/useSocialOAuth';
 import { VIDEO_CONFIG } from '@/config/videoConfigEN';
 // Enhanced confetti function matching KnowledgeLessonModal implementation
 function triggerConfetti(options?: ConfettiOptions) {
@@ -2429,13 +2430,29 @@ const CaptureBlock: React.FC<{
   const [processingEmail, setProcessingEmail] = useState(false);
   const [processingCalendar, setProcessingCalendar] = useState(false);
 
-  // NEW: Estado para social engagement (Twitter y Discord)
+  // NEW: OAuth-based social verification (automatic verification via API)
+  // Uses popup OAuth flow to verify user actually followed Twitter / joined Discord
+  const {
+    twitterVerified: twitterFollowed,
+    discordVerified: discordJoined,
+    isTwitterLoading: processingTwitter,
+    isDiscordLoading: processingDiscord,
+    verifyTwitter,
+    verifyDiscord,
+    error: socialOAuthError,
+  } = useSocialOAuth({
+    walletAddress: account?.address || '',
+    onVerified: (platform, username) => {
+      console.log(`✅ ${platform} verification completed: @${username}`);
+    },
+    onError: (error) => {
+      console.error('❌ Social verification error:', error);
+    },
+  });
+
+  // State for checkbox visual feedback (processing indicator)
   const [twitterChecked, setTwitterChecked] = useState(false);
   const [discordChecked, setDiscordChecked] = useState(false);
-  const [twitterFollowed, setTwitterFollowed] = useState(false);
-  const [discordJoined, setDiscordJoined] = useState(false);
-  const [processingTwitter, setProcessingTwitter] = useState(false);
-  const [processingDiscord, setProcessingDiscord] = useState(false);
 
   // Roles that require Calendly (Investor and White-Label)
   const CALENDLY_ROLES = ['Investor', 'White-Label'];
@@ -2485,58 +2502,30 @@ const CaptureBlock: React.FC<{
     setProcessingCalendar(false);
   };
 
-  // NEW: Handler for Twitter Follow
+  // NEW: Handler for Twitter Follow - Uses OAuth popup for automatic verification
   const handleTwitterCheckbox = async () => {
     if (twitterFollowed || processingTwitter) return;
 
-    setProcessingTwitter(true);
     setTwitterChecked(true);
-    console.log('🐦 Twitter checkbox clicked - opening Twitter profile');
+    console.log('🐦 Twitter checkbox clicked - starting OAuth verification');
 
-    if (onShowTwitterFollow) {
-      try {
-        await onShowTwitterFollow();
-        setTwitterFollowed(true);
-        console.log('✅ Twitter follow completed successfully');
-      } catch (error) {
-        console.error('❌ Twitter follow error or cancelled:', error);
-        setTwitterChecked(false);
-        setTwitterFollowed(false);
-      }
-    } else {
-      // Open Twitter in new tab and mark as followed
-      window.open('https://x.com/cryptogiftdao', '_blank');
-      setTwitterFollowed(true);
-      console.log('✅ Twitter opened - marked as followed');
-    }
-    setProcessingTwitter(false);
+    // Use OAuth popup to verify Twitter follow
+    // The useSocialOAuth hook handles the popup, callback, and verification
+    verifyTwitter();
+    // The hook will update twitterFollowed automatically when verified
   };
 
-  // NEW: Handler for Discord Join
+  // NEW: Handler for Discord Join - Uses OAuth popup for automatic verification
   const handleDiscordCheckbox = async () => {
     if (discordJoined || processingDiscord) return;
 
-    setProcessingDiscord(true);
     setDiscordChecked(true);
-    console.log('💬 Discord checkbox clicked - opening Discord invite');
+    console.log('💬 Discord checkbox clicked - starting OAuth verification');
 
-    if (onShowDiscordJoin) {
-      try {
-        await onShowDiscordJoin();
-        setDiscordJoined(true);
-        console.log('✅ Discord join completed successfully');
-      } catch (error) {
-        console.error('❌ Discord join error or cancelled:', error);
-        setDiscordChecked(false);
-        setDiscordJoined(false);
-      }
-    } else {
-      // Open Discord invite in new tab and mark as joined
-      window.open('https://discord.gg/XzmKkrvhHc', '_blank');
-      setDiscordJoined(true);
-      console.log('✅ Discord opened - marked as joined');
-    }
-    setProcessingDiscord(false);
+    // Use OAuth popup to verify Discord membership
+    // The useSocialOAuth hook handles the popup, callback, and verification
+    verifyDiscord();
+    // The hook will update discordJoined automatically when verified
   };
 
   // Check if required checkboxes are complete (role-specific)
