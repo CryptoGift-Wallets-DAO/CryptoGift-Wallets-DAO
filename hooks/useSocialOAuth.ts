@@ -5,7 +5,7 @@
  * Automatically checks if user completed the required action (follow/join)
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 
 export type SocialPlatform = 'twitter' | 'discord';
 
@@ -19,13 +19,20 @@ export interface OAuthResult {
 }
 
 export interface UseSocialOAuthOptions {
-  walletAddress: string;
+  walletAddress?: string; // Optional - not needed for social verification
+  sessionId?: string; // Alternative identifier for state tracking
   onVerified?: (platform: SocialPlatform, username: string) => void;
   onError?: (error: string) => void;
 }
 
 export function useSocialOAuth(options: UseSocialOAuthOptions) {
-  const { walletAddress, onVerified, onError } = options;
+  const { walletAddress, sessionId, onVerified, onError } = options;
+
+  // Generate a stable unique identifier for state tracking (wallet not required)
+  // This identifier is used for OAuth state management, not blockchain operations
+  const stateIdentifier = useMemo(() => {
+    return walletAddress || sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }, [walletAddress, sessionId]);
 
   const [twitterVerified, setTwitterVerified] = useState(false);
   const [discordVerified, setDiscordVerified] = useState(false);
@@ -72,23 +79,23 @@ export function useSocialOAuth(options: UseSocialOAuthOptions) {
 
   // Open OAuth popup for a platform
   const startVerification = useCallback(async (platform: SocialPlatform) => {
-    if (!walletAddress) {
-      setError('Wallet not connected');
-      return;
-    }
+    console.log(`[SocialOAuth] Starting ${platform} verification, identifier: ${stateIdentifier}`);
 
     setIsLoading(platform);
     setError(null);
 
     try {
-      // Get OAuth URL from API
+      console.log(`[SocialOAuth] Calling /api/social/oauth-init for ${platform}`);
+
+      // Get OAuth URL from API - wallet is optional, use stateIdentifier for tracking
       const response = await fetch('/api/social/oauth-init', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ platform, walletAddress }),
+        body: JSON.stringify({ platform, walletAddress: stateIdentifier }),
       });
 
       const data = await response.json();
+      console.log(`[SocialOAuth] API response:`, data);
 
       if (!response.ok || !data.authUrl) {
         throw new Error(data.error || 'Failed to get OAuth URL');
@@ -105,12 +112,24 @@ export function useSocialOAuth(options: UseSocialOAuthOptions) {
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
 
+      console.log(`[SocialOAuth] Opening popup for ${platform}`);
+
       // Open popup
       popupRef.current = window.open(
         data.authUrl,
         `${platform}OAuth`,
         `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
       );
+
+      // Check if popup was blocked
+      if (!popupRef.current || popupRef.current.closed) {
+        const errorMsg = 'Popup bloqueado. Por favor permite popups para este sitio.';
+        console.error('[SocialOAuth] Popup blocked!');
+        setError(errorMsg);
+        setIsLoading(null);
+        onError?.(errorMsg);
+        return;
+      }
 
       // Monitor popup closure
       const checkClosed = setInterval(() => {
@@ -119,7 +138,7 @@ export function useSocialOAuth(options: UseSocialOAuthOptions) {
           // If still loading when popup closes, user cancelled
           setIsLoading((current) => {
             if (current === platform) {
-              setError('Verification cancelled');
+              setError('Verificación cancelada');
               return null;
             }
             return current;
@@ -128,10 +147,12 @@ export function useSocialOAuth(options: UseSocialOAuthOptions) {
       }, 500);
     } catch (err) {
       console.error('[SocialOAuth] Error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to start verification');
+      const errorMsg = err instanceof Error ? err.message : 'Error al iniciar verificación';
+      setError(errorMsg);
       setIsLoading(null);
+      onError?.(errorMsg);
     }
-  }, [walletAddress]);
+  }, [stateIdentifier, onError]);
 
   // Convenience methods
   const verifyTwitter = useCallback(() => startVerification('twitter'), [startVerification]);

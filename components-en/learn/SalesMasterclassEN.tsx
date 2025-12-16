@@ -2680,11 +2680,25 @@ const CaptureBlock: React.FC<{
                 backdrop-blur-xl backdrop-saturate-150 
                 border border-purple-500/30 rounded-2xl p-6
                 shadow-xl shadow-purple-500/10">
-                <p className="text-lg text-gray-200 mb-4">
+                <p className="text-lg text-gray-200 mb-3">
                   You have selected: <span className="font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{selectedPath}</span>
                 </p>
-                <p className="text-sm text-gray-300/80">
-                  This information helps us personalize your CryptoGift experience
+                <p className="text-sm text-gray-300/90 leading-relaxed">
+                  {selectedPath === 'Quest Creator' && (
+                    <>🎯 As a <strong className="text-purple-300">Quest Creator</strong>, you&apos;ll be an architect of life-changing experiences. Your creativity will bridge traditional and Web3 worlds, and for each quest you design, you&apos;ll receive <strong className="text-yellow-400">CGC governance tokens</strong> recognizing your contribution to the ecosystem.</>
+                  )}
+                  {selectedPath === 'Integration Partner' && (
+                    <>🔧 As an <strong className="text-purple-300">Integration Partner</strong>, you&apos;ll take CryptoGift technology to new frontiers. Each integration you develop not only expands the ecosystem but positions you as a pioneer, and you&apos;ll be rewarded with <strong className="text-yellow-400">CGC governance tokens</strong> proportional to your impact.</>
+                  )}
+                  {selectedPath === 'Community Member' && (
+                    <>🌟 As a <strong className="text-purple-300">Community Member</strong>, you are the heart of CryptoGift. Your active participation, feedback, and support are invaluable. For your commitment, you&apos;ll receive <strong className="text-yellow-400">CGC governance tokens</strong> that give you voice and vote in the platform&apos;s future.</>
+                  )}
+                  {selectedPath === 'Investor' && (
+                    <>💎 As an <strong className="text-purple-300">Investor</strong>, you have vision for the future. Your participation enables us to scale and transform the industry. You&apos;ll receive <strong className="text-yellow-400">CGC governance tokens</strong> that reflect your trust and give you a stake in strategic decisions.</>
+                  )}
+                  {selectedPath === 'White-Label' && (
+                    <>🏢 As a <strong className="text-purple-300">White-Label Partner</strong>, you&apos;ll bring CryptoGift&apos;s power to your own brand. This strategic alliance includes preferential <strong className="text-yellow-400">CGC governance tokens</strong> that recognize your role as a technology ambassador.</>
+                  )}
                 </p>
               </div>
               
@@ -2695,13 +2709,26 @@ const CaptureBlock: React.FC<{
                 border border-white/20 dark:border-gray-700/50 
                 shadow-2xl shadow-blue-500/10 
                 space-y-4">
-                <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center gap-3">
+                <h3 className="text-xl font-bold mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center gap-3">
                   <span className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center backdrop-blur-xl border border-blue-500/30">
                     ✨
                   </span>
-                  Requirements to continue
+                  Join Our Community
                 </h3>
-                
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 ml-13 leading-relaxed">
+                  By completing these steps, you become an <strong className="text-purple-400">active member</strong> of CryptoGift.
+                  You&apos;ll receive <strong className="text-yellow-400">200 CGC</strong> as a welcome bonus —your first governance tokens that give
+                  you a voice in the ecosystem&apos;s decisions. This community belongs to everyone who joins, and your presence strengthens it.
+                </p>
+
+                {/* Error display for OAuth */}
+                {socialOAuthError && (
+                  <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2">
+                    <span className="text-red-400">⚠️</span>
+                    <p className="text-sm text-red-400">{socialOAuthError}</p>
+                  </div>
+                )}
+
                 {/* Email Verification Checkbox - GLASS STYLE */}
                 <div className="group flex items-start p-4 rounded-xl 
                   bg-gradient-to-r from-blue-500/5 to-indigo-500/5
