@@ -31,8 +31,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mbxarts.com';
+    // Get base URL - ensure consistency with oauth-callback
+    const configuredUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mbxarts.com';
+    // Ensure we always use www version for consistent cookies
+    const baseUrl = configuredUrl.includes('www.') ? configuredUrl : configuredUrl.replace('https://', 'https://www.');
     const redirectUri = `${baseUrl}/api/social/oauth-callback`;
+    console.log(`[OAuth Init] platform=${platform}, redirectUri=${redirectUri}`);
 
     if (platform === 'twitter') {
       const { url, state } = getTwitterAuthUrl(walletAddress, redirectUri, {

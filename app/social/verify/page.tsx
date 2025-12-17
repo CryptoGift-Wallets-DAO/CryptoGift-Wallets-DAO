@@ -33,6 +33,18 @@ function VerifyContent() {
   const oauthError = searchParams.get('error');
   const alreadyVerified = searchParams.get('verified') === 'true';
 
+  // Debug logging on mount
+  useEffect(() => {
+    console.log('[Verify Page] SearchParams:', {
+      platform,
+      oauth: searchParams.get('oauth'),
+      verified: searchParams.get('verified'),
+      error: searchParams.get('error'),
+      returnFromOAuth,
+      alreadyVerified,
+    });
+  }, [platform, searchParams, returnFromOAuth, alreadyVerified]);
+
   const [step, setStep] = useState<Step>('loading');
   const [error, setError] = useState<string | null>(null);
   const [hasOpened, setHasOpened] = useState(false);

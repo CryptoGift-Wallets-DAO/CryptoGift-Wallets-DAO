@@ -139,7 +139,7 @@ export function SpecialInviteFlow({
   const [calendarBooked, setCalendarBooked] = useState(false);
 
   // Language/Locale State for bilingual support
-  const [currentLocale, setCurrentLocale] = useState<'es' | 'en'>('es');
+  const [currentLocale, setCurrentLocale] = useState<'es' | 'en'>('en'); // Default to 'en' to match system default
 
   // Promise resolvers for modal callbacks (both resolve and reject)
   const emailResolverRef = useRef<{ resolve: () => void; reject: (error: Error) => void } | null>(null);
