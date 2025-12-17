@@ -249,6 +249,26 @@ export function SpecialInviteFlow({
       const data = await response.json();
 
       if (data.success) {
+        // 🔄 Sync any social verifications that were completed during education step
+        // (Twitter/Discord verification happens BEFORE wallet connection)
+        try {
+          console.log('[SpecialInviteFlow] Syncing social verifications to DB...');
+          const syncResponse = await fetch('/api/social/sync-verified', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ walletAddress: account.address })
+          });
+          const syncData = await syncResponse.json();
+          if (syncData.synced) {
+            console.log('[SpecialInviteFlow] ✅ Social verifications synced:', syncData.results);
+          } else {
+            console.log('[SpecialInviteFlow] No social verifications to sync (user may not have verified)');
+          }
+        } catch (syncError) {
+          // Non-blocking - don't fail the flow if sync fails
+          console.error('[SpecialInviteFlow] Social sync error (non-blocking):', syncError);
+        }
+
         // Go to delegation step instead of complete
         setCurrentStep('delegate');
         triggerConfetti();
