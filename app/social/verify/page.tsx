@@ -49,6 +49,11 @@ function VerifyContent() {
   const [error, setError] = useState<string | null>(null);
   const [hasOpened, setHasOpened] = useState(false);
 
+  // Twitter bypass: Timer-based verification (temporary until Basic tier is paid)
+  // This creates an organic UX where user clicks Follow, waits 4s, then can verify
+  const [twitterBypassReady, setTwitterBypassReady] = useState(false);
+  const [bypassCountdown, setBypassCountdown] = useState(0);
+
   // Post result to parent window and close
   const postResultAndClose = useCallback((success: boolean) => {
     console.log(`[Verify] Posting result to parent: verified=${success}`);
@@ -162,6 +167,23 @@ function VerifyContent() {
 
     // Open in new window, not navigate away
     window.open(url, '_blank', 'width=600,height=700,scrollbars=yes');
+
+    // Twitter bypass: Start 4-second countdown before enabling verify button
+    // This gives user time to actually follow and makes the UX feel organic
+    if (platform === 'twitter') {
+      setBypassCountdown(4);
+      const interval = setInterval(() => {
+        setBypassCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setTwitterBypassReady(true);
+            console.log('[Verify] Twitter bypass ready after 4s timer');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
   };
 
   // Verify the action (calls server-side API that reads cookies)
@@ -170,6 +192,18 @@ function VerifyContent() {
     setStep('verifying');
     setError(null);
 
+    // Twitter bypass: Skip API verification, trust-based (temporary until Basic tier)
+    // The user clicked Follow and waited 4 seconds - assume they followed
+    if (platform === 'twitter' && twitterBypassReady) {
+      console.log('[Verify] Twitter bypass: Skipping API verification (Free tier limitation)');
+      // Small delay to make it feel like verification is happening
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setStep('success');
+      setTimeout(() => postResultAndClose(true), 1500);
+      return;
+    }
+
+    // Discord and future Twitter (with Basic tier) use actual API verification
     try {
       const response = await fetch('/api/social/verify-complete', {
         method: 'POST',
@@ -312,19 +346,33 @@ function VerifyContent() {
               </div>
 
               {/* Step 2: Verify */}
-              <div className={`p-4 rounded-xl transition-all ${hasOpened ? 'bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700' : 'bg-gray-50 dark:bg-gray-800/50'}`}>
+              <div className={`p-4 rounded-xl transition-all ${
+                (isTwitter ? twitterBypassReady : hasOpened)
+                  ? 'bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700'
+                  : 'bg-gray-50 dark:bg-gray-800/50'
+              }`}>
                 <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                   Step 2: Verify completion
                 </p>
                 <button
                   onClick={verifyAction}
+                  disabled={isTwitter ? !twitterBypassReady : !hasOpened}
                   className={`w-full py-3 px-6 font-bold rounded-xl transition-all flex items-center justify-center gap-2
-                    ${hasOpened
-                      ? 'bg-green-500 hover:bg-green-600 text-white'
-                      : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400'}`}
+                    ${(isTwitter ? twitterBypassReady : hasOpened)
+                      ? 'bg-green-500 hover:bg-green-600 text-white cursor-pointer'
+                      : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'}`}
                 >
-                  <CheckCircle className="w-4 h-4" />
-                  {hasOpened ? 'Verify Now' : 'Complete Step 1 first'}
+                  {bypassCountdown > 0 ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Wait {bypassCountdown}s...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      {(isTwitter ? twitterBypassReady : hasOpened) ? 'Verify Now' : 'Complete Step 1 first'}
+                    </>
+                  )}
                 </button>
               </div>
             </div>
