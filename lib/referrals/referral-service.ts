@@ -804,8 +804,10 @@ export async function getReferralNetwork(
   const supabase = getTypedClient();
   const normalizedAddress = walletAddress.toLowerCase();
 
+  // 🔧 FIX: Query 'referrals' table directly instead of 'referral_network' view
+  // The view definition varies across migrations and may be missing 'referrer_address' column
   let query = supabase
-    .from('referral_network')
+    .from('referrals')
     .select('*', { count: 'exact' })
     .eq('referrer_address', normalizedAddress);
 
