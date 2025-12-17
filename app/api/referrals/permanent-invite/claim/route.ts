@@ -135,6 +135,29 @@ export async function POST(request: NextRequest) {
       console.warn('Failed to increment clicks:', err);
     }
 
+    // 🔧 INCREMENT total_claims counter on permanent invite
+    try {
+      const { data: currentInvite } = await db
+        .from('permanent_special_invites')
+        .select('total_claims')
+        .eq('invite_code', normalizedCode)
+        .single();
+
+      if (currentInvite) {
+        await db
+          .from('permanent_special_invites')
+          .update({
+            total_claims: (currentInvite.total_claims || 0) + 1,
+            last_claimed_at: new Date().toISOString(),
+          })
+          .eq('invite_code', normalizedCode);
+
+        console.log('✅ Incremented total_claims for', normalizedCode);
+      }
+    } catch (err) {
+      console.warn('Failed to increment total_claims:', err);
+    }
+
     console.log('✅ Permanent invite claimed:', {
       code: normalizedCode,
       claimedBy: normalizedWallet.slice(0, 6) + '...' + normalizedWallet.slice(-4),

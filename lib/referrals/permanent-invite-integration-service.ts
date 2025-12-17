@@ -92,10 +92,28 @@ export async function completePermanentInviteSignup(
 
     if (invite.referrer_wallet && invite.referrer_code) {
       try {
+        // 🔧 FIX: Lookup canonical code from referral_codes table
+        // This is needed because the database trigger uses the 'code' column,
+        // not 'custom_code'. If the user has a custom code, we need the canonical one.
+        const { data: referrerCodeEntry } = await db
+          .from('referral_codes')
+          .select('code, custom_code')
+          .or(`code.eq.${invite.referrer_code},custom_code.eq.${invite.referrer_code}`)
+          .single();
+
+        // Use canonical code for database trigger compatibility
+        const canonicalCode = referrerCodeEntry?.code || invite.referrer_code;
+
+        console.log('📌 Using canonical referral code:', {
+          provided: invite.referrer_code,
+          canonical: canonicalCode,
+          hasCustomCode: !!referrerCodeEntry?.custom_code,
+        });
+
         const referralData: ReferralInsert = {
           referrer_address: invite.referrer_wallet,
           referred_address: normalizedWallet,
-          referral_code: invite.referrer_code,
+          referral_code: canonicalCode, // Use canonical code for trigger compatibility
           level: 1,
           status: 'active',
           source: 'permanent_invite',
@@ -117,6 +135,7 @@ export async function completePermanentInviteSignup(
           referralCreated = true;
           console.log('✅ Referral created for permanent invite:', {
             code: normalizedCode,
+            canonicalCode,
             referrer: invite.referrer_wallet.slice(0, 6) + '...',
             referred: normalizedWallet.slice(0, 6) + '...',
           });
@@ -193,6 +212,37 @@ export async function completePermanentInviteSignup(
     } catch (error) {
       console.error('Error updating claim record:', error);
       errors.push('Error updating claim record');
+    }
+
+    // =====================================================
+    // STEP 5: Increment total_completed on permanent invite
+    // =====================================================
+
+    try {
+      const { data: currentInvite } = await db
+        .from('permanent_special_invites')
+        .select('total_completed, total_claims')
+        .eq('invite_code', normalizedCode)
+        .single();
+
+      if (currentInvite) {
+        const newCompleted = (currentInvite.total_completed || 0) + 1;
+        const totalClaims = currentInvite.total_claims || 1;
+        const conversionRate = totalClaims > 0 ? (newCompleted / totalClaims) * 100 : 0;
+
+        await db
+          .from('permanent_special_invites')
+          .update({
+            total_completed: newCompleted,
+            conversion_rate: Math.round(conversionRate * 100) / 100, // 2 decimal places
+          })
+          .eq('invite_code', normalizedCode);
+
+        console.log('✅ Incremented total_completed for', normalizedCode, '- Conversion:', conversionRate.toFixed(1) + '%');
+      }
+    } catch (error) {
+      console.error('Error incrementing total_completed:', error);
+      errors.push('Error updating completion count');
     }
 
     // =====================================================
