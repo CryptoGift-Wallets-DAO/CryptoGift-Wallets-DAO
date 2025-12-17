@@ -252,17 +252,40 @@ export async function distributeSignupBonus(
           await createReward(rewardData);
           result.totalDistributed += transfer.amount;
 
-          // Update referrer's total earnings
-          await supabase
-            .from('referral_codes')
-            .update({
-              total_earnings: supabase.rpc('increment_value', {
-                row_id: codeInfo.id,
-                column_name: 'total_earnings',
-                increment_by: transfer.amount,
-              }),
-            })
-            .eq('wallet_address', transfer.recipient);
+          // 🔧 FIX: Update referrer's total earnings (properly increment)
+          // Note: The broken RPC-inside-update was replaced with proper increment logic
+          try {
+            const { data: currentCode } = await supabase
+              .from('referral_codes')
+              .select('total_earnings')
+              .eq('wallet_address', transfer.recipient)
+              .single();
+
+            if (currentCode) {
+              const newEarnings = (Number(currentCode.total_earnings) || 0) + transfer.amount;
+              await supabase
+                .from('referral_codes')
+                .update({ total_earnings: newEarnings })
+                .eq('wallet_address', transfer.recipient);
+            }
+          } catch (updateErr) {
+            console.warn(`[SignupBonus] Failed to update total_earnings for ${transfer.recipient}:`, updateErr);
+            // Non-blocking - rewards are still tracked in referral_rewards table
+          }
+
+          // 🔧 FIX: Also update referrer_earnings in the referrals table
+          try {
+            await supabase
+              .from('referrals')
+              .update({
+                referrer_earnings: transfer.amount,
+                last_activity: new Date().toISOString(),
+              })
+              .eq('referred_address', normalizedAddress)
+              .eq('referrer_address', transfer.recipient);
+          } catch (updateErr) {
+            console.warn(`[SignupBonus] Failed to update referrals table:`, updateErr);
+          }
 
         } else if (txResult.error) {
           result.errors.push(`Level ${level} commission failed: ${txResult.error}`);

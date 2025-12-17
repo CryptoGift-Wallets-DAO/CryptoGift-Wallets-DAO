@@ -727,16 +727,19 @@ export async function getReferralStats(walletAddress: string): Promise<{
         };
       }
 
-      // Get referral counts by level
+      // Get referral counts by level (REAL counts, not cached counters)
       const { data: referrals } = await supabase
         .from('referrals')
-        .select('level, status')
+        .select('level, status, referrer_earnings')
         .eq('referrer_address', normalizedAddress);
 
       const level1 = referrals?.filter((r: { level: number }) => r.level === 1) || [];
       const level2 = referrals?.filter((r: { level: number }) => r.level === 2) || [];
       const level3 = referrals?.filter((r: { level: number }) => r.level === 3) || [];
       const active = referrals?.filter((r: { status: string }) => r.status === 'active') || [];
+
+      // 🔧 FIX: Calculate total referrals from ACTUAL data (not broken counter)
+      const totalReferralsActual = (referrals || []).length;
 
       // Get pending rewards
       const { data: pendingRewards } = await supabase
@@ -747,6 +750,15 @@ export async function getReferralStats(walletAddress: string): Promise<{
 
       const pendingTotal = pendingRewards?.reduce((sum: number, r: { amount: number }) => sum + Number(r.amount), 0) || 0;
 
+      // 🔧 FIX: Calculate total earnings from referral_rewards (not broken counter)
+      const { data: paidRewards } = await supabase
+        .from('referral_rewards')
+        .select('amount')
+        .eq('referrer_address', normalizedAddress)
+        .eq('status', 'paid');
+
+      const totalEarnedActual = paidRewards?.reduce((sum: number, r: { amount: number }) => sum + Number(r.amount), 0) || 0;
+
       // Get rank
       const { data: rankData } = await supabase
         .from('referral_leaderboard')
@@ -756,10 +768,12 @@ export async function getReferralStats(walletAddress: string): Promise<{
 
       return {
         code: codeInfo.custom_code || codeInfo.code,
-        totalReferrals: codeInfo.total_referrals || 0,
+        // 🔧 FIX: Use ACTUAL count instead of potentially broken counter
+        totalReferrals: totalReferralsActual,
         activeReferrals: active.length,
         pendingRewards: pendingTotal,
-        totalEarned: Number(codeInfo.total_earnings) || 0,
+        // 🔧 FIX: Use ACTUAL earnings from referral_rewards table
+        totalEarned: totalEarnedActual,
         level1Count: level1.length,
         level2Count: level2.length,
         level3Count: level3.length,
