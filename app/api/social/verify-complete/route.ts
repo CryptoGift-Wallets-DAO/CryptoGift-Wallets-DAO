@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { updateVerifiedSocial, SocialPlatform } from '@/lib/social/social-verification-service';
 
 // Discord Bot Token for guild membership check
 const DISCORD_BOT_TOKEN = process.env.DISCORD_DAO_TOKEN;
@@ -150,7 +151,7 @@ async function checkTwitterFollow(accessToken: string, userId: string): Promise<
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { platform } = body;
+    const { platform, walletAddress, bypassSave } = body;
 
     if (!platform || !['twitter', 'discord'].includes(platform)) {
       return NextResponse.json(
@@ -163,6 +164,7 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     const tokenCookie = cookieStore.get(`${platform}_oauth_token`);
     const userIdCookie = cookieStore.get(`${platform}_oauth_user_id`);
+    const usernameCookie = cookieStore.get(`${platform}_oauth_username`);
 
     if (!tokenCookie?.value || !userIdCookie?.value) {
       return NextResponse.json({
@@ -175,15 +177,19 @@ export async function POST(request: NextRequest) {
 
     const accessToken = tokenCookie.value;
     const userId = userIdCookie.value;
+    const username = usernameCookie?.value || '';
 
-    console.log(`[VerifyComplete] Verifying ${platform} for user ${userId}`);
+    console.log(`[VerifyComplete] Verifying ${platform} for user ${userId} (${username}), wallet: ${walletAddress || 'none'}`);
 
     let verified = false;
     let error: string | undefined;
-
     let details: string | undefined;
 
-    if (platform === 'twitter') {
+    // If bypassSave is true (Twitter bypass), skip verification and just save
+    if (bypassSave) {
+      console.log('[VerifyComplete] Bypass mode - skipping verification, just saving to DB');
+      verified = true;
+    } else if (platform === 'twitter') {
       const result = await checkTwitterFollow(accessToken, userId);
       verified = result.isFollowing;
       if (!verified) {
@@ -198,6 +204,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Save to database if verified and we have wallet + username
+    if (verified && walletAddress && username) {
+      try {
+        console.log(`[VerifyComplete] Saving ${platform} verification to DB: wallet=${walletAddress}, username=${username}`);
+        await updateVerifiedSocial(walletAddress, platform as SocialPlatform, {
+          platformId: userId,
+          username: username,
+        });
+        console.log(`[VerifyComplete] Successfully saved ${platform} verification to DB`);
+      } catch (dbError) {
+        // Log error but don't fail the verification
+        console.error('[VerifyComplete] Failed to save to DB (non-blocking):', dbError);
+      }
+    } else if (verified) {
+      console.log(`[VerifyComplete] Skipping DB save: walletAddress=${!!walletAddress}, username=${!!username}`);
+    }
+
     console.log(`[VerifyComplete] Result: platform=${platform}, verified=${verified}, error=${error}`);
 
     return NextResponse.json({
@@ -205,8 +228,9 @@ export async function POST(request: NextRequest) {
       verified,
       platform,
       error,
-      details, // Include details for debugging in frontend console
+      details,
       userId,
+      username, // Include username in response
     });
   } catch (error) {
     console.error('[VerifyComplete] Error:', error);

@@ -2536,8 +2536,10 @@ const CaptureBlock: React.FC<{
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
+    // Pass wallet address if available for DB persistence
+    const walletParam = account?.address ? `&wallet=${encodeURIComponent(account.address)}` : '';
     window.open(
-      '/social/verify?platform=twitter',
+      `/social/verify?platform=twitter${walletParam}`,
       'twitterVerify',
       `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
     );
@@ -2561,8 +2563,10 @@ const CaptureBlock: React.FC<{
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
+    // Pass wallet address if available for DB persistence
+    const walletParam = account?.address ? `&wallet=${encodeURIComponent(account.address)}` : '';
     window.open(
-      '/social/verify?platform=discord',
+      `/social/verify?platform=discord${walletParam}`,
       'discordVerify',
       `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
     );

@@ -197,9 +197,10 @@ export async function GET(request: NextRequest) {
     verified: boolean,
     errorMsg?: string,
     accessToken?: string,
-    userId?: string
+    userId?: string,
+    username?: string // NEW: Store username for DB save and postMessage
   ) => {
-    console.log(`[OAuth Callback] redirectToVerify called: platform=${platform}, success=${success}, verified=${verified}, hasToken=${!!accessToken}, hasUserId=${!!userId}`);
+    console.log(`[OAuth Callback] redirectToVerify called: platform=${platform}, success=${success}, verified=${verified}, hasToken=${!!accessToken}, hasUserId=${!!userId}, username=${username}`);
 
     const params = new URLSearchParams({
       platform,
@@ -227,6 +228,19 @@ export async function GET(request: NextRequest) {
     if (userId) {
       console.log(`[OAuth Callback] Setting ${platform}_oauth_user_id cookie: ${userId}`);
       response.cookies.set(`${platform}_oauth_user_id`, userId, cookieOptions);
+    }
+
+    // Store username in non-httpOnly cookie so frontend can read it for postMessage
+    if (username) {
+      const usernameCookieOptions = {
+        httpOnly: false, // Not httpOnly so frontend can read it
+        secure: true,
+        sameSite: 'lax' as const,
+        maxAge: 60 * 60, // 1 hour
+        path: '/',
+      };
+      console.log(`[OAuth Callback] Setting ${platform}_oauth_username cookie: ${username}`);
+      response.cookies.set(`${platform}_oauth_username`, username, usernameCookieOptions);
     }
 
     return response;
@@ -308,7 +322,8 @@ export async function GET(request: NextRequest) {
         return redirectToVerify('twitter', true, isFollowing,
           undefined, // Don't pass 'not following' as error - it's expected state
           tokens.access_token,
-          user.id  // Store userId for later verification
+          user.id,  // Store userId for later verification
+          user.username // Store username for DB save and postMessage
         );
       }
 
@@ -330,6 +345,11 @@ export async function GET(request: NextRequest) {
       const tokens = await exchangeDiscordCode(code, redirectUri);
       const user = await getDiscordUser(tokens.access_token);
 
+      // Format username (Discord removed discriminators for most users)
+      const discordUsername = user.discriminator === '0'
+        ? user.username
+        : `${user.username}#${user.discriminator}`;
+
       // Check if user is a member of the guild
       const isMember = await checkDiscordMembership(user.id);
 
@@ -342,7 +362,8 @@ export async function GET(request: NextRequest) {
         return redirectToVerify('discord', true, isMember,
           undefined, // Don't pass 'not member' as error - it's expected state
           tokens.access_token,
-          user.id  // Store userId for later verification
+          user.id,  // Store userId for later verification
+          discordUsername // Store username for DB save and postMessage
         );
       }
 
@@ -352,7 +373,7 @@ export async function GET(request: NextRequest) {
           platform: 'discord',
           verified: isMember,
           userId: user.id,
-          username: user.username,
+          username: discordUsername,
           error: isMember ? undefined : 'Please join our Discord server first',
         }),
         { headers: { 'Content-Type': 'text/html' } }

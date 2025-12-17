@@ -29,21 +29,37 @@ type Step = 'loading' | 'authorize' | 'action' | 'verifying' | 'success' | 'erro
 function VerifyContent() {
   const searchParams = useSearchParams();
   const platform = (searchParams.get('platform') as Platform) || 'twitter';
+  const walletAddress = searchParams.get('wallet') || ''; // Wallet passed from parent for DB persistence
   const returnFromOAuth = searchParams.get('oauth') === 'complete';
   const oauthError = searchParams.get('error');
   const alreadyVerified = searchParams.get('verified') === 'true';
+
+  // Username from cookie (set by OAuth callback, non-httpOnly so we can read it)
+  const [username, setUsername] = useState<string | null>(null);
+
+  // Read username from cookie on mount
+  useEffect(() => {
+    const cookies = document.cookie.split(';');
+    const usernameCookie = cookies.find(c => c.trim().startsWith(`${platform}_oauth_username=`));
+    if (usernameCookie) {
+      const value = usernameCookie.split('=')[1];
+      setUsername(decodeURIComponent(value));
+      console.log(`[Verify Page] Found username cookie: ${value}`);
+    }
+  }, [platform]);
 
   // Debug logging on mount
   useEffect(() => {
     console.log('[Verify Page] SearchParams:', {
       platform,
+      wallet: walletAddress,
       oauth: searchParams.get('oauth'),
       verified: searchParams.get('verified'),
       error: searchParams.get('error'),
       returnFromOAuth,
       alreadyVerified,
     });
-  }, [platform, searchParams, returnFromOAuth, alreadyVerified]);
+  }, [platform, walletAddress, searchParams, returnFromOAuth, alreadyVerified]);
 
   const [step, setStep] = useState<Step>('loading');
   const [error, setError] = useState<string | null>(null);
@@ -55,13 +71,14 @@ function VerifyContent() {
 
   // Post result to parent window and close
   const postResultAndClose = useCallback((success: boolean) => {
-    console.log(`[Verify] Posting result to parent: verified=${success}`);
+    console.log(`[Verify] Posting result to parent: verified=${success}, username=${username}`);
     if (window.opener) {
       window.opener.postMessage({
         type: 'SOCIAL_OAUTH_CALLBACK',
         success: true,
         platform,
         verified: success,
+        username: username || undefined, // Include username for parent to use
       }, '*');
     }
 
@@ -69,7 +86,7 @@ function VerifyContent() {
     setTimeout(() => {
       window.close();
     }, 1000);
-  }, [platform]);
+  }, [platform, username]);
 
   // Check initial status when page loads
   useEffect(() => {
@@ -184,9 +201,24 @@ function VerifyContent() {
     setError(null);
 
     // Twitter bypass: Skip API verification, trust-based (temporary until Basic tier)
-    // The user clicked Follow and waited 4 seconds - assume they followed
+    // The user clicked Follow and waited 5 seconds - assume they followed
     if (platform === 'twitter' && twitterBypassReady) {
       console.log('[Verify] Twitter bypass: Skipping API verification (Free tier limitation)');
+
+      // Still save to DB if we have wallet address
+      if (walletAddress && username) {
+        try {
+          await fetch('/api/social/verify-complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platform, walletAddress, bypassSave: true }),
+          });
+          console.log('[Verify] Twitter bypass: Saved to DB');
+        } catch (e) {
+          console.log('[Verify] Twitter bypass: DB save failed (non-blocking)', e);
+        }
+      }
+
       // Small delay to make it feel like verification is happening
       await new Promise(resolve => setTimeout(resolve, 800));
       setStep('success');
@@ -199,7 +231,7 @@ function VerifyContent() {
       const response = await fetch('/api/social/verify-complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ platform }),
+        body: JSON.stringify({ platform, walletAddress }), // Pass wallet for DB save
       });
 
       const data = await response.json();

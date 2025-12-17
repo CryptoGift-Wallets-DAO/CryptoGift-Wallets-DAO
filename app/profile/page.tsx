@@ -594,36 +594,63 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
           <div className="space-y-4">
             {/* Twitter/X */}
             <div className="flex items-center gap-3">
-              <TwitterXIcon className="w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                value={formData.twitter_handle}
-                onChange={(e) => setFormData({ ...formData, twitter_handle: e.target.value })}
-                placeholder={t('form.twitterPlaceholder')}
-                className="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              />
+              <TwitterXIcon className={`w-5 h-5 ${profile?.twitter_verified ? 'text-sky-500' : 'text-slate-400'}`} />
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={formData.twitter_handle}
+                  onChange={(e) => setFormData({ ...formData, twitter_handle: e.target.value })}
+                  placeholder={t('form.twitterPlaceholder')}
+                  className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
+                    profile?.twitter_verified
+                      ? 'border-green-400 dark:border-green-600 pr-10'
+                      : 'border-slate-200 dark:border-slate-600'
+                  }`}
+                />
+                {profile?.twitter_verified && (
+                  <CheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                )}
+              </div>
             </div>
             {/* Discord */}
             <div className="flex items-center gap-3">
-              <DiscordIcon className="w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                value={formData.discord_handle}
-                onChange={(e) => setFormData({ ...formData, discord_handle: e.target.value })}
-                placeholder={t('form.discordPlaceholder')}
-                className="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              />
+              <DiscordIcon className={`w-5 h-5 ${profile?.discord_verified ? 'text-indigo-500' : 'text-slate-400'}`} />
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={formData.discord_handle}
+                  onChange={(e) => setFormData({ ...formData, discord_handle: e.target.value })}
+                  placeholder={t('form.discordPlaceholder')}
+                  className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
+                    profile?.discord_verified
+                      ? 'border-green-400 dark:border-green-600 pr-10'
+                      : 'border-slate-200 dark:border-slate-600'
+                  }`}
+                />
+                {profile?.discord_verified && (
+                  <CheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                )}
+              </div>
             </div>
             {/* Telegram */}
             <div className="flex items-center gap-3">
-              <TelegramIcon className="w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                value={formData.telegram_handle}
-                onChange={(e) => setFormData({ ...formData, telegram_handle: e.target.value })}
-                placeholder={t('form.telegramPlaceholder')}
-                className="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              />
+              <TelegramIcon className={`w-5 h-5 ${profile?.telegram_verified ? 'text-blue-500' : 'text-slate-400'}`} />
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={formData.telegram_handle}
+                  onChange={(e) => setFormData({ ...formData, telegram_handle: e.target.value })}
+                  placeholder={t('form.telegramPlaceholder')}
+                  className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
+                    profile?.telegram_verified
+                      ? 'border-green-400 dark:border-green-600 pr-10'
+                      : 'border-slate-200 dark:border-slate-600'
+                  }`}
+                />
+                {profile?.telegram_verified && (
+                  <CheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                )}
+              </div>
             </div>
             {/* Website */}
             <div className="flex items-center gap-3">
