@@ -45,9 +45,13 @@ async function checkDiscordMembership(discordUserId: string): Promise<boolean> {
 
 /**
  * Check if user follows @cryptogiftdao using their access token
+ * Returns { isFollowing: boolean, error?: string, details?: string }
  */
-async function checkTwitterFollow(accessToken: string, userId: string): Promise<boolean> {
+async function checkTwitterFollow(accessToken: string, userId: string): Promise<{ isFollowing: boolean; error?: string; details?: string }> {
   try {
+    console.log(`[Twitter] Starting follow check for user ${userId}`);
+    console.log(`[Twitter] Token preview: ${accessToken.substring(0, 20)}...`);
+
     // Get @cryptogiftdao user ID
     const targetResponse = await fetch(
       `https://api.twitter.com/2/users/by/username/${TWITTER_CRYPTOGIFT_USERNAME}`,
@@ -55,52 +59,91 @@ async function checkTwitterFollow(accessToken: string, userId: string): Promise<
     );
 
     if (!targetResponse.ok) {
-      console.error('[Twitter] Failed to get target user:', await targetResponse.text());
-      return false;
+      const errorText = await targetResponse.text();
+      console.error('[Twitter] Failed to get target user:', targetResponse.status, errorText);
+      return {
+        isFollowing: false,
+        error: `Twitter API error (${targetResponse.status})`,
+        details: `Could not find @${TWITTER_CRYPTOGIFT_USERNAME}: ${errorText}`
+      };
     }
 
     const targetData = await targetResponse.json();
     const targetUserId = targetData.data?.id;
     if (!targetUserId) {
-      console.error('[Twitter] No user ID in response');
-      return false;
+      console.error('[Twitter] No user ID in response:', targetData);
+      return {
+        isFollowing: false,
+        error: 'Could not find @cryptogiftdao account',
+        details: JSON.stringify(targetData)
+      };
     }
 
-    console.log(`[Twitter] Checking if ${userId} follows ${targetUserId} (@${TWITTER_CRYPTOGIFT_USERNAME})`);
+    console.log(`[Twitter] Target user @${TWITTER_CRYPTOGIFT_USERNAME} ID: ${targetUserId}`);
+    console.log(`[Twitter] Checking if ${userId} follows ${targetUserId}`);
 
-    // Check following list (paginated, check first 1000)
+    // Check following list (paginated)
     let nextToken: string | undefined;
     let isFollowing = false;
+    let pagesChecked = 0;
+    let totalUsersChecked = 0;
 
     do {
       const url = new URL(`https://api.twitter.com/2/users/${userId}/following`);
       url.searchParams.set('max_results', '1000');
       if (nextToken) url.searchParams.set('pagination_token', nextToken);
 
+      console.log(`[Twitter] Fetching following page ${pagesChecked + 1}...`);
+
       const response = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       if (!response.ok) {
-        console.error('[Twitter] Following check failed:', await response.text());
-        break;
+        const errorText = await response.text();
+        console.error('[Twitter] Following list failed:', response.status, errorText);
+        return {
+          isFollowing: false,
+          error: `Failed to get following list (${response.status})`,
+          details: errorText
+        };
       }
 
       const data = await response.json();
+      pagesChecked++;
+
+      const usersInPage = data.data?.length || 0;
+      totalUsersChecked += usersInPage;
+
+      console.log(`[Twitter] Page ${pagesChecked}: ${usersInPage} users (total: ${totalUsersChecked})`);
 
       if (data.data?.some((user: { id: string }) => user.id === targetUserId)) {
         isFollowing = true;
+        console.log(`[Twitter] ✅ Found! User IS following @${TWITTER_CRYPTOGIFT_USERNAME}`);
         break;
       }
 
       nextToken = data.meta?.next_token;
-    } while (nextToken);
+    } while (nextToken && pagesChecked < 10); // Limit to 10 pages (10,000 users max)
 
-    console.log(`[Twitter] Follow status for ${userId}: ${isFollowing}`);
-    return isFollowing;
+    console.log(`[Twitter] Final result: isFollowing=${isFollowing}, checked ${totalUsersChecked} users in ${pagesChecked} pages`);
+
+    if (!isFollowing) {
+      return {
+        isFollowing: false,
+        error: `Not following @${TWITTER_CRYPTOGIFT_USERNAME}`,
+        details: `Checked ${totalUsersChecked} accounts in ${pagesChecked} pages`
+      };
+    }
+
+    return { isFollowing: true };
   } catch (error) {
-    console.error('[Twitter] Follow check error:', error);
-    return false;
+    console.error('[Twitter] Follow check exception:', error);
+    return {
+      isFollowing: false,
+      error: 'Exception during verification',
+      details: error instanceof Error ? error.message : String(error)
+    };
   }
 }
 
@@ -138,10 +181,15 @@ export async function POST(request: NextRequest) {
     let verified = false;
     let error: string | undefined;
 
+    let details: string | undefined;
+
     if (platform === 'twitter') {
-      verified = await checkTwitterFollow(accessToken, userId);
+      const result = await checkTwitterFollow(accessToken, userId);
+      verified = result.isFollowing;
       if (!verified) {
-        error = 'Please follow @cryptogiftdao first';
+        error = result.error || 'Please follow @cryptogiftdao first';
+        details = result.details;
+        console.log('[VerifyComplete] Twitter verification failed:', result);
       }
     } else if (platform === 'discord') {
       verified = await checkDiscordMembership(userId);
@@ -150,13 +198,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[VerifyComplete] Result: platform=${platform}, verified=${verified}`);
+    console.log(`[VerifyComplete] Result: platform=${platform}, verified=${verified}, error=${error}`);
 
     return NextResponse.json({
       success: true,
       verified,
       platform,
       error,
+      details, // Include details for debugging in frontend console
       userId,
     });
   } catch (error) {

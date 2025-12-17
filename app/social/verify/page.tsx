@@ -178,7 +178,10 @@ function VerifyContent() {
       });
 
       const data = await response.json();
-      console.log('[Verify] Verification result:', data);
+      console.log('[Verify] Verification result:', JSON.stringify(data, null, 2));
+      if (data.details) {
+        console.log('[Verify] Details:', data.details);
+      }
 
       if (data.verified) {
         setStep('success');
