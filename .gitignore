@@ -3,6 +3,10 @@ node_modules/
 .pnp
 .pnp.js
 
+# Next.js build output - CRITICAL: NEVER COMMIT
+.next/
+out/
+
 # Testing
 coverage/
 coverage.json
