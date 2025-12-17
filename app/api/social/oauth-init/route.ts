@@ -31,10 +31,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get base URL - ensure consistency with oauth-callback
-    const configuredUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mbxarts.com';
-    // Ensure we always use www version for consistent cookies
-    const baseUrl = configuredUrl.includes('www.') ? configuredUrl : configuredUrl.replace('https://', 'https://www.');
+    // Get base URL - MUST match exactly what's registered in Twitter/Discord Developer Portal
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mbxarts.com';
     const redirectUri = `${baseUrl}/api/social/oauth-callback`;
     console.log(`[OAuth Init] platform=${platform}, redirectUri=${redirectUri}`);
 

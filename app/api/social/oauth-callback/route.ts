@@ -186,10 +186,8 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get('state');
   const error = searchParams.get('error');
 
-  // Get base URL - prefer www version to match the main site
-  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mbxarts.com';
-  // Ensure we always redirect to www version for consistent cookies
-  const baseUrl = configuredUrl.includes('www.') ? configuredUrl : configuredUrl.replace('https://', 'https://www.');
+  // Get base URL - MUST match exactly what's registered in Twitter/Discord Developer Portal
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mbxarts.com';
   console.log(`[OAuth Callback] Request host: ${request.headers.get('host')}, baseUrl: ${baseUrl}`);
 
   // Helper to redirect to verify page (for returnToVerify flow)
