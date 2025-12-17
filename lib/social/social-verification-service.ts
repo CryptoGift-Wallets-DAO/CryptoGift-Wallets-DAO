@@ -79,10 +79,16 @@ export interface VerificationResult {
 // ============================================
 
 const getSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Support both standard and DAO-specific env var naming conventions
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_DAO_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_DAO_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
+    console.error('[SocialVerification] Missing Supabase credentials:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseKey,
+      checkedVars: ['NEXT_PUBLIC_SUPABASE_DAO_URL', 'NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_DAO_SERVICE_KEY', 'SUPABASE_SERVICE_ROLE_KEY']
+    });
     throw new Error('Supabase credentials not configured');
   }
 
