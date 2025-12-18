@@ -2,14 +2,14 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { NFTImageModal } from './NFTImageModal';
+import { useAutoTranslate } from '@/hooks/useAutoTranslate';
 
 interface InviteImageCardProps {
   image: string;
   name: string;
   customMessage?: string;
-  customMessageEs?: string; // Spanish version for i18n
   referrerCode?: string;
   inviteCode?: string;
   expiresAt?: string;
@@ -34,7 +34,6 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
   image,
   name,
   customMessage,
-  customMessageEs,
   referrerCode,
   inviteCode,
   expiresAt,
@@ -43,15 +42,11 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
   onRefresh
 }) => {
   const t = useTranslations('inviteCard');
-  const locale = useLocale();
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // Select message based on current locale
-  // If Spanish locale and Spanish message exists, use it; otherwise fallback to default
-  const displayMessage = locale === 'es' && customMessageEs
-    ? customMessageEs
-    : customMessage;
+  // Auto-translate message based on current locale (uses Lingva API)
+  const { translatedText: displayMessage, isTranslating } = useAutoTranslate(customMessage);
 
   // Fallback to local image if Supabase image fails
   const displayImage = imageError || !image ? '/special-referral.jpg' : image;
@@ -197,8 +192,8 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
           )}
         </div>
 
-        {/* Custom Message from Referrer - Uses locale-specific message */}
-        {displayMessage && (
+        {/* Custom Message from Referrer - Auto-translated based on locale */}
+        {(displayMessage || isTranslating) && (
           <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-700">
             <div className="flex items-start">
               <span className="text-xl mr-2">💬</span>
@@ -206,8 +201,8 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
                 <p className="text-sm font-medium text-purple-800 dark:text-purple-300 mb-1">
                   {t('referrerMessage')}
                 </p>
-                <p className="text-sm text-purple-700 dark:text-purple-400 italic">
-                  &ldquo;{displayMessage}&rdquo;
+                <p className={`text-sm text-purple-700 dark:text-purple-400 italic transition-opacity ${isTranslating ? 'opacity-50' : 'opacity-100'}`}>
+                  &ldquo;{displayMessage || customMessage}&rdquo;
                 </p>
               </div>
             </div>

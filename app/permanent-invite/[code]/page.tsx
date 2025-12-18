@@ -36,7 +36,6 @@ interface PermanentInviteData {
   code: string;
   referrerCode?: string;
   customMessage?: string;
-  customMessageEs?: string; // Spanish version for i18n
   customTitle?: string;
   hasPassword: boolean;
   createdAt?: string;
@@ -90,7 +89,6 @@ export default function PermanentInvitePage() {
           code: invite.code,
           referrerCode: invite.referrerCode,
           customMessage: invite.customMessage,
-          customMessageEs: invite.customMessageEs, // Spanish version for i18n
           customTitle: invite.customTitle,
           hasPassword: invite.hasPassword,
           createdAt: invite.createdAt,
@@ -228,7 +226,6 @@ export default function PermanentInvitePage() {
           code: inviteData.code,
           referrerCode: inviteData.referrerCode,
           customMessage: inviteData.customMessage,
-          customMessageEs: inviteData.customMessageEs, // Spanish version for i18n
           hasPassword: inviteData.hasPassword,
           createdAt: inviteData.createdAt,
           expiresAt: inviteData.expiresAt || undefined,

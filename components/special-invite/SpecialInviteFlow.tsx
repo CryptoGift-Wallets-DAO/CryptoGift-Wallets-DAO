@@ -99,7 +99,6 @@ interface InviteData {
   code: string;
   referrerCode?: string;
   customMessage?: string;
-  customMessageEs?: string; // Spanish version for i18n
   hasPassword: boolean;
   createdAt?: string;
   expiresAt?: string;
@@ -866,7 +865,6 @@ export function SpecialInviteFlow({
           image={inviteData.image || '/special-referral.jpg'}
           name={t('card.name')}
           customMessage={inviteData.customMessage}
-          customMessageEs={inviteData.customMessageEs}
           referrerCode={inviteData.referrerCode}
           inviteCode={inviteData.code}
           expiresAt={inviteData.expiresAt}
