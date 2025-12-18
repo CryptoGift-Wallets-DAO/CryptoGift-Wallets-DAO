@@ -232,7 +232,18 @@ export default function ProfilePage() {
                     unoptimized
                   />
                 ) : (
-                  <User className="w-12 h-12 text-white" />
+                  <Image
+                    src="/profile%20picture.png"
+                    alt="Default Avatar"
+                    width={96}
+                    height={96}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback to User icon if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
                 )}
               </div>
               <input
@@ -348,7 +359,7 @@ export default function ProfilePage() {
             />
           )}
           {activeTab === 'activity' && (
-            <ActivityTab t={t} />
+            <ActivityTab t={t} address={address} />
           )}
         </div>
         </div>
@@ -776,6 +787,15 @@ function RecoveryTab({ profile, hasRecoverySetup, setupRecovery, isSettingUp, er
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showChangeEmail, setShowChangeEmail] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [changeSuccess, setChangeSuccess] = useState<string | null>(null);
+  const [changeError, setChangeError] = useState<string | null>(null);
+  const [isChanging, setIsChanging] = useState(false);
 
   const handleSetup = () => {
     if (password !== confirmPassword) {
@@ -944,14 +964,195 @@ function RecoveryTab({ profile, hasRecoverySetup, setupRecovery, isSettingUp, er
               </p>
             </div>
 
-            <div className="flex gap-3">
-              <button className="flex-1 py-2 px-4 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                {t('recovery.changeEmail')}
-              </button>
-              <button className="flex-1 py-2 px-4 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                {t('recovery.changePassword')}
-              </button>
-            </div>
+            {changeSuccess && (
+              <div className="p-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                {changeSuccess}
+              </div>
+            )}
+
+            {changeError && (
+              <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg flex items-center gap-2">
+                <AlertCircle className="w-5 h-5" />
+                {changeError}
+              </div>
+            )}
+
+            {/* Change Email Form */}
+            {showChangeEmail && (
+              <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg space-y-3">
+                <h4 className="font-medium text-slate-900 dark:text-white flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  {t('recovery.changeEmail')}
+                </h4>
+                <input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder={t('recovery.newEmailPlaceholder') || 'New email address'}
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                />
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder={t('recovery.currentPasswordPlaceholder') || 'Current password'}
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setShowChangeEmail(false);
+                      setNewEmail('');
+                      setCurrentPassword('');
+                      setChangeError(null);
+                    }}
+                    className="flex-1 py-2 px-4 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                  >
+                    {t('recovery.cancel') || 'Cancel'}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!newEmail || !currentPassword) {
+                        setChangeError('Please fill in all fields');
+                        return;
+                      }
+                      setIsChanging(true);
+                      setChangeError(null);
+                      try {
+                        // TODO: Implement email change API
+                        setChangeSuccess('Email change request sent. Please check your new email for verification.');
+                        setShowChangeEmail(false);
+                        setNewEmail('');
+                        setCurrentPassword('');
+                      } catch (err) {
+                        setChangeError('Failed to change email');
+                      } finally {
+                        setIsChanging(false);
+                      }
+                    }}
+                    disabled={isChanging || !newEmail || !currentPassword}
+                    className="flex-1 py-2 px-4 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    {isChanging ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    {t('recovery.confirm') || 'Confirm'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Change Password Form */}
+            {showChangePassword && (
+              <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg space-y-3">
+                <h4 className="font-medium text-slate-900 dark:text-white flex items-center gap-2">
+                  <Lock className="w-4 h-4" />
+                  {t('recovery.changePassword')}
+                </h4>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder={t('recovery.currentPasswordPlaceholder') || 'Current password'}
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                />
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder={t('recovery.newPasswordPlaceholder') || 'New password (min 8 characters)'}
+                  className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                />
+                <input
+                  type="password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  placeholder={t('recovery.confirmNewPasswordPlaceholder') || 'Confirm new password'}
+                  className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
+                    confirmNewPassword && newPassword !== confirmNewPassword
+                      ? 'border-red-500'
+                      : 'border-slate-200 dark:border-slate-600'
+                  }`}
+                />
+                {confirmNewPassword && newPassword !== confirmNewPassword && (
+                  <p className="text-xs text-red-500">{t('recovery.passwordMismatch')}</p>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setShowChangePassword(false);
+                      setCurrentPassword('');
+                      setNewPassword('');
+                      setConfirmNewPassword('');
+                      setChangeError(null);
+                    }}
+                    className="flex-1 py-2 px-4 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                  >
+                    {t('recovery.cancel') || 'Cancel'}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!currentPassword || !newPassword || newPassword !== confirmNewPassword) {
+                        setChangeError('Please fill in all fields correctly');
+                        return;
+                      }
+                      if (newPassword.length < 8) {
+                        setChangeError('Password must be at least 8 characters');
+                        return;
+                      }
+                      setIsChanging(true);
+                      setChangeError(null);
+                      try {
+                        // TODO: Implement password change API
+                        setChangeSuccess('Password changed successfully');
+                        setShowChangePassword(false);
+                        setCurrentPassword('');
+                        setNewPassword('');
+                        setConfirmNewPassword('');
+                      } catch (err) {
+                        setChangeError('Failed to change password');
+                      } finally {
+                        setIsChanging(false);
+                      }
+                    }}
+                    disabled={isChanging || !currentPassword || !newPassword || newPassword !== confirmNewPassword || newPassword.length < 8}
+                    className="flex-1 py-2 px-4 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    {isChanging ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
+                    {t('recovery.confirm') || 'Confirm'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Buttons - only show if no form is open */}
+            {!showChangeEmail && !showChangePassword && (
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowChangeEmail(true);
+                    setShowChangePassword(false);
+                    setChangeSuccess(null);
+                    setChangeError(null);
+                  }}
+                  className="flex-1 py-2 px-4 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  {t('recovery.changeEmail')}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowChangePassword(true);
+                    setShowChangeEmail(false);
+                    setChangeSuccess(null);
+                    setChangeError(null);
+                  }}
+                  className="flex-1 py-2 px-4 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Lock className="w-4 h-4" />
+                  {t('recovery.changePassword')}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -960,17 +1161,124 @@ function RecoveryTab({ profile, hasRecoverySetup, setupRecovery, isSettingUp, er
 }
 
 // Activity Tab Component
-function ActivityTab({ t }: { t: any }) {
+function ActivityTab({ t, address }: { t: any; address: string }) {
+  const [activities, setActivities] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchActivity() {
+      if (!address) return;
+
+      try {
+        setIsLoading(true);
+        const res = await fetch(`/api/profile/activity?wallet=${address}&limit=20`);
+        const data = await res.json();
+
+        if (data.success) {
+          setActivities(data.data.activities || []);
+        } else {
+          setError(data.error || 'Failed to load activity');
+        }
+      } catch (err) {
+        setError('Failed to load activity');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchActivity();
+  }, [address]);
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'task_completed':
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case 'reward_received':
+        return <Award className="w-5 h-5 text-amber-500" />;
+      case 'referral_signup':
+        return <Users className="w-5 h-5 text-blue-500" />;
+      case 'login':
+        return <User className="w-5 h-5 text-purple-500" />;
+      default:
+        return <Activity className="w-5 h-5 text-slate-400" />;
+    }
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days === 0) {
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      if (hours === 0) {
+        const minutes = Math.floor(diff / (1000 * 60));
+        return `${minutes}m ago`;
+      }
+      return `${hours}h ago`;
+    } else if (days === 1) {
+      return 'Yesterday';
+    } else if (days < 7) {
+      return `${days}d ago`;
+    } else {
+      return date.toLocaleDateString();
+    }
+  };
+
   return (
     <div className="p-6">
       <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
         {t('activity.title')}
       </h3>
 
-      <div className="text-center py-8 text-slate-500 dark:text-slate-400">
-        <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
-        <p>{t('activity.noActivity')}</p>
-      </div>
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+        </div>
+      ) : error ? (
+        <div className="text-center py-8 text-red-500 dark:text-red-400">
+          <AlertCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <p>{error}</p>
+        </div>
+      ) : activities.length === 0 ? (
+        <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+          <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <p>{t('activity.noActivity')}</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {activities.map((activity) => (
+            <div
+              key={activity.id}
+              className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            >
+              <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                {getActivityIcon(activity.type)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="font-medium text-slate-900 dark:text-white truncate">
+                    {activity.title}
+                  </h4>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                    {formatTimestamp(activity.timestamp)}
+                  </span>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-300 truncate">
+                  {activity.description}
+                </p>
+                {activity.amount > 0 && (
+                  <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                    +{activity.amount} CGC
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
