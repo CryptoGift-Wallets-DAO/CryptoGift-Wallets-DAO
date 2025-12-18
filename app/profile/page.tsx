@@ -70,6 +70,7 @@ export default function ProfilePage() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [avatarSuccess, setAvatarSuccess] = useState(false);
+  const [defaultAvatarFailed, setDefaultAvatarFailed] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Social Engagement Modal state
@@ -293,18 +294,16 @@ export default function ProfilePage() {
                     className="w-full h-full object-cover"
                     unoptimized
                   />
+                ) : defaultAvatarFailed ? (
+                  // Fallback to User icon if default avatar fails
+                  <User className="w-12 h-12 text-white" />
                 ) : (
-                  <Image
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     src="/default-avatar.png"
                     alt="Default Avatar"
-                    width={96}
-                    height={96}
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      // Fallback to User icon if image fails to load
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
+                    onError={() => setDefaultAvatarFailed(true)}
                   />
                 )}
               </div>
@@ -860,22 +859,22 @@ function ToggleSetting({ label, description, checked, onChange }: {
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between p-4 glass-crystal rounded-xl hover:scale-[1.01] transition-all">
-      <div>
+    <div className="flex items-center justify-between p-4 glass-crystal rounded-xl hover:scale-[1.01] transition-all gap-4">
+      <div className="flex-1 min-w-0">
         <p className="font-medium text-slate-900 dark:text-white">{label}</p>
         <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>
       </div>
       <button
         onClick={() => onChange(!checked)}
-        className={`relative w-14 h-7 rounded-full transition-all ${
+        className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-all duration-200 ${
           checked
             ? 'bg-gradient-to-r from-cyan-500 to-blue-500 shadow-lg shadow-blue-500/30'
             : 'bg-slate-300 dark:bg-slate-600'
         }`}
       >
         <span
-          className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-transform ${
-            checked ? 'translate-x-8' : 'translate-x-1'
+          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
+            checked ? 'translate-x-5' : 'translate-x-0'
           }`}
         />
       </button>
