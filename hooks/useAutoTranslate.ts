@@ -111,7 +111,7 @@ export function useAutoTranslate(
         console.error('Translation error:', err);
         setError(err instanceof Error ? err.message : 'Translation failed');
         // Fallback to original text
-        setTranslatedText(text);
+        setTranslatedText(text || '');
       } finally {
         if (textRef.current === text) {
           setIsTranslating(false);
