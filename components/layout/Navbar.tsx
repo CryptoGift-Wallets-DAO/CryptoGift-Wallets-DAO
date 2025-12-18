@@ -378,7 +378,7 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
                   onClick={() => setShowDropdown(false)}
                 >
                   <Image
-                    src="/profile%20picture.png"
+                    src="/default-avatar.png"
                     alt="Profile"
                     width={16}
                     height={16}

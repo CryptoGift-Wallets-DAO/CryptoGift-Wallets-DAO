@@ -82,6 +82,28 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    // Check if bucket exists, create if needed
+    const { data: buckets } = await db.storage.listBuckets();
+    const bucketExists = buckets?.some(b => b.name === AVATAR_BUCKET);
+
+    if (!bucketExists) {
+      console.log('📦 Creating avatars bucket...');
+      const { error: createError } = await db.storage.createBucket(AVATAR_BUCKET, {
+        public: true,
+        fileSizeLimit: MAX_FILE_SIZE,
+        allowedMimeTypes: ALLOWED_TYPES,
+      });
+
+      if (createError) {
+        console.error('❌ Failed to create bucket:', createError);
+        return NextResponse.json(
+          { error: `Storage not configured. Please create the '${AVATAR_BUCKET}' bucket in Supabase Dashboard.`, success: false },
+          { status: 500 }
+        );
+      }
+      console.log('✅ Avatars bucket created');
+    }
+
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await db.storage
       .from(AVATAR_BUCKET)
@@ -91,9 +113,18 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      console.error('Upload error:', uploadError);
+      console.error('❌ Upload error:', uploadError);
+      // Provide more specific error messages
+      let errorMessage = 'Failed to upload avatar';
+      if (uploadError.message?.includes('bucket') || uploadError.message?.includes('not found')) {
+        errorMessage = `Storage bucket '${AVATAR_BUCKET}' not found. Please create it in Supabase Dashboard.`;
+      } else if (uploadError.message?.includes('permission') || uploadError.message?.includes('policy')) {
+        errorMessage = 'Storage permission denied. Check bucket policies in Supabase.';
+      } else if (uploadError.message) {
+        errorMessage = uploadError.message;
+      }
       return NextResponse.json(
-        { error: 'Failed to upload avatar', success: false },
+        { error: errorMessage, success: false },
         { status: 500 }
       );
     }

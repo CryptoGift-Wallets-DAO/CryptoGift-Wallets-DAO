@@ -68,6 +68,8 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [mounted, setMounted] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [avatarSuccess, setAvatarSuccess] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Social Engagement Modal state
@@ -127,6 +129,8 @@ export default function ProfilePage() {
     if (!file || !address) return;
 
     setIsUploadingAvatar(true);
+    setAvatarError(null);
+    setAvatarSuccess(false);
 
     try {
       const formData = new FormData();
@@ -144,11 +148,16 @@ export default function ProfilePage() {
         throw new Error(data.error || 'Failed to upload avatar');
       }
 
-      // Refresh profile to get updated avatar URL
+      // Show success and refresh profile
+      setAvatarSuccess(true);
       refetch();
+      // Hide success message after 3 seconds
+      setTimeout(() => setAvatarSuccess(false), 3000);
     } catch (error) {
       console.error('Avatar upload error:', error);
-      alert(error instanceof Error ? error.message : 'Failed to upload avatar');
+      setAvatarError(error instanceof Error ? error.message : 'Failed to upload avatar');
+      // Hide error after 5 seconds
+      setTimeout(() => setAvatarError(null), 5000);
     } finally {
       setIsUploadingAvatar(false);
       // Reset input
@@ -286,7 +295,7 @@ export default function ProfilePage() {
                   />
                 ) : (
                   <Image
-                    src="/profile%20picture.png"
+                    src="/default-avatar.png"
                     alt="Default Avatar"
                     width={96}
                     height={96}
@@ -315,6 +324,20 @@ export default function ProfilePage() {
               >
                 <Camera className="w-4 h-4 text-slate-600 dark:text-slate-300" />
               </button>
+
+              {/* Avatar Upload Messages */}
+              {avatarError && (
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap glass-crystal rounded-lg px-3 py-2 text-xs text-red-500 border border-red-500/30 flex items-center gap-2 animate-pulse">
+                  <AlertCircle className="w-3 h-3" />
+                  {avatarError.length > 40 ? avatarError.slice(0, 40) + '...' : avatarError}
+                </div>
+              )}
+              {avatarSuccess && (
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap glass-crystal rounded-lg px-3 py-2 text-xs text-green-500 border border-green-500/30 flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3" />
+                  Avatar updated!
+                </div>
+              )}
             </div>
 
             {/* Info */}
