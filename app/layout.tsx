@@ -77,7 +77,7 @@ export default async function RootLayout({
       </head>
       <body className={inter.className}>
         <ThemeProvider>
-          <NextIntlClientProvider messages={messages}>
+          <NextIntlClientProvider locale={locale} messages={messages}>
             <Web3Provider>
               <ReferralTracker>
                 <ToastProvider>
