@@ -164,13 +164,36 @@ export default function ProfilePage() {
 
   if (!isConnected || !address) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-xl border border-slate-200 dark:border-slate-700 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <User className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+      <div className="min-h-screen theme-gradient-bg flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Background Blobs */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-48 h-48 bg-cyan-500/10 dark:bg-cyan-500/20 rounded-full blur-3xl" />
+          <div
+            className="absolute top-60 right-20 w-64 h-64 bg-purple-500/10 dark:bg-purple-500/15 rounded-full blur-3xl"
+            style={{ animation: 'float 8s ease-in-out infinite' }}
+          />
+        </div>
+
+        <div className="glass-crystal rounded-2xl p-8 max-w-md w-full text-center relative z-10 hover:scale-[1.02] transition-all">
+          {/* Holographic Icon */}
+          <div className="relative mx-auto mb-6 w-20 h-20">
+            <div
+              className="absolute inset-0 rounded-full opacity-75"
+              style={{
+                background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6)',
+                backgroundSize: '300% 100%',
+                animation: 'holographic 4s ease infinite',
+                filter: 'blur(10px)',
+              }}
+            />
+            <div className="relative w-20 h-20 glass-crystal rounded-full flex items-center justify-center">
+              <User className="w-10 h-10 text-blue-500" />
+            </div>
           </div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-            {tCommon('pleaseConnectWallet')}
+          <h2 className="text-xl font-bold mb-2">
+            <span className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+              {tCommon('pleaseConnectWallet')}
+            </span>
           </h2>
           <p className="text-slate-600 dark:text-slate-400">
             Connect your wallet to view and manage your profile
@@ -204,22 +227,52 @@ export default function ProfilePage() {
         walletAddress={address}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
-          {/* Header */}
-          <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-            {t('title')}
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400">{t('subtitle')}</p>
+      <div className="min-h-screen theme-gradient-bg text-gray-900 dark:text-white overflow-hidden relative">
+        {/* Animated Background Blobs */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-48 h-48 bg-cyan-500/10 dark:bg-cyan-500/20 rounded-full blur-3xl" />
+          <div
+            className="absolute top-60 right-20 w-64 h-64 bg-purple-500/10 dark:bg-purple-500/15 rounded-full blur-3xl"
+            style={{ animation: 'float 8s ease-in-out infinite' }}
+          />
+          <div
+            className="absolute bottom-40 left-1/4 w-56 h-56 bg-amber-500/10 dark:bg-amber-500/15 rounded-full blur-3xl"
+            style={{ animation: 'float 6s ease-in-out infinite', animationDelay: '2s' }}
+          />
+          <div
+            className="absolute top-1/3 right-1/4 w-40 h-40 bg-pink-500/10 dark:bg-pink-500/15 rounded-full blur-3xl"
+            style={{ animation: 'float 7s ease-in-out infinite', animationDelay: '1s' }}
+          />
         </div>
 
-        {/* Profile Header Card */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700 mb-6">
+        <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
+          {/* Header with Gradient Text */}
+          <div className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">
+              <span className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                {t('title')}
+              </span>
+            </h1>
+            <p className="text-slate-600 dark:text-slate-400">{t('subtitle')}</p>
+          </div>
+
+        {/* Profile Header Card - Glass Crystal */}
+        <div className="glass-crystal rounded-2xl p-6 mb-6 hover:scale-[1.01] transition-all duration-300">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            {/* Avatar */}
+            {/* Avatar with Holographic Effect */}
             <div className="relative group">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center overflow-hidden">
+              {/* Outer Glow Ring */}
+              <div
+                className="absolute -inset-2 rounded-full opacity-75"
+                style={{
+                  background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6)',
+                  backgroundSize: '300% 100%',
+                  animation: 'holographic 4s ease infinite',
+                  filter: 'blur(8px)',
+                }}
+              />
+              {/* Avatar Container */}
+              <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center overflow-hidden ring-2 ring-white/30 dark:ring-white/20">
                 {isUploadingAvatar ? (
                   <Loader2 className="w-8 h-8 text-white animate-spin" />
                 ) : profile?.avatar_url ? (
@@ -254,10 +307,11 @@ export default function ProfilePage() {
                 className="hidden"
                 id="avatar-upload"
               />
+              {/* Camera Button with Glass Effect */}
               <button
                 onClick={() => avatarInputRef.current?.click()}
                 disabled={isUploadingAvatar}
-                className="absolute bottom-0 right-0 w-8 h-8 bg-white dark:bg-slate-700 rounded-full shadow-lg flex items-center justify-center border border-slate-200 dark:border-slate-600 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-50 dark:hover:bg-slate-600 disabled:opacity-50"
+                className="absolute bottom-0 right-0 w-8 h-8 glass-crystal rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 disabled:opacity-50"
               >
                 <Camera className="w-4 h-4 text-slate-600 dark:text-slate-300" />
               </button>
@@ -266,13 +320,13 @@ export default function ProfilePage() {
             {/* Info */}
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-1">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent">
                   {profile?.display_name || profile?.username || `${address.slice(0, 6)}...${address.slice(-4)}`}
                 </h2>
                 {profile?.tier && (
                   <span
-                    className="px-2 py-1 rounded-full text-xs font-bold"
-                    style={{ backgroundColor: profile.tier_color + '30', color: profile.tier_color }}
+                    className="px-3 py-1 rounded-full text-xs font-bold glass-crystal"
+                    style={{ color: profile.tier_color, boxShadow: `0 0 15px ${profile.tier_color}40` }}
                   >
                     {profile.tier}
                   </span>
@@ -281,27 +335,27 @@ export default function ProfilePage() {
               {profile?.username && (
                 <p className="text-slate-500 dark:text-slate-400 mb-2">@{profile.username}</p>
               )}
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-mono">
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-mono glass-crystal px-3 py-1 rounded-lg inline-block">
                 {address}
               </p>
             </div>
 
-            {/* Quick Stats */}
-            <div className="flex gap-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+            {/* Quick Stats - Glass Cards */}
+            <div className="flex gap-4">
+              <div className="text-center glass-crystal rounded-xl px-4 py-3 hover:scale-105 transition-transform">
+                <p className="text-2xl font-bold bg-gradient-to-b from-green-400 to-green-600 bg-clip-text text-transparent">
                   {profile?.total_tasks_completed || 0}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">{t('overview.tasksCompleted')}</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+              <div className="text-center glass-crystal rounded-xl px-4 py-3 hover:scale-105 transition-transform">
+                <p className="text-2xl font-bold bg-gradient-to-b from-amber-400 to-orange-500 bg-clip-text text-transparent">
                   {profile?.total_cgc_earned?.toLocaleString() || 0}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">CGC</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+              <div className="text-center glass-crystal rounded-xl px-4 py-3 hover:scale-105 transition-transform">
+                <p className="text-2xl font-bold bg-gradient-to-b from-purple-400 to-purple-600 bg-clip-text text-transparent">
                   {profile?.reputation_score || 0}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">{t('overview.reputation')}</p>
@@ -310,7 +364,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs - Glass Design */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -318,10 +372,10 @@ export default function ProfilePage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap hover:scale-105
                   ${activeTab === tab.id
-                    ? 'bg-amber-500 text-white shadow-lg'
-                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+                    ? 'bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/25'
+                    : 'glass-crystal text-slate-600 dark:text-slate-300 hover:shadow-lg'
                   }`}
               >
                 <Icon className="w-4 h-4" />
@@ -331,8 +385,8 @@ export default function ProfilePage() {
           })}
         </div>
 
-        {/* Tab Content */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
+        {/* Tab Content - Glass Crystal */}
+        <div className="glass-crystal rounded-2xl shadow-xl">
           {activeTab === 'overview' && (
             <OverviewTab profile={profile} t={t} address={address} onProfileUpdate={refetch} />
           )}
@@ -371,10 +425,10 @@ export default function ProfilePage() {
 // Overview Tab Component
 function OverviewTab({ profile, t, address, onProfileUpdate }: { profile: any; t: any; address: string; onProfileUpdate?: () => void }) {
   const stats = [
-    { label: t('overview.tasksCompleted'), value: profile?.total_tasks_completed || 0, icon: CheckCircle, color: 'text-green-500' },
-    { label: t('overview.cgcEarned'), value: `${(profile?.total_cgc_earned || 0).toLocaleString()} CGC`, icon: Award, color: 'text-amber-500' },
-    { label: t('overview.referrals'), value: profile?.total_referrals || 0, icon: Users, color: 'text-blue-500' },
-    { label: t('overview.reputation'), value: profile?.reputation_score || 0, icon: TrendingUp, color: 'text-purple-500' },
+    { label: t('overview.tasksCompleted'), value: profile?.total_tasks_completed || 0, icon: CheckCircle, gradient: 'from-green-400 to-emerald-500' },
+    { label: t('overview.cgcEarned'), value: `${(profile?.total_cgc_earned || 0).toLocaleString()} CGC`, icon: Award, gradient: 'from-amber-400 to-orange-500' },
+    { label: t('overview.referrals'), value: profile?.total_referrals || 0, icon: Users, gradient: 'from-blue-400 to-cyan-500' },
+    { label: t('overview.reputation'), value: profile?.reputation_score || 0, icon: TrendingUp, gradient: 'from-purple-400 to-pink-500' },
   ];
 
   // Dynamically import the EmailVerificationCard to avoid circular deps
@@ -401,8 +455,10 @@ function OverviewTab({ profile, t, address, onProfileUpdate }: { profile: any; t
         />
       </div>
 
-      <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
-        {t('overview.statsTitle')}
+      <h3 className="text-lg font-bold mb-4">
+        <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+          {t('overview.statsTitle')}
+        </span>
       </h3>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -411,51 +467,63 @@ function OverviewTab({ profile, t, address, onProfileUpdate }: { profile: any; t
           return (
             <div
               key={stat.label}
-              className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4"
+              className="glass-crystal rounded-xl p-4 hover:scale-105 transition-all duration-300 group"
             >
               <div className="flex items-center gap-2 mb-2">
-                <Icon className={`w-5 h-5 ${stat.color}`} />
+                <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.gradient} group-hover:scale-110 transition-transform`}>
+                  <Icon className="w-4 h-4 text-white" />
+                </div>
                 <span className="text-sm text-slate-500 dark:text-slate-400">{stat.label}</span>
               </div>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
+              <p className={`text-2xl font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
+                {stat.value}
+              </p>
             </div>
           );
         })}
       </div>
 
-      {/* Tier Progress */}
+      {/* Tier Progress - Glass Style */}
       {profile?.tier && (
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-medium text-slate-900 dark:text-white">{t('overview.tier')}: {profile.tier}</span>
-            <span className="text-sm text-slate-500 dark:text-slate-400">{t('overview.tierProgress')}</span>
+        <div className="glass-crystal rounded-xl p-4 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-amber-500" />
+              <span className="font-medium text-slate-900 dark:text-white">{t('overview.tier')}: {profile.tier}</span>
+            </div>
+            <span className="text-sm text-slate-500 dark:text-slate-400 glass-crystal px-2 py-1 rounded-full text-xs">
+              {t('overview.tierProgress')}
+            </span>
           </div>
-          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+          <div className="w-full bg-slate-200/50 dark:bg-slate-700/50 rounded-full h-3 overflow-hidden">
             <div
-              className="h-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
-              style={{ width: `${Math.min((profile.reputation_score % 500) / 5, 100)}%` }}
+              className="h-3 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 transition-all duration-500"
+              style={{
+                width: `${Math.min((profile.reputation_score % 500) / 5, 100)}%`,
+                boxShadow: '0 0 10px rgba(251, 146, 60, 0.5)',
+              }}
             />
           </div>
         </div>
       )}
 
-      {/* Member Info */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="text-sm">
-          <span className="text-slate-500 dark:text-slate-400">{t('overview.memberSince')}</span>
-          <p className="font-medium text-slate-900 dark:text-white">
+      {/* Member Info - Glass Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="glass-crystal rounded-xl p-4 hover:scale-[1.02] transition-transform">
+          <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t('overview.memberSince')}</span>
+          <p className="font-semibold text-slate-900 dark:text-white mt-1">
             {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : '-'}
           </p>
         </div>
-        <div className="text-sm">
-          <span className="text-slate-500 dark:text-slate-400">{t('overview.lastLogin')}</span>
-          <p className="font-medium text-slate-900 dark:text-white">
+        <div className="glass-crystal rounded-xl p-4 hover:scale-[1.02] transition-transform">
+          <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t('overview.lastLogin')}</span>
+          <p className="font-semibold text-slate-900 dark:text-white mt-1">
             {profile?.last_login_at ? new Date(profile.last_login_at).toLocaleDateString() : '-'}
           </p>
         </div>
-        <div className="text-sm">
-          <span className="text-slate-500 dark:text-slate-400">{t('overview.loginCount')}</span>
-          <p className="font-medium text-slate-900 dark:text-white">{profile?.login_count || 0}</p>
+        <div className="glass-crystal rounded-xl p-4 hover:scale-[1.02] transition-transform">
+          <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t('overview.loginCount')}</span>
+          <p className="font-semibold text-slate-900 dark:text-white mt-1">{profile?.login_count || 0}</p>
         </div>
       </div>
     </div>
@@ -530,8 +598,10 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Profile Info */}
         <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
-            Profile Information
+          <h3 className="text-lg font-bold mb-4">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+              Profile Information
+            </span>
           </h3>
 
           <div className="space-y-4">
@@ -546,7 +616,7 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
                   value={formData.username}
                   onChange={(e) => handleUsernameChange(e.target.value)}
                   placeholder={t('form.usernamePlaceholder')}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 rounded-xl glass-crystal text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                 />
                 {formData.username.length >= 3 && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -575,7 +645,7 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
                 value={formData.display_name}
                 onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
                 placeholder={t('form.displayNamePlaceholder')}
-                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 rounded-xl glass-crystal text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               />
             </div>
 
@@ -590,7 +660,7 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
                 placeholder={t('form.bioPlaceholder')}
                 rows={3}
                 maxLength={500}
-                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 rounded-xl glass-crystal text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all resize-none"
               />
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 {formData.bio.length}/500 {t('form.bioHelp')}
@@ -599,23 +669,25 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
           </div>
 
           {/* Social Links */}
-          <h4 className="text-md font-bold text-slate-900 dark:text-white mt-6 mb-4">
-            {t('form.socialLinks')}
+          <h4 className="text-md font-bold mt-6 mb-4">
+            <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+              {t('form.socialLinks')}
+            </span>
           </h4>
           <div className="space-y-4">
             {/* Twitter/X */}
             <div className="flex items-center gap-3">
-              <TwitterXIcon className={`w-5 h-5 ${profile?.twitter_verified ? 'text-sky-500' : 'text-slate-400'}`} />
+              <div className={`p-2 rounded-lg ${profile?.twitter_verified ? 'bg-sky-500/20' : 'glass-crystal'}`}>
+                <TwitterXIcon className={`w-5 h-5 ${profile?.twitter_verified ? 'text-sky-500' : 'text-slate-400'}`} />
+              </div>
               <div className="flex-1 relative">
                 <input
                   type="text"
                   value={formData.twitter_handle}
                   onChange={(e) => setFormData({ ...formData, twitter_handle: e.target.value })}
                   placeholder={t('form.twitterPlaceholder')}
-                  className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
-                    profile?.twitter_verified
-                      ? 'border-green-400 dark:border-green-600 pr-10'
-                      : 'border-slate-200 dark:border-slate-600'
+                  className={`w-full px-4 py-3 rounded-xl glass-crystal text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all ${
+                    profile?.twitter_verified ? 'ring-2 ring-green-500/50' : ''
                   }`}
                 />
                 {profile?.twitter_verified && (
@@ -625,17 +697,17 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
             </div>
             {/* Discord */}
             <div className="flex items-center gap-3">
-              <DiscordIcon className={`w-5 h-5 ${profile?.discord_verified ? 'text-indigo-500' : 'text-slate-400'}`} />
+              <div className={`p-2 rounded-lg ${profile?.discord_verified ? 'bg-indigo-500/20' : 'glass-crystal'}`}>
+                <DiscordIcon className={`w-5 h-5 ${profile?.discord_verified ? 'text-indigo-500' : 'text-slate-400'}`} />
+              </div>
               <div className="flex-1 relative">
                 <input
                   type="text"
                   value={formData.discord_handle}
                   onChange={(e) => setFormData({ ...formData, discord_handle: e.target.value })}
                   placeholder={t('form.discordPlaceholder')}
-                  className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
-                    profile?.discord_verified
-                      ? 'border-green-400 dark:border-green-600 pr-10'
-                      : 'border-slate-200 dark:border-slate-600'
+                  className={`w-full px-4 py-3 rounded-xl glass-crystal text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all ${
+                    profile?.discord_verified ? 'ring-2 ring-green-500/50' : ''
                   }`}
                 />
                 {profile?.discord_verified && (
@@ -645,17 +717,17 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
             </div>
             {/* Telegram */}
             <div className="flex items-center gap-3">
-              <TelegramIcon className={`w-5 h-5 ${profile?.telegram_verified ? 'text-blue-500' : 'text-slate-400'}`} />
+              <div className={`p-2 rounded-lg ${profile?.telegram_verified ? 'bg-blue-500/20' : 'glass-crystal'}`}>
+                <TelegramIcon className={`w-5 h-5 ${profile?.telegram_verified ? 'text-blue-500' : 'text-slate-400'}`} />
+              </div>
               <div className="flex-1 relative">
                 <input
                   type="text"
                   value={formData.telegram_handle}
                   onChange={(e) => setFormData({ ...formData, telegram_handle: e.target.value })}
                   placeholder={t('form.telegramPlaceholder')}
-                  className={`w-full px-4 py-2 rounded-lg border bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
-                    profile?.telegram_verified
-                      ? 'border-green-400 dark:border-green-600 pr-10'
-                      : 'border-slate-200 dark:border-slate-600'
+                  className={`w-full px-4 py-3 rounded-xl glass-crystal text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all ${
+                    profile?.telegram_verified ? 'ring-2 ring-green-500/50' : ''
                   }`}
                 />
                 {profile?.telegram_verified && (
@@ -665,26 +737,28 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
             </div>
             {/* Website */}
             <div className="flex items-center gap-3">
-              <Globe className="w-5 h-5 text-slate-400" />
+              <div className="p-2 rounded-lg glass-crystal">
+                <Globe className="w-5 h-5 text-slate-400" />
+              </div>
               <input
                 type="url"
                 value={formData.website_url}
                 onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
                 placeholder={t('form.websitePlaceholder')}
-                className="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="flex-1 px-4 py-3 rounded-xl glass-crystal text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               />
             </div>
           </div>
 
           {saveSuccess && (
-            <div className="mt-4 p-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg flex items-center gap-2">
+            <div className="mt-4 p-4 glass-crystal rounded-xl border border-green-500/30 flex items-center gap-2 text-green-600 dark:text-green-400">
               <CheckCircle className="w-5 h-5" />
               {t('form.saveSuccess')}
             </div>
           )}
 
           {saveError && (
-            <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg flex items-center gap-2">
+            <div className="mt-4 p-4 glass-crystal rounded-xl border border-red-500/30 flex items-center gap-2 text-red-600 dark:text-red-400">
               <AlertCircle className="w-5 h-5" />
               {saveError}
             </div>
@@ -693,10 +767,10 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
           <button
             onClick={handleSave}
             disabled={isUpdating}
-            className={`mt-4 w-full py-2 px-4 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
+            className={`mt-4 w-full py-3 px-4 font-medium rounded-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.02] ${
               saveSuccess
-                ? 'bg-green-500 hover:bg-green-600 text-white'
-                : 'bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white'
+                ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25'
+                : 'bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 hover:from-cyan-600 hover:via-blue-600 hover:to-purple-600 disabled:opacity-50 text-white shadow-lg shadow-blue-500/25'
             }`}
           >
             {isUpdating ? (
@@ -717,8 +791,10 @@ function SettingsTab({ profile, settings, updateSettings, updateProfile, isUpdat
 
         {/* Privacy Settings */}
         <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
-            {t('settings.title')}
+          <h3 className="text-lg font-bold mb-4">
+            <span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+              {t('settings.title')}
+            </span>
           </h3>
 
           <div className="space-y-4">
@@ -761,20 +837,22 @@ function ToggleSetting({ label, description, checked, onChange }: {
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+    <div className="flex items-center justify-between p-4 glass-crystal rounded-xl hover:scale-[1.01] transition-all">
       <div>
         <p className="font-medium text-slate-900 dark:text-white">{label}</p>
         <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>
       </div>
       <button
         onClick={() => onChange(!checked)}
-        className={`relative w-12 h-6 rounded-full transition-colors ${
-          checked ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-600'
+        className={`relative w-14 h-7 rounded-full transition-all ${
+          checked
+            ? 'bg-gradient-to-r from-cyan-500 to-blue-500 shadow-lg shadow-blue-500/30'
+            : 'bg-slate-300 dark:bg-slate-600'
         }`}
       >
         <span
-          className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-            checked ? 'translate-x-7' : 'translate-x-1'
+          className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-transform ${
+            checked ? 'translate-x-8' : 'translate-x-1'
           }`}
         />
       </button>
@@ -1229,32 +1307,41 @@ function ActivityTab({ t, address }: { t: any; address: string }) {
 
   return (
     <div className="p-6">
-      <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
-        {t('activity.title')}
+      <h3 className="text-lg font-bold mb-4">
+        <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+          {t('activity.title')}
+        </span>
       </h3>
 
       {isLoading ? (
         <div className="flex justify-center py-8">
-          <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full blur-lg opacity-50 animate-pulse" />
+            <Loader2 className="w-8 h-8 text-blue-500 animate-spin relative" />
+          </div>
         </div>
       ) : error ? (
-        <div className="text-center py-8 text-red-500 dark:text-red-400">
-          <AlertCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <p>{error}</p>
+        <div className="text-center py-8">
+          <div className="glass-crystal rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <AlertCircle className="w-8 h-8 text-red-500" />
+          </div>
+          <p className="text-red-500 dark:text-red-400">{error}</p>
         </div>
       ) : activities.length === 0 ? (
-        <div className="text-center py-8 text-slate-500 dark:text-slate-400">
-          <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
-          <p>{t('activity.noActivity')}</p>
+        <div className="text-center py-8">
+          <div className="glass-crystal rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <Activity className="w-8 h-8 text-slate-400" />
+          </div>
+          <p className="text-slate-500 dark:text-slate-400">{t('activity.noActivity')}</p>
         </div>
       ) : (
         <div className="space-y-3">
           {activities.map((activity) => (
             <div
               key={activity.id}
-              className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="flex items-start gap-4 p-4 glass-crystal rounded-xl hover:scale-[1.01] transition-all group"
             >
-              <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+              <div className="p-2 glass-crystal rounded-lg group-hover:scale-110 transition-transform">
                 {getActivityIcon(activity.type)}
               </div>
               <div className="flex-1 min-w-0">
@@ -1262,7 +1349,7 @@ function ActivityTab({ t, address }: { t: any; address: string }) {
                   <h4 className="font-medium text-slate-900 dark:text-white truncate">
                     {activity.title}
                   </h4>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap glass-crystal px-2 py-1 rounded-full">
                     {formatTimestamp(activity.timestamp)}
                   </span>
                 </div>
@@ -1270,7 +1357,7 @@ function ActivityTab({ t, address }: { t: any; address: string }) {
                   {activity.description}
                 </p>
                 {activity.amount > 0 && (
-                  <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                  <span className="inline-flex items-center mt-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/25">
                     +{activity.amount} CGC
                   </span>
                 )}
@@ -1286,29 +1373,48 @@ function ActivityTab({ t, address }: { t: any; address: string }) {
 // Skeleton Loader
 function ProfileSkeleton() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="animate-pulse">
-          <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-48 mb-2" />
-          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-64 mb-8" />
+    <div className="min-h-screen theme-gradient-bg relative overflow-hidden">
+      {/* Animated Background Blobs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-48 h-48 bg-cyan-500/10 dark:bg-cyan-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-60 right-20 w-64 h-64 bg-purple-500/10 dark:bg-purple-500/15 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-40 left-1/4 w-56 h-56 bg-amber-500/10 dark:bg-amber-500/15 rounded-full blur-3xl animate-pulse" />
+      </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700 mb-6">
+      <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
+        <div className="animate-pulse">
+          {/* Header */}
+          <div className="h-10 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl w-48 mb-2" />
+          <div className="h-4 glass-crystal rounded-lg w-64 mb-8" />
+
+          {/* Profile Card */}
+          <div className="glass-crystal rounded-2xl p-6 mb-6">
             <div className="flex items-center gap-6">
-              <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-700" />
+              <div className="relative">
+                <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full opacity-50 blur-lg animate-pulse" />
+                <div className="relative w-24 h-24 rounded-full glass-crystal" />
+              </div>
               <div className="flex-1">
-                <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-48 mb-2" />
-                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32" />
+                <div className="h-6 glass-crystal rounded-lg w-48 mb-2" />
+                <div className="h-4 glass-crystal rounded-lg w-32" />
+              </div>
+              <div className="flex gap-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="glass-crystal rounded-xl p-4 w-20 h-20" />
+                ))}
               </div>
             </div>
           </div>
 
+          {/* Tabs */}
           <div className="flex gap-2 mb-6">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-10 bg-slate-200 dark:bg-slate-700 rounded-lg w-24" />
+              <div key={i} className="h-10 glass-crystal rounded-xl w-24" />
             ))}
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 h-96" />
+          {/* Content */}
+          <div className="glass-crystal rounded-2xl h-96" />
         </div>
       </div>
     </div>
