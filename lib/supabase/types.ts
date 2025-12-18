@@ -479,6 +479,7 @@ export interface Database {
           referrer_wallet: string
           referrer_code: string | null
           custom_message: string | null
+          custom_message_es: string | null // Spanish version for i18n
           custom_title: string | null
           image_url: string | null
           password_hash: string | null
@@ -501,6 +502,7 @@ export interface Database {
           referrer_wallet: string
           referrer_code?: string | null
           custom_message?: string | null
+          custom_message_es?: string | null // Spanish version for i18n
           custom_title?: string | null
           image_url?: string | null
           password_hash?: string | null
@@ -523,6 +525,7 @@ export interface Database {
           referrer_wallet?: string
           referrer_code?: string | null
           custom_message?: string | null
+          custom_message_es?: string | null // Spanish version for i18n
           custom_title?: string | null
           image_url?: string | null
           password_hash?: string | null

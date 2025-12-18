@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
       referrerCode,
       password,
       customMessage,
+      customMessageEs, // Spanish version for i18n
       customTitle,
       image,
       maxClaims,
@@ -110,6 +111,7 @@ export async function POST(request: NextRequest) {
       referrer_code: referrerCode || null,
       password_hash: password ? hashPassword(password) : null,
       custom_message: customMessage || null,
+      custom_message_es: customMessageEs || null, // Spanish version for i18n
       custom_title: customTitle || null,
       image_url: image || null,
       status: 'active',
@@ -267,6 +269,7 @@ export async function GET(request: NextRequest) {
         code: invite.invite_code,
         referrerCode: invite.referrer_code,
         customMessage: invite.custom_message,
+        customMessageEs: invite.custom_message_es, // Spanish version for i18n
         customTitle: invite.custom_title,
         hasPassword: !!invite.password_hash,
         createdAt: invite.created_at,

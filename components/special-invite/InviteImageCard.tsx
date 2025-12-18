@@ -2,13 +2,14 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { NFTImageModal } from './NFTImageModal';
 
 interface InviteImageCardProps {
   image: string;
   name: string;
   customMessage?: string;
+  customMessageEs?: string; // Spanish version for i18n
   referrerCode?: string;
   inviteCode?: string;
   expiresAt?: string;
@@ -33,6 +34,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
   image,
   name,
   customMessage,
+  customMessageEs,
   referrerCode,
   inviteCode,
   expiresAt,
@@ -41,8 +43,15 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
   onRefresh
 }) => {
   const t = useTranslations('inviteCard');
+  const locale = useLocale();
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  // Select message based on current locale
+  // If Spanish locale and Spanish message exists, use it; otherwise fallback to default
+  const displayMessage = locale === 'es' && customMessageEs
+    ? customMessageEs
+    : customMessage;
 
   // Fallback to local image if Supabase image fails
   const displayImage = imageError || !image ? '/special-referral.jpg' : image;
@@ -188,8 +197,8 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
           )}
         </div>
 
-        {/* Custom Message from Referrer */}
-        {customMessage && (
+        {/* Custom Message from Referrer - Uses locale-specific message */}
+        {displayMessage && (
           <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-700">
             <div className="flex items-start">
               <span className="text-xl mr-2">💬</span>
@@ -198,7 +207,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
                   {t('referrerMessage')}
                 </p>
                 <p className="text-sm text-purple-700 dark:text-purple-400 italic">
-                  &ldquo;{customMessage}&rdquo;
+                  &ldquo;{displayMessage}&rdquo;
                 </p>
               </div>
             </div>
@@ -283,7 +292,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
         name={name}
         tokenId={inviteCode}
         metadata={{
-          description: customMessage || t('metadata.description'),
+          description: displayMessage || t('metadata.description'),
           attributes: [
             { trait_type: t('metadata.type'), value: t('metadata.typeValue') },
             { trait_type: t('details.network'), value: t('details.networkValue') },
