@@ -690,3 +690,52 @@ cast gas-price --rpc-url https://mainnet.base.org
 - **ESTAS REGLAS SON ABSOLUTAS - NO HAY EXCEPCIONES**
 
 Ver `CLAUDE_ABSOLUTE_RULES.md` para protocolo completo.
+
+---
+
+## 🗣️ PREFERENCIAS DE COMUNICACIÓN CON EL USUARIO
+
+### 📌 IDIOMA
+- **SIEMPRE responder en español** al usuario
+- Código y documentación técnica: en inglés (estándar profesional)
+- Comentarios en código: inglés
+
+### 📋 GUÍAS PASO A PASO (Solo cuando sea absolutamente necesario)
+**Antes de dar instrucciones manuales**, Claude DEBE:
+1. **Verificar si puede hacerlo automáticamente** - Si puede, hacerlo sin preguntar
+2. **Buscar información actualizada** - Usar WebSearch para obtener la documentación más reciente de la app/sistema
+3. **Dar pasos detallados click por click** - No asumir que el usuario conoce la interfaz
+
+**Formato obligatorio para guías manuales:**
+```
+PASO 1: [Acción específica]
+   → Click en [elemento exacto]
+   → Ubicación: [dónde encontrarlo]
+
+PASO 2: [Siguiente acción]
+   → [Detalles específicos]
+
+💡 NOTA: [Explicación en lenguaje natural de cualquier tecnicismo]
+```
+
+### 🎯 NIVELES DE COMUNICACIÓN
+| Contexto | Estilo |
+|----------|--------|
+| Conversación con usuario | Claro, conciso, en español, tecnicismos explicados |
+| Código fuente | Profesional, best practices, inglés |
+| Documentación técnica | Profesional, estructurada, inglés |
+| Commits de git | Profesional, descriptivo, inglés |
+| Comentarios de código | Breves, útiles, inglés |
+
+### 📝 REGLAS DE COMMITS (OBLIGATORIO)
+- **Claude SIEMPRE hace el commit** → Usuario SIEMPRE hace el push
+- **Formato**: Seguir `COMMIT_ATTRIBUTION.md` sin excepciones
+- **Atribución**: Incluir `🤖 Generated with Claude Code` + `Co-Authored-By: Godez22`
+- **NO preguntar**: Hacer el commit automáticamente al completar tareas
+
+### ⚙️ CONFIGURACIÓN DE PERMISOS (.claude/settings.local.json)
+**IMPORTANTE**: Este archivo es SOLO para permisos de herramientas.
+- ✅ Usar wildcards amplios: `Bash(git:*)` en vez de comandos específicos
+- ❌ NUNCA guardar comandos completos (heredocs, commits largos)
+- ❌ NO es para instrucciones de comportamiento (esas van aquí en CLAUDE.md)
+- 📏 El archivo debe tener máximo ~50 líneas
