@@ -21,12 +21,11 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  X, 
-  Clock, 
-  Coins, 
-  TrendingUp, 
-  AlertTriangle, 
+import {
+  Clock,
+  Coins,
+  TrendingUp,
+  AlertTriangle,
   CheckCircle2,
   Copy,
   MessageCircle,
@@ -113,10 +112,10 @@ export function TaskDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0">
-        <DialogHeader className="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-800">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 pr-4">
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0 flex flex-col overflow-hidden">
+        <DialogHeader className="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-slate-800 dark:to-slate-800 flex-shrink-0">
+          <div className="flex items-start justify-between pr-8">
+            <div className="flex-1">
               <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                 🎯 {translatedTask.title}
               </DialogTitle>
@@ -124,18 +123,10 @@ export function TaskDetailsModal({
                 {t('subtitle', { level: task.complexity, taskId: task.task_id.slice(0, 8) })}
               </DialogDescription>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="h-8 w-8"
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="px-6 py-4 space-y-6">
             
             {/* Overview Section - Theme Aware */}
@@ -322,7 +313,7 @@ export function TaskDetailsModal({
         </ScrollArea>
 
         {/* Action Buttons - Theme Aware */}
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 flex-shrink-0">
           <div className="flex flex-col sm:flex-row gap-3">
             {canClaim && (
               <Button
