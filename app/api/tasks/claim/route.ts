@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
 import { authHelpers, type AuthContext } from '@/lib/auth/middleware'
 import { getDAORedis, RedisKeys } from '@/lib/redis-dao'
+import { notifyTaskClaimed } from '@/lib/discord/task-notifications'
 
 const taskService = new TaskService()
 const redis = getDAORedis()
@@ -67,6 +68,17 @@ export const POST = authHelpers.protected(async (request: NextRequest, context: 
       Date.now(),
       userAddress
     )
+
+    // Fetch the claimed task for Discord notification
+    const claimedTask = await taskService.getTaskById(taskId)
+
+    // Send Discord notification (non-blocking)
+    if (claimedTask) {
+      notifyTaskClaimed(claimedTask, userAddress).catch((err) =>
+        console.error('[Discord] Failed to send claim notification:', err)
+      )
+    }
+    console.log('✅ Task claimed, Discord notification sent for task:', taskId)
 
     return NextResponse.json({
       success: true,

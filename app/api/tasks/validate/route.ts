@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
 import { authHelpers, type AuthContext } from '@/lib/auth/middleware'
 import { getDAORedis, RedisKeys } from '@/lib/redis-dao'
+import { notifyTaskCompleted, notifyTaskSubmitted } from '@/lib/discord/task-notifications'
 
 const taskService = new TaskService()
 const redis = getDAORedis()
@@ -173,6 +174,14 @@ export const POST = authHelpers.admin(async (request: NextRequest, context: Auth
       }
 
       console.log(`✅ Task ${taskId} ${isPaymentCompleted ? 'completed with payment' : 'validated'} by ${validatorAddress}`)
+
+      // Send Discord notification for completed task (non-blocking)
+      if (isPaymentCompleted && task.assignee_address) {
+        const txHash = notes?.match(/TX: (0x[a-fA-F0-9]+)/)?.[1]
+        notifyTaskCompleted(task, task.assignee_address, txHash).catch((err) =>
+          console.error('[Discord] Failed to send completion notification:', err)
+        )
+      }
     } else {
       // Rejected - reset to in_progress, clear evidence
       updateData = {

@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { TaskService } from '@/lib/tasks/task-service'
 import { authHelpers, type AuthContext } from '@/lib/auth/middleware'
 import { getDAORedis, RedisKeys } from '@/lib/redis-dao'
+import { notifyTaskSubmitted } from '@/lib/discord/task-notifications'
 
 const taskService = new TaskService()
 const redis = getDAORedis()
@@ -103,9 +104,11 @@ export const POST = authHelpers.protected(async (request: NextRequest, context: 
       new Date().toISOString()
     )
 
-    // Notify validators (webhook to Discord)
-    // This would trigger a Discord notification in production
-    console.log('Notifying validators for task:', taskId)
+    // Send Discord notification for submitted evidence (non-blocking)
+    notifyTaskSubmitted(task, userAddress).catch((err) =>
+      console.error('[Discord] Failed to send submission notification:', err)
+    )
+    console.log('✅ Evidence submitted, Discord notification sent for task:', taskId)
 
     return NextResponse.json({
       success: true,
