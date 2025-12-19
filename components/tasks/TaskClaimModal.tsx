@@ -75,12 +75,12 @@ export function TaskClaimModal({
     }
   }
 
-  // Get complexity color - Theme aware
+  // Get complexity color - Glass style
   const getComplexityColor = () => {
-    if (task.complexity <= 3) return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700/50'
-    if (task.complexity <= 6) return 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700/50'
-    if (task.complexity <= 8) return 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 border-orange-200 dark:border-orange-700/50'
-    return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-200 dark:border-red-700/50'
+    if (task.complexity <= 3) return 'bg-green-500/10 text-green-400 border-green-500/20'
+    if (task.complexity <= 6) return 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+    if (task.complexity <= 8) return 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+    return 'bg-red-500/10 text-red-400 border-red-500/20'
   }
 
   // Calculate claim timeout info
@@ -105,20 +105,25 @@ export function TaskClaimModal({
         <div className="space-y-6">
           {/* Task Title and Category */}
           <div>
-            <h3 className="text-lg font-semibold text-glass mb-2">{translatedTask.title}</h3>
-            <div className="flex items-center space-x-2 mb-3">
+            <h3 className="text-lg font-semibold text-white mb-2">{translatedTask.title}</h3>
+            <div className="flex items-center flex-wrap gap-2 mb-3">
               <Badge className={`border ${getComplexityColor()}`}>
                 {t('complexityLabel')} {task.complexity}/10
               </Badge>
               {task.category && (
-                <Badge variant="outline" className="capitalize">
+                <Badge className="capitalize bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
                   {task.category}
                 </Badge>
               )}
               {task.priority && (
-                <Badge 
-                  variant={task.priority === 'critical' || task.priority === 'high' ? 'destructive' : 'secondary'}
-                  className="capitalize"
+                <Badge
+                  className={`capitalize ${
+                    task.priority === 'critical'
+                      ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                      : task.priority === 'high'
+                        ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20'
+                        : 'bg-white/[0.05] text-white/70 border border-white/[0.1]'
+                  }`}
                 >
                   {task.priority}
                 </Badge>
@@ -128,37 +133,43 @@ export function TaskClaimModal({
 
           {/* Task Description */}
           {translatedTask.description && (
-            <div>
-              <h4 className="text-sm font-semibold text-glass-secondary mb-2">{t('descriptionLabel')}</h4>
-              <p className="text-sm text-glass leading-relaxed whitespace-pre-wrap">
+            <div className="p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+              <h4 className="text-sm font-semibold text-cyan-400 mb-2">{t('descriptionLabel')}</h4>
+              <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
                 {translatedTask.description}
               </p>
             </div>
           )}
 
-          {/* Task Metrics - Theme Aware */}
+          {/* Task Metrics - Glass Style */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="flex items-center space-x-2 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800/30">
-              <Coins className="w-5 h-5 text-amber-500 dark:text-amber-400" />
+            <div className="flex items-center space-x-3 p-4 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300">
+              <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+                <Coins className="w-5 h-5 text-amber-400" />
+              </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{t('rewardLabel')}</p>
-                <p className="font-semibold text-gray-900 dark:text-white">{task.reward_cgc} CGC</p>
+                <p className="text-xs text-white/50">{t('rewardLabel')}</p>
+                <p className="font-semibold text-amber-400">{task.reward_cgc} CGC</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30">
-              <Calendar className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+            <div className="flex items-center space-x-3 p-4 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300">
+              <div className="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 text-cyan-400" />
+              </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{t('estimatedLabel')}</p>
-                <p className="font-semibold text-gray-900 dark:text-white">{task.estimated_days} {tCommon('days')}</p>
+                <p className="text-xs text-white/50">{t('estimatedLabel')}</p>
+                <p className="font-semibold text-cyan-400">{task.estimated_days} {tCommon('days')}</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800/30">
-              <Timer className="w-5 h-5 text-purple-500 dark:text-purple-400" />
+            <div className="flex items-center space-x-3 p-4 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300">
+              <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
+                <Timer className="w-5 h-5 text-purple-400" />
+              </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{t('claimTimeLabel')}</p>
-                <p className="font-semibold text-gray-900 dark:text-white">{timeoutDisplay}</p>
+                <p className="text-xs text-white/50">{t('claimTimeLabel')}</p>
+                <p className="font-semibold text-purple-400">{timeoutDisplay}</p>
               </div>
             </div>
           </div>
@@ -166,10 +177,10 @@ export function TaskClaimModal({
           {/* Required Skills */}
           {task.required_skills && task.required_skills.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-glass-secondary mb-2">{t('requiredSkills')}</h4>
+              <h4 className="text-sm font-semibold text-purple-400 mb-3">{t('requiredSkills')}</h4>
               <div className="flex flex-wrap gap-2">
                 {task.required_skills.map((skill, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
+                  <Badge key={index} className="text-xs bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 transition-all">
                     {skill}
                   </Badge>
                 ))}
@@ -180,10 +191,10 @@ export function TaskClaimModal({
           {/* Tags */}
           {task.tags && task.tags.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-glass-secondary mb-2">{t('tags')}</h4>
+              <h4 className="text-sm font-semibold text-green-400 mb-3">{t('tags')}</h4>
               <div className="flex flex-wrap gap-2">
                 {task.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
+                  <Badge key={index} className="text-xs bg-green-500/10 text-green-300 border border-green-500/20 hover:bg-green-500/20 transition-all">
                     #{tag}
                   </Badge>
                 ))}
@@ -191,13 +202,15 @@ export function TaskClaimModal({
             </div>
           )}
 
-          {/* Important Notice - Theme Aware */}
-          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg">
+          {/* Important Notice - Glass Style */}
+          <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
             <div className="flex items-start space-x-3">
-              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+              <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-4 h-4 text-amber-400" />
+              </div>
               <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-amber-800 dark:text-amber-300">{t('importantNotice')}</h4>
-                <div className="text-xs text-amber-700 dark:text-amber-400/90 space-y-1">
+                <h4 className="text-sm font-semibold text-amber-400">{t('importantNotice')}</h4>
+                <div className="text-xs text-white/60 space-y-1">
                   <p>• {t('exclusiveAccessNotice', { time: timeoutDisplay })}</p>
                   <p>• {t('afterTimeoutNotice')}</p>
                   <p>• {t('canStillCompleteNotice')}</p>
@@ -208,18 +221,19 @@ export function TaskClaimModal({
           </div>
         </div>
 
-        <DialogFooter className="flex space-x-3">
+        <DialogFooter className="flex space-x-3 pt-4 border-t border-white/[0.08]">
           <Button
             variant="outline"
             onClick={onClose}
             disabled={isClaimingTask}
+            className="bg-white/[0.03] border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white hover:border-white/[0.15] transition-all"
           >
             {t('cancel')}
           </Button>
           <Button
             onClick={onConfirmClaim}
             disabled={isClaimingTask}
-            className="min-w-[120px]"
+            className="min-w-[140px] bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all border border-cyan-400/30"
           >
             {isClaimingTask ? (
               <>
