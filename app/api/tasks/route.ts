@@ -37,6 +37,15 @@ export const GET = authHelpers.public(async (request: NextRequest) => {
     const userAddress = searchParams.get('address')
     const limit = parseInt(searchParams.get('limit') || '50')
 
+    // New taxonomy filters (v2.0)
+    const domain = searchParams.get('domain')
+    const category = searchParams.get('category')
+    const taskType = searchParams.get('task_type')
+    const isFeatured = searchParams.get('featured') === 'true'
+    const isUrgent = searchParams.get('urgent') === 'true'
+    const sortBy = searchParams.get('sort') || 'reward'
+    const sortOrder = searchParams.get('order') || 'desc'
+
     let tasks
 
     switch (status) {
@@ -57,10 +66,72 @@ export const GET = authHelpers.public(async (request: NextRequest) => {
         tasks = await taskService.getUserRelevantTasks(userAddress || undefined)
     }
 
+    // Apply taxonomy filters if provided
+    if (tasks && tasks.length > 0) {
+      // Filter by domain
+      if (domain) {
+        tasks = tasks.filter((t: { domain?: string | null }) => t.domain === domain)
+      }
+
+      // Filter by category
+      if (category) {
+        tasks = tasks.filter((t: { category?: string | null }) => t.category === category)
+      }
+
+      // Filter by task type
+      if (taskType) {
+        tasks = tasks.filter((t: { task_type?: string | null }) => t.task_type === taskType)
+      }
+
+      // Filter featured tasks
+      if (isFeatured) {
+        tasks = tasks.filter((t: { is_featured?: boolean }) => t.is_featured === true)
+      }
+
+      // Filter urgent tasks
+      if (isUrgent) {
+        tasks = tasks.filter((t: { is_urgent?: boolean }) => t.is_urgent === true)
+      }
+
+      // Sort tasks
+      tasks = tasks.sort((a: { reward_cgc?: number; complexity?: number; created_at?: string }, b: { reward_cgc?: number; complexity?: number; created_at?: string }) => {
+        let compareValue = 0
+        switch (sortBy) {
+          case 'reward':
+            compareValue = (b.reward_cgc || 0) - (a.reward_cgc || 0)
+            break
+          case 'complexity':
+            compareValue = (b.complexity || 0) - (a.complexity || 0)
+            break
+          case 'created':
+            compareValue = new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+            break
+          default:
+            compareValue = (b.reward_cgc || 0) - (a.reward_cgc || 0)
+        }
+        return sortOrder === 'asc' ? -compareValue : compareValue
+      })
+    }
+
+    // Calculate stats by domain for the response
+    const domainStats: Record<string, number> = {}
+    if (tasks && tasks.length > 0) {
+      for (const task of tasks) {
+        const taskDomain = (task as { domain?: string }).domain || 'development'
+        domainStats[taskDomain] = (domainStats[taskDomain] || 0) + 1
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: tasks,
       count: tasks.length,
+      stats: {
+        byDomain: domainStats,
+        total: tasks.length,
+        featured: tasks.filter((t: { is_featured?: boolean }) => t.is_featured).length,
+        urgent: tasks.filter((t: { is_urgent?: boolean }) => t.is_urgent).length,
+      },
     })
   } catch (error) {
     console.error('Error fetching tasks:', error)

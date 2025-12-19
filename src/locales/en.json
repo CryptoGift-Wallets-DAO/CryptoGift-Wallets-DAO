@@ -287,6 +287,46 @@
     "title": "Tasks & Rewards",
     "subtitle": "Complete tasks, earn CGC tokens, and climb the leaderboard",
     "available": "Available Tasks",
+    "days": "days",
+    "domains": {
+      "all": "All",
+      "development": "Development",
+      "documentation": "Documentation",
+      "design": "Design",
+      "community": "Community",
+      "governance": "Governance",
+      "operations": "Operations"
+    },
+    "types": {
+      "feature": "New Feature",
+      "bugfix": "Bug Fix",
+      "refactor": "Refactor",
+      "research": "Research",
+      "design": "Design",
+      "content": "Content",
+      "review": "Review",
+      "setup": "Setup",
+      "migration": "Migration",
+      "integration": "Integration"
+    },
+    "filters": {
+      "allDomains": "All Domains",
+      "allCategories": "All Categories",
+      "allTypes": "All Types",
+      "sortByReward": "Highest Reward",
+      "sortByComplexity": "Complexity",
+      "sortByDate": "Newest First"
+    },
+    "featured": {
+      "title": "Featured & Urgent",
+      "tasks": "tasks"
+    },
+    "badges": {
+      "featured": "Featured",
+      "urgent": "Urgent",
+      "epic": "Epic",
+      "new": "New"
+    },
     "claimed": "Claimed Tasks",
     "completed": "Completed Tasks",
     "claim": "Claim Task",

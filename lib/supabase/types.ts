@@ -47,6 +47,17 @@ export interface Database {
           rejected_at: string | null
           rejected_by: string | null
           metadata: Json | null
+          // New taxonomy fields (v2.0)
+          domain: 'development' | 'documentation' | 'design' | 'community' | 'governance' | 'operations' | null
+          task_type: 'feature' | 'bugfix' | 'refactor' | 'research' | 'design' | 'content' | 'review' | 'setup' | 'migration' | 'integration' | null
+          discord_message_id: string | null
+          discord_thread_id: string | null
+          is_featured: boolean
+          is_urgent: boolean
+          max_assignees: number
+          acceptance_criteria: Json | null
+          deliverables: Json | null
+          skills_required: Json | null
         }
         Insert: {
           id?: string
@@ -79,6 +90,17 @@ export interface Database {
           rejected_at?: string | null
           rejected_by?: string | null
           metadata?: Json | null
+          // New taxonomy fields (v2.0)
+          domain?: 'development' | 'documentation' | 'design' | 'community' | 'governance' | 'operations' | null
+          task_type?: 'feature' | 'bugfix' | 'refactor' | 'research' | 'design' | 'content' | 'review' | 'setup' | 'migration' | 'integration' | null
+          discord_message_id?: string | null
+          discord_thread_id?: string | null
+          is_featured?: boolean
+          is_urgent?: boolean
+          max_assignees?: number
+          acceptance_criteria?: Json | null
+          deliverables?: Json | null
+          skills_required?: Json | null
         }
         Update: {
           id?: string
@@ -111,6 +133,17 @@ export interface Database {
           rejected_at?: string | null
           rejected_by?: string | null
           metadata?: Json | null
+          // New taxonomy fields (v2.0)
+          domain?: 'development' | 'documentation' | 'design' | 'community' | 'governance' | 'operations' | null
+          task_type?: 'feature' | 'bugfix' | 'refactor' | 'research' | 'design' | 'content' | 'review' | 'setup' | 'migration' | 'integration' | null
+          discord_message_id?: string | null
+          discord_thread_id?: string | null
+          is_featured?: boolean
+          is_urgent?: boolean
+          max_assignees?: number
+          acceptance_criteria?: Json | null
+          deliverables?: Json | null
+          skills_required?: Json | null
         }
       }
       collaborators: {

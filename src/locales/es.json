@@ -287,6 +287,46 @@
     "title": "Tareas y Recompensas",
     "subtitle": "Completa tareas, gana tokens CGC y sube en la tabla de clasificación",
     "available": "Tareas Disponibles",
+    "days": "días",
+    "domains": {
+      "all": "Todos",
+      "development": "Desarrollo",
+      "documentation": "Documentación",
+      "design": "Diseño",
+      "community": "Comunidad",
+      "governance": "Gobernanza",
+      "operations": "Operaciones"
+    },
+    "types": {
+      "feature": "Nueva Función",
+      "bugfix": "Corrección de Bug",
+      "refactor": "Refactorización",
+      "research": "Investigación",
+      "design": "Diseño",
+      "content": "Contenido",
+      "review": "Revisión",
+      "setup": "Configuración",
+      "migration": "Migración",
+      "integration": "Integración"
+    },
+    "filters": {
+      "allDomains": "Todos los Dominios",
+      "allCategories": "Todas las Categorías",
+      "allTypes": "Todos los Tipos",
+      "sortByReward": "Mayor Recompensa",
+      "sortByComplexity": "Complejidad",
+      "sortByDate": "Más Recientes"
+    },
+    "featured": {
+      "title": "Destacadas y Urgentes",
+      "tasks": "tareas"
+    },
+    "badges": {
+      "featured": "Destacada",
+      "urgent": "Urgente",
+      "epic": "Épica",
+      "new": "Nueva"
+    },
     "claimed": "Tareas Reclamadas",
     "completed": "Tareas Completadas",
     "claim": "Reclamar Tarea",
