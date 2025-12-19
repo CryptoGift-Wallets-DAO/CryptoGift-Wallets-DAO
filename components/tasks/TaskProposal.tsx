@@ -106,22 +106,20 @@ export function TaskProposal({ userAddress, onProposalSubmitted }: TaskProposalP
   return (
     <div className="space-y-6">
       {/* Info Card */}
-      <Card className="border-blue-200 bg-blue-50/50">
-        <CardContent className="pt-6">
-          <div className="flex items-start space-x-3">
-            <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <h4 className="font-medium text-blue-900">{t('guidelinesTitle')}</h4>
-              <ul className="text-sm text-blue-700 mt-2 space-y-1">
-                <li>• {t('guideline1')}</li>
-                <li>• {t('guideline2')}</li>
-                <li>• {t('guideline3')}</li>
-                <li>• {t('guideline4')}</li>
-              </ul>
-            </div>
+      <div className="p-5 rounded-xl bg-blue-500/10 border border-blue-500/20 backdrop-blur-sm">
+        <div className="flex items-start space-x-3">
+          <AlertCircle className="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-medium text-blue-700 dark:text-blue-300">{t('guidelinesTitle')}</h4>
+            <ul className="text-sm text-blue-600 dark:text-blue-400/80 mt-2 space-y-1">
+              <li>• {t('guideline1')}</li>
+              <li>• {t('guideline2')}</li>
+              <li>• {t('guideline3')}</li>
+              <li>• {t('guideline4')}</li>
+            </ul>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Proposal Form */}
       <form onSubmit={handleSubmit} className="space-y-6">

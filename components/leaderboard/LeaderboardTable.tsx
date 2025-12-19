@@ -84,14 +84,14 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
     <div className="space-y-6">
       {/* User's Position (if not in top 10) */}
       {userRank && userRank.rank > 10 && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h4 className="font-medium text-blue-900 mb-2">{t('yourPosition')}</h4>
+        <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl backdrop-blur-sm">
+          <h4 className="font-medium text-blue-600 dark:text-blue-400 mb-2">{t('yourPosition')}</h4>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               {getRankIcon(userRank.rank)}
               <div>
-                <p className="font-semibold">{userRank.wallet_address?.slice(0, 8)}...{userRank.wallet_address?.slice(-6)}</p>
-                <p className="text-sm text-blue-700">{userRank.total_cgc_earned.toFixed(2)} CGC</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{userRank.wallet_address?.slice(0, 8)}...{userRank.wallet_address?.slice(-6)}</p>
+                <p className="text-sm text-blue-600 dark:text-blue-400">{userRank.total_cgc_earned.toFixed(2)} CGC</p>
               </div>
             </div>
             <Badge className={getLevelBadge('', userRank.total_cgc_earned).color}>
@@ -102,67 +102,67 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
       )}
 
       {/* Leaderboard Table */}
-      <div className="overflow-hidden rounded-lg border border-gray-200">
+      <div className="overflow-hidden rounded-xl border border-white/10 dark:border-white/5 backdrop-blur-sm">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-white/5 dark:bg-white/5">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                 {t('columns.rank')}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                 {t('columns.address')}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                 {t('columns.cgcEarned')}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                 {t('columns.tasks')}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                 {t('columns.level')}
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-white/5 dark:divide-white/5">
             {leaderboard.map((collaborator, index) => {
               const isUserRow = collaborator.wallet_address === userAddress
               const levelBadge = getLevelBadge('', collaborator.total_cgc_earned)
-              
+
               return (
-                <tr 
+                <tr
                   key={collaborator.wallet_address || collaborator.id}
-                  className={`hover:bg-gray-50 ${isUserRow ? 'bg-blue-50' : ''}`}
+                  className={`hover:bg-white/5 dark:hover:bg-white/5 transition-colors ${isUserRow ? 'bg-blue-500/10' : ''}`}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getRankIcon(collaborator.rank || index + 1)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <User className="w-4 h-4 text-gray-400 mr-2" />
+                      <User className="w-4 h-4 text-gray-400 dark:text-gray-500 mr-2" />
                       <div>
-                        <p className={`font-medium ${isUserRow ? 'text-blue-900' : 'text-gray-900'}`}>
+                        <p className={`font-medium ${isUserRow ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'}`}>
                           {collaborator.wallet_address?.slice(0, 8)}...{collaborator.wallet_address?.slice(-6)}
                         </p>
                         {collaborator.discord_username && (
-                          <p className="text-xs text-gray-500">Discord: {collaborator.discord_username}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Discord: {collaborator.discord_username}</p>
                         )}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <p className="font-semibold text-gray-900">
+                      <p className="font-semibold text-gray-900 dark:text-white">
                         {collaborator.total_cgc_earned.toFixed(2)} CGC
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         ~${(collaborator.total_cgc_earned * 0.1).toFixed(0)} USD
                       </p>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <p className="font-medium text-gray-900">{collaborator.tasks_completed}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="font-medium text-gray-900 dark:text-white">{collaborator.tasks_completed}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {collaborator.tasks_in_progress || 0} {t('inProgressLabel')}
                       </p>
                     </div>

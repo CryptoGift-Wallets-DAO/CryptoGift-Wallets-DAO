@@ -254,32 +254,42 @@ export function TaskCard({
       <CardFooter className="flex-col space-y-2">
         {task.status === 'available' && (
           <div className="flex w-full gap-2">
-            <Button
+            <button
               onClick={onViewDetails}
-              variant="outline"
-              className="flex-1 min-w-0 whitespace-nowrap"
+              className="flex-1 min-w-0 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+                bg-white/10 dark:bg-white/5 backdrop-blur-md
+                border border-white/20 dark:border-white/10
+                text-gray-700 dark:text-gray-200
+                hover:bg-white/20 dark:hover:bg-white/10 hover:border-white/30 dark:hover:border-white/20
+                transition-all duration-200 font-medium"
             >
-              <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
+              <FileText className="w-4 h-4 flex-shrink-0" />
               <span className="truncate">{tCommon('details')}</span>
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={showClaimModal ? () => setIsClaimModalOpen(true) : onClaim}
               disabled={!canClaim || isClaimingTask}
-              className="flex-1 min-w-0 whitespace-nowrap"
-              variant="default"
+              className="flex-1 min-w-0 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
+                bg-gradient-to-r from-cyan-500 to-blue-600
+                hover:from-cyan-400 hover:to-blue-500
+                text-white font-semibold
+                shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40
+                border border-cyan-400/30
+                transition-all duration-200
+                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-cyan-500/25"
             >
               {isClaimingTask ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 flex-shrink-0 animate-spin" />
+                  <Loader2 className="w-4 h-4 flex-shrink-0 animate-spin" />
                   <span className="truncate">{t('claiming')}</span>
                 </>
               ) : (
                 <>
-                  <TrendingUp className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <TrendingUp className="w-4 h-4 flex-shrink-0" />
                   <span className="truncate">{t('claimTask')}</span>
                 </>
               )}
-            </Button>
+            </button>
           </div>
         )}
 
