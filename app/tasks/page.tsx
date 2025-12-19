@@ -8,7 +8,7 @@
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { useAccount } from '@/lib/thirdweb'
 import { useCGCBalance } from '@/lib/web3/hooks'
@@ -17,10 +17,9 @@ import { TasksInProgress } from '@/components/tasks/TasksInProgress'
 import { TaskProposal } from '@/components/tasks/TaskProposal'
 import { LeaderboardTable } from '@/components/leaderboard/LeaderboardTable'
 import { StatsOverview } from '@/components/leaderboard/StatsOverview'
-import { TaskDomainNav } from '@/components/tasks/TaskDomainNav'
 import { TaskCategoryChips } from '@/components/tasks/TaskCategoryChips'
 import { FeaturedTasks } from '@/components/tasks/FeaturedTasks'
-import type { TaskDomain, TaskCategory } from '@/lib/tasks/task-constants'
+import type { TaskCategory } from '@/lib/tasks/task-constants'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -81,43 +80,51 @@ export default function TasksPage() {
   const [refreshKey, setRefreshKey] = useState(0)
   const [selectedTab, setSelectedTab] = useState('available')
 
-  // Domain/Category filters for Task System v2.0
-  const [selectedDomain, setSelectedDomain] = useState<TaskDomain | null>(null)
+  // Category filters for Task System v2.0
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory | null>(null)
-  const [domainStats, setDomainStats] = useState<Record<string, number>>({})
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
   const [allTasks, setAllTasks] = useState<any[]>([])
+
+  // Ref for scrolling to task list when clicking featured tasks
+  const taskListRef = useRef<HTMLDivElement>(null)
+  const [selectedTaskIdFromFeatured, setSelectedTaskIdFromFeatured] = useState<string | null>(null)
 
   // Load statistics
   useEffect(() => {
     loadStatistics()
   }, [address])
 
-  // Reload when domain/category changes
+  // Reload when category changes
   useEffect(() => {
     loadStatistics()
-  }, [selectedDomain, selectedCategory])
+  }, [selectedCategory])
 
-  // Handle domain change - reset category when domain changes
-  const handleDomainChange = (domain: TaskDomain | null) => {
-    setSelectedDomain(domain)
-    setSelectedCategory(null) // Reset category when domain changes
-  }
-
-  // Handle task click for featured tasks
+  // Handle task click for featured tasks - scrolls to list and opens details
   const handleFeaturedTaskClick = (task: any) => {
     setSelectedTab('available')
-    // Task details modal could be opened here
+    setSelectedTaskIdFromFeatured(task.task_id)
+
+    // Scroll to task list section with smooth animation
+    setTimeout(() => {
+      taskListRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
+    }, 100)
+  }
+
+  // Clear selected task after modal is opened
+  const handleTaskDetailsOpened = () => {
+    setSelectedTaskIdFromFeatured(null)
   }
 
   const loadStatistics = async () => {
     try {
       setIsLoading(true)
 
-      // Build filter query for domain/category
+      // Build filter query for category
       const filterParams = new URLSearchParams()
       filterParams.set('status', 'available')
-      if (selectedDomain) filterParams.set('domain', selectedDomain)
       if (selectedCategory) filterParams.set('category', selectedCategory)
 
       // Fetch tasks statistics
@@ -131,10 +138,7 @@ export default function TasksPage() {
       const progressData = await progressRes.json()
       const leaderboardData = await leaderboardRes.json()
 
-      // Store domain stats and tasks for filtering
-      if (availableData.domainStats) {
-        setDomainStats(availableData.domainStats)
-      }
+      // Store tasks and calculate category counts
       if (availableData.data) {
         setAllTasks(availableData.data)
         // Calculate category counts from tasks
@@ -275,18 +279,6 @@ export default function TasksPage() {
           />
         </div>
 
-        {/* Domain Navigation - Task System v2.0 */}
-        <div
-          className="mt-6"
-          style={{ animation: 'fade-in 0.6s ease-out 0.15s backwards' }}
-        >
-          <TaskDomainNav
-            selectedDomain={selectedDomain}
-            onDomainChange={handleDomainChange}
-            taskCounts={domainStats}
-          />
-        </div>
-
         {/* Tabs Container */}
         <div
           className="mt-8"
@@ -332,14 +324,17 @@ export default function TasksPage() {
               {/* Category Filter Chips - Task System v2.0 */}
               <div className="mb-6">
                 <TaskCategoryChips
-                  selectedDomain={selectedDomain}
+                  selectedDomain={null}
                   selectedCategory={selectedCategory}
                   onCategoryChange={setSelectedCategory}
                   categoryCounts={categoryCounts}
                 />
               </div>
 
-              <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl backdrop-blur-sm">
+              <div
+                ref={taskListRef}
+                className="bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl backdrop-blur-sm scroll-mt-4"
+              >
                 {/* Card Header */}
                 <div className="px-6 py-4 border-b border-white/10">
                   <div className="flex items-center justify-between">
@@ -370,8 +365,9 @@ export default function TasksPage() {
                       success(t('toasts.taskClaimed'), t('toasts.taskClaimedDesc'))
                       handleRefresh()
                     }}
-                    domain={selectedDomain}
                     category={selectedCategory}
+                    initialSelectedTaskId={selectedTaskIdFromFeatured}
+                    onTaskDetailsOpened={handleTaskDetailsOpened}
                   />
                 </div>
               </div>

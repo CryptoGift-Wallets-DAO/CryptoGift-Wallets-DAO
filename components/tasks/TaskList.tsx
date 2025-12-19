@@ -33,9 +33,19 @@ interface TaskListProps {
   onTaskClaimed?: (taskId: string) => void
   domain?: TaskDomain | null
   category?: TaskCategory | null
+  initialSelectedTaskId?: string | null
+  onTaskDetailsOpened?: () => void
 }
 
-export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed, domain, category }: TaskListProps) {
+export function TaskList({
+  userAddress,
+  refreshKey = 0,
+  onTaskClaimed,
+  domain,
+  category,
+  initialSelectedTaskId,
+  onTaskDetailsOpened
+}: TaskListProps) {
   // 🌐 Translation hooks
   const t = useTranslations('tasks.list')
   const tCommon = useTranslations('common')
@@ -56,6 +66,17 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed, domain, c
   useEffect(() => {
     loadTasks()
   }, [refreshKey, domain, category])
+
+  // Handle initial selected task from FeaturedTasks click
+  useEffect(() => {
+    if (initialSelectedTaskId && tasks.length > 0) {
+      const taskToOpen = tasks.find(t => t.task_id === initialSelectedTaskId)
+      if (taskToOpen) {
+        setSelectedTaskForDetails(taskToOpen)
+        onTaskDetailsOpened?.()
+      }
+    }
+  }, [initialSelectedTaskId, tasks])
 
   useEffect(() => {
     filterAndSortTasks()
