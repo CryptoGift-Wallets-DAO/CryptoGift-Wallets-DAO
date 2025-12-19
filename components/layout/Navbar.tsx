@@ -66,7 +66,7 @@ export const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="bg-white dark:bg-slate-900 shadow-lg sticky top-0 z-40 transition-colors duration-300 border-b border-gray-200 dark:border-slate-700">
+    <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-lg sticky top-0 z-40 transition-colors duration-300 border-b border-gray-200/50 dark:border-slate-700/50">
       <div className="container mx-auto px-2">
         <div className="flex justify-between items-center py-4">
           {/* Logo and Brand */}

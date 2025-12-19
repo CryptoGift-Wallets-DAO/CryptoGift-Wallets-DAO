@@ -103,14 +103,14 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen theme-gradient-bg text-gray-900 dark:text-white overflow-hidden">
+    <div className="min-h-screen theme-gradient-bg text-gray-900 dark:text-white">
       <style jsx>{animations}</style>
 
-      {/* Subtle animated background elements */}
+      {/* Animated background elements - intense pulsing like Funding page */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-48 h-48 bg-cyan-500/10 dark:bg-cyan-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-60 right-20 w-64 h-64 bg-purple-500/10 dark:bg-purple-500/15 rounded-full blur-3xl" style={{ animation: 'float 8s ease-in-out infinite' }} />
-        <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-blue-500/10 dark:bg-blue-500/15 rounded-full blur-3xl" style={{ animation: 'float 10s ease-in-out infinite 2s' }} />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-400 dark:bg-cyan-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-30 dark:opacity-40 animate-pulse" />
+        <div className="absolute top-60 right-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-30 dark:opacity-40 animate-pulse" />
+        <div className="absolute bottom-40 left-1/4 w-72 h-72 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-30 dark:opacity-40 animate-pulse" />
       </div>
 
       <Navbar />
@@ -187,25 +187,54 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* STATS SECTION */}
+      {/* STATS SECTION - Verified Beta Metrics */}
       <section className="relative py-10 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
             {[
-              { icon: Users, label: t('stats.community'), value: '85.7%', color: 'blue' },
-              { icon: GraduationCap, label: t('stats.tasksCompleted'), value: '674+', color: 'green' },
-              { icon: Wallet, label: t('stats.distributed'), value: '2M CGC', color: 'purple' },
-              { icon: Award, label: t('stats.milestones'), value: '104', color: 'yellow' },
+              { icon: Users, label: t('stats.community'), value: '85.7%', color: 'blue', link: null },
+              { icon: GraduationCap, label: t('stats.tasksCompleted'), value: '682+', color: 'green', link: 'https://sepolia.basescan.org/address/0x46175CfC233500DA803841DEef7f2816e7A129E0' },
+              { icon: Wallet, label: t('stats.distributed'), value: '2M CGC', color: 'purple', link: 'https://basescan.org/address/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175' },
+              { icon: Award, label: t('stats.milestones'), value: '139', color: 'yellow', link: null },
             ].map((stat, i) => (
-              <div
-                key={i}
-                className="p-4 rounded-xl glass-crystal hover:scale-105 transition-all"
-              >
-                <stat.icon className={`w-6 h-6 text-${stat.color}-500 mb-2`} />
-                <div className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-0.5">{stat.value}</div>
-                <div className="text-gray-500 dark:text-gray-400 text-xs">{stat.label}</div>
-              </div>
+              stat.link ? (
+                <a
+                  key={i}
+                  href={stat.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 rounded-xl glass-crystal hover:scale-105 transition-all cursor-pointer group"
+                >
+                  <stat.icon className={`w-6 h-6 text-${stat.color}-500 mb-2`} />
+                  <div className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-0.5 group-hover:text-blue-500 transition-colors">{stat.value}</div>
+                  <div className="text-gray-500 dark:text-gray-400 text-xs flex items-center gap-1">
+                    {stat.label}
+                    <span className="text-blue-500 text-[10px]">↗</span>
+                  </div>
+                </a>
+              ) : (
+                <div
+                  key={i}
+                  className="p-4 rounded-xl glass-crystal hover:scale-105 transition-all"
+                >
+                  <stat.icon className={`w-6 h-6 text-${stat.color}-500 mb-2`} />
+                  <div className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-0.5">{stat.value}</div>
+                  <div className="text-gray-500 dark:text-gray-400 text-xs">{stat.label}</div>
+                </div>
+              )
             ))}
+          </div>
+          {/* Verification badge */}
+          <div className="mt-4 text-center">
+            <a
+              href="https://sepolia.basescan.org/address/0x46175CfC233500DA803841DEef7f2816e7A129E0"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500/10 rounded-full text-xs text-green-600 dark:text-green-400 hover:bg-green-500/20 transition-colors"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              {t('stats.verified')}
+            </a>
           </div>
         </div>
       </section>

@@ -152,17 +152,11 @@ export default function TasksPage() {
     <div className="min-h-screen theme-gradient-bg text-gray-900 dark:text-white overflow-hidden">
       <style jsx>{pageAnimations}</style>
 
-      {/* Subtle animated background elements - exactly like Home */}
+      {/* Animated background elements - intense pulsing like Funding page */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-48 h-48 bg-cyan-500/10 dark:bg-cyan-500/20 rounded-full blur-3xl" />
-        <div
-          className="absolute top-60 right-20 w-64 h-64 bg-purple-500/10 dark:bg-purple-500/15 rounded-full blur-3xl"
-          style={{ animation: 'float 8s ease-in-out infinite' }}
-        />
-        <div
-          className="absolute bottom-40 left-1/4 w-40 h-40 bg-blue-500/10 dark:bg-blue-500/15 rounded-full blur-3xl"
-          style={{ animation: 'float 10s ease-in-out infinite 2s' }}
-        />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-400 dark:bg-cyan-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-30 dark:opacity-40 animate-pulse" />
+        <div className="absolute top-60 right-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-30 dark:opacity-40 animate-pulse" />
+        <div className="absolute bottom-40 left-1/4 w-72 h-72 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-30 dark:opacity-40 animate-pulse" />
       </div>
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
