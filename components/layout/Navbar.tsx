@@ -377,14 +377,10 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
                   className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors text-left"
                   onClick={() => setShowDropdown(false)}
                 >
-                  <Image
-                    src="/default-avatar.png"
-                    alt="Profile"
-                    width={16}
-                    height={16}
-                    className="w-4 h-4 rounded-full object-cover"
-                  />
-                  <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{tWallet('profile') || 'Profile'}</span>
+                  <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+                    <User className="w-2.5 h-2.5 text-white" />
+                  </div>
+                  <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{tWallet('profile')}</span>
                 </Link>
 
                 <button

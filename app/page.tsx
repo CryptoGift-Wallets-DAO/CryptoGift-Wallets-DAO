@@ -106,11 +106,11 @@ export default function LandingPage() {
     <div className="min-h-screen theme-gradient-bg text-gray-900 dark:text-white">
       <style jsx>{animations}</style>
 
-      {/* Animated background elements - intense pulsing like Funding page */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-400 dark:bg-cyan-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-30 dark:opacity-40 animate-pulse" />
-        <div className="absolute top-60 right-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-30 dark:opacity-40 animate-pulse" />
-        <div className="absolute bottom-40 left-1/4 w-72 h-72 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-30 dark:opacity-40 animate-pulse" />
+      {/* Animated background elements - exactly like Funding page */}
+      <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-400 dark:bg-cyan-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse" />
+        <div className="absolute top-60 right-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse" />
+        <div className="absolute bottom-40 left-1/4 w-72 h-72 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse" />
       </div>
 
       <Navbar />

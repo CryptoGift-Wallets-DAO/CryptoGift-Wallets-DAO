@@ -245,20 +245,8 @@ export function CGCAccessGate({
     )
   }
 
-  // Access granted - show protected content
-  return (
-    <div>
-      {/* Optional success indicator */}
-      <div className="mb-4">
-        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-          <Coins className="h-3 w-3 mr-1" />
-          CGC Access: {formatted} CGC
-        </Badge>
-      </div>
-
-      {children}
-    </div>
-  )
+  // Access granted - show protected content directly (no badge needed, info shown in wallet dropdown)
+  return <>{children}</>
 }
 
 /**
