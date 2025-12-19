@@ -85,6 +85,12 @@ export function useAutoTranslate(
 
     async function translate() {
       try {
+        console.log('[useAutoTranslate] Starting translation:', {
+          text: text?.substring(0, 50),
+          targetLocale: locale,
+          cacheKey,
+        });
+
         const response = await fetch('/api/translate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -93,14 +99,28 @@ export function useAutoTranslate(
         });
 
         if (!response.ok) {
-          throw new Error('Translation failed');
+          const errorText = await response.text();
+          console.error('[useAutoTranslate] API error:', response.status, errorText);
+          throw new Error(`Translation failed: ${response.status}`);
         }
 
         const data = await response.json();
+        console.log('[useAutoTranslate] API response:', {
+          success: data.success,
+          original: data.original?.substring(0, 30),
+          translation: data.translation?.substring(0, 30),
+          from: data.from,
+          to: data.to,
+        });
 
         // Only update if the text hasn't changed
         if (textRef.current === text) {
           const result = data.translation || text;
+          const wasTranslated = result !== text;
+          console.log('[useAutoTranslate] Result:', {
+            wasTranslated,
+            caching: true,
+          });
           clientCache.set(cacheKey, result);
           setTranslatedText(result);
         }
@@ -108,7 +128,7 @@ export function useAutoTranslate(
         if (err instanceof Error && err.name === 'AbortError') {
           return; // Ignored - component unmounted
         }
-        console.error('Translation error:', err);
+        console.error('[useAutoTranslate] Translation error:', err);
         setError(err instanceof Error ? err.message : 'Translation failed');
         // Fallback to original text
         setTranslatedText(text || '');

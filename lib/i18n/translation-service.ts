@@ -14,11 +14,16 @@
  */
 
 // Available Lingva instances (fallback if one is down)
+// Updated December 2025 with active instances
 const LINGVA_INSTANCES = [
-  'https://lingva.ml',
+  'https://lingva.lunar.icu',
+  'https://lingva.thedaviddelta.com',
   'https://translate.plausibility.cloud',
   'https://lingva.garuber.eu',
 ];
+
+// MyMemory API as ultimate fallback (free, no API key, 5000 chars/day)
+const MYMEMORY_API = 'https://api.mymemory.translated.net/get';
 
 // In-memory cache for translations (per session)
 const translationCache = new Map<string, string>();
@@ -72,13 +77,17 @@ export async function translateText(
   from: string = 'auto',
   to: string = 'es'
 ): Promise<string> {
+  console.log('[translateText] Called with:', { textLength: text?.length, from, to });
+
   // Don't translate empty text
   if (!text || text.trim().length === 0) {
+    console.log('[translateText] Empty text, skipping');
     return text;
   }
 
   // Don't translate if source and target are the same
   if (from === to) {
+    console.log('[translateText] Source equals target, skipping');
     return text;
   }
 
@@ -86,14 +95,18 @@ export async function translateText(
   const cacheKey = getCacheKey(text, from, to);
   const cached = translationCache.get(cacheKey);
   if (cached) {
+    console.log('[translateText] Cache hit:', { cacheKey: cacheKey.substring(0, 30) });
     return cached;
   }
+
+  console.log('[translateText] No cache, trying Lingva instances...');
 
   // Try each Lingva instance until one works
   for (const baseUrl of LINGVA_INSTANCES) {
     try {
       const encodedText = encodeURIComponent(text);
       const url = `${baseUrl}/api/v1/${from}/${to}/${encodedText}`;
+      console.log('[translateText] Trying:', baseUrl);
 
       const response = await fetch(url, {
         method: 'GET',
@@ -105,26 +118,64 @@ export async function translateText(
       });
 
       if (!response.ok) {
-        console.warn(`Lingva instance ${baseUrl} returned ${response.status}`);
+        console.warn(`[translateText] ${baseUrl} returned ${response.status}`);
         continue;
       }
 
       const data = await response.json();
+      console.log('[translateText] Response from', baseUrl, ':', {
+        hasTranslation: !!data.translation,
+        translationPreview: data.translation?.substring(0, 30),
+      });
 
       if (data.translation) {
         // Cache the result
         translationCache.set(cacheKey, data.translation);
+        console.log('[translateText] SUCCESS - Cached and returning translation');
         return data.translation;
       }
     } catch (error) {
-      console.warn(`Lingva instance ${baseUrl} failed:`, error);
+      console.warn(`[translateText] ${baseUrl} failed:`, error instanceof Error ? error.message : error);
       // Try next instance
       continue;
     }
   }
 
+  // All Lingva instances failed, try MyMemory as fallback
+  console.log('[translateText] All Lingva instances failed, trying MyMemory fallback...');
+  try {
+    const langPair = `${from}|${to}`;
+    const url = `${MYMEMORY_API}?q=${encodeURIComponent(text)}&langpair=${langPair}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('[translateText] MyMemory response:', {
+        status: data.responseStatus,
+        hasTranslation: !!data.responseData?.translatedText,
+      });
+
+      if (data.responseStatus === 200 && data.responseData?.translatedText) {
+        const translation = data.responseData.translatedText;
+        // Don't cache "INVALID LANGUAGE PAIR" or similar errors
+        if (!translation.toLowerCase().includes('invalid') && translation !== text) {
+          translationCache.set(cacheKey, translation);
+          console.log('[translateText] MyMemory SUCCESS - Cached and returning translation');
+          return translation;
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('[translateText] MyMemory fallback failed:', error instanceof Error ? error.message : error);
+  }
+
   // All instances failed, return original text
-  console.error('All Lingva instances failed, returning original text');
+  console.error('[translateText] ALL TRANSLATION METHODS FAILED - returning original text');
   return text;
 }
 
@@ -140,15 +191,26 @@ export async function translateToLocale(
   text: string,
   targetLocale: 'en' | 'es'
 ): Promise<string> {
+  console.log('[translateToLocale] Called:', {
+    textPreview: text?.substring(0, 50),
+    targetLocale,
+  });
+
   if (!text || text.trim().length === 0) {
+    console.log('[translateToLocale] Empty text, returning as-is');
     return text;
   }
 
   // Detect source language
   const sourceLanguage = detectLanguage(text);
+  console.log('[translateToLocale] Language detection:', {
+    detected: sourceLanguage,
+    target: targetLocale,
+  });
 
   // If already in target language, return as-is
   if (sourceLanguage === targetLocale) {
+    console.log('[translateToLocale] Already in target language, skipping translation');
     return text;
   }
 
@@ -157,6 +219,7 @@ export async function translateToLocale(
     ? (targetLocale === 'es' ? 'en' : 'es')
     : sourceLanguage;
 
+  console.log('[translateToLocale] Will translate from:', from, 'to:', targetLocale);
   return translateText(text, from, targetLocale);
 }
 
