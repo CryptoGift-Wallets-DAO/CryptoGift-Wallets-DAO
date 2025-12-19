@@ -129,7 +129,7 @@ export function TaskCard({
   }, [task.status, task.created_at, task.estimated_days, task.claimed_at, showProgress])
 
   return (
-    <Card className="bg-white/5 dark:bg-white/[0.02] border border-white/10 hover:border-white/20 backdrop-blur-sm hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 spring-in">
+    <Card className="bg-gradient-to-br from-slate-800/50 to-slate-900/60 border border-white/10 hover:border-white/20 backdrop-blur-sm hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 spring-in">
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between mb-2">
           <Badge variant="outline" className={`${getComplexityColor()} border-0`}>
