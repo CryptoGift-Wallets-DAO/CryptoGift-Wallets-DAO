@@ -147,7 +147,7 @@ export function TaskDetailsModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <style jsx>{modalAnimations}</style>
 
-      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col overflow-hidden border-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl">
+      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col overflow-hidden bg-slate-900/80 backdrop-blur-xl border border-white/[0.08] shadow-2xl shadow-black/50">
         {/* Animated background gradient */}
         <div className="absolute inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden rounded-lg">
           <div

@@ -91,7 +91,7 @@ export function TaskClaimModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900/80 backdrop-blur-xl border border-white/[0.08] shadow-2xl shadow-black/50">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-3 text-xl">
             {getPlatformIcon()}
