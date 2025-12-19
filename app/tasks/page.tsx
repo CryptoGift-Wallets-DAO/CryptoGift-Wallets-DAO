@@ -237,9 +237,9 @@ export default function TasksPage() {
           style={{ animation: 'fade-in 0.6s ease-out 0.2s backwards' }}
         >
           <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-            {/* Tab List - Clean glass-crystal */}
-            <div className="glass-crystal p-1.5 rounded-2xl shadow-lg mb-6">
-              <TabsList className="grid w-full grid-cols-4 bg-transparent gap-1">
+            {/* Tab List - Same style as stats cards */}
+            <div className="glass-panel p-2 rounded-2xl shadow-lg mb-6">
+              <TabsList className="grid w-full grid-cols-4 bg-transparent gap-2 h-auto">
                 {[
                   { value: 'available', icon: Target, label: t('tabs.available'), color: 'from-blue-500 to-cyan-500' },
                   { value: 'progress', icon: Clock, label: t('tabs.inProgress'), color: 'from-amber-500 to-orange-500' },
@@ -249,10 +249,10 @@ export default function TasksPage() {
                   <TabsTrigger
                     key={tab.value}
                     value={tab.value}
-                    className={`flex items-center justify-center gap-1.5 py-3 px-4 rounded-xl font-medium text-sm transition-all duration-300
+                    className={`flex items-center justify-center gap-2 h-11 px-4 rounded-xl font-medium text-sm transition-all duration-300
                       data-[state=active]:text-white data-[state=active]:shadow-md
-                      data-[state=inactive]:text-gray-600 dark:data-[state=inactive]:text-gray-400
-                      data-[state=inactive]:hover:bg-gray-100/50 dark:data-[state=inactive]:hover:bg-white/5
+                      data-[state=inactive]:text-gray-400 dark:data-[state=inactive]:text-gray-400
+                      data-[state=inactive]:hover:bg-white/10 dark:data-[state=inactive]:hover:bg-white/10
                       ${selectedTab === tab.value ? `bg-gradient-to-r ${tab.color}` : 'bg-transparent'}`}
                   >
                     <tab.icon className="w-4 h-4 flex-shrink-0" />
@@ -264,7 +264,7 @@ export default function TasksPage() {
 
             {/* Available Tasks Tab */}
             <TabsContent value="available">
-              <div className="glass-crystal-enhanced rounded-2xl overflow-hidden shadow-xl">
+              <div className="glass-panel rounded-2xl overflow-hidden shadow-xl">
                 {/* Card Header */}
                 <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/10">
                   <div className="flex items-center justify-between">
@@ -301,7 +301,7 @@ export default function TasksPage() {
 
               {/* Admin: Initialize Tasks Button */}
               {stats.availableTasks === 0 && (
-                <div className="mt-6 glass-crystal-enhanced rounded-2xl p-6 border-l-4 border-amber-400">
+                <div className="mt-6 glass-panel rounded-2xl p-6 border-l-4 border-amber-400">
                   <div className="flex items-start space-x-4">
                     <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/30">
                       <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -329,7 +329,7 @@ export default function TasksPage() {
 
             {/* In Progress Tab */}
             <TabsContent value="progress">
-              <div className="glass-crystal-enhanced rounded-2xl overflow-hidden shadow-xl">
+              <div className="glass-panel rounded-2xl overflow-hidden shadow-xl">
                 <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/10">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -366,7 +366,7 @@ export default function TasksPage() {
 
             {/* Leaderboard Tab */}
             <TabsContent value="leaderboard">
-              <div className="glass-crystal-enhanced rounded-2xl overflow-hidden shadow-xl">
+              <div className="glass-panel rounded-2xl overflow-hidden shadow-xl">
                 <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/10">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -399,7 +399,7 @@ export default function TasksPage() {
 
             {/* Propose Task Tab */}
             <TabsContent value="propose">
-              <div className="glass-crystal-enhanced rounded-2xl overflow-hidden shadow-xl">
+              <div className="glass-panel rounded-2xl overflow-hidden shadow-xl">
                 <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/10">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 shadow-md">
