@@ -253,30 +253,30 @@ export function TaskCard({
 
       <CardFooter className="flex-col space-y-2">
         {task.status === 'available' && (
-          <div className="flex w-full space-x-2">
+          <div className="flex w-full gap-2">
             <Button
               onClick={onViewDetails}
               variant="outline"
-              className="flex-1"
+              className="flex-1 min-w-0 whitespace-nowrap"
             >
-              <FileText className="w-4 h-4 mr-2" />
-              {tCommon('details')}
+              <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="truncate">{tCommon('details')}</span>
             </Button>
             <Button
               onClick={showClaimModal ? () => setIsClaimModalOpen(true) : onClaim}
               disabled={!canClaim || isClaimingTask}
-              className="flex-1"
+              className="flex-1 min-w-0 whitespace-nowrap"
               variant="default"
             >
               {isClaimingTask ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {t('claiming')}
+                  <Loader2 className="w-4 h-4 mr-2 flex-shrink-0 animate-spin" />
+                  <span className="truncate">{t('claiming')}</span>
                 </>
               ) : (
                 <>
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  {t('claimTask')}
+                  <TrendingUp className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">{t('claimTask')}</span>
                 </>
               )}
             </Button>
