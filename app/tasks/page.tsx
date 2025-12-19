@@ -17,6 +17,10 @@ import { TasksInProgress } from '@/components/tasks/TasksInProgress'
 import { TaskProposal } from '@/components/tasks/TaskProposal'
 import { LeaderboardTable } from '@/components/leaderboard/LeaderboardTable'
 import { StatsOverview } from '@/components/leaderboard/StatsOverview'
+import { TaskDomainNav } from '@/components/tasks/TaskDomainNav'
+import { TaskCategoryChips } from '@/components/tasks/TaskCategoryChips'
+import { FeaturedTasks } from '@/components/tasks/FeaturedTasks'
+import type { TaskDomain, TaskCategory } from '@/lib/tasks/task-constants'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -77,18 +81,48 @@ export default function TasksPage() {
   const [refreshKey, setRefreshKey] = useState(0)
   const [selectedTab, setSelectedTab] = useState('available')
 
+  // Domain/Category filters for Task System v2.0
+  const [selectedDomain, setSelectedDomain] = useState<TaskDomain | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<TaskCategory | null>(null)
+  const [domainStats, setDomainStats] = useState<Record<string, number>>({})
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
+  const [allTasks, setAllTasks] = useState<any[]>([])
+
   // Load statistics
   useEffect(() => {
     loadStatistics()
   }, [address])
 
+  // Reload when domain/category changes
+  useEffect(() => {
+    loadStatistics()
+  }, [selectedDomain, selectedCategory])
+
+  // Handle domain change - reset category when domain changes
+  const handleDomainChange = (domain: TaskDomain | null) => {
+    setSelectedDomain(domain)
+    setSelectedCategory(null) // Reset category when domain changes
+  }
+
+  // Handle task click for featured tasks
+  const handleFeaturedTaskClick = (task: any) => {
+    setSelectedTab('available')
+    // Task details modal could be opened here
+  }
+
   const loadStatistics = async () => {
     try {
       setIsLoading(true)
 
+      // Build filter query for domain/category
+      const filterParams = new URLSearchParams()
+      filterParams.set('status', 'available')
+      if (selectedDomain) filterParams.set('domain', selectedDomain)
+      if (selectedCategory) filterParams.set('category', selectedCategory)
+
       // Fetch tasks statistics
       const [availableRes, progressRes, leaderboardRes] = await Promise.all([
-        fetch('/api/tasks?status=available'),
+        fetch(`/api/tasks?${filterParams.toString()}`),
         fetch('/api/tasks?status=in_progress'),
         fetch(`/api/leaderboard${address ? `?address=${address}` : ''}`),
       ])
@@ -96,6 +130,22 @@ export default function TasksPage() {
       const availableData = await availableRes.json()
       const progressData = await progressRes.json()
       const leaderboardData = await leaderboardRes.json()
+
+      // Store domain stats and tasks for filtering
+      if (availableData.domainStats) {
+        setDomainStats(availableData.domainStats)
+      }
+      if (availableData.data) {
+        setAllTasks(availableData.data)
+        // Calculate category counts from tasks
+        const catCounts: Record<string, number> = {}
+        availableData.data.forEach((task: any) => {
+          if (task.category) {
+            catCounts[task.category] = (catCounts[task.category] || 0) + 1
+          }
+        })
+        setCategoryCounts(catCounts)
+      }
 
       setStats({
         availableTasks: availableData.count || 0,
@@ -225,6 +275,18 @@ export default function TasksPage() {
           />
         </div>
 
+        {/* Domain Navigation - Task System v2.0 */}
+        <div
+          className="mt-6"
+          style={{ animation: 'fade-in 0.6s ease-out 0.15s backwards' }}
+        >
+          <TaskDomainNav
+            selectedDomain={selectedDomain}
+            onDomainChange={handleDomainChange}
+            taskCounts={domainStats}
+          />
+        </div>
+
         {/* Tabs Container */}
         <div
           className="mt-8"
@@ -258,6 +320,25 @@ export default function TasksPage() {
 
             {/* Available Tasks Tab */}
             <TabsContent value="available">
+              {/* Featured & Urgent Tasks - Task System v2.0 */}
+              {allTasks.length > 0 && (
+                <FeaturedTasks
+                  tasks={allTasks}
+                  onTaskClick={handleFeaturedTaskClick}
+                  className="mb-6"
+                />
+              )}
+
+              {/* Category Filter Chips - Task System v2.0 */}
+              <div className="mb-6">
+                <TaskCategoryChips
+                  selectedDomain={selectedDomain}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                  categoryCounts={categoryCounts}
+                />
+              </div>
+
               <div className="glass-panel rounded-2xl overflow-hidden shadow-xl">
                 {/* Card Header */}
                 <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/10">
@@ -289,6 +370,8 @@ export default function TasksPage() {
                       success(t('toasts.taskClaimed'), t('toasts.taskClaimedDesc'))
                       handleRefresh()
                     }}
+                    domain={selectedDomain}
+                    category={selectedCategory}
                   />
                 </div>
               </div>

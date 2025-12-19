@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select'
 import { Search, Filter, Loader2 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
+import type { TaskDomain, TaskCategory } from '@/lib/tasks/task-constants'
 // Web3 hooks removed - TaskService handles blockchain integration
 import { useAccount } from '@/lib/thirdweb'
 import { ensureEthereumAddress } from '@/lib/utils'
@@ -30,9 +31,11 @@ interface TaskListProps {
   userAddress?: string
   refreshKey?: number
   onTaskClaimed?: (taskId: string) => void
+  domain?: TaskDomain | null
+  category?: TaskCategory | null
 }
 
-export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskListProps) {
+export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed, domain, category }: TaskListProps) {
   // 🌐 Translation hooks
   const t = useTranslations('tasks.list')
   const tCommon = useTranslations('common')
@@ -52,7 +55,7 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
 
   useEffect(() => {
     loadTasks()
-  }, [refreshKey])
+  }, [refreshKey, domain, category])
 
   useEffect(() => {
     filterAndSortTasks()
@@ -61,9 +64,17 @@ export function TaskList({ userAddress, refreshKey = 0, onTaskClaimed }: TaskLis
   const loadTasks = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch(`/api/tasks?status=available${userAddress ? `&address=${userAddress}` : ''}`)
+
+      // Build query params with domain/category filters
+      const params = new URLSearchParams()
+      params.set('status', 'available')
+      if (userAddress) params.set('address', userAddress)
+      if (domain) params.set('domain', domain)
+      if (category) params.set('category', category)
+
+      const response = await fetch(`/api/tasks?${params.toString()}`)
       const data = await response.json()
-      
+
       if (data.success) {
         setTasks(data.data || [])
       }
