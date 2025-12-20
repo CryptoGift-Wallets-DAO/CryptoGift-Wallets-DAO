@@ -8,7 +8,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -55,10 +55,21 @@ export function TaskCard({
   const t = useTranslations('tasks.card')
   const tTasks = useTranslations('tasks')
   const tCommon = useTranslations('common')
+  const locale = useLocale()
   const { translate } = useTaskTranslation()
 
-  // Get translated task content
-  const translatedTask = translate(task.title, task.description)
+  // Get translated task content from database first, then fallback to JSON translations
+  // This allows dynamic translations from DB without hardcoding in JSON files
+  const taskWithTranslations = task as Task & { title_es?: string; description_es?: string }
+
+  const translatedTask = {
+    title: locale === 'es' && taskWithTranslations.title_es
+      ? taskWithTranslations.title_es
+      : translate(task.title, task.description).title,
+    description: locale === 'es' && taskWithTranslations.description_es
+      ? taskWithTranslations.description_es
+      : translate(task.title, task.description).description
+  }
 
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
   // Get platform icon

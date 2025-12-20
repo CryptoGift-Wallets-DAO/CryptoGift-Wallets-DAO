@@ -1,7 +1,8 @@
 /**
  * 🏆 Leaderboard API Endpoint
- * 
- * Returns collaborator rankings
+ *
+ * Returns collaborator rankings with accurate statistics
+ * Statistics are sourced directly from tasks table (source of truth)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -31,15 +32,27 @@ export const GET = authHelpers.public(async (request: NextRequest) => {
       }
     }
 
-    // Calculate statistics
-    const totalCGCDistributed = leaderboard.reduce(
+    // Calculate statistics from collaborators
+    const collabCGC = leaderboard.reduce(
       (sum, c) => sum + c.total_cgc_earned,
       0
     )
-    const totalTasksCompleted = leaderboard.reduce(
+    const collabTasksCompleted = leaderboard.reduce(
       (sum, c) => sum + c.tasks_completed,
       0
     )
+
+    // Get accurate stats directly from tasks table (source of truth)
+    const completedTasks = await taskService.getCompletedTasks(1000)
+    const tasksCompletedFromDB = completedTasks.length
+    const cgcDistributedFromDB = completedTasks.reduce(
+      (sum, t) => sum + (t.reward_cgc || 0),
+      0
+    )
+
+    // Use the higher value (in case collaborators is outdated or tasks is more accurate)
+    const totalTasksCompleted = Math.max(collabTasksCompleted, tasksCompletedFromDB)
+    const totalCGCDistributed = Math.max(collabCGC, cgcDistributedFromDB)
 
     return NextResponse.json({
       success: true,
@@ -50,7 +63,7 @@ export const GET = authHelpers.public(async (request: NextRequest) => {
           totalCollaborators: leaderboard.length,
           totalCGCDistributed,
           totalTasksCompleted,
-          averageCGCPerCollaborator: 
+          averageCGCPerCollaborator:
             leaderboard.length > 0 ? totalCGCDistributed / leaderboard.length : 0,
         },
       },
