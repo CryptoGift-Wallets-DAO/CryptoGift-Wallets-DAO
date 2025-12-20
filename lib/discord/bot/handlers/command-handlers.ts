@@ -25,12 +25,24 @@ import {
 import { proposalVoteButtons, taskActionButtons, paginationButtons, helpButtons } from '../components/buttons'
 import { proposeModal, linkWalletModal } from '../components/modals'
 import * as proposalService from '../services/proposal-service'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy initialization to avoid build-time errors
+let _supabase: SupabaseClient | null = null
+
+function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!url || !key) {
+      throw new Error('Supabase configuration missing')
+    }
+
+    _supabase = createClient(url, key)
+  }
+  return _supabase
+}
 
 /**
  * Get option value from interaction
@@ -133,7 +145,7 @@ export async function handleTasks(
   const status = getOption(options, 'status')
 
   // Build query
-  let query = supabase.from('tasks').select('*').order('created_at', { ascending: false })
+  let query = getSupabase().from('tasks').select('*').order('created_at', { ascending: false })
 
   if (category && category !== 'all') {
     query = query.eq('category', category)
@@ -181,7 +193,7 @@ export async function handleTasks(
   }
 
   // Get total count for pagination
-  const { count } = await supabase
+  const { count } = await getSupabase()
     .from('tasks')
     .select('*', { count: 'exact', head: true })
     .eq('status', 'available')
@@ -240,7 +252,7 @@ export async function handleClaim(
   }
 
   // Get and verify task
-  const { data: task, error: taskError } = await supabase
+  const { data: task, error: taskError } = await getSupabase()
     .from('tasks')
     .select('*')
     .eq('task_id', taskId)
@@ -272,7 +284,7 @@ export async function handleClaim(
   }
 
   // Claim the task
-  const { error: claimError } = await supabase
+  const { error: claimError } = await getSupabase()
     .from('tasks')
     .update({
       status: 'in_progress',
@@ -412,7 +424,7 @@ export async function handleApprove(
   const taskReward = reward || proposal.suggested_reward || 100
   const taskComplexity = complexity || proposal.suggested_complexity || 3
 
-  const { data: newTask, error: taskError } = await supabase
+  const { data: newTask, error: taskError } = await getSupabase()
     .from('tasks')
     .insert({
       title: proposal.ai_refined_title || proposal.title,
@@ -562,7 +574,7 @@ export async function handleMyTasks(
     }
   }
 
-  const { data: tasks } = await supabase
+  const { data: tasks } = await getSupabase()
     .from('tasks')
     .select('*')
     .eq('assignee', wallet)
@@ -816,7 +828,7 @@ export async function handleStats(
   interaction: DiscordInteraction
 ): Promise<InteractionResponse> {
   // Get task stats
-  const { data: tasks } = await supabase.from('tasks').select('status, reward_cgc')
+  const { data: tasks } = await getSupabase().from('tasks').select('status, reward_cgc')
 
   type TaskRow = { status: string; reward_cgc: number | null }
   const taskStats = {
@@ -827,7 +839,7 @@ export async function handleStats(
   }
 
   // Get collaborator count (unique assignees)
-  const { data: assignees } = await supabase
+  const { data: assignees } = await getSupabase()
     .from('tasks')
     .select('assignee')
     .not('assignee', 'is', null)

@@ -6,17 +6,29 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import {
   syncTaskToDiscord,
   syncProposalToDiscord,
   isDiscordSyncConfigured,
 } from '@/lib/discord/bot/services/discord-sync-service'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy initialization to avoid build-time errors
+let _supabase: SupabaseClient | null = null
+
+function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!url || !key) {
+      throw new Error('Supabase configuration missing')
+    }
+
+    _supabase = createClient(url, key)
+  }
+  return _supabase
+}
 
 /**
  * POST /api/discord/sync
@@ -119,7 +131,7 @@ export async function GET(request: NextRequest) {
  */
 async function handleSyncNewTasks() {
   // Get tasks that haven't been synced to Discord
-  const { data: tasks, error } = await supabase
+  const { data: tasks, error } = await getSupabase()
     .from('tasks')
     .select('*')
     .is('discord_message_id', null)
@@ -146,7 +158,7 @@ async function handleSyncNewTasks() {
 
     if (result.success && result.messageId) {
       // Update task with Discord message ID
-      await supabase
+      await getSupabase()
         .from('tasks')
         .update({ discord_message_id: result.messageId })
         .eq('task_id', task.task_id)
@@ -180,7 +192,7 @@ async function handleSyncNewTasks() {
  */
 async function handleSyncNewProposals() {
   // Get proposals that haven't been synced to Discord
-  const { data: proposals, error } = await supabase
+  const { data: proposals, error } = await getSupabase()
     .from('task_proposals')
     .select('*')
     .is('discord_message_id', null)
@@ -214,7 +226,7 @@ async function handleSyncNewProposals() {
 
     if (result.success && result.messageId) {
       // Update proposal with Discord message ID
-      await supabase
+      await getSupabase()
         .from('task_proposals')
         .update({
           discord_message_id: result.messageId,
@@ -250,7 +262,7 @@ async function handleSyncNewProposals() {
  * Sync a specific task
  */
 async function handleSyncTask(taskId: string) {
-  const { data: task, error } = await supabase
+  const { data: task, error } = await getSupabase()
     .from('tasks')
     .select('*')
     .eq('task_id', taskId)
@@ -263,7 +275,7 @@ async function handleSyncTask(taskId: string) {
   const result = await syncTaskToDiscord(task)
 
   if (result.success && result.messageId) {
-    await supabase
+    await getSupabase()
       .from('tasks')
       .update({ discord_message_id: result.messageId })
       .eq('task_id', taskId)
@@ -281,7 +293,7 @@ async function handleSyncTask(taskId: string) {
  * Sync a specific proposal
  */
 async function handleSyncProposal(proposalId: string) {
-  const { data: proposal, error } = await supabase
+  const { data: proposal, error } = await getSupabase()
     .from('task_proposals')
     .select('*')
     .eq('id', proposalId)
@@ -301,7 +313,7 @@ async function handleSyncProposal(proposalId: string) {
   })
 
   if (result.success && result.messageId) {
-    await supabase
+    await getSupabase()
       .from('task_proposals')
       .update({
         discord_message_id: result.messageId,
@@ -324,26 +336,26 @@ async function handleSyncProposal(proposalId: string) {
  */
 async function handleSyncStatus() {
   // Count tasks pending sync
-  const { count: tasksPending } = await supabase
+  const { count: tasksPending } = await getSupabase()
     .from('tasks')
     .select('*', { count: 'exact', head: true })
     .is('discord_message_id', null)
     .eq('status', 'available')
 
   // Count proposals pending sync
-  const { count: proposalsPending } = await supabase
+  const { count: proposalsPending } = await getSupabase()
     .from('task_proposals')
     .select('*', { count: 'exact', head: true })
     .is('discord_message_id', null)
     .in('status', ['pending', 'voting'])
 
   // Count synced items
-  const { count: tasksSynced } = await supabase
+  const { count: tasksSynced } = await getSupabase()
     .from('tasks')
     .select('*', { count: 'exact', head: true })
     .not('discord_message_id', 'is', null)
 
-  const { count: proposalsSynced } = await supabase
+  const { count: proposalsSynced } = await getSupabase()
     .from('task_proposals')
     .select('*', { count: 'exact', head: true })
     .not('discord_message_id', 'is', null)

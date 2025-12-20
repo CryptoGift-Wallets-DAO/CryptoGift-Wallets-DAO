@@ -27,12 +27,24 @@ import {
   abandonTaskModal,
 } from '../components/modals'
 import * as proposalService from '../services/proposal-service'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy initialization to avoid build-time errors
+let _supabase: SupabaseClient | null = null
+
+function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!url || !key) {
+      throw new Error('Supabase configuration missing')
+    }
+
+    _supabase = createClient(url, key)
+  }
+  return _supabase
+}
 
 /**
  * Get user display name
@@ -226,7 +238,7 @@ export async function handleClaimTaskButton(
   }
 
   // Get and verify task
-  const { data: task, error: taskError } = await supabase
+  const { data: task, error: taskError } = await getSupabase()
     .from('tasks')
     .select('*')
     .eq('task_id', taskId)
@@ -258,7 +270,7 @@ export async function handleClaimTaskButton(
   }
 
   // Claim the task
-  const { error: claimError } = await supabase
+  const { error: claimError } = await getSupabase()
     .from('tasks')
     .update({
       status: 'in_progress',
@@ -296,7 +308,7 @@ export async function handleViewTask(
   interaction: DiscordInteraction,
   taskId: string
 ): Promise<InteractionResponse> {
-  const { data: task } = await supabase
+  const { data: task } = await getSupabase()
     .from('tasks')
     .select('*')
     .eq('task_id', taskId)
@@ -442,7 +454,7 @@ export async function handleApproveProposalModal(
   })
 
   // Create task from proposal
-  const { data: newTask, error: taskError } = await supabase
+  const { data: newTask, error: taskError } = await getSupabase()
     .from('tasks')
     .insert({
       title: proposal.ai_refined_title || proposal.title,
@@ -579,7 +591,7 @@ export async function handleSubmitTaskModal(
   const wallet = await proposalService.getLinkedWallet(discordId || '')
 
   // Verify task belongs to user
-  const { data: task } = await supabase
+  const { data: task } = await getSupabase()
     .from('tasks')
     .select('*')
     .eq('task_id', taskId)
@@ -606,7 +618,7 @@ export async function handleSubmitTaskModal(
   }
 
   // Update task status
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('tasks')
     .update({
       status: 'submitted',
@@ -663,7 +675,7 @@ export async function handleAbandonTaskModal(
   const wallet = await proposalService.getLinkedWallet(discordId || '')
 
   // Verify task belongs to user
-  const { data: task } = await supabase
+  const { data: task } = await getSupabase()
     .from('tasks')
     .select('*')
     .eq('task_id', taskId)
@@ -690,7 +702,7 @@ export async function handleAbandonTaskModal(
   }
 
   // Release the task
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('tasks')
     .update({
       status: 'available',
