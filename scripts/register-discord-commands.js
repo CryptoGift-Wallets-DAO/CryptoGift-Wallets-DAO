@@ -6,6 +6,8 @@
  * This script registers all slash commands for the CryptoGift DAO Discord bot
  */
 
+require('dotenv').config({ path: '.env.local' });
+
 const DISCORD_APPLICATION_ID = process.env.DISCORD_APPLICATION_ID || '1451739412139610287';
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1440971032818090006';
@@ -236,13 +238,9 @@ async function registerCommands() {
     }
 
     console.log('\n🎉 All commands registered successfully!');
-    console.log('\n📋 Next steps:');
-    console.log('   1. Go to Discord Developer Portal');
-    console.log('   2. Select your application');
-    console.log('   3. Go to "General Information"');
-    console.log('   4. Set "Interactions Endpoint URL" to:');
-    console.log('      https://cryptogift-dao.vercel.app/api/discord/interactions');
-    console.log('   5. Save changes');
+    console.log('\n📋 Endpoint URL (already configured):');
+    console.log('   https://www.mbxarts.com/api/discord/interactions');
+    console.log('\n🎮 Test the bot in Discord with /help');
 
   } catch (error) {
     console.error('❌ Error registering commands:', error);
