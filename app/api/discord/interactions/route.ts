@@ -5,6 +5,10 @@
  * This is the main entry point for the Discord bot
  */
 
+// Force Node.js runtime (Edge Runtime has issues with tweetnacl)
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
 import {
   InteractionType,
@@ -48,23 +52,23 @@ export async function POST(request: NextRequest) {
     const body = await request.text()
     const { signature, timestamp } = getSignatureHeaders(request.headers)
 
+    console.log('[Discord] Received request, checking signature...')
+    console.log('[Discord] Has PUBLIC_KEY:', !!process.env.DISCORD_PUBLIC_KEY)
+
     if (!signature || !timestamp) {
       console.error('[Discord] Missing signature headers')
       return NextResponse.json({ error: 'Missing signature' }, { status: 401 })
     }
 
-    // Verify the signature
-    let isValid = await verifyDiscordSignature(body, signature, timestamp)
-
-    // Fallback to NaCl verification if webcrypto fails
-    if (!isValid) {
-      isValid = await verifyDiscordSignatureNacl(body, signature, timestamp)
-    }
+    // Verify the signature using tweetnacl
+    const isValid = await verifyDiscordSignature(body, signature, timestamp)
 
     if (!isValid) {
-      console.error('[Discord] Invalid signature')
+      console.error('[Discord] Invalid signature - verification failed')
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
+
+    console.log('[Discord] Signature verified successfully!')
 
     // Parse the interaction
     const interaction: DiscordInteraction = JSON.parse(body)
