@@ -79,13 +79,16 @@
     "tailwindcss": "^3.4.17",
     "thirdweb": "^5.108.0",
     "tsx": "^4.20.5",
+    "tweetnacl": "^1.0.3",
     "viem": "2.36.0",
     "wagmi": "2.16.8",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@nomicfoundation/hardhat-verify": "^2.0.3",
+    "@nomicfoundation/hardhat-verify": "^2.1.1",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-solhint": "^3.0.1",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
