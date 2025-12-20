@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { updateProposalInDiscord } from '@/lib/discord/bot/services/discord-sync-service'
 
 // Lazy initialization to avoid build-time errors
 let _supabase: SupabaseClient | null = null
@@ -41,6 +42,48 @@ interface VoteResult {
   newVoteCounts: {
     votesUp: number
     votesDown: number
+  }
+}
+
+/**
+ * Sync vote counts to Discord embed (fire-and-forget)
+ * Updates the proposal message in Discord with new vote counts
+ */
+async function syncVotesToDiscord(proposalId: string) {
+  try {
+    // Fetch full proposal data for Discord update
+    const { data: proposal } = await getSupabase()
+      .from('task_proposals')
+      .select('*')
+      .eq('id', proposalId)
+      .single()
+
+    if (!proposal || !proposal.discord_message_id) {
+      // No Discord message to update
+      return
+    }
+
+    const proposer =
+      proposal.proposed_by_wallet ||
+      proposal.proposed_by_discord_username ||
+      proposal.proposed_by_discord ||
+      proposal.proposed_by_address ||
+      'Anonymous'
+
+    await updateProposalInDiscord(proposal.discord_message_id, {
+      id: proposal.id,
+      title: proposal.ai_refined_title || proposal.title,
+      description: proposal.ai_refined_description || proposal.description,
+      proposer,
+      suggestedCategory: proposal.suggested_category,
+      suggestedReward: proposal.suggested_reward,
+      votesUp: proposal.votes_up || 0,
+      votesDown: proposal.votes_down || 0,
+    })
+
+    console.log(`[Vote API] Discord sync completed for proposal ${proposalId}`)
+  } catch (error) {
+    console.error('[Vote API] Discord sync error:', error)
   }
 }
 
@@ -210,6 +253,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       `[Vote API] Vote ${result.action} on proposal ${body.proposalId} by ${body.voterWallet || body.voterDiscordId}`
     )
 
+    // Sync updated vote counts to Discord (fire-and-forget)
+    syncVotesToDiscord(body.proposalId).catch((err) =>
+      console.error('[Vote API] Discord sync failed:', err)
+    )
+
     return NextResponse.json(result)
   } catch (error) {
     console.error('[Vote API] Unexpected error:', error)
@@ -333,6 +381,11 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       .select('votes_up, votes_down')
       .eq('id', body.proposalId)
       .single()
+
+    // Sync updated vote counts to Discord (fire-and-forget)
+    syncVotesToDiscord(body.proposalId).catch((err) =>
+      console.error('[Vote API] Discord sync failed:', err)
+    )
 
     return NextResponse.json({
       success: true,

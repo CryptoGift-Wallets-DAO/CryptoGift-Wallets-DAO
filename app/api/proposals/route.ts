@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { syncProposalToDiscord } from '@/lib/discord/bot/services/discord-sync-service'
 
 // Lazy initialization to avoid build-time errors
 let _supabase: SupabaseClient | null = null
@@ -247,6 +248,33 @@ export async function POST(request: NextRequest) {
         console.error('[Proposals API] AI refinement error:', err)
       )
     }
+
+    // Sync proposal to Discord for voting (fire-and-forget)
+    // This posts the proposal to #proposals channel with voting buttons
+    syncProposalToDiscord({
+      id: proposal.id,
+      title: title.trim(),
+      description: description.trim(),
+      proposer: proposedByWallet || proposedByDiscordUsername || 'Anonymous',
+      suggestedCategory: suggestedCategory,
+      suggestedReward: suggestedReward,
+    })
+      .then(async (syncResult) => {
+        if (syncResult.success && syncResult.messageId) {
+          // Update proposal with Discord message ID for future updates
+          await getSupabase()
+            .from('task_proposals')
+            .update({
+              discord_message_id: syncResult.messageId,
+              discord_thread_id: syncResult.threadId || null,
+            })
+            .eq('id', proposal.id)
+          console.log(`[Proposals API] Synced to Discord: ${syncResult.messageId}`)
+        } else {
+          console.warn('[Proposals API] Discord sync skipped or failed:', syncResult.error)
+        }
+      })
+      .catch((err) => console.error('[Proposals API] Discord sync error:', err))
 
     return NextResponse.json({
       success: true,

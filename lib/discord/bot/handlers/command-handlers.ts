@@ -25,6 +25,12 @@ import {
 import { proposalVoteButtons, taskActionButtons, paginationButtons, helpButtons } from '../components/buttons'
 import { proposeModal, linkWalletModal } from '../components/modals'
 import * as proposalService from '../services/proposal-service'
+import {
+  announceProposalApproved,
+  announceProposalRejected,
+  syncTaskToDiscord,
+  announceTaskClaimed,
+} from '../services/discord-sync-service'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 // Lazy initialization to avoid build-time errors
@@ -303,7 +309,14 @@ export async function handleClaim(
     }
   }
 
-  const embed = taskClaimedEmbed(task, getUserDisplayName(interaction))
+  const claimer = getUserDisplayName(interaction)
+
+  // Announce claim in #task-dao channel (fire-and-forget)
+  announceTaskClaimed(task, claimer).catch((err) =>
+    console.error('[Discord] Failed to announce claim:', err)
+  )
+
+  const embed = taskClaimedEmbed(task, claimer)
 
   return {
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -455,6 +468,19 @@ export async function handleApprove(
     resultingTaskId: newTask.task_id,
   })
 
+  // Sync to Discord: announce approval and publish task
+  const approver = getUserDisplayName(interaction)
+
+  // Announce approval in announcements channel (fire-and-forget)
+  announceProposalApproved(proposal, approver).catch((err) =>
+    console.error('[Discord] Failed to announce approval:', err)
+  )
+
+  // Publish new task to #task-dao channel (fire-and-forget)
+  syncTaskToDiscord(newTask).catch((err) =>
+    console.error('[Discord] Failed to sync task:', err)
+  )
+
   return {
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
@@ -521,6 +547,12 @@ export async function handleReject(
     approvedByDiscordId: user?.id,
     rejectionReason: reason,
   })
+
+  // Announce rejection in proposals channel (fire-and-forget)
+  const rejector = getUserDisplayName(interaction)
+  announceProposalRejected(proposal, rejector, reason).catch((err) =>
+    console.error('[Discord] Failed to announce rejection:', err)
+  )
 
   return {
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
