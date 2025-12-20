@@ -149,6 +149,7 @@
     "dashboard": "Dashboard",
     "tasks": "Tasks",
     "tasksRewards": "Tasks & Rewards",
+    "proposals": "Proposals",
     "referrals": "Referrals",
     "referralsNetwork": "Referrals Network",
     "apex": "apeX",
@@ -1972,5 +1973,82 @@
     "alreadyClaimedMessage": "You have already claimed this {platform} engagement reward.",
     "claimError": "Failed to claim reward. Please try again.",
     "networkError": "Network error. Please check your connection."
+  },
+  "proposals": {
+    "badge": "Community Governance",
+    "title": "Task",
+    "titleHighlight": "Proposals",
+    "subtitle": "Propose new tasks, vote on community ideas, and help shape the future of CryptoGift DAO",
+    "stats": {
+      "active": "Active Proposals",
+      "approved": "Approved",
+      "totalVotes": "Total Votes",
+      "syncedToDiscord": "Synced to Discord"
+    },
+    "actions": {
+      "createProposal": "Create Proposal",
+      "syncToDiscord": "Sync to Discord",
+      "discordBot": "Discord Bot"
+    },
+    "tabs": {
+      "active": "Active",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "empty": {
+      "active": "No active proposals",
+      "activeHint": "Be the first to propose a new task!",
+      "approved": "No approved proposals yet",
+      "rejected": "No rejected proposals"
+    },
+    "loading": "Loading proposals...",
+    "card": {
+      "proposedBy": "Proposed by:",
+      "category": "Category:",
+      "reward": "Reward:",
+      "anonymous": "Anonymous",
+      "votes": "votes",
+      "approval": "approval"
+    },
+    "status": {
+      "pending": "Pending",
+      "voting": "Voting",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "converted": "Task Created"
+    },
+    "createModal": {
+      "title": "Create New Proposal",
+      "description": "Proposals can be created from Discord using the /propose command, or through this web interface.",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g., Create landing page for summer campaign",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe the task in detail...",
+      "categoryLabel": "Category",
+      "selectCategory": "Select category",
+      "categories": {
+        "development": "Development",
+        "design": "Design",
+        "content": "Content",
+        "marketing": "Marketing",
+        "community": "Community"
+      },
+      "rewardLabel": "Suggested Reward",
+      "rewardPlaceholder": "e.g., 500",
+      "cancel": "Cancel",
+      "create": "Create Proposal"
+    },
+    "toast": {
+      "connectWallet": "Connect your wallet to vote",
+      "voteRecorded": "Vote recorded!",
+      "voteRemoved": "Vote removed",
+      "voteFailed": "Failed to vote",
+      "syncSuccess": "Synced {count} proposals to Discord",
+      "syncFailed": "Sync failed",
+      "comingSoon": "Proposal creation coming soon!"
+    },
+    "discord": {
+      "badge": "Discord"
+    }
   }
 }
