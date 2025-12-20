@@ -77,7 +77,7 @@ export function FeaturedTasks({ tasks, onTaskClick, className = '' }: FeaturedTa
               onClick={() => onTaskClick(task)}
               className={`
                 relative p-4 rounded-xl text-left transition-all duration-300
-                bg-white/80 dark:bg-gradient-to-br dark:from-white/10 dark:to-white/5
+                bg-white/80 dark:bg-white/[0.07]
                 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20
                 hover:shadow-lg hover:shadow-purple-500/10
                 hover:-translate-y-0.5

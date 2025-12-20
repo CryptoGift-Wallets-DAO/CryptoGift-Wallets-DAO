@@ -333,7 +333,7 @@ export default function TasksPage() {
 
               <div
                 ref={taskListRef}
-                className="bg-white/80 dark:bg-gradient-to-br dark:from-white/10 dark:to-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-xl backdrop-blur-sm scroll-mt-4"
+                className="bg-white/80 dark:bg-white/[0.07] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-xl backdrop-blur-sm scroll-mt-4"
               >
                 {/* Card Header */}
                 <div className="px-6 py-4 border-b border-gray-200 dark:border-white/10">
