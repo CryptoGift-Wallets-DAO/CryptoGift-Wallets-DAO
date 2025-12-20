@@ -147,7 +147,7 @@ export function TaskDetailsModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <style jsx>{modalAnimations}</style>
 
-      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col overflow-hidden bg-slate-900/80 backdrop-blur-xl border border-white/[0.08] shadow-2xl shadow-black/50">
+      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col overflow-hidden">
         {/* Animated background gradient */}
         <div className="absolute inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden rounded-lg">
           <div
@@ -161,7 +161,7 @@ export function TaskDetailsModal({
         </div>
 
         {/* Premium Header with glass effect */}
-        <DialogHeader className="relative px-6 py-5 flex-shrink-0 overflow-hidden border-b border-white/[0.08] bg-white/[0.02]">
+        <DialogHeader className="relative px-6 py-5 flex-shrink-0 overflow-hidden border-b border-gray-200 dark:border-white/[0.08] bg-gray-50/50 dark:bg-white/[0.02]">
           {/* Subtle shimmer effect overlay */}
           <div
             className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"
@@ -174,16 +174,16 @@ export function TaskDetailsModal({
                 <Sparkles className="w-3 h-3 mr-1" />
                 {tCommon('level')} {task.complexity}
               </Badge>
-              <Badge variant="outline" className="bg-white/[0.03] border-white/[0.08] text-white/70">
+              <Badge variant="outline" className="bg-gray-100 dark:bg-white/[0.03] border-gray-300 dark:border-white/[0.08] text-gray-700 dark:text-white/70">
                 {getPlatformIcon()}
                 <span className="ml-1 capitalize">{task.platform}</span>
               </Badge>
             </div>
 
-            <DialogTitle className="text-2xl font-bold text-white">
+            <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
               {translatedTask.title}
             </DialogTitle>
-            <DialogDescription className="text-sm text-white/50 mt-2">
+            <DialogDescription className="text-sm text-gray-500 dark:text-white/50 mt-2">
               {t('subtitle', { level: task.complexity, taskId: task.task_id.slice(0, 8) })}
             </DialogDescription>
           </div>
@@ -195,54 +195,54 @@ export function TaskDetailsModal({
 
             {/* Overview Section with Glass Cards */}
             <div className="space-y-4">
-              <h3 className="font-semibold text-lg flex items-center text-white">
-                <Target className="w-5 h-5 mr-2 text-cyan-400" />
-                <span className="text-cyan-400">
+              <h3 className="font-semibold text-lg flex items-center text-gray-900 dark:text-white">
+                <Target className="w-5 h-5 mr-2 text-cyan-600 dark:text-cyan-400" />
+                <span className="text-cyan-600 dark:text-cyan-400">
                   {t('overview')}
                 </span>
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Reward Card - Glass */}
-                <div className="relative p-5 rounded-xl overflow-hidden group bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300">
+                <div className="relative p-5 rounded-xl overflow-hidden group bg-amber-50 dark:bg-white/[0.03] border border-amber-200 dark:border-white/[0.08] hover:bg-amber-100 dark:hover:bg-white/[0.06] hover:border-amber-300 dark:hover:border-white/[0.12] transition-all duration-300">
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-amber-400 flex items-center">
+                      <span className="text-sm font-medium text-amber-600 dark:text-amber-400 flex items-center">
                         <Coins className="w-4 h-4 mr-2" />
                         {t('reward')}
                       </span>
-                      <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                        <Coins className="w-4 h-4 text-amber-400" />
+                      <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/20 flex items-center justify-center">
+                        <Coins className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                       </div>
                     </div>
-                    <div className="text-3xl font-bold text-amber-400">{task.reward_cgc} CGC</div>
-                    <div className="text-sm text-white/50 mt-1">~${estimatedUsdValue} USD</div>
+                    <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">{task.reward_cgc} CGC</div>
+                    <div className="text-sm text-gray-500 dark:text-white/50 mt-1">~${estimatedUsdValue} USD</div>
                   </div>
                 </div>
 
                 {/* Timeline Card - Glass */}
-                <div className="relative p-5 rounded-xl overflow-hidden group bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300">
+                <div className="relative p-5 rounded-xl overflow-hidden group bg-cyan-50 dark:bg-white/[0.03] border border-cyan-200 dark:border-white/[0.08] hover:bg-cyan-100 dark:hover:bg-white/[0.06] hover:border-cyan-300 dark:hover:border-white/[0.12] transition-all duration-300">
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-cyan-400 flex items-center">
+                      <span className="text-sm font-medium text-cyan-600 dark:text-cyan-400 flex items-center">
                         <Calendar className="w-4 h-4 mr-2" />
                         {t('timeline')}
                       </span>
-                      <div className="w-8 h-8 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                        <Clock className="w-4 h-4 text-cyan-400" />
+                      <div className="w-8 h-8 rounded-full bg-cyan-100 dark:bg-cyan-500/10 border border-cyan-300 dark:border-cyan-500/20 flex items-center justify-center">
+                        <Clock className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                       </div>
                     </div>
-                    <div className="text-3xl font-bold text-cyan-400">{task.estimated_days}</div>
-                    <div className="text-sm text-white/50 mt-1">{t('daysEstimated')}</div>
+                    <div className="text-3xl font-bold text-cyan-600 dark:text-cyan-400">{task.estimated_days}</div>
+                    <div className="text-sm text-gray-500 dark:text-white/50 mt-1">{t('daysEstimated')}</div>
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Difficulty Card - Glass */}
-                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300">
+                <div className="p-4 rounded-xl bg-purple-50 dark:bg-white/[0.03] border border-purple-200 dark:border-white/[0.08] hover:bg-purple-100 dark:hover:bg-white/[0.06] hover:border-purple-300 dark:hover:border-white/[0.12] transition-all duration-300">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-purple-400 flex items-center">
+                    <span className="text-sm font-medium text-purple-600 dark:text-purple-400 flex items-center">
                       <Zap className="w-4 h-4 mr-1" />
                       {t('difficulty')}
                     </span>
@@ -250,68 +250,68 @@ export function TaskDetailsModal({
                   <div className="flex items-center space-x-0.5 mb-2">
                     {getDifficultyStars(task.complexity)}
                   </div>
-                  <div className="text-xs text-white/50">{tCommon('level')} {task.complexity}/10</div>
+                  <div className="text-xs text-gray-500 dark:text-white/50">{tCommon('level')} {task.complexity}/10</div>
                 </div>
 
                 {/* Priority Card - Glass */}
-                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300">
+                <div className="p-4 rounded-xl bg-red-50 dark:bg-white/[0.03] border border-red-200 dark:border-white/[0.08] hover:bg-red-100 dark:hover:bg-white/[0.06] hover:border-red-300 dark:hover:border-white/[0.12] transition-all duration-300">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-white/70">{t('priorityLabel')}</span>
-                    <priorityInfo.icon className="w-4 h-4 text-red-400" />
+                    <span className="text-sm font-medium text-gray-600 dark:text-white/70">{t('priorityLabel')}</span>
+                    <priorityInfo.icon className="w-4 h-4 text-red-600 dark:text-red-400" />
                   </div>
-                  <div className="font-bold text-lg text-red-400">{priorityInfo.label}</div>
+                  <div className="font-bold text-lg text-red-600 dark:text-red-400">{priorityInfo.label}</div>
                 </div>
 
                 {/* Platform Card - Glass */}
-                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300">
+                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.08] hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:border-gray-300 dark:hover:border-white/[0.12] transition-all duration-300">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-white/70">
+                    <span className="text-sm font-medium text-gray-600 dark:text-white/70">
                       {t('platform')}
                     </span>
-                    <span className="text-cyan-400">{getPlatformIcon()}</span>
+                    <span className="text-cyan-600 dark:text-cyan-400">{getPlatformIcon()}</span>
                   </div>
-                  <div className="font-bold text-lg text-white capitalize">{task.platform}</div>
-                  <div className="text-xs text-white/50">{task.category}</div>
+                  <div className="font-bold text-lg text-gray-900 dark:text-white capitalize">{task.platform}</div>
+                  <div className="text-xs text-gray-500 dark:text-white/50">{task.category}</div>
                 </div>
               </div>
             </div>
 
-            <Separator className="bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            <Separator className="bg-gradient-to-r from-transparent via-gray-200 dark:via-white/10 to-transparent" />
 
             {/* Description Section */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-lg flex items-center text-white">
-                <FileText className="w-5 h-5 mr-2 text-green-400" />
-                <span className="text-green-400">
+              <h3 className="font-semibold text-lg flex items-center text-gray-900 dark:text-white">
+                <FileText className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
+                <span className="text-green-600 dark:text-green-400">
                   {t('description')}
                 </span>
               </h3>
-              <div className="p-5 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-                <p className="text-white/70 leading-relaxed whitespace-pre-wrap">
+              <div className="p-5 rounded-xl bg-green-50 dark:bg-white/[0.03] border border-green-200 dark:border-white/[0.08]">
+                <p className="text-gray-700 dark:text-white/70 leading-relaxed whitespace-pre-wrap">
                   {translatedTask.description || t('noDescriptionProvided')}
                 </p>
               </div>
             </div>
 
-            <Separator className="bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            <Separator className="bg-gradient-to-r from-transparent via-gray-200 dark:via-white/10 to-transparent" />
 
             {/* Technical Requirements */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-lg flex items-center text-white">
-                <Shield className="w-5 h-5 mr-2 text-purple-400" />
-                <span className="text-purple-400">
+              <h3 className="font-semibold text-lg flex items-center text-gray-900 dark:text-white">
+                <Shield className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
+                <span className="text-purple-600 dark:text-purple-400">
                   {t('technicalRequirements')}
                 </span>
               </h3>
 
               {task.required_skills && task.required_skills.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-white/70 mb-3">{t('requiredSkills')}</h4>
+                  <h4 className="text-sm font-medium text-gray-600 dark:text-white/70 mb-3">{t('requiredSkills')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {task.required_skills.map((skill, index) => (
                       <Badge
                         key={index}
-                        className="bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 hover:scale-105 transition-all"
+                        className="bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/20 hover:bg-purple-200 dark:hover:bg-purple-500/20 hover:scale-105 transition-all"
                       >
                         {skill}
                       </Badge>
@@ -322,13 +322,13 @@ export function TaskDetailsModal({
 
               {task.tags && task.tags.length > 0 && (
                 <div className="mt-4">
-                  <h4 className="text-sm font-medium text-white/70 mb-3">{t('tags')}</h4>
+                  <h4 className="text-sm font-medium text-gray-600 dark:text-white/70 mb-3">{t('tags')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {task.tags.map((tag, index) => (
                       <Badge
                         key={index}
                         variant="outline"
-                        className="text-xs bg-white/[0.03] border-white/[0.08] text-white/60 hover:bg-white/[0.06] hover:scale-105 transition-all"
+                        className="text-xs bg-gray-100 dark:bg-white/[0.03] border-gray-300 dark:border-white/[0.08] text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/[0.06] hover:scale-105 transition-all"
                       >
                         #{tag}
                       </Badge>
@@ -338,21 +338,21 @@ export function TaskDetailsModal({
               )}
             </div>
 
-            <Separator className="bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            <Separator className="bg-gradient-to-r from-transparent via-gray-200 dark:via-white/10 to-transparent" />
 
             {/* Success Criteria */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-lg flex items-center text-white">
-                <CheckCircle2 className="w-5 h-5 mr-2 text-green-400" />
-                <span className="text-green-400">
+              <h3 className="font-semibold text-lg flex items-center text-gray-900 dark:text-white">
+                <CheckCircle2 className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
+                <span className="text-green-600 dark:text-green-400">
                   {t('successCriteria.title')}
                 </span>
               </h3>
-              <div className="p-5 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-                <ul className="space-y-3 text-sm text-white/70">
+              <div className="p-5 rounded-xl bg-green-50 dark:bg-white/[0.03] border border-green-200 dark:border-white/[0.08]">
+                <ul className="space-y-3 text-sm text-gray-700 dark:text-white/70">
                   {[1, 2, 3, 4].map((i) => (
                     <li key={i} className="flex items-center group">
-                      <CheckCircle2 className="w-4 h-4 mr-3 text-green-400 group-hover:scale-110 transition-transform" />
+                      <CheckCircle2 className="w-4 h-4 mr-3 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
                       <span>{t(`successCriteria.item${i}`)}</span>
                     </li>
                   ))}
@@ -360,18 +360,18 @@ export function TaskDetailsModal({
               </div>
             </div>
 
-            <Separator className="bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            <Separator className="bg-gradient-to-r from-transparent via-gray-200 dark:via-white/10 to-transparent" />
 
             {/* Completion Process */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-lg flex items-center text-white">
-                <Users className="w-5 h-5 mr-2 text-cyan-400" />
-                <span className="text-cyan-400">
+              <h3 className="font-semibold text-lg flex items-center text-gray-900 dark:text-white">
+                <Users className="w-5 h-5 mr-2 text-cyan-600 dark:text-cyan-400" />
+                <span className="text-cyan-600 dark:text-cyan-400">
                   {t('completionProcess.title')}
                 </span>
               </h3>
-              <div className="p-5 rounded-xl bg-white/[0.03] border border-white/[0.08]">
-                <ol className="space-y-4 text-sm text-white/70">
+              <div className="p-5 rounded-xl bg-cyan-50 dark:bg-white/[0.03] border border-cyan-200 dark:border-white/[0.08]">
+                <ol className="space-y-4 text-sm text-gray-700 dark:text-white/70">
                   {[1, 2, 3, 4, 5].map((step) => (
                     <li key={step} className="flex items-start group">
                       <span
@@ -384,8 +384,8 @@ export function TaskDetailsModal({
                         {step}
                       </span>
                       <span>
-                        <strong className="text-white/90">{t(`completionProcess.step${step}.title`)}</strong>
-                        <span className="text-white/60"> - {t(`completionProcess.step${step}.desc`)}</span>
+                        <strong className="text-gray-800 dark:text-white/90">{t(`completionProcess.step${step}.title`)}</strong>
+                        <span className="text-gray-600 dark:text-white/60"> - {t(`completionProcess.step${step}.desc`)}</span>
                       </span>
                     </li>
                   ))}
@@ -397,7 +397,7 @@ export function TaskDetailsModal({
         </div>
 
         {/* Premium Action Footer */}
-        <div className="relative px-6 py-5 flex-shrink-0 overflow-hidden border-t border-white/[0.08] bg-white/[0.02]">
+        <div className="relative px-6 py-5 flex-shrink-0 overflow-hidden border-t border-gray-200 dark:border-white/[0.08] bg-gray-50/50 dark:bg-white/[0.02]">
           <div className="relative z-10 flex flex-col sm:flex-row gap-3">
             {canClaim && (
               <Button
@@ -422,7 +422,7 @@ export function TaskDetailsModal({
             <Button
               onClick={copyTaskId}
               variant="outline"
-              className="flex-shrink-0 bg-white/[0.03] border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white hover:scale-105 transition-all"
+              className="flex-shrink-0 bg-gray-100 dark:bg-white/[0.03] border-gray-300 dark:border-white/[0.08] text-gray-700 dark:text-white/70 hover:bg-gray-200 dark:hover:bg-white/[0.08] hover:text-gray-900 dark:hover:text-white hover:scale-105 transition-all"
             >
               <Copy className="w-4 h-4 mr-2" />
               {t('copyTaskId')}
@@ -430,7 +430,7 @@ export function TaskDetailsModal({
 
             <Button
               variant="outline"
-              className="flex-shrink-0 bg-white/[0.03] border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white hover:scale-105 transition-all"
+              className="flex-shrink-0 bg-gray-100 dark:bg-white/[0.03] border-gray-300 dark:border-white/[0.08] text-gray-700 dark:text-white/70 hover:bg-gray-200 dark:hover:bg-white/[0.08] hover:text-gray-900 dark:hover:text-white hover:scale-105 transition-all"
               onClick={() => {
                 console.log('Opening help for task:', task.task_id)
               }}
