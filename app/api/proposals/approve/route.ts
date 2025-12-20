@@ -202,7 +202,7 @@ async function handleApproval(
   const approverDisplay = `${input.approverWallet.slice(0, 6)}...${input.approverWallet.slice(-4)}`
 
   // Sync to Discord: announce approval and publish task (fire-and-forget)
-  announceProposalApproved(proposal as Parameters<typeof announceProposalApproved>[0], approverDisplay)
+  announceProposalApproved(proposal as unknown as Parameters<typeof announceProposalApproved>[0], approverDisplay)
     .catch((err) => console.error('[Proposals Approve API] Discord announce error:', err))
 
   syncTaskToDiscord(newTask)
@@ -253,7 +253,7 @@ async function handleRejection(
 
   // Announce rejection to Discord (fire-and-forget)
   announceProposalRejected(
-    proposal as Parameters<typeof announceProposalRejected>[0],
+    proposal as unknown as Parameters<typeof announceProposalRejected>[0],
     rejectorDisplay,
     input.reason || 'No reason provided'
   ).catch((err) => console.error('[Proposals Approve API] Discord reject announce error:', err))
