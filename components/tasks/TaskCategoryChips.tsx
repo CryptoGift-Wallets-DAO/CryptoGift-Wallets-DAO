@@ -60,7 +60,7 @@ export function TaskCategoryChips({
           ${
             !selectedCategory
               ? 'bg-gradient-to-r from-cyan-500/80 to-purple-500/80 text-white'
-              : 'bg-white/5 hover:bg-white/10 text-white/60 hover:text-white border border-white/10'
+              : 'bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-white/60 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-white/10'
           }
         `}
       >
@@ -83,7 +83,7 @@ export function TaskCategoryChips({
               ${
                 isSelected
                   ? 'bg-gradient-to-r from-cyan-500/80 to-purple-500/80 text-white'
-                  : 'bg-white/5 hover:bg-white/10 text-white/60 hover:text-white border border-white/10'
+                  : 'bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-white/60 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-white/10'
               }
             `}
           >
@@ -93,7 +93,7 @@ export function TaskCategoryChips({
               <span
                 className={`
                   px-1.5 py-0.5 rounded text-[10px]
-                  ${isSelected ? 'bg-white/20' : 'bg-white/10'}
+                  ${isSelected ? 'bg-white/20' : 'bg-gray-200 dark:bg-white/10'}
                 `}
               >
                 {count}
