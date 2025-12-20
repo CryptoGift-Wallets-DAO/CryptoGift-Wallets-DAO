@@ -25,9 +25,9 @@ import {
 import type { Proposal } from '../types'
 import type { Task } from '@/lib/supabase/types'
 
-// Channel IDs from environment
-const PROPOSALS_CHANNEL_ID = process.env.DISCORD_PROPOSALS_CHANNEL_ID
-const TASKS_CHANNEL_ID = process.env.DISCORD_TASKS_CHANNEL_ID
+// Channel IDs from environment (matching .env.local variable names)
+const PROPOSALS_CHANNEL_ID = process.env.DISCORD_CHANNEL_PROPOSALS_ID
+const TASKS_CHANNEL_ID = process.env.DISCORD_CHANNEL_TASK_DAO_ID
 const ANNOUNCEMENTS_CHANNEL_ID = process.env.DISCORD_ANNOUNCEMENTS_CHANNEL_ID
 
 interface SyncResult {
@@ -53,7 +53,7 @@ export async function syncProposalToDiscord(proposal: {
   suggestedReward?: number
 }): Promise<SyncResult> {
   if (!PROPOSALS_CHANNEL_ID) {
-    console.warn('[Discord Sync] DISCORD_PROPOSALS_CHANNEL_ID not configured')
+    console.warn('[Discord Sync] DISCORD_CHANNEL_PROPOSALS_ID not configured')
     return { success: false, error: 'Channel not configured' }
   }
 
@@ -200,7 +200,7 @@ export async function announceProposalRejected(
  */
 export async function syncTaskToDiscord(task: Task): Promise<SyncResult> {
   if (!TASKS_CHANNEL_ID) {
-    console.warn('[Discord Sync] DISCORD_TASKS_CHANNEL_ID not configured')
+    console.warn('[Discord Sync] DISCORD_CHANNEL_TASK_DAO_ID not configured')
     return { success: false, error: 'Channel not configured' }
   }
 

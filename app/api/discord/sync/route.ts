@@ -371,8 +371,8 @@ async function handleSyncStatus() {
       synced: proposalsSynced || 0,
     },
     channels: {
-      proposals: process.env.DISCORD_PROPOSALS_CHANNEL_ID ? 'configured' : 'not set',
-      tasks: process.env.DISCORD_TASKS_CHANNEL_ID ? 'configured' : 'not set',
+      proposals: process.env.DISCORD_CHANNEL_PROPOSALS_ID ? 'configured' : 'not set',
+      tasks: process.env.DISCORD_CHANNEL_TASK_DAO_ID ? 'configured' : 'not set',
       announcements: process.env.DISCORD_ANNOUNCEMENTS_CHANNEL_ID ? 'configured' : 'not set',
     },
   })

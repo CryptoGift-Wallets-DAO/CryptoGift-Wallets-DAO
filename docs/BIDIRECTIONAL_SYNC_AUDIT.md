@@ -254,9 +254,9 @@ The system uses two complementary notification methods:
 DISCORD_BOT_TOKEN=<bot_token>
 DISCORD_APPLICATION_ID=<app_id>
 
-# Channel IDs (required for posting)
-DISCORD_PROPOSALS_CHANNEL_ID=<channel_id>
-DISCORD_TASKS_CHANNEL_ID=<channel_id>
+# Channel IDs (required for posting) - must match .env.local names
+DISCORD_CHANNEL_PROPOSALS_ID=<channel_id>
+DISCORD_CHANNEL_TASK_DAO_ID=<channel_id>
 DISCORD_ANNOUNCEMENTS_CHANNEL_ID=<channel_id>
 
 # Optional
