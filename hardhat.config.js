@@ -1,4 +1,5 @@
-require("@nomicfoundation/hardhat-toolbox");
+require("@nomiclabs/hardhat-ethers");
+require("@nomicfoundation/hardhat-verify");
 require("dotenv").config({ path: ".env.dao" });
 
 const PRIVATE_KEY_DAO_DEPLOYER = process.env.PRIVATE_KEY_DAO_DEPLOYER || "0000000000000000000000000000000000000000000000000000000000000001";
@@ -79,17 +80,10 @@ module.exports = {
   },
   
   etherscan: {
-    apiKey: BASESCAN_API_KEY,
-    customChains: [
-      {
-        network: "base",
-        chainId: 8453,
-        urls: {
-          apiURL: "https://api.basescan.org/api",
-          browserURL: "https://basescan.org"
-        }
-      }
-    ]
+    apiKey: BASESCAN_API_KEY
+  },
+  sourcify: {
+    enabled: true
   },
   
   paths: {

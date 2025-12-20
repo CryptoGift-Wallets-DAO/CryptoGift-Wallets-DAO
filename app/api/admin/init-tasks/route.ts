@@ -1,7 +1,9 @@
 /**
- * 🔧 Admin Endpoint - Initialize All 34 DAO Tasks
- * 
- * Automatically creates all predefined tasks with proper complexity and rewards
+ * 🔧 Admin Endpoint - Initialize All 33 DAO Tasks
+ *
+ * v3.1.0 RECOTIZACIÓN FINAL - Based on TASK_ALLOCATION_MASTER_PLAN.md
+ * Total: 52,100 CGC (vs 17,150 anterior = +204% incremento)
+ *
  * Only accessible with admin token for security
  */
 
@@ -13,21 +15,25 @@ import type { Database } from '@/lib/supabase/types'
 
 type Task = Database['public']['Tables']['tasks']['Insert']
 
-// All 34 predefined tasks with proper complexity mapping
+// All 33 predefined tasks - v3.1.0 RECOTIZACIÓN FINAL
+// Based on TASK_ALLOCATION_MASTER_PLAN.md v3.1.0 - VALORES CORREGIDOS EXACTOS
 const PREDEFINED_TASKS: Omit<Task, 'id' | 'created_at' | 'updated_at'>[] = [
+  // ══════════════════════════════════════════════════════════════════
+  // NIVEL EPIC (7,500 CGC) - Complexity 10
+  // ══════════════════════════════════════════════════════════════════
   {
-    task_id: ethers.utils.id('smart-contract-audit'),
-    title: '🔒 Smart Contract Security Audit',
-    description: 'Conduct comprehensive security audit of all DAO smart contracts including CGC Token, TaskRulesEIP712, and MilestoneEscrow. Document vulnerabilities and provide recommendations.',
+    task_id: ethers.utils.id('rc-1155-tokenbone-protocol'),
+    title: '🔗 RC-1155 Tokenbone Protocol & Reference',
+    description: 'Complete protocol specification with registry (6551 style for 1155), accounts/proxies, ERC-1271/165 compatibility, events, tests and examples',
     complexity: 10,
-    reward_cgc: 2250, // 45 days × 50 CGC
-    estimated_days: 45,
-    platform: 'manual',
-    category: 'security',
+    reward_cgc: 7500,
+    estimated_days: 15,
+    platform: 'github',
+    category: 'blockchain',
     priority: 'critical',
     status: 'available',
-    required_skills: ['solidity', 'security-audit', 'smart-contracts'],
-    tags: ['audit', 'security', 'smart-contracts', 'vulnerability'],
+    required_skills: ['solidity', 'erc-1155', 'erc-6551', 'protocol-design'],
+    tags: ['tokenbone', 'protocol', 'erc-1155', 'registry'],
     assignee_address: null,
     assignee_discord_id: null,
     claimed_at: null,

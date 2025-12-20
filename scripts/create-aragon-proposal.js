@@ -1,225 +1,309 @@
 #!/usr/bin/env node
 /**
- * 🏛️ CREAR PROPUESTA EN ARAGON DAO
- * Método correcto para transferir tokens usando governance
+ * 🏛️ CREAR PROPUESTA EN ARAGON DAO - MinterGateway v3.3
+ *
+ * Script para crear la propuesta de configuración del MinterGateway
+ * de forma programática usando el Token Voting Plugin.
+ *
+ * ACCIONES DE LA PROPUESTA:
+ * 1. CGCToken.addMinter(Gateway)       - Gateway puede mintear
+ * 2. CGCToken.removeMinter(Escrow)     - Escrow ya no puede
+ * 3. CGCToken.removeMinter(Deployer)   - Deployer ya no puede
+ * 4. CGCToken.transferOwnership(Timelock) - Control al Timelock
+ *
+ * Made by mbxarts.com The Moon in a Box property
  */
 
 const hre = require("hardhat");
-const fs = require('fs');
-require('dotenv').config({ path: '.env.dao' });
+const { ethers } = require("hardhat");
 
-const colors = {
-  bright: '\x1b[1m',
-  green: '\x1b[32m',
-  red: '\x1b[31m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m',
-  reset: '\x1b[0m'
+// ═══════════════════════════════════════════════════════════════════════
+// ADDRESSES - DATOS EXACTOS DEL DEPLOYMENT
+// ═══════════════════════════════════════════════════════════════════════
+
+const ADDRESSES = {
+  // DAO Aragon
+  DAO_ARAGON: "0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31",
+  TOKEN_VOTING_PLUGIN: "0x5ADD5dc0a677dbB48fAC5e1DE4ca336d40B161a2",
+
+  // CGC Token (target de las acciones)
+  CGC_TOKEN: "0x5e3a61b550328f3D8C44f60b3e10a49D3d806175",
+
+  // Nuevos contratos desplegados (13 DIC 2025)
+  MINTER_GATEWAY: "0xdd10540847a4495e21f01230a0d39C7c6785598F",
+  TIMELOCK_CONTROLLER: "0x9753d772C632e2d117b81d96939B878D74fB5166",
+
+  // A eliminar como minters
+  MILESTONE_ESCROW: "0x8346CFcaECc90d678d862319449E5a742c03f109",
+  DEPLOYER: "0xc655BF2Bd9AfA997c757Bef290A9Bb6ca41c5dE6"
 };
 
-// ABI básica de Aragon DAO
-const ARAGON_DAO_ABI = [
-  "function hasPermission(address _who, address _where, bytes32 _what, bytes _how) view returns (bool)",
-  "function execute(bytes32 _callId, (address to, uint256 value, bytes data)[] _actions, uint256 _allowFailureMap) payable returns (bytes[] memory execResults, uint256 failureMap)",
-  "function createProposal(bytes _metadata, (address to, uint256 value, bytes data)[] _actions, uint256 _allowFailureMap, bool _approve, bool _execute, uint256 _startDate, uint256 _endDate) returns (uint256 proposalId)",
-  "function supportsInterface(bytes4 interfaceId) view returns (bool)"
-];
-
+// Token Voting Plugin ABI
 const TOKEN_VOTING_ABI = [
-  "function createProposal(bytes _metadata, (address to, uint256 value, bytes data)[] _actions, uint256 _allowFailureMap) returns (uint256 proposalId)"
+  "function createProposal(bytes _metadata, tuple(address to, uint256 value, bytes data)[] _actions, uint256 _allowFailureMap, uint64 _startDate, uint64 _endDate, uint8 _voteOption, bool _tryEarlyExecution) external returns (uint256 proposalId)",
+  "function minProposerVotingPower() external view returns (uint256)",
+  "function proposalCount() external view returns (uint256)",
+  "function vote(uint256 _proposalId, uint8 _voteOption, bool _tryEarlyExecution) external",
+  "function getProposal(uint256 _proposalId) external view returns (bool open, bool executed, tuple(uint16 supportThreshold, uint16 minParticipation, uint64 startDate, uint64 endDate, uint64 snapshotBlock, uint256 minApproval) parameters, tuple(uint256 yes, uint256 no, uint256 abstain) tally, tuple(address to, uint256 value, bytes data)[] actions, uint256 allowFailureMap)"
 ];
 
-async function createAragonProposal() {
-  try {
-    console.log(`${colors.bright}${colors.cyan}🏛️ CREAR PROPUESTA EN ARAGON DAO${colors.reset}`);
-    console.log('═'.repeat(60));
+// CGC Token ABI
+const CGC_TOKEN_ABI = [
+  "function addMinter(address minter) external",
+  "function removeMinter(address minter) external",
+  "function transferOwnership(address newOwner) external",
+  "function balanceOf(address account) external view returns (uint256)",
+  "function minters(address) external view returns (bool)",
+  "function owner() external view returns (address)"
+];
 
-    const deploymentData = JSON.parse(
-      fs.readFileSync('deployments/deployment-base-latest.json', 'utf8')
+// ═══════════════════════════════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════════════════════════════
+
+async function main() {
+  console.log("\n╔══════════════════════════════════════════════════════════════════╗");
+  console.log("║       🏛️ CREAR PROPUESTA EN ARAGON DAO                           ║");
+  console.log("║       Configure MinterGateway v3.3 - Supply Cap System           ║");
+  console.log("╚══════════════════════════════════════════════════════════════════╝\n");
+
+  // Get signer
+  const [signer] = await ethers.getSigners();
+  console.log("📍 Proposer:", signer.address);
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // PRE-CHECKS
+  // ═══════════════════════════════════════════════════════════════════════
+  console.log("\n📋 PRE-CHECKS...\n");
+
+  // Check CGC balance
+  const cgcToken = new ethers.Contract(ADDRESSES.CGC_TOKEN, CGC_TOKEN_ABI, signer);
+  const balance = await cgcToken.balanceOf(signer.address);
+  console.log("   CGC Balance:", ethers.utils.formatUnits(balance, 18), "CGC");
+
+  // Check min proposer power
+  const tokenVoting = new ethers.Contract(ADDRESSES.TOKEN_VOTING_PLUGIN, TOKEN_VOTING_ABI, signer);
+  const minPower = await tokenVoting.minProposerVotingPower();
+  console.log("   Min Proposer Power:", ethers.utils.formatUnits(minPower, 18), "CGC");
+
+  if (balance.lt(minPower)) {
+    console.error("❌ Balance insuficiente para crear propuesta");
+    process.exit(1);
+  }
+  console.log("   ✅ Balance suficiente para proponer");
+
+  // Check current state
+  const currentOwner = await cgcToken.owner();
+  console.log("   Current CGC Owner:", currentOwner);
+
+  const escrowIsMinter = await cgcToken.minters(ADDRESSES.MILESTONE_ESCROW);
+  console.log("   Escrow is minter:", escrowIsMinter);
+
+  console.log("\n✅ Pre-checks pasados\n");
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // ENCODE ACTIONS
+  // ═══════════════════════════════════════════════════════════════════════
+  console.log("📝 Codificando 4 acciones...\n");
+
+  const cgcInterface = new ethers.utils.Interface(CGC_TOKEN_ABI);
+
+  // Action 1: addMinter(Gateway)
+  const action1 = {
+    to: ADDRESSES.CGC_TOKEN,
+    value: 0,
+    data: cgcInterface.encodeFunctionData("addMinter", [ADDRESSES.MINTER_GATEWAY])
+  };
+  console.log("   1. addMinter(Gateway)");
+  console.log("      Target:", ADDRESSES.CGC_TOKEN);
+  console.log("      Calldata:", action1.data);
+
+  // Action 2: removeMinter(Escrow)
+  const action2 = {
+    to: ADDRESSES.CGC_TOKEN,
+    value: 0,
+    data: cgcInterface.encodeFunctionData("removeMinter", [ADDRESSES.MILESTONE_ESCROW])
+  };
+  console.log("   2. removeMinter(Escrow)");
+  console.log("      Calldata:", action2.data);
+
+  // Action 3: removeMinter(Deployer)
+  const action3 = {
+    to: ADDRESSES.CGC_TOKEN,
+    value: 0,
+    data: cgcInterface.encodeFunctionData("removeMinter", [ADDRESSES.DEPLOYER])
+  };
+  console.log("   3. removeMinter(Deployer)");
+  console.log("      Calldata:", action3.data);
+
+  // Action 4: transferOwnership(Timelock)
+  const action4 = {
+    to: ADDRESSES.CGC_TOKEN,
+    value: 0,
+    data: cgcInterface.encodeFunctionData("transferOwnership", [ADDRESSES.TIMELOCK_CONTROLLER])
+  };
+  console.log("   4. transferOwnership(Timelock)");
+  console.log("      Calldata:", action4.data);
+
+  const actions = [action1, action2, action3, action4];
+  console.log("\n✅ 4 acciones codificadas\n");
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // PROPOSAL METADATA
+  // ═══════════════════════════════════════════════════════════════════════
+  const metadataObj = {
+    title: "Configure MinterGateway v3.3 - Supply Cap System",
+    summary: "This proposal configures the MinterGateway system for controlled CGC minting with a 22M supply cap.",
+    description: `## Propuesta: Configurar Sistema MinterGateway v3.3
+
+### Objetivo
+Implementar el sistema de minting controlado con cap de 22M CGC.
+
+### Acciones
+1. **Añadir MinterGateway como minter autorizado**
+   - Address: ${ADDRESSES.MINTER_GATEWAY}
+   - El Gateway tiene cap de 22M tokens total
+
+2. **Remover MilestoneEscrow como minter**
+   - Address: ${ADDRESSES.MILESTONE_ESCROW}
+   - Este contrato nunca usa mint(), solo transfer()
+
+3. **Remover Deployer como minter**
+   - Address: ${ADDRESSES.DEPLOYER}
+   - Ya no es necesario
+
+4. **Transferir ownership al TimelockController**
+   - Address: ${ADDRESSES.TIMELOCK_CONTROLLER}
+   - Delay de 7 días para cambios futuros
+
+### Resultado
+Después de la ejecución:
+- Gateway será el ÚNICO minter con cap de 22M
+- Timelock protegerá cambios con delay de 7 días
+- DAO mantiene control via governance`,
+    resources: [
+      { name: "MinterGateway (BaseScan)", url: `https://basescan.org/address/${ADDRESSES.MINTER_GATEWAY}` },
+      { name: "TimelockController (BaseScan)", url: `https://basescan.org/address/${ADDRESSES.TIMELOCK_CONTROLLER}` }
+    ]
+  };
+
+  const metadata = ethers.utils.toUtf8Bytes(JSON.stringify(metadataObj));
+
+  console.log("📄 Metadata:");
+  console.log("   Title:", metadataObj.title);
+  console.log("   Summary:", metadataObj.summary.slice(0, 60) + "...\n");
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // CREATE PROPOSAL
+  // ═══════════════════════════════════════════════════════════════════════
+  console.log("═══════════════════════════════════════════════════════════════════");
+  console.log("🚀 Creando propuesta en Token Voting Plugin...");
+  console.log("═══════════════════════════════════════════════════════════════════\n");
+
+  // Proposal parameters
+  const allowFailureMap = 0; // Ninguna acción puede fallar
+  const startDate = 0; // Iniciar inmediatamente
+  const endDate = 0; // Usar duración por defecto del plugin
+  const voteOption = 2; // 0=None, 1=Abstain, 2=Yes, 3=No - Votar YES automáticamente
+  const tryEarlyExecution = true; // Ejecutar si pasa antes
+
+  try {
+    console.log("📤 Enviando transacción...");
+
+    const tx = await tokenVoting.createProposal(
+      metadata,
+      actions,
+      allowFailureMap,
+      startDate,
+      endDate,
+      voteOption,
+      tryEarlyExecution,
+      {
+        gasLimit: 2000000 // Gas limit explícito
+      }
     );
 
-    const daoAddress = deploymentData.config.aragonDAO;
-    const vaultAddress = deploymentData.contracts.GovTokenVault.address;
-    const tokenAddress = deploymentData.contracts.CGCToken.address;
+    console.log("   TX Hash:", tx.hash);
+    console.log("⏳ Esperando confirmación...\n");
 
-    console.log(`🏛️ DAO: ${colors.magenta}${daoAddress}${colors.reset}`);
-    console.log(`🏦 Vault: ${colors.blue}${vaultAddress}${colors.reset}`);
-    console.log(`📄 Token: ${colors.green}${tokenAddress}${colors.reset}`);
-    console.log('');
+    const receipt = await tx.wait();
+    console.log("✅ Transacción confirmada!");
+    console.log("   Block:", receipt.blockNumber);
+    console.log("   Gas used:", receipt.gasUsed.toString());
 
-    const [deployer] = await hre.ethers.getSigners();
-    console.log(`🔑 Proposer: ${colors.yellow}${deployer.address}${colors.reset}`);
-
-    // Conectar al DAO
-    const dao = new hre.ethers.Contract(daoAddress, ARAGON_DAO_ABI, deployer);
-    
-    console.log(`${colors.yellow}📋 PASO 1: Verificar permisos de propuesta${colors.reset}`);
-    
-    try {
-      // Verificar si podemos crear propuestas
-      const supportsInterface = await dao.supportsInterface("0x01ffc9a7");
-      console.log(`   Interface ERC165: ${colors.green}${supportsInterface}${colors.reset}`);
-    } catch (error) {
-      console.log(`   ${colors.red}❌ Error verificando interface: ${error.message}${colors.reset}`);
-    }
-
-    console.log(`${colors.yellow}📋 PASO 2: Preparar acción de transferencia${colors.reset}`);
-    
-    const CGCToken = await hre.ethers.getContractAt("CGCToken", tokenAddress);
-    const transferAmount = hre.ethers.parseEther("400000");
-    
-    // Crear la acción
-    const action = {
-      to: tokenAddress,
-      value: 0,
-      data: CGCToken.interface.encodeFunctionData("transfer", [vaultAddress, transferAmount])
-    };
-
-    console.log(`   Target: ${colors.blue}${action.to}${colors.reset}`);
-    console.log(`   Value: ${action.value} ETH`);
-    console.log(`   Data: ${action.data.slice(0, 42)}...`);
-
-    // Crear metadata de la propuesta
-    const metadata = {
-      title: "Initial Token Distribution to Vault",
-      description: "Transfer 400,000 CGC tokens (40% of supply) from DAO treasury to GovTokenVault according to established tokenomics. This is essential for the DAO to function properly and distribute rewards to contributors.",
-      actions: [{
-        to: action.to,
-        value: action.value.toString(),
-        data: action.data,
-        description: "Transfer 400,000 CGC to vault"
-      }],
-      timestamp: new Date().toISOString(),
-      proposer: deployer.address
-    };
-
-    const metadataBytes = hre.ethers.toUtf8Bytes(JSON.stringify(metadata));
-
-    console.log(`${colors.yellow}📋 PASO 3: Intentar crear propuesta${colors.reset}`);
-    
-    try {
-      // Método 1: Crear propuesta directa
-      const tx = await dao.createProposal(
-        metadataBytes,
-        [action],
-        0, // allowFailureMap - 0 significa que no permitimos fallos
-        false, // approve - no auto-aprobar
-        false, // execute - no auto-ejecutar
-        Math.floor(Date.now() / 1000), // startDate - ahora
-        Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60 // endDate - 1 semana
-      );
-
-      console.log(`   TX Hash: ${colors.blue}${tx.hash}${colors.reset}`);
-      const receipt = await tx.wait();
-      
-      console.log(`${colors.green}✅ PROPUESTA CREADA${colors.reset}`);
-      console.log(`   Block: ${receipt.blockNumber}`);
-      console.log(`   Gas Used: ${receipt.gasUsed.toString()}`);
-
-      // Extraer proposal ID del evento
-      const proposalId = receipt.logs[0]?.topics[1] || "unknown";
-      console.log(`   Proposal ID: ${colors.bright}${proposalId}${colors.reset}`);
-
-      return {
-        success: true,
-        txHash: tx.hash,
-        proposalId,
-        blockNumber: receipt.blockNumber
-      };
-
-    } catch (createError) {
-      console.log(`   ${colors.yellow}⚠️  Método directo falló: ${createError.message}${colors.reset}`);
-      
-      // Método 2: Intentar con TokenVoting plugin
-      console.log(`${colors.yellow}📋 PASO 4: Intentar con TokenVoting plugin${colors.reset}`);
-      
+    // Buscar evento ProposalCreated
+    let proposalId = null;
+    for (const log of receipt.logs) {
       try {
-        const tokenVoting = new hre.ethers.Contract(daoAddress, TOKEN_VOTING_ABI, deployer);
-        
-        const tx = await tokenVoting.createProposal(
-          metadataBytes,
-          [action],
-          0 // allowFailureMap
-        );
-
-        const receipt = await tx.wait();
-        
-        console.log(`${colors.green}✅ PROPUESTA CREADA VIA TOKEN VOTING${colors.reset}`);
-        
-        return {
-          success: true,
-          method: "tokenVoting",
-          txHash: tx.hash,
-          blockNumber: receipt.blockNumber
-        };
-
-      } catch (tokenVotingError) {
-        console.log(`   ${colors.red}❌ TokenVoting también falló: ${tokenVotingError.message}${colors.reset}`);
+        const parsed = tokenVoting.interface.parseLog(log);
+        if (parsed.name === "ProposalCreated") {
+          proposalId = parsed.args.proposalId;
+          break;
+        }
+      } catch (e) {
+        // Log de otro contrato, ignorar
       }
     }
 
-    // Si todo falla, crear archivo para uso manual
-    console.log(`${colors.yellow}📋 PASO 5: Crear archivos para propuesta manual${colors.reset}`);
-    
-    const proposalData = {
-      dao: daoAddress,
-      metadata,
-      actions: [action],
-      calldata: action.data,
-      target: action.to,
-      value: action.value,
-      description: "Transfer 400,000 CGC to vault",
-      aragon_url: `https://app.aragon.org/#/daos/base/${daoAddress}`,
-      manual_instructions: {
-        step1: "Go to https://app.aragon.org",
-        step2: `Connect to DAO: ${daoAddress}`,
-        step3: "Create new proposal",
-        step4: `Target: ${action.to}`,
-        step5: `Calldata: ${action.data}`,
-        step6: "Submit and vote"
-      }
-    };
+    if (proposalId) {
+      console.log("\n╔══════════════════════════════════════════════════════════════════╗");
+      console.log("║               🎉 PROPUESTA CREADA EXITOSAMENTE                   ║");
+      console.log("╠══════════════════════════════════════════════════════════════════╣");
+      console.log(`║ Proposal ID: ${proposalId.toString().padEnd(48)} ║`);
+      console.log("╚══════════════════════════════════════════════════════════════════╝\n");
 
-    const filename = `manual-proposal-${Date.now()}.json`;
-    fs.writeFileSync(filename, JSON.stringify(proposalData, null, 2));
-    
-    console.log(`${colors.green}✅ Propuesta manual creada: ${filename}${colors.reset}`);
-    console.log('');
-    
-    console.log(`${colors.bright}${colors.cyan}🚀 INSTRUCCIONES MANUALES:${colors.reset}`);
-    console.log(`1. Ir a: ${colors.blue}https://app.aragon.org${colors.reset}`);
-    console.log(`2. Conectar a DAO: ${colors.magenta}${daoAddress}${colors.reset}`);
-    console.log(`3. Crear nueva propuesta`);
-    console.log(`4. Target Contract: ${colors.green}${action.to}${colors.reset}`);
-    console.log(`5. Function: transfer(address,uint256)`);
-    console.log(`6. Parameters: ${colors.blue}${vaultAddress}${colors.reset}, ${colors.yellow}400000000000000000000000${colors.reset}`);
-    console.log(`7. Submit y votar`);
+      console.log("🔗 URL DE LA PROPUESTA:");
+      console.log(`   https://app.aragon.org/dao/base-mainnet/${ADDRESSES.DAO_ARAGON}/proposals/${proposalId.toString()}\n`);
+    } else {
+      console.log("\n✅ Propuesta creada (ID no encontrado en logs)");
+      console.log("   Verifica en: https://app.aragon.org/dao/base-mainnet/" + ADDRESSES.DAO_ARAGON + "/proposals\n");
+    }
 
-    return {
-      success: true,
-      method: "manual",
-      filename,
-      instructions: proposalData.manual_instructions
-    };
+    console.log("📋 SIGUIENTE PASO:");
+    console.log("   Tu voto YES ya fue registrado automáticamente.");
+    console.log("   Espera a que termine el periodo de votación para ejecutar.\n");
 
   } catch (error) {
-    console.error(`${colors.red}💥 Error creando propuesta: ${error.message}${colors.reset}`);
-    throw error;
+    console.error("\n❌ Error creando propuesta:", error.message);
+
+    if (error.data) {
+      console.log("\n📋 Error data:", error.data);
+    }
+
+    if (error.reason) {
+      console.log("📋 Reason:", error.reason);
+    }
+
+    // Crear archivo para propuesta manual
+    console.log("\n═══════════════════════════════════════════════════════════════════");
+    console.log("📝 Generando datos para PROPUESTA MANUAL...");
+    console.log("═══════════════════════════════════════════════════════════════════\n");
+
+    console.log("Ve a: https://app.aragon.org/dao/base-mainnet/" + ADDRESSES.DAO_ARAGON + "/new-proposal\n");
+
+    console.log("ACCIÓN 1 - addMinter:");
+    console.log("   Target:", ADDRESSES.CGC_TOKEN);
+    console.log("   Calldata:", action1.data);
+
+    console.log("\nACCIÓN 2 - removeMinter (Escrow):");
+    console.log("   Target:", ADDRESSES.CGC_TOKEN);
+    console.log("   Calldata:", action2.data);
+
+    console.log("\nACCIÓN 3 - removeMinter (Deployer):");
+    console.log("   Target:", ADDRESSES.CGC_TOKEN);
+    console.log("   Calldata:", action3.data);
+
+    console.log("\nACCIÓN 4 - transferOwnership:");
+    console.log("   Target:", ADDRESSES.CGC_TOKEN);
+    console.log("   Calldata:", action4.data);
+
+    process.exit(1);
   }
 }
 
-if (require.main === module) {
-  createAragonProposal()
-    .then((result) => {
-      console.log('\n📊 Result:', result);
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error(error);
-      process.exit(1);
-    });
-}
-
-module.exports = { createAragonProposal };
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error("\n❌ ERROR CRÍTICO:", error);
+    process.exit(1);
+  });

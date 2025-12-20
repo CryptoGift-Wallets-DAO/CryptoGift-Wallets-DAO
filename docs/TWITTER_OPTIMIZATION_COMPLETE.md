@@ -170,7 +170,7 @@ CONTENIDO DEL BANNER:
 
 ### 3.1 TWEET FIJADO - HILO "START HERE" (Copiar/Pegar)
 
-**TWEET 1/7 (Principal - Se fija este):**
+**TWEET 1/7 
 ```
 ¿Qué es CryptoGift Wallets DAO?
 
@@ -367,7 +367,7 @@ first they learn the essentials of the selected topics, driven by the psychologi
 6️⃣ Result: they already have their first non-custodial wallet + funds + criteria to move in Web3
 (you choose the level: basic → advanced)
 
-Demo: [https://youtu.be/_CDc7GMVNhg?si=yjiK-t7AWHGVf3Oo](https://youtu.be/_CDc7GMVNhg?si=yjiK-t7AWHGVf3Oo)
+Demo: https://x.com/CryptoGiftDAO/status/1999459295616741674?s=20
 
 ```
 
@@ -400,6 +400,7 @@ How to earn CGC:
 📄 White Paper: [https://www.mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html](https://www.mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html)
 💬 Discord: discord.gg/XzmKkrvhHc
 📊 Contracts: BaseScan (verified ✅)
+⏯️ Video/Presentation: https://x.com/CryptoGiftDAO/status/1999457992530403639?s=20
 
 The DAO is already operational on Base Mainnet.
 
@@ -558,7 +559,7 @@ Links oficiales de CryptoGift Wallets DAO:
 🌐 Web: mbxarts.com
 💬 Discord: discord.gg/XzmKkrvhHc
 📊 Token: 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
-🐦 Twitter: @cryptogiftdao (esta cuenta)
+🐦 Twitter: @CryptoGiftDAO (esta cuenta)
 
 NUNCA:
 ❌ Te pediremos seed phrase

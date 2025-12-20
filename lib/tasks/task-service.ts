@@ -22,25 +22,43 @@ function ensureSupabaseClient(): TypedSupabaseClient {
   return supabaseAdmin
 }
 
-// Task complexity to reward mapping (days * 50 CGC)
+// Task complexity to reward mapping - v3.1.0 Classification System
+// Based on TASK_ALLOCATION_MASTER_PLAN.md v3.1.0 (Live Tasks Corrected)
 export const TASK_REWARDS = {
-  calculateReward: (days: number): number => {
-    return days * 50 // 50 CGC per day
+  // Complexity-based CGC ranges (v3.1.0)
+  COMPLEXITY_RANGES: {
+    TRIVIAL: { min: 200, max: 400, days: { min: 0.5, max: 1 } },      // 1-2 complexity
+    SIMPLE: { min: 400, max: 900, days: { min: 1, max: 3 } },         // 3-4 complexity
+    MEDIUM: { min: 900, max: 1750, days: { min: 3, max: 7 } },        // 5-6 complexity
+    HIGH: { min: 1750, max: 3750, days: { min: 7, max: 14 } },        // 7-8 complexity
+    CRITICAL: { min: 3750, max: 7500, days: { min: 14, max: 28 } },   // 9-10 complexity
+    EPIC: { min: 7500, max: 12500, days: { min: 28, max: 42 } },      // 10+ complexity
   },
-  
+
+  calculateReward: (days: number, complexity: number): number => {
+    // Use v3.1.0 complexity-based calculation
+    const ranges = TASK_REWARDS.COMPLEXITY_RANGES
+    if (complexity <= 2) return Math.min(ranges.TRIVIAL.max, Math.max(ranges.TRIVIAL.min, days * 200))
+    if (complexity <= 4) return Math.min(ranges.SIMPLE.max, Math.max(ranges.SIMPLE.min, days * 200))
+    if (complexity <= 6) return Math.min(ranges.MEDIUM.max, Math.max(ranges.MEDIUM.min, days * 175))
+    if (complexity <= 8) return Math.min(ranges.HIGH.max, Math.max(ranges.HIGH.min, days * 175))
+    if (complexity <= 9) return Math.min(ranges.CRITICAL.max, Math.max(ranges.CRITICAL.min, days * 150))
+    return Math.min(ranges.EPIC.max, Math.max(ranges.EPIC.min, days * 150))
+  },
+
   getComplexityDays: (complexity: number): number => {
-    // Map complexity 1-10 to estimated days
+    // Map complexity 1-10 to estimated days (with Claude Opus 4.5 efficiency)
     const complexityMap: Record<number, number> = {
-      1: 1,   // 1 day = 50 CGC
-      2: 2,   // 2 days = 100 CGC
-      3: 3,   // 3 days = 150 CGC
-      4: 5,   // 5 days = 250 CGC
-      5: 7,   // 7 days = 350 CGC
-      6: 10,  // 10 days = 500 CGC
-      7: 14,  // 14 days = 700 CGC
-      8: 21,  // 21 days = 1050 CGC
-      9: 30,  // 30 days = 1500 CGC
-      10: 45, // 45 days = 2250 CGC
+      1: 0.5,  // Half day - Trivial tasks
+      2: 1,    // 1 day - Trivial tasks
+      3: 2,    // 2 days - Simple tasks
+      4: 3,    // 3 days - Simple tasks
+      5: 4,    // 4 days - Medium tasks
+      6: 5,    // 5 days - Medium tasks
+      7: 7,    // 7 days - High complexity
+      8: 10,   // 10 days - High complexity
+      9: 14,   // 14 days - Critical tasks
+      10: 21,  // 21 days - Epic tasks
     }
     return complexityMap[complexity] || 7
   }
@@ -89,280 +107,295 @@ export const TASK_CLAIM_CONFIG = {
   }
 }
 
-// Initial task list
+// Initial task list - v3.1.0 RECOTIZACIÓN FINAL (Live Tasks Corrected)
+// Based on TASK_ALLOCATION_MASTER_PLAN.md v3.1.0 - VALORES CORREGIDOS EXACTOS
+// Total: 52,100 CGC (vs 17,150 anterior = +204% incremento)
 export const INITIAL_TASKS = [
-  // Complexity 10
+  // ══════════════════════════════════════════════════════════════════
+  // NIVEL EPIC (7,500-12,500 CGC) - Complexity 10+
+  // ══════════════════════════════════════════════════════════════════
   {
     title: "RC-1155 Tokenbone Protocol & Reference",
     description: "Complete protocol specification with registry (6551 style for 1155), accounts/proxies, ERC-1271/165 compatibility, events, tests and examples",
     complexity: 10,
-    estimated_days: 42, // 6 weeks average
-    reward_cgc: 2100,
+    estimated_days: 15, // 10-20 days with Claude 4.5
+    reward_cgc: 7500,   // Epic task: max complexity protocol design
     platform: 'github' as const,
   },
   {
     title: "Academic Integration LTI 1.3 + xAPI + EAS",
     description: "SSO, grade passback, deep links, xAPI connector to LRS and EAS attestation emission synchronized with progress",
     complexity: 10,
-    estimated_days: 35, // 5 weeks average
-    reward_cgc: 1750,
+    estimated_days: 12, // 10-15 days with Claude 4.5
+    reward_cgc: 7500,   // Epic: multi-system integration
     platform: 'github' as const,
   },
-  // Complexity 9
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIVEL CRITICAL (3,750-7,500 CGC) - Complexity 9
+  // ══════════════════════════════════════════════════════════════════
   {
     title: "Wireless Connect + Swap 2.0",
     description: "Smart routing with 0x + Uniswap v3 + Permit2, fallbacks, fault tolerance, slippage limits, permit2 (approve-less), execution metrics",
     complexity: 9,
-    estimated_days: 28, // 4 weeks average
-    reward_cgc: 1400,
+    estimated_days: 10, // 8-12 days with Claude 4.5
+    reward_cgc: 5000,   // Critical: DeFi infrastructure
     platform: 'github' as const,
   },
   {
     title: "Multi-chain Indexer for 1155/6551",
     description: "Backfill with safe windows, WS live tail, reorg handling, idempotency by tx+logIndex, queues and retries",
     complexity: 9,
-    estimated_days: 25,
-    reward_cgc: 1250,
+    estimated_days: 8,  // 7-10 days with Claude 4.5
+    reward_cgc: 4500,   // Critical: blockchain infrastructure
     platform: 'github' as const,
   },
   {
     title: "Anti-fraud/Anti-sybil Referral System",
     description: "EIP-712 rules, cooldowns, eligibility signals (attestations, account age), loop and multi-account detection",
     complexity: 9,
-    estimated_days: 21,
-    reward_cgc: 1050,
+    estimated_days: 7,  // 6-9 days with Claude 4.5
+    reward_cgc: 4000,   // Critical: security system
     platform: 'github' as const,
   },
-  // Complexity 8
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIVEL HIGH (1,750-3,750 CGC) - Complexity 7-8
+  // ══════════════════════════════════════════════════════════════════
   {
     title: "Professional Referral Panel",
     description: "End-to-end attribution funnels click→claim→retention, cohorts, export, payout calculation and tier simulator",
     complexity: 8,
-    estimated_days: 21,
-    reward_cgc: 1050,
+    estimated_days: 5,  // 4-6 days with Claude 4.5
+    reward_cgc: 3000,   // High: complex analytics dashboard
     platform: 'github' as const,
   },
   {
     title: "Creator Studio for Academy",
     description: "MDX/blocks editor with preview, versioning, shadow publish, multimedia library, rubrics and templates",
     complexity: 8,
-    estimated_days: 21,
-    reward_cgc: 1050,
+    estimated_days: 6,  // 5-7 days with Claude 4.5
+    reward_cgc: 3000,   // High: content management system
     platform: 'github' as const,
   },
   {
     title: "Tokenbone + Account Abstraction (4337)",
     description: "validateUserOp, low-permission session keys, sponsor caps and policy module per account",
     complexity: 8,
-    estimated_days: 21,
-    reward_cgc: 1050,
+    estimated_days: 6,  // 5-7 days with Claude 4.5
+    reward_cgc: 3500,   // High: ERC-4337 integration
     platform: 'github' as const,
   },
-  // Complexity 7
   {
     title: "Wrapper 1155→721 per unit",
     description: "Escrow/wrap 1155 units to 721 to enable standard TBA when required (promote to NFT mode)",
     complexity: 7,
-    estimated_days: 14,
-    reward_cgc: 700,
-    platform: 'github' as const,
-  },
-  {
-    title: "Advanced Swap Observability",
-    description: "Price impact, quote vs execution, failure tracking by source, alarms (timeouts, 429, bps deviation)",
-    complexity: 7,
-    estimated_days: 12,
-    reward_cgc: 600,
+    estimated_days: 4,  // 3-5 days with Claude 4.5
+    reward_cgc: 2000,   // High: smart contract wrapper
     platform: 'github' as const,
   },
   {
     title: "Content Marketplace with Revenue Share",
     description: "Publishing, review, listing, commissions and attribution to content creators who bring students",
     complexity: 7,
-    estimated_days: 14,
-    reward_cgc: 700,
+    estimated_days: 5,  // 4-6 days with Claude 4.5
+    reward_cgc: 2500,   // High: marketplace logic
     platform: 'github' as const,
   },
-  // Complexity 6
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIVEL MEDIUM (900-1,750 CGC) - Complexity 5-6
+  // ══════════════════════════════════════════════════════════════════
+  {
+    title: "Advanced Swap Observability",
+    description: "Price impact, quote vs execution, failure tracking by source, alarms (timeouts, 429, bps deviation)",
+    complexity: 6,
+    estimated_days: 3,  // 2-4 days with Claude 4.5
+    reward_cgc: 1500,   // Medium: monitoring system
+    platform: 'github' as const,
+  },
   {
     title: "Circuit-breakers & Safe Mode",
     description: "Granular pauses for mint/claim/swap, degradation to read-only and gas-paid only under events",
     complexity: 6,
-    estimated_days: 7,
-    reward_cgc: 350,
+    estimated_days: 2,  // 1-2 days with Claude 4.5
+    reward_cgc: 1200,   // Medium: security infrastructure
     platform: 'github' as const,
   },
   {
     title: "Transactional Notifications & Banners",
     description: "Context per operation, retries and recovery links with persistent banners",
     complexity: 6,
-    estimated_days: 7,
-    reward_cgc: 350,
+    estimated_days: 2,  // 1-2 days with Claude 4.5
+    reward_cgc: 1000,   // Medium: notification system
     platform: 'github' as const,
   },
   {
     title: "Universal/Deep Links Mobile",
     description: "iOS/Android immediate wallet opening and app return; QR fallback",
     complexity: 6,
-    estimated_days: 8,
-    reward_cgc: 400,
+    estimated_days: 2,  // 1-2 days with Claude 4.5
+    reward_cgc: 1200,   // Medium: mobile integration
     platform: 'github' as const,
   },
   {
     title: "EIP-712 Signature Audit",
     description: "Telemetry by device/wallet, rejection/error analysis, UX nudges",
     complexity: 6,
-    estimated_days: 7,
-    reward_cgc: 350,
+    estimated_days: 2,  // 1-2 days with Claude 4.5
+    reward_cgc: 1100,   // Medium: security audit
     platform: 'github' as const,
   },
-  // Complexity 5
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIVEL SIMPLE (400-900 CGC) - Complexity 3-4
+  // ══════════════════════════════════════════════════════════════════
   {
     title: "EAS Schema Catalog",
     description: "Schemas for Courses, Modules, Certificates, Rules with versioning and revocability",
-    complexity: 5,
-    estimated_days: 5,
-    reward_cgc: 250,
+    complexity: 4,
+    estimated_days: 1,  // 4-8h with Claude 4.5
+    reward_cgc: 600,    // Simple: schema design
     platform: 'github' as const,
   },
   {
     title: "Swap Fee Management",
     description: "Transparent calculation, caps per route and opt-out by jurisdiction",
-    complexity: 5,
-    estimated_days: 5,
-    reward_cgc: 250,
+    complexity: 4,
+    estimated_days: 1,  // 4-8h with Claude 4.5
+    reward_cgc: 650,    // Simple: fee logic
     platform: 'github' as const,
   },
   {
     title: "Quick-switch Multi-chain",
     description: "Assisted network change and pre-signing validations with reminders",
-    complexity: 5,
-    estimated_days: 4,
-    reward_cgc: 200,
+    complexity: 4,
+    estimated_days: 1,  // 3-6h with Claude 4.5
+    reward_cgc: 550,    // Simple: UX improvement
     platform: 'github' as const,
   },
   {
     title: "Gateway Health-checks",
     description: "IPFS/0x latency/success monitoring, fallbacks and auto-throttle",
-    complexity: 5,
-    estimated_days: 4,
-    reward_cgc: 200,
+    complexity: 4,
+    estimated_days: 1,  // 3-6h with Claude 4.5
+    reward_cgc: 550,    // Simple: monitoring
     platform: 'github' as const,
   },
-  // Complexity 4
   {
     title: "Gift Bundle Templates",
     description: "Pre-built baskets, art/theme and post-claim upsell for themed campaigns",
     complexity: 4,
-    estimated_days: 4,
-    reward_cgc: 200,
+    estimated_days: 1,  // 3-5h with Claude 4.5
+    reward_cgc: 450,    // Simple: templates
     platform: 'manual' as const,
   },
   {
     title: "SCORM→xAPI Export/Import",
     description: "Basic conversion and attempt validation for courses",
     complexity: 4,
-    estimated_days: 4,
-    reward_cgc: 200,
+    estimated_days: 1,  // 3-5h with Claude 4.5
+    reward_cgc: 500,    // Simple: format conversion
     platform: 'github' as const,
   },
   {
     title: "Education Metrics Dashboard",
     description: "Engagement, time in lesson, completion funnels and basic analytics",
     complexity: 4,
-    estimated_days: 4,
-    reward_cgc: 200,
+    estimated_days: 1,  // 4-6h with Claude 4.5
+    reward_cgc: 550,    // Simple: dashboard
     platform: 'github' as const,
   },
   {
     title: "Runbooks Documentation",
     description: "Incident playbooks, checklists and internal SLA/SLO documentation",
     complexity: 4,
-    estimated_days: 3,
-    reward_cgc: 150,
+    estimated_days: 1,  // 3-5h with Claude 4.5
+    reward_cgc: 450,    // Simple: documentation
     platform: 'manual' as const,
   },
-  // Complexity 3
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIVEL TRIVIAL (200-400 CGC) - Complexity 1-3
+  // ══════════════════════════════════════════════════════════════════
   {
     title: "Guided Onboarding with Tooltips",
     description: "Role-based tasks, visual state and next step guidance",
     complexity: 3,
-    estimated_days: 3,
-    reward_cgc: 150,
+    estimated_days: 0.5, // 2-4h with Claude 4.5
+    reward_cgc: 350,     // Trivial: UX
     platform: 'github' as const,
   },
   {
     title: "Key Rotation Policy",
     description: "Scheduled rotations, scoping and smoke tests for validators",
     complexity: 3,
-    estimated_days: 3,
-    reward_cgc: 150,
+    estimated_days: 0.5, // 2-4h with Claude 4.5
+    reward_cgc: 350,     // Trivial: security policy
     platform: 'manual' as const,
   },
   {
     title: "NFT Metadata Integrity Validation",
     description: "Hash verification at claim, alerts for inconsistencies",
     complexity: 3,
-    estimated_days: 2,
-    reward_cgc: 100,
+    estimated_days: 0.5, // 1-3h with Claude 4.5
+    reward_cgc: 300,     // Trivial: validation
     platform: 'github' as const,
   },
   {
     title: "Accessibility Audit",
     description: "Contrast/keyboard/aria for key views with internal accessibility certification",
     complexity: 3,
-    estimated_days: 3,
-    reward_cgc: 150,
+    estimated_days: 0.5, // 2-4h with Claude 4.5
+    reward_cgc: 350,     // Trivial: audit
     platform: 'manual' as const,
   },
-  // Complexity 2
   {
     title: "System Status Dashboard",
     description: "Basic health panel with ping, queues, indices and latencies",
     complexity: 2,
-    estimated_days: 2,
-    reward_cgc: 100,
+    estimated_days: 0.5, // 1-2h with Claude 4.5
+    reward_cgc: 250,     // Trivial: basic panel
     platform: 'github' as const,
   },
   {
     title: "Content Backup & Rollbacks",
     description: "Snapshots + 1-click restoration system",
     complexity: 2,
-    estimated_days: 2,
-    reward_cgc: 100,
+    estimated_days: 0.5, // 1-3h with Claude 4.5
+    reward_cgc: 300,     // Trivial: backup system
     platform: 'github' as const,
   },
   {
     title: "Error Messages & UX Nudges",
     description: "Clear messages per case and recovery guidance (ES/EN)",
     complexity: 2,
-    estimated_days: 2,
-    reward_cgc: 100,
+    estimated_days: 0.5, // 1-2h with Claude 4.5
+    reward_cgc: 250,     // Trivial: copy/UX
     platform: 'manual' as const,
   },
-  // Complexity 1
   {
     title: "Module Feature Flags",
     description: "Runtime on/off switches for Tokenbone, Swap, Referrals, Creator, Academy",
     complexity: 1,
-    estimated_days: 1,
-    reward_cgc: 50,
+    estimated_days: 0.25, // <1h with Claude 4.5
+    reward_cgc: 200,      // Trivial: config
     platform: 'github' as const,
   },
   {
     title: "Console/Logs Cleanup",
     description: "Remove noise; strict lint-staged in CI",
     complexity: 1,
-    estimated_days: 1,
-    reward_cgc: 50,
+    estimated_days: 0.25, // <1h with Claude 4.5
+    reward_cgc: 200,      // Trivial: cleanup
     platform: 'github' as const,
   },
   {
     title: "Release Verification Checklist",
     description: "Go/No-Go per module with smoke tests",
     complexity: 1,
-    estimated_days: 1,
-    reward_cgc: 50,
+    estimated_days: 0.25, // <1h with Claude 4.5
+    reward_cgc: 200,      // Trivial: checklist
     platform: 'manual' as const,
   },
 ]
