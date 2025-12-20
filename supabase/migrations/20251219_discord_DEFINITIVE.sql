@@ -11,19 +11,15 @@
 -- Drop views first (they depend on tables)
 DROP VIEW IF EXISTS v_proposals_with_stats;
 
--- Drop triggers
-DROP TRIGGER IF EXISTS trigger_update_proposal_votes ON proposal_votes;
-DROP TRIGGER IF EXISTS trigger_proposal_updated ON task_proposals;
-DROP TRIGGER IF EXISTS trigger_discord_link_updated ON discord_user_links;
+-- Drop tables FIRST (this automatically drops triggers attached to them)
+-- Order matters: proposal_votes has FK to task_proposals
+DROP TABLE IF EXISTS proposal_votes CASCADE;
+DROP TABLE IF EXISTS discord_user_links CASCADE;
+DROP TABLE IF EXISTS task_proposals CASCADE;
 
--- Drop functions
+-- Now drop functions (safe since triggers are gone with tables)
 DROP FUNCTION IF EXISTS update_proposal_vote_counts();
 DROP FUNCTION IF EXISTS update_discord_timestamp();
-
--- Drop tables (order matters - foreign keys)
-DROP TABLE IF EXISTS proposal_votes;
-DROP TABLE IF EXISTS discord_user_links;
-DROP TABLE IF EXISTS task_proposals;
 
 -- ============================================================================
 -- STEP 2: Create tables fresh
