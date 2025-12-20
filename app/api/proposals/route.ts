@@ -6,12 +6,24 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy initialization to avoid build-time errors
+let _supabase: SupabaseClient | null = null
+
+function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!url || !key) {
+      throw new Error('Supabase configuration missing')
+    }
+
+    _supabase = createClient(url, key)
+  }
+  return _supabase
+}
 
 // Valid status values
 type ProposalStatus = 'pending' | 'voting' | 'approved' | 'rejected' | 'converted' | 'reviewing'
@@ -93,7 +105,7 @@ export async function GET(request: NextRequest) {
     const orderDir = searchParams.get('orderDir') === 'asc'
 
     // Use the view that includes computed stats
-    let query = supabase
+    let query = getSupabase()
       .from('v_proposals_with_stats')
       .select('*')
       .order(orderBy, { ascending: orderDir })
@@ -213,7 +225,7 @@ export async function POST(request: NextRequest) {
     if (estimated_complexity) proposalData.estimated_complexity = estimated_complexity
     if (estimated_days) proposalData.estimated_days = estimated_days
 
-    const { data: proposal, error } = await supabase
+    const { data: proposal, error } = await getSupabase()
       .from('task_proposals')
       .insert(proposalData)
       .select()
@@ -261,7 +273,7 @@ async function getProposalsFromTable(
   orderBy: string,
   orderDir: boolean
 ) {
-  let query = supabase
+  let query = getSupabase()
     .from('task_proposals')
     .select('*')
     .order(orderBy, { ascending: orderDir })
@@ -379,7 +391,7 @@ async function triggerAIRefinement(proposalId: string, title: string, descriptio
       return
     }
 
-    const { error } = await supabase
+    const { error } = await getSupabase()
       .from('task_proposals')
       .update({
         ai_refined_title: result.refinedTitle,

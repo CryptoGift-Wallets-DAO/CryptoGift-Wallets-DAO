@@ -6,12 +6,24 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy initialization to avoid build-time errors
+let _supabase: SupabaseClient | null = null
+
+function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!url || !key) {
+      throw new Error('Supabase configuration missing')
+    }
+
+    _supabase = createClient(url, key)
+  }
+  return _supabase
+}
 
 interface VoteInput {
   proposalId: string
@@ -70,7 +82,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Verify proposal exists and is votable
-    const { data: proposal, error: proposalError } = await supabase
+    const { data: proposal, error: proposalError } = await getSupabase()
       .from('task_proposals')
       .select('id, status, votes_up, votes_down')
       .eq('id', body.proposalId)
@@ -92,7 +104,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Check if user already voted
-    let existingVoteQuery = supabase
+    let existingVoteQuery = getSupabase()
       .from('proposal_votes')
       .select('*')
       .eq('proposal_id', body.proposalId)
@@ -110,7 +122,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (existingVote) {
       if (existingVote.vote_type === body.voteType) {
         // Same vote - toggle off (remove vote)
-        const { error: deleteError } = await supabase
+        const { error: deleteError } = await getSupabase()
           .from('proposal_votes')
           .delete()
           .eq('id', existingVote.id)
@@ -126,7 +138,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         result = { success: true, action: 'removed', newVoteCounts: { votesUp: 0, votesDown: 0 } }
       } else {
         // Different vote - update
-        const { error: updateError } = await supabase
+        const { error: updateError } = await getSupabase()
           .from('proposal_votes')
           .update({
             vote_type: body.voteType,
@@ -156,7 +168,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         comment: body.comment || null,
       }
 
-      const { error: insertError } = await supabase
+      const { error: insertError } = await getSupabase()
         .from('proposal_votes')
         .insert(voteData)
 
@@ -181,7 +193,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Fetch updated vote counts (trigger should have updated them)
-    const { data: updatedProposal } = await supabase
+    const { data: updatedProposal } = await getSupabase()
       .from('task_proposals')
       .select('votes_up, votes_down')
       .eq('id', body.proposalId)
@@ -234,7 +246,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    let query = supabase
+    let query = getSupabase()
       .from('proposal_votes')
       .select('*')
       .eq('proposal_id', proposalId)
@@ -294,7 +306,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    let query = supabase
+    let query = getSupabase()
       .from('proposal_votes')
       .delete()
       .eq('proposal_id', body.proposalId)
@@ -316,7 +328,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     }
 
     // Fetch updated vote counts
-    const { data: updatedProposal } = await supabase
+    const { data: updatedProposal } = await getSupabase()
       .from('task_proposals')
       .select('votes_up, votes_down')
       .eq('id', body.proposalId)
