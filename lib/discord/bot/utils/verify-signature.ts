@@ -3,14 +3,24 @@
  *
  * Verifies that incoming requests are actually from Discord
  * Required for Interactions Endpoint security
+ *
+ * Uses tweetnacl for Ed25519 verification (works in Edge Runtime)
  */
 
-import { webcrypto } from 'crypto'
+import nacl from 'tweetnacl'
 
-const DISCORD_PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY
+// Lazy load public key to avoid build-time errors
+function getPublicKey(): string | null {
+  const key = process.env.DISCORD_PUBLIC_KEY
+  if (!key) {
+    console.error('[Discord] DISCORD_PUBLIC_KEY not configured')
+    return null
+  }
+  return key
+}
 
 /**
- * Verify Discord request signature
+ * Verify Discord request signature using tweetnacl
  *
  * Discord signs all interaction requests with Ed25519.
  * We must verify the signature before processing.
@@ -20,39 +30,22 @@ export async function verifyDiscordSignature(
   signature: string,
   timestamp: string
 ): Promise<boolean> {
-  if (!DISCORD_PUBLIC_KEY) {
-    console.error('[Discord] DISCORD_PUBLIC_KEY not configured')
+  const publicKey = getPublicKey()
+  if (!publicKey) {
     return false
   }
 
   try {
-    // Prepare the message to verify
     const message = timestamp + body
-
-    // Convert hex strings to Uint8Array
     const signatureBytes = hexToUint8Array(signature)
-    const publicKeyBytes = hexToUint8Array(DISCORD_PUBLIC_KEY)
+    const publicKeyBytes = hexToUint8Array(publicKey)
     const messageBytes = new TextEncoder().encode(message)
 
-    // Import the public key
-    const cryptoKey = await webcrypto.subtle.importKey(
-      'raw',
-      publicKeyBytes,
-      {
-        name: 'Ed25519',
-        namedCurve: 'Ed25519',
-      },
-      false,
-      ['verify']
-    )
+    const isValid = nacl.sign.detached.verify(messageBytes, signatureBytes, publicKeyBytes)
 
-    // Verify the signature
-    const isValid = await webcrypto.subtle.verify(
-      'Ed25519',
-      cryptoKey,
-      signatureBytes,
-      messageBytes
-    )
+    if (!isValid) {
+      console.error('[Discord] Signature verification failed')
+    }
 
     return isValid
   } catch (error) {
@@ -62,32 +55,14 @@ export async function verifyDiscordSignature(
 }
 
 /**
- * Alternative verification using tweetnacl (fallback)
+ * Alias for backward compatibility
  */
 export async function verifyDiscordSignatureNacl(
   body: string,
   signature: string,
   timestamp: string
 ): Promise<boolean> {
-  if (!DISCORD_PUBLIC_KEY) {
-    console.error('[Discord] DISCORD_PUBLIC_KEY not configured')
-    return false
-  }
-
-  try {
-    // Dynamic import to avoid bundling issues
-    const nacl = await import('tweetnacl')
-
-    const message = timestamp + body
-    const signatureBytes = hexToUint8Array(signature)
-    const publicKeyBytes = hexToUint8Array(DISCORD_PUBLIC_KEY)
-    const messageBytes = new TextEncoder().encode(message)
-
-    return nacl.sign.detached.verify(messageBytes, signatureBytes, publicKeyBytes)
-  } catch (error) {
-    console.error('[Discord] NaCl verification error:', error)
-    return false
-  }
+  return verifyDiscordSignature(body, signature, timestamp)
 }
 
 /**
