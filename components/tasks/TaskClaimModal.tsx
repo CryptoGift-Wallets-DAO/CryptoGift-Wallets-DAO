@@ -8,7 +8,7 @@
 'use client'
 
 import React from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -34,7 +34,6 @@ import {
 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
 import { TASK_CLAIM_CONFIG } from '@/lib/tasks/task-service'
-import { useTaskTranslation } from '@/lib/i18n/task-translations'
 
 interface TaskClaimModalProps {
   task: Task | null
@@ -54,12 +53,20 @@ export function TaskClaimModal({
   // 🌐 Translation hooks
   const t = useTranslations('tasks.claimModal')
   const tCommon = useTranslations('common')
-  const { translate } = useTaskTranslation()
+  const locale = useLocale()
 
   if (!task) return null
 
-  // Get translated task content
-  const translatedTask = translate(task.title, task.description)
+  // Get translated task content from database ONLY (no JSON lookup to avoid MISSING_MESSAGE)
+  const taskWithTranslations = task as Task & { title_es?: string; description_es?: string }
+  const translatedTask = {
+    title: locale === 'es' && taskWithTranslations.title_es
+      ? taskWithTranslations.title_es
+      : task.title,
+    description: locale === 'es' && taskWithTranslations.description_es
+      ? taskWithTranslations.description_es
+      : task.description
+  }
 
   // Get platform icon
   const getPlatformIcon = () => {

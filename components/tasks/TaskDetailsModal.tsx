@@ -9,7 +9,7 @@
 'use client'
 
 import React from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -40,7 +40,6 @@ import {
   Rocket
 } from 'lucide-react'
 import type { Task } from '@/lib/supabase/types'
-import { useTaskTranslation } from '@/lib/i18n/task-translations'
 
 // Inline keyframes for premium animations
 const modalAnimations = `
@@ -91,10 +90,18 @@ export function TaskDetailsModal({
   // 🌐 Translation hooks
   const t = useTranslations('tasks.detailsModal')
   const tCommon = useTranslations('common')
-  const { translate } = useTaskTranslation()
+  const locale = useLocale()
 
-  // Get translated task content
-  const translatedTask = translate(task.title, task.description)
+  // Get translated task content from database ONLY (no JSON lookup to avoid MISSING_MESSAGE)
+  const taskWithTranslations = task as Task & { title_es?: string; description_es?: string }
+  const translatedTask = {
+    title: locale === 'es' && taskWithTranslations.title_es
+      ? taskWithTranslations.title_es
+      : task.title,
+    description: locale === 'es' && taskWithTranslations.description_es
+      ? taskWithTranslations.description_es
+      : task.description
+  }
 
   // Calculate difficulty visualization
   const getDifficultyStars = (complexity: number) => {

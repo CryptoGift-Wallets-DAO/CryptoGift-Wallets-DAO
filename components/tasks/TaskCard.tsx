@@ -28,7 +28,6 @@ import {
 import type { Task } from '@/lib/supabase/types'
 import { TASK_CLAIM_CONFIG } from '@/lib/tasks/task-service'
 import { TaskClaimModal } from './TaskClaimModal'
-import { useTaskTranslation } from '@/lib/i18n/task-translations'
 
 interface TaskCardProps {
   task: Task
@@ -56,19 +55,18 @@ export function TaskCard({
   const tTasks = useTranslations('tasks')
   const tCommon = useTranslations('common')
   const locale = useLocale()
-  const { translate } = useTaskTranslation()
 
-  // Get translated task content from database first, then fallback to JSON translations
-  // This allows dynamic translations from DB without hardcoding in JSON files
+  // Get translated task content from database ONLY (no fallback to JSON to avoid MISSING_MESSAGE errors)
+  // Tasks without DB translations will display in English - this is intentional
   const taskWithTranslations = task as Task & { title_es?: string; description_es?: string }
 
   const translatedTask = {
     title: locale === 'es' && taskWithTranslations.title_es
       ? taskWithTranslations.title_es
-      : translate(task.title, task.description).title,
+      : task.title,  // Fallback to original title (no JSON lookup)
     description: locale === 'es' && taskWithTranslations.description_es
       ? taskWithTranslations.description_es
-      : translate(task.title, task.description).description
+      : task.description  // Fallback to original description (no JSON lookup)
   }
 
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
