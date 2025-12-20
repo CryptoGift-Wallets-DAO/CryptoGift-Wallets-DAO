@@ -1980,102 +1980,75 @@
     "titleHighlight": "Tareas",
     "subtitle": "Propón nuevas tareas, vota por las ideas de la comunidad, y ayuda a dar forma al futuro del ecosistema CryptoGift DAO.",
     "stats": {
-      "activeProposals": "Propuestas Activas",
+      "active": "Propuestas Activas",
+      "approved": "Aprobadas",
       "totalVotes": "Votos Totales",
-      "approved": "Aprobadas"
+      "syncedToDiscord": "Sincronizadas a Discord"
     },
     "actions": {
-      "proposeTask": "Proponer Tarea",
-      "refresh": "Actualizar"
+      "createProposal": "Crear Propuesta",
+      "syncToDiscord": "Sincronizar a Discord",
+      "discordBot": "Bot de Discord"
     },
     "tabs": {
-      "all": "Todas",
-      "pending": "Pendientes",
-      "voting": "En Votación",
+      "active": "Activas",
       "approved": "Aprobadas",
       "rejected": "Rechazadas"
     },
     "empty": {
-      "noProposals": "No hay propuestas todavía",
-      "beFirst": "¡Sé el primero en proponer una nueva tarea para la comunidad!",
-      "noMatching": "No hay propuestas que coincidan con el filtro",
-      "tryAnother": "Prueba seleccionar otra pestaña o crea una nueva propuesta."
+      "active": "No hay propuestas activas",
+      "activeHint": "¡Sé el primero en proponer una nueva tarea!",
+      "approved": "Aún no hay propuestas aprobadas",
+      "rejected": "No hay propuestas rechazadas"
     },
-    "loading": {
-      "text": "Cargando propuestas...",
-      "refreshing": "Actualizando..."
-    },
+    "loading": "Cargando propuestas...",
     "card": {
-      "by": "Por",
+      "proposedBy": "Propuesto por:",
+      "category": "Categoría:",
+      "reward": "Recompensa:",
       "anonymous": "Anónimo",
       "votes": "votos",
-      "approval": "aprobación",
-      "voteFor": "Votar a Favor",
-      "voteAgainst": "Votar en Contra",
-      "removeVote": "Quitar Voto",
-      "viewDetails": "Ver Detalles",
-      "category": "Categoría",
-      "reward": "Recompensa",
-      "complexity": "Complejidad",
-      "days": "días",
-      "aiRefined": "Refinado por IA",
-      "original": "Original"
+      "approval": "aprobación"
     },
     "status": {
       "pending": "Pendiente",
       "voting": "En Votación",
       "approved": "Aprobada",
       "rejected": "Rechazada",
-      "converted": "Convertida en Tarea",
-      "reviewing": "En Revisión"
+      "converted": "Tarea Creada"
     },
     "createModal": {
-      "title": "Proponer Nueva Tarea",
-      "subtitle": "Describe tu idea de tarea para la comunidad",
-      "titleLabel": "Título de la Tarea",
-      "titlePlaceholder": "Un título claro y conciso...",
+      "title": "Crear Nueva Propuesta",
+      "description": "Las propuestas se pueden crear desde Discord usando el comando /propose, o a través de esta interfaz web.",
+      "titleLabel": "Título",
+      "titlePlaceholder": "ej., Crear landing page para campaña de verano",
       "descriptionLabel": "Descripción",
-      "descriptionPlaceholder": "Describe qué debería lograr esta tarea, por qué es valiosa, y cualquier requisito específico...",
-      "categoryLabel": "Categoría Sugerida",
-      "categoryPlaceholder": "Selecciona una categoría",
-      "rewardLabel": "Recompensa Sugerida (CGC)",
-      "rewardPlaceholder": "Cantidad sugerida de CGC",
-      "complexityLabel": "Complejidad Estimada",
-      "complexityPlaceholder": "Selecciona complejidad",
-      "complexity1": "Simple (1-2 horas)",
-      "complexity2": "Fácil (medio día)",
-      "complexity3": "Moderada (1-2 días)",
-      "complexity4": "Compleja (3-5 días)",
-      "complexity5": "Muy Compleja (1+ semana)",
-      "submit": "Enviar Propuesta",
-      "submitting": "Enviando...",
+      "descriptionPlaceholder": "Describe la tarea en detalle...",
+      "categoryLabel": "Categoría",
+      "selectCategory": "Selecciona categoría",
+      "categories": {
+        "development": "Desarrollo",
+        "design": "Diseño",
+        "content": "Contenido",
+        "marketing": "Marketing",
+        "community": "Comunidad"
+      },
+      "rewardLabel": "Recompensa Sugerida",
+      "rewardPlaceholder": "ej., 500",
       "cancel": "Cancelar",
-      "validation": {
-        "titleRequired": "El título es requerido",
-        "titleMinLength": "El título debe tener al menos 3 caracteres",
-        "descriptionRequired": "La descripción es requerida",
-        "descriptionMinLength": "La descripción debe tener al menos 10 caracteres"
-      }
+      "create": "Crear Propuesta"
     },
     "toast": {
-      "proposalCreated": "¡Propuesta creada exitosamente!",
-      "proposalCreateError": "Error al crear la propuesta",
-      "voteSuccess": "¡Voto registrado exitosamente!",
+      "connectWallet": "Conecta tu wallet para votar",
+      "voteRecorded": "¡Voto registrado!",
       "voteRemoved": "Voto eliminado",
-      "voteError": "Error al votar",
-      "loadError": "Error al cargar propuestas",
-      "connectWallet": "Por favor conecta tu wallet para votar"
+      "voteFailed": "Error al votar",
+      "syncSuccess": "Sincronizadas {count} propuestas a Discord",
+      "syncFailed": "Error de sincronización",
+      "comingSoon": "¡Creación de propuestas próximamente!"
     },
-    "categories": {
-      "development": "Desarrollo",
-      "design": "Diseño",
-      "marketing": "Marketing",
-      "community": "Comunidad",
-      "documentation": "Documentación",
-      "research": "Investigación",
-      "governance": "Gobernanza",
-      "security": "Seguridad",
-      "other": "Otro"
+    "discord": {
+      "badge": "Discord"
     }
   }
 }
