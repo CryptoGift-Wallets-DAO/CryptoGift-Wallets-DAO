@@ -4,10 +4,10 @@
  * Verifies that incoming requests are actually from Discord
  * Required for Interactions Endpoint security
  *
- * Uses tweetnacl for Ed25519 verification (works in Edge Runtime)
+ * Uses discord-interactions library for battle-tested verification
  */
 
-import nacl from 'tweetnacl'
+import { verifyKey } from 'discord-interactions'
 
 // Lazy load public key to avoid build-time errors
 function getPublicKey(): string | null {
@@ -20,10 +20,13 @@ function getPublicKey(): string | null {
 }
 
 /**
- * Verify Discord request signature using tweetnacl
+ * Verify Discord request signature using discord-interactions library
  *
  * Discord signs all interaction requests with Ed25519.
  * We must verify the signature before processing.
+ *
+ * The discord-interactions library handles this correctly and is
+ * maintained by the Discord team.
  */
 export async function verifyDiscordSignature(
   body: string,
@@ -32,19 +35,25 @@ export async function verifyDiscordSignature(
 ): Promise<boolean> {
   const publicKey = getPublicKey()
   if (!publicKey) {
+    console.error('[Discord] No public key available')
     return false
   }
 
   try {
-    const message = timestamp + body
-    const signatureBytes = hexToUint8Array(signature)
-    const publicKeyBytes = hexToUint8Array(publicKey)
-    const messageBytes = new TextEncoder().encode(message)
+    console.log('[Discord] Verifying signature with discord-interactions library')
+    console.log('[Discord] Body length:', body.length)
+    console.log('[Discord] Signature:', signature?.substring(0, 20) + '...')
+    console.log('[Discord] Timestamp:', timestamp)
+    console.log('[Discord] Public key:', publicKey.substring(0, 20) + '...')
 
-    const isValid = nacl.sign.detached.verify(messageBytes, signatureBytes, publicKeyBytes)
+    // verifyKey expects the raw body as a string or Buffer
+    // It returns a Promise<boolean> so we need to await it
+    const isValid = await verifyKey(body, signature, timestamp, publicKey)
 
     if (!isValid) {
-      console.error('[Discord] Signature verification failed')
+      console.error('[Discord] Signature verification failed - signature does not match')
+    } else {
+      console.log('[Discord] Signature verification SUCCESS!')
     }
 
     return isValid
@@ -63,17 +72,6 @@ export async function verifyDiscordSignatureNacl(
   timestamp: string
 ): Promise<boolean> {
   return verifyDiscordSignature(body, signature, timestamp)
-}
-
-/**
- * Convert hex string to Uint8Array
- */
-function hexToUint8Array(hex: string): Uint8Array {
-  const matches = hex.match(/.{1,2}/g)
-  if (!matches) {
-    throw new Error('Invalid hex string')
-  }
-  return new Uint8Array(matches.map((byte) => parseInt(byte, 16)))
 }
 
 /**
