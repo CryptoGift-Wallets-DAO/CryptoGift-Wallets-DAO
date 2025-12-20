@@ -351,8 +351,31 @@
     "tabs": {
       "available": "Available",
       "inProgress": "In Progress",
+      "history": "History",
       "leaderboard": "Leaderboard",
       "propose": "Propose"
+    },
+    "history": {
+      "title": "Completed Tasks History",
+      "description": "All completed tasks with contributors and rewards",
+      "totalCompleted": "Total Completed",
+      "totalCGC": "CGC Distributed",
+      "contributors": "Contributors",
+      "allTasks": "All Tasks",
+      "myTasks": "My Tasks",
+      "columns": {
+        "task": "Task",
+        "contributor": "Contributor",
+        "reward": "Reward",
+        "completed": "Completed",
+        "evidence": "Evidence"
+      },
+      "validated": "Validated",
+      "evidence": "Evidence",
+      "noHistory": "No completed tasks yet",
+      "noHistoryHint": "Complete your first task to appear here",
+      "retry": "Retry",
+      "showing": "Showing {shown} of {total} tasks"
     },
     "stats": {
       "availableTasks": "Available Tasks",

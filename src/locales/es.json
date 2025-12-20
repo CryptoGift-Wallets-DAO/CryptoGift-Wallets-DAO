@@ -351,8 +351,31 @@
     "tabs": {
       "available": "Disponibles",
       "inProgress": "En Progreso",
+      "history": "Historial",
       "leaderboard": "Clasificación",
       "propose": "Proponer"
+    },
+    "history": {
+      "title": "Historial de Tareas Completadas",
+      "description": "Todas las tareas completadas con colaboradores y recompensas",
+      "totalCompleted": "Total Completadas",
+      "totalCGC": "CGC Distribuidos",
+      "contributors": "Colaboradores",
+      "allTasks": "Todas las Tareas",
+      "myTasks": "Mis Tareas",
+      "columns": {
+        "task": "Tarea",
+        "contributor": "Colaborador",
+        "reward": "Recompensa",
+        "completed": "Completada",
+        "evidence": "Evidencia"
+      },
+      "validated": "Validada",
+      "evidence": "Evidencia",
+      "noHistory": "No hay tareas completadas aún",
+      "noHistoryHint": "Completa tu primera tarea para aparecer aquí",
+      "retry": "Reintentar",
+      "showing": "Mostrando {shown} de {total} tareas"
     },
     "stats": {
       "availableTasks": "Tareas Disponibles",

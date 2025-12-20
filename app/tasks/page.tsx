@@ -15,6 +15,7 @@ import { useCGCBalance } from '@/lib/web3/hooks'
 import { TaskList } from '@/components/tasks/TaskList'
 import { TasksInProgress } from '@/components/tasks/TasksInProgress'
 import { TaskProposal } from '@/components/tasks/TaskProposal'
+import { TaskHistory } from '@/components/tasks/TaskHistory'
 import { LeaderboardTable } from '@/components/leaderboard/LeaderboardTable'
 import { StatsOverview } from '@/components/leaderboard/StatsOverview'
 import { TaskCategoryChips } from '@/components/tasks/TaskCategoryChips'
@@ -37,7 +38,8 @@ import {
   RefreshCw,
   Rocket,
   Crown,
-  Flame
+  Flame,
+  History
 } from 'lucide-react'
 
 // Simple animations like Home page
@@ -287,10 +289,11 @@ export default function TasksPage() {
           <Tabs value={selectedTab} onValueChange={setSelectedTab}>
             {/* Tab List - Same style as stats cards */}
             <div className="glass-panel p-2 rounded-2xl shadow-lg mb-6">
-              <TabsList className="grid w-full grid-cols-4 bg-transparent gap-2 h-auto">
+              <TabsList className="grid w-full grid-cols-5 bg-transparent gap-2 h-auto">
                 {[
                   { value: 'available', icon: Target, label: t('tabs.available'), color: 'from-blue-500 to-cyan-500' },
                   { value: 'progress', icon: Clock, label: t('tabs.inProgress'), color: 'from-amber-500 to-orange-500' },
+                  { value: 'history', icon: History, label: t('tabs.history'), color: 'from-teal-500 to-emerald-500' },
                   { value: 'leaderboard', icon: Trophy, label: t('tabs.leaderboard'), color: 'from-purple-500 to-pink-500' },
                   { value: 'propose', icon: PlusCircle, label: t('tabs.propose'), color: 'from-green-500 to-emerald-500' },
                 ].map((tab) => (
@@ -432,6 +435,39 @@ export default function TasksPage() {
                       success(t('toasts.evidenceSubmitted'), t('toasts.evidenceSubmittedDesc'))
                       handleRefresh()
                     }}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* History Tab */}
+            <TabsContent value="history">
+              <div className="glass-panel rounded-2xl overflow-hidden shadow-xl">
+                <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-500 shadow-md">
+                        <History className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                          {t('history.title')}
+                        </h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t('history.description')}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white border-0 shadow-md px-3 py-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                      {stats.completedTasks}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <TaskHistory
+                    userAddress={address}
+                    refreshKey={refreshKey}
                   />
                 </div>
               </div>
