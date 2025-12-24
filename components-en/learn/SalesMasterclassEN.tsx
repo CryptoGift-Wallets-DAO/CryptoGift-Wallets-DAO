@@ -1465,6 +1465,9 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           onShowTwitterFollow={educationalMode && onShowTwitterFollow ? onShowTwitterFollow : undefined}
           onShowDiscordJoin={educationalMode && onShowDiscordJoin ? onShowDiscordJoin : undefined}
           verifiedEmail={verifiedEmail}
+          // Navigation props for back button
+          onPrevious={handlePreviousBlock}
+          canGoBack={currentBlock > 0}
         />;
       case 'success':
         return <SuccessBlock
@@ -2605,7 +2608,9 @@ const CaptureBlock: React.FC<{
   onShowTwitterFollow?: () => void; // NEW: For social engagement
   onShowDiscordJoin?: () => void; // NEW: For community engagement
   verifiedEmail?: string | null;
-}> = ({ content, onSubmit, questionsScore, educationalMode = false, onShowEmailVerification, onShowCalendar, onShowTwitterFollow, onShowDiscordJoin, verifiedEmail }) => {
+  onPrevious?: () => void;
+  canGoBack?: boolean;
+}> = ({ content, onSubmit, questionsScore, educationalMode = false, onShowEmailVerification, onShowCalendar, onShowTwitterFollow, onShowDiscordJoin, verifiedEmail, onPrevious, canGoBack = false }) => {
   const account = useActiveAccount();
   const [selectedPath, setSelectedPath] = useState<string>('');
   const [formData, setFormData] = useState({
@@ -2859,6 +2864,27 @@ const CaptureBlock: React.FC<{
   // UI principal unificada para ambos modos
   return (
     <div className="pt-12 pb-6">
+      {/* Back Button */}
+      {canGoBack && onPrevious && (
+        <div className="flex justify-start mb-6">
+          <motion.button
+            onClick={onPrevious}
+            className="group flex items-center gap-2 px-4 py-2
+              bg-white/10 dark:bg-gray-800/40
+              backdrop-blur-xl backdrop-saturate-150
+              border border-white/20 dark:border-gray-700/50
+              rounded-xl text-gray-700 dark:text-gray-300
+              hover:bg-white/20 dark:hover:bg-gray-700/50
+              transition-all duration-300"
+            whileHover={{ x: -3 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <span>Back</span>
+          </motion.button>
+        </div>
+      )}
+
       <h2 className="text-5xl font-bold text-center mb-8">
         {content.title} 🚀
       </h2>
