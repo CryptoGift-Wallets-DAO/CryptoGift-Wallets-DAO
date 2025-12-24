@@ -758,19 +758,45 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
     return SALES_BLOCKS[0].duration;
   });
   const [isPaused, setIsPaused] = useState(false);
-  const [leadData, setLeadData] = useState<Partial<LeadData>>({
-    questionsCorrect: 0,
-    totalQuestions: 0
+
+  // 🔒 PERSISTENCE: Compute score from saved state if available
+  const [leadData, setLeadData] = useState<Partial<LeadData>>(() => {
+    if (savedEducationState?.questionsAnswered && savedEducationState.questionsAnswered.length > 0) {
+      const correctCount = savedEducationState.questionsAnswered.filter(q => q.isCorrect).length;
+      const totalCount = savedEducationState.questionsAnswered.length;
+      console.log('[SalesMasterclass] 🔒 Restored score:', correctCount, '/', totalCount);
+      return {
+        questionsCorrect: correctCount,
+        totalQuestions: totalCount
+      };
+    }
+    return {
+      questionsCorrect: 0,
+      totalQuestions: 0
+    };
   });
-  const [metrics, setMetrics] = useState<Metrics>({
-    startTime: Date.now(),
-    blockTimes: {},
-    interactions: 0,
-    claimSuccess: false,
-    leadSubmitted: false,
-    wowMoments: 0,
-    questionsAnswered: 0,
-    correctAnswers: 0
+
+  // 🔒 PERSISTENCE: Restore metrics from saved state
+  const [metrics, setMetrics] = useState<Metrics>(() => {
+    const baseMetrics: Metrics = {
+      startTime: Date.now(),
+      blockTimes: {},
+      interactions: 0,
+      claimSuccess: false,
+      leadSubmitted: false,
+      wowMoments: 0,
+      questionsAnswered: 0,
+      correctAnswers: 0
+    };
+
+    if (savedEducationState?.questionsAnswered && savedEducationState.questionsAnswered.length > 0) {
+      const correctCount = savedEducationState.questionsAnswered.filter(q => q.isCorrect).length;
+      baseMetrics.questionsAnswered = savedEducationState.questionsAnswered.length;
+      baseMetrics.correctAnswers = correctCount;
+      console.log('[SalesMasterclass] 🔒 Restored metrics:', correctCount, '/', savedEducationState.questionsAnswered.length);
+    }
+
+    return baseMetrics;
   });
   const [showQR, setShowQR] = useState(false);
   const [claimStatus, setClaimStatus] = useState<'waiting' | 'claiming' | 'success'>('waiting');
@@ -2927,8 +2953,13 @@ const CaptureBlock: React.FC<{
               {questionsScore.correct}/{questionsScore.total}
             </span> correct answers
           </p>
-          {questionsScore.correct === questionsScore.total && (
+          {/* Show PERFECT only for 8/9 or 9/9 (high scores) */}
+          {questionsScore.total >= 9 && questionsScore.correct >= 8 ? (
             <p className="text-green-400 font-bold mt-2">PERFECT! You're an expert 🏆</p>
+          ) : questionsScore.total > 0 && (
+            <p className="text-blue-400 font-medium mt-2">
+              Congratulations on making it this far! 🎉 You're just a couple of steps away from becoming an important part of this community.
+            </p>
           )}
         </div>
       </div>
