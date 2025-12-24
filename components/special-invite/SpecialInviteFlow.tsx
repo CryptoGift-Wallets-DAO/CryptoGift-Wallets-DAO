@@ -36,9 +36,13 @@ import dynamic from 'next/dynamic';
 import {
   loadInviteProgress,
   initializeInviteProgress,
+  initializeEducationState,
   updateStep,
   updatePasswordValidated,
   updateEducationCompleted,
+  updateIntroVideoCompleted,
+  updateEducationBlock,
+  updateEducationQuestionAnswered,
   updateEmailVerified,
   updateCalendarBooked,
   updateWalletConnected,
@@ -47,6 +51,7 @@ import {
   getResumeStep,
   isFlowComplete,
   type InviteFlowProgress,
+  type EducationBlockState,
 } from '@/lib/invites/invite-flow-persistence';
 
 // Dynamic imports for SalesMasterclass (Spanish and English versions) to avoid SSR issues
@@ -483,6 +488,59 @@ export function SpecialInviteFlow({
     }
   }, []);
 
+  // 🔒 PERSISTENCE: Handle education state changes from SalesMasterclass
+  // This enables GRANULAR persistence - each block, each video, each question
+  const handleEducationStateChange = useCallback((state: {
+    blockIndex: number;
+    blockId: string;
+    introVideoCompleted?: boolean;
+    outroVideoCompleted?: boolean;
+    questionAnswered?: {
+      blockId: string;
+      questionText: string;
+      selectedAnswer: string;
+      correctAnswer: string;
+      isCorrect: boolean;
+    };
+  }) => {
+    if (!progressRef.current) {
+      console.warn('[SpecialInviteFlow] No progress ref, cannot save education state');
+      return;
+    }
+
+    console.log('[SpecialInviteFlow] 🔒 Education state change:', state);
+
+    // Initialize education state if not already present
+    if (!progressRef.current.educationState) {
+      progressRef.current = initializeEducationState(progressRef.current);
+    }
+
+    // Handle intro video completion
+    if (state.introVideoCompleted) {
+      progressRef.current = updateIntroVideoCompleted(progressRef.current);
+      console.log('[SpecialInviteFlow] 💾 Intro video completed, saved');
+    }
+
+    // Handle block navigation
+    if (state.blockIndex !== undefined) {
+      progressRef.current = updateEducationBlock(
+        progressRef.current,
+        state.blockIndex,
+        state.blockId
+      );
+      console.log('[SpecialInviteFlow] 💾 Block index saved:', state.blockIndex);
+    }
+
+    // Handle question answered
+    if (state.questionAnswered) {
+      progressRef.current = updateEducationQuestionAnswered(
+        progressRef.current,
+        state.questionAnswered
+      );
+      console.log('[SpecialInviteFlow] 💾 Question answer saved:', state.questionAnswered.blockId);
+    }
+  }, []);
+
   // Render content based on current step
   const renderStepContent = () => {
     switch (currentStep) {
@@ -686,6 +744,9 @@ export function SpecialInviteFlow({
                 onShowEmailVerification={handleShowEmailVerification}
                 onShowCalendar={handleShowCalendar}
                 verifiedEmail={verifiedEmail || undefined}
+                // 🔒 PERSISTENCE: Pass saved education state and change handler
+                savedEducationState={progressRef.current?.educationState}
+                onEducationStateChange={handleEducationStateChange}
               />
             </div>
           </div>

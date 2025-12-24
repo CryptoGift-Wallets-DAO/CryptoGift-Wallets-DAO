@@ -25,10 +25,31 @@
 
 // Storage keys
 const STORAGE_PREFIX = 'cgdao_invite_progress_';
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2; // v2: Added granular education state persistence
 
 // Flow step type (must match SpecialInviteFlow)
 export type FlowStep = 'welcome' | 'password' | 'education' | 'connect' | 'delegate' | 'complete';
+
+// Education block state for granular persistence
+export interface EducationBlockState {
+  // Current block index (0-10) in SalesMasterclass
+  currentBlockIndex: number;
+  // Whether intro video has been completed
+  introVideoCompleted: boolean;
+  // Whether outro video has been completed
+  outroVideoCompleted: boolean;
+  // Array of block IDs that have been completed
+  completedBlocks: string[];
+  // Detailed answers for each question
+  questionsAnswered: Array<{
+    blockId: string;
+    questionText: string;
+    selectedAnswer: string;
+    correctAnswer: string;
+    isCorrect: boolean;
+    answeredAt: number;
+  }>;
+}
 
 // Progress data structure
 export interface InviteFlowProgress {
@@ -41,6 +62,9 @@ export interface InviteFlowProgress {
   passwordValidated: boolean;
   educationCompleted: boolean;
   questionsScore: { correct: number; total: number };
+
+  // 🆕 GRANULAR EDUCATION STATE - Per-block persistence
+  educationState: EducationBlockState | null;
 
   // Verification state
   verifiedEmail: string | null;
@@ -199,6 +223,7 @@ export function initializeInviteProgress(
     passwordValidated: false,
     educationCompleted: false,
     questionsScore: { correct: 0, total: 0 },
+    educationState: null, // Will be initialized when entering education
     verifiedEmail: null,
     calendarBooked: false,
     walletAddress: null,
@@ -212,6 +237,171 @@ export function initializeInviteProgress(
 
   saveInviteProgress(progress);
   return progress;
+}
+
+/**
+ * 🆕 Initialize education state when entering education step
+ */
+export function initializeEducationState(
+  progress: InviteFlowProgress
+): InviteFlowProgress {
+  const updated: InviteFlowProgress = {
+    ...progress,
+    educationState: {
+      currentBlockIndex: 0,
+      introVideoCompleted: false,
+      outroVideoCompleted: false,
+      completedBlocks: [],
+      questionsAnswered: [],
+    },
+    lastUpdatedAt: Date.now(),
+  };
+
+  saveInviteProgress(updated);
+  return updated;
+}
+
+/**
+ * 🆕 Update education state when intro video is completed
+ */
+export function updateIntroVideoCompleted(
+  progress: InviteFlowProgress
+): InviteFlowProgress {
+  if (!progress.educationState) {
+    progress = initializeEducationState(progress);
+  }
+
+  const updated: InviteFlowProgress = {
+    ...progress,
+    educationState: {
+      ...progress.educationState!,
+      introVideoCompleted: true,
+    },
+    lastUpdatedAt: Date.now(),
+  };
+
+  saveInviteProgress(updated);
+  console.log('[InviteFlowPersistence] Intro video completed, saved');
+  return updated;
+}
+
+/**
+ * 🆕 Update current block index in education (GRANULAR PERSISTENCE)
+ */
+export function updateEducationBlock(
+  progress: InviteFlowProgress,
+  blockIndex: number,
+  blockId: string
+): InviteFlowProgress {
+  if (!progress.educationState) {
+    progress = initializeEducationState(progress);
+  }
+
+  // Only add to completedBlocks if moving forward
+  const completedBlocks = [...progress.educationState!.completedBlocks];
+  if (blockIndex > 0 && progress.educationState!.currentBlockIndex < blockIndex) {
+    const previousBlockId = progress.educationState!.completedBlocks.includes(blockId)
+      ? blockId
+      : blockId;
+    if (!completedBlocks.includes(previousBlockId)) {
+      // Mark the previous block as completed when advancing
+    }
+  }
+
+  const updated: InviteFlowProgress = {
+    ...progress,
+    educationState: {
+      ...progress.educationState!,
+      currentBlockIndex: blockIndex,
+      completedBlocks,
+    },
+    lastUpdatedAt: Date.now(),
+  };
+
+  saveInviteProgress(updated);
+  console.log('[InviteFlowPersistence] Education block saved:', blockIndex, blockId);
+  return updated;
+}
+
+/**
+ * 🆕 Update when a question is answered in education
+ */
+export function updateEducationQuestionAnswered(
+  progress: InviteFlowProgress,
+  answer: {
+    blockId: string;
+    questionText: string;
+    selectedAnswer: string;
+    correctAnswer: string;
+    isCorrect: boolean;
+  }
+): InviteFlowProgress {
+  if (!progress.educationState) {
+    progress = initializeEducationState(progress);
+  }
+
+  // Don't duplicate answers
+  const existingAnswers = progress.educationState!.questionsAnswered;
+  const alreadyAnswered = existingAnswers.some(a => a.blockId === answer.blockId);
+
+  if (alreadyAnswered) {
+    console.log('[InviteFlowPersistence] Question already answered, skipping');
+    return progress;
+  }
+
+  const questionsAnswered = [
+    ...existingAnswers,
+    { ...answer, answeredAt: Date.now() },
+  ];
+
+  // Mark block as completed when question is answered
+  const completedBlocks = [...progress.educationState!.completedBlocks];
+  if (!completedBlocks.includes(answer.blockId)) {
+    completedBlocks.push(answer.blockId);
+  }
+
+  // Update questions score
+  const correctCount = questionsAnswered.filter(q => q.isCorrect).length;
+  const totalCount = questionsAnswered.length;
+
+  const updated: InviteFlowProgress = {
+    ...progress,
+    educationState: {
+      ...progress.educationState!,
+      questionsAnswered,
+      completedBlocks,
+    },
+    questionsScore: { correct: correctCount, total: totalCount },
+    lastUpdatedAt: Date.now(),
+  };
+
+  saveInviteProgress(updated);
+  console.log('[InviteFlowPersistence] Question answer saved:', answer.blockId, answer.isCorrect);
+  return updated;
+}
+
+/**
+ * 🆕 Update when outro video is completed
+ */
+export function updateOutroVideoCompleted(
+  progress: InviteFlowProgress
+): InviteFlowProgress {
+  if (!progress.educationState) {
+    progress = initializeEducationState(progress);
+  }
+
+  const updated: InviteFlowProgress = {
+    ...progress,
+    educationState: {
+      ...progress.educationState!,
+      outroVideoCompleted: true,
+    },
+    lastUpdatedAt: Date.now(),
+  };
+
+  saveInviteProgress(updated);
+  console.log('[InviteFlowPersistence] Outro video completed, saved');
+  return updated;
 }
 
 /**
