@@ -616,13 +616,14 @@ export function getResumeStep(
     return 'welcome';
   }
 
-  // If password was validated (or not needed AND user has moved past welcome), go to education
-  if (progress.passwordValidated || (!hasPassword && progress.currentStep !== 'welcome')) {
+  // If password was validated (or not needed), go to education
+  // Note: We already returned on 'welcome' above, so user has moved past welcome here
+  if (progress.passwordValidated || !hasPassword) {
     return 'education';
   }
 
-  // If we passed welcome, go to password (if needed)
-  if (progress.currentStep !== 'welcome' && hasPassword) {
+  // User has moved past welcome but needs password validation
+  if (hasPassword) {
     return 'password';
   }
 
