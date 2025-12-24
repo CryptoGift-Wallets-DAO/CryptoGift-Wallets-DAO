@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server';
 import { createPublicClient, http, formatUnits } from 'viem';
 import { base } from 'viem/chains';
 
+// In-memory cache to prevent RPC rate limiting
+interface CachedStats {
+  data: any;
+  timestamp: number;
+}
+let cachedStats: CachedStats | null = null;
+const CACHE_TTL_MS = 60 * 1000; // 60 seconds cache
+
 // Contract addresses
 const CONTRACTS = {
   cgcToken: '0x5e3a61b550328f3D8C44f60b3e10a49D3d806175' as const,
@@ -119,6 +127,23 @@ async function fetchHoldersCountAlternative(): Promise<number> {
 
 export async function GET() {
   try {
+    // Check if we have valid cached data
+    const now = Date.now();
+    if (cachedStats && (now - cachedStats.timestamp) < CACHE_TTL_MS) {
+      console.log('[CGC Stats] Returning cached data (age:', Math.round((now - cachedStats.timestamp) / 1000), 's)');
+      return NextResponse.json(cachedStats.data, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+          'Access-Control-Allow-Origin': '*',
+          'X-Cache': 'HIT',
+        },
+      });
+    }
+
+    console.log('[CGC Stats] Fetching fresh data from blockchain...');
+
     // Fetch all data from blockchain in parallel
     const [totalSupplyRaw, treasuryBalanceRaw, escrowBalanceRaw, holdersCount] = await Promise.all([
       client.readContract({
@@ -177,16 +202,35 @@ export async function GET() {
       updatedAt: new Date().toISOString(),
     };
 
+    // Store in cache
+    cachedStats = { data: response, timestamp: now };
+    console.log('[CGC Stats] Data cached successfully');
+
     return NextResponse.json(response, {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120', // 1 min cache
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
         'Access-Control-Allow-Origin': '*',
+        'X-Cache': 'MISS',
       },
     });
   } catch (error) {
     console.error('Error fetching CGC stats:', error);
+
+    // Return cached data if available, even if stale
+    if (cachedStats) {
+      console.log('[CGC Stats] RPC error, returning stale cached data');
+      return NextResponse.json(cachedStats.data, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+          'Access-Control-Allow-Origin': '*',
+          'X-Cache': 'STALE',
+        },
+      });
+    }
 
     return NextResponse.json(
       {

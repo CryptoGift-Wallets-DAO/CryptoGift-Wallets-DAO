@@ -32,23 +32,29 @@ export const GET = authHelpers.public(async (request: NextRequest) => {
       }
     }
 
-    // Calculate statistics from collaborators
+    // Calculate statistics from leaderboard_view (uses total_tasks_completed field)
     const collabCGC = leaderboard.reduce(
-      (sum, c) => sum + c.total_cgc_earned,
+      (sum, c) => sum + (c.total_cgc_earned || 0),
       0
     )
     const collabTasksCompleted = leaderboard.reduce(
-      (sum, c) => sum + c.tasks_completed,
+      (sum, c) => sum + (c.total_tasks_completed || 0),
       0
     )
 
     // Get accurate stats directly from tasks table (source of truth)
-    const completedTasks = await taskService.getCompletedTasks(1000)
-    const tasksCompletedFromDB = completedTasks.length
-    const cgcDistributedFromDB = completedTasks.reduce(
-      (sum, t) => sum + (t.reward_cgc || 0),
-      0
-    )
+    let tasksCompletedFromDB = 0
+    let cgcDistributedFromDB = 0
+    try {
+      const completedTasks = await taskService.getCompletedTasks(1000)
+      tasksCompletedFromDB = completedTasks.length
+      cgcDistributedFromDB = completedTasks.reduce(
+        (sum, t) => sum + (t.reward_cgc || 0),
+        0
+      )
+    } catch (e) {
+      console.warn('Failed to get completed tasks from DB, using collaborators data:', e)
+    }
 
     // Use the higher value (in case collaborators is outdated or tasks is more accurate)
     const totalTasksCompleted = Math.max(collabTasksCompleted, tasksCompletedFromDB)
