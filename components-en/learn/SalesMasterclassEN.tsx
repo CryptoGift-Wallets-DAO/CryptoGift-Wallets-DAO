@@ -198,6 +198,8 @@ interface PathItem {
   timeline?: string; // Opcional
   spots?: number | string; // Número de spots disponibles - permite tanto number como string
   benefit?: string; // Beneficio específico del path
+  icon?: string; // Emoji icon for the role
+  popular?: boolean; // Mark as popular/recommended
 }
 
 interface BenefitItem {

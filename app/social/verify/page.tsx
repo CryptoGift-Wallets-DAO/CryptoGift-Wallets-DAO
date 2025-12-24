@@ -21,10 +21,13 @@
 
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Twitter, MessageSquare, CheckCircle, XCircle, Loader2, ExternalLink } from 'lucide-react';
+import { Twitter, MessageSquare, CheckCircle, XCircle, Loader2, ExternalLink, RefreshCw, AlertTriangle, Mail, Shield } from 'lucide-react';
 
 type Platform = 'twitter' | 'discord';
-type Step = 'loading' | 'authorize' | 'action' | 'verifying' | 'success' | 'error';
+type Step = 'loading' | 'authorize' | 'action' | 'verifying' | 'success' | 'error' | 'discord_verify_needed';
+
+// Error types for better handling
+type ErrorType = 'generic' | 'discord_verification' | 'access_denied' | 'expired' | 'popup_blocked';
 
 function VerifyContent() {
   const searchParams = useSearchParams();
@@ -63,11 +66,53 @@ function VerifyContent() {
 
   const [step, setStep] = useState<Step>('loading');
   const [error, setError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<ErrorType>('generic');
   const [hasOpened, setHasOpened] = useState(false);
 
   // Twitter bypass: Timer-based verification (temporary until Basic tier is paid)
   // This creates an organic UX where user clicks Follow, waits 5s, then can verify
   const [twitterBypassReady, setTwitterBypassReady] = useState(false);
+
+  // Helper function to detect Discord verification errors
+  const isDiscordVerificationError = (errorMsg: string): boolean => {
+    const verificationKeywords = [
+      'verify your account',
+      'verification required',
+      'email verification',
+      'verificar tu cuenta',
+      'access_denied',
+      'consent_required',
+    ];
+    return verificationKeywords.some(keyword =>
+      errorMsg.toLowerCase().includes(keyword.toLowerCase())
+    );
+  };
+
+  // Clear OAuth cookies and reset for using a different account
+  const clearOAuthAndReset = useCallback(() => {
+    console.log('[Verify] Clearing OAuth cookies for account switch');
+
+    // Clear all OAuth-related cookies
+    const cookiesToClear = [
+      `${platform}_oauth_token`,
+      `${platform}_oauth_user_id`,
+      `${platform}_oauth_username`,
+    ];
+
+    cookiesToClear.forEach(cookieName => {
+      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    });
+
+    // Reset state
+    setError(null);
+    setErrorType('generic');
+    setUsername(null);
+    setHasOpened(false);
+    setTwitterBypassReady(false);
+
+    // Go back to authorize step
+    setStep('authorize');
+  }, [platform]);
 
   // Post result to parent window and close
   const postResultAndClose = useCallback((success: boolean) => {
@@ -102,7 +147,30 @@ function VerifyContent() {
       // If returning from OAuth with error
       if (oauthError) {
         console.log('[Verify] OAuth error:', oauthError);
+
+        // Check if this is a Discord verification error
+        if (platform === 'discord' && isDiscordVerificationError(oauthError)) {
+          console.log('[Verify] Detected Discord verification error');
+          setError(oauthError);
+          setErrorType('discord_verification');
+          setStep('discord_verify_needed');
+          return;
+        }
+
+        // Check for access_denied (user cancelled or verification required)
+        if (oauthError.includes('access_denied')) {
+          setError('Autorización denegada. Puede que necesites verificar tu cuenta de Discord primero.');
+          setErrorType('access_denied');
+          if (platform === 'discord') {
+            setStep('discord_verify_needed');
+          } else {
+            setStep('error');
+          }
+          return;
+        }
+
         setError(oauthError);
+        setErrorType('generic');
         setStep('error');
         return;
       }
@@ -420,6 +488,96 @@ function VerifyContent() {
             </div>
           )}
 
+          {/* Discord Verification Needed State - Special handling for unverified accounts */}
+          {step === 'discord_verify_needed' && (
+            <div className="space-y-4">
+              {/* Warning Header */}
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
+                  <AlertTriangle className="w-10 h-10 text-amber-500" />
+                </div>
+                <h2 className="text-xl font-bold text-amber-600 dark:text-amber-400 mb-2">
+                  Verificación de cuenta requerida
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  Tu cuenta de Discord necesita verificación antes de continuar
+                </p>
+              </div>
+
+              {/* Instructions Card */}
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
+                <div className="flex items-start gap-3 mb-3">
+                  <Mail className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-blue-700 dark:text-blue-300 text-sm">
+                      ¿Cómo verifico mi cuenta?
+                    </p>
+                  </div>
+                </div>
+                <ol className="space-y-2 text-sm text-blue-700 dark:text-blue-300 ml-8">
+                  <li className="flex items-start gap-2">
+                    <span className="font-bold">1.</span>
+                    <span>Abre Discord en tu computadora o celular</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="font-bold">2.</span>
+                    <span>Ve a <strong>Configuración → Mi Cuenta</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="font-bold">3.</span>
+                    <span>Busca el mensaje de <strong>&quot;Verificar Email&quot;</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="font-bold">4.</span>
+                    <span>Revisa tu bandeja de entrada y haz clic en el enlace</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="font-bold">5.</span>
+                    <span>Una vez verificado, vuelve aquí e intenta de nuevo</span>
+                  </li>
+                </ol>
+              </div>
+
+              {/* Tip for spam folder */}
+              <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700">
+                <p className="text-xs text-amber-700 dark:text-amber-300 text-center">
+                  💡 <strong>Tip:</strong> Si no encuentras el email, revisa tu carpeta de spam o correo no deseado
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3 pt-2">
+                {/* Retry Button */}
+                <button
+                  onClick={startOAuth}
+                  className="w-full py-3 px-6 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold rounded-xl
+                    hover:from-indigo-600 hover:to-purple-600 transition-all flex items-center justify-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Reintentar con esta cuenta
+                </button>
+
+                {/* Use Different Account Button */}
+                <button
+                  onClick={clearOAuthAndReset}
+                  className="w-full py-3 px-6 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl
+                    hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600"
+                >
+                  <Shield className="w-4 h-4" />
+                  Usar otra cuenta de Discord
+                </button>
+
+                {/* Cancel Button */}
+                <button
+                  onClick={handleCancel}
+                  className="w-full py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-sm"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Error State */}
           {step === 'error' && (
             <div className="text-center py-8">
@@ -432,12 +590,21 @@ function VerifyContent() {
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 {error || 'Something went wrong'}
               </p>
-              <button
-                onClick={() => setStep('authorize')}
-                className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all"
-              >
-                Try Again
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setStep('authorize')}
+                  className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all"
+                >
+                  Try Again
+                </button>
+                {/* Add use different account option */}
+                <button
+                  onClick={clearOAuthAndReset}
+                  className="block w-full px-6 py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-sm transition-all"
+                >
+                  Usar otra cuenta
+                </button>
+              </div>
             </div>
           )}
         </div>
