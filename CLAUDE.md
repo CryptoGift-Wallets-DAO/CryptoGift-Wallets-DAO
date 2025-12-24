@@ -730,8 +730,22 @@ PASO 2: [Siguiente acción]
 ### 📝 REGLAS DE COMMITS (OBLIGATORIO)
 - **Claude SIEMPRE hace el commit** → Usuario SIEMPRE hace el push
 - **Formato**: Seguir `COMMIT_ATTRIBUTION.md` sin excepciones
-- **Atribución**: Incluir `🤖 Generated with Claude Code` + `Co-Authored-By: Godez22`
 - **NO preguntar**: Hacer el commit automáticamente al completar tareas
+
+### 🚫 PROHIBIDO - REFERENCIAS A AI (CRÍTICO)
+**NUNCA incluir en commits NI en código:**
+- ❌ `🤖 Generated with [Claude Code]`
+- ❌ `Co-Authored-By: Claude` o cualquier referencia a AI
+- ❌ Comentarios mencionando herramientas AI (Claude, GPT, Copilot)
+- ❌ Docstrings o metadata referenciando asistentes AI
+
+**ATRIBUCIÓN CORRECTA (ÚNICA PERMITIDA):**
+```
+Made by mbxarts.com The Moon in a Box property
+
+Co-Author: Godez22
+```
+Ver `COMMIT_ATTRIBUTION.md` para detalles completos.
 
 ### ⚙️ CONFIGURACIÓN DE PERMISOS (.claude/settings.local.json)
 **IMPORTANTE**: Este archivo es SOLO para permisos de herramientas.

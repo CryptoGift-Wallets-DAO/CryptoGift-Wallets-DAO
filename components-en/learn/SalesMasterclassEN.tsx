@@ -2027,12 +2027,14 @@ const OpeningBlock: React.FC<{
       </div>
     </motion.div>
 
-    <QuestionSection
-      question={question}
-      onAnswer={onAnswer}
-      selectedAnswer={selectedAnswer}
-      showFeedback={showFeedback}
-    />
+    {question && (
+      <QuestionSection
+        question={question}
+        onAnswer={onAnswer}
+        selectedAnswer={selectedAnswer}
+        showFeedback={showFeedback}
+      />
+    )}
 
     <NavigationArea
       onNext={onNext}
