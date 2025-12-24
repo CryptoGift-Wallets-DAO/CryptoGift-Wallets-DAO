@@ -570,35 +570,41 @@ const SALES_BLOCKS: SalesBlock[] = [
     content: {
       title: 'Choose your role in CryptoGift',
       paths: [
-        { 
-          name: 'Quest Creator', 
-          description: 'Create gamified experiences',
-          spots: 33,
-          benefit: '30% revenue share'
-        },
-        { 
-          name: 'Integration Partner',
-          description: 'Integrate our widget',
-          spots: 19,
-          benefit: '1M free transactions'
-        },
-        { 
-          name: 'White-Label',
-          description: 'Your own platform',
-          spots: 6,
-          benefit: 'SLA 99.99%'
-        },
-        { 
-          name: 'Investor',
-          description: 'Invest in the future',
-          spots: 'Limited',
-          benefit: 'Min $50k'
-        },
         {
           name: 'Community',
           description: 'Adoption ambassador',
           spots: 'Unlimited',
-          benefit: 'Exclusive NFT + Discord'
+          benefit: 'Exclusive NFT + Discord',
+          icon: '🌟',
+          popular: true
+        },
+        {
+          name: 'Quest Creator',
+          description: 'Create gamified experiences',
+          spots: 33,
+          benefit: '30% revenue share',
+          icon: '🎯'
+        },
+        {
+          name: 'Integration Partner',
+          description: 'Integrate our widget',
+          spots: 19,
+          benefit: '1M free transactions',
+          icon: '🔧'
+        },
+        {
+          name: 'White-Label',
+          description: 'Your own platform',
+          spots: 6,
+          benefit: 'SLA 99.99%',
+          icon: '🏢'
+        },
+        {
+          name: 'Investor',
+          description: 'Invest in the future',
+          spots: 'Limited',
+          benefit: 'Min $50k',
+          icon: '💎'
         }
       ],
       urgency: '20% lifetime bonus for the first 100'
@@ -2941,52 +2947,75 @@ const CaptureBlock: React.FC<{
         </div>
       )}
 
-      <h2 className="text-5xl font-bold text-center mb-8">
+      <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent drop-shadow-sm">
         {content.title} 🚀
       </h2>
-      
-      {/* Score Display */}
-      <div className="text-center mb-8">
-        <div className="inline-block bg-gradient-to-r from-green-500/20 to-blue-500/20 border border-green-500/50 px-8 py-4 rounded-full">
-          <p className="text-2xl">
-            Your score: <span className="font-bold text-yellow-400">
+
+      {/* Score Display - Glass Crystal Style */}
+      <div className="text-center mb-10">
+        <div className="inline-block glass-crystal px-8 py-5 rounded-2xl shadow-xl">
+          <p className="text-xl md:text-2xl text-gray-800 dark:text-gray-100">
+            Your score: <span className="font-bold bg-gradient-to-r from-amber-500 to-yellow-500 bg-clip-text text-transparent">
               {questionsScore.correct}/{questionsScore.total}
             </span> correct answers
           </p>
           {/* Show PERFECT only for 8/9 or 9/9 (high scores) */}
           {questionsScore.total >= 9 && questionsScore.correct >= 8 ? (
-            <p className="text-green-400 font-bold mt-2">PERFECT! You're an expert 🏆</p>
+            <p className="text-emerald-600 dark:text-emerald-400 font-bold mt-3">PERFECT! You're an expert 🏆</p>
           ) : questionsScore.total > 0 && (
-            <p className="text-blue-400 font-medium mt-2">
+            <p className="text-blue-600 dark:text-blue-400 font-medium mt-3 max-w-lg mx-auto leading-relaxed">
               Congratulations on making it this far! 🎉 You're just a couple of steps away from becoming an important part of this community.
             </p>
           )}
         </div>
       </div>
-      
+
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 max-w-6xl mx-auto">
         {content.paths.map((path: any) => (
           <motion.button
             key={path.name}
             onClick={() => setSelectedPath(path.name)}
-            className={`p-6 rounded-xl border-2 transition-all text-left ${
+            className={`relative p-6 rounded-2xl transition-all text-left backdrop-blur-xl ${
               selectedPath === path.name
-                ? 'border-yellow-400 bg-yellow-400/10 scale-105'
-                : 'border-gray-600 hover:border-gray-400 hover:bg-gray-800/50'
+                ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-2 border-amber-400/60 dark:border-amber-400/50 scale-[1.03] shadow-xl shadow-amber-500/20'
+                : 'glass-crystal border border-gray-200/50 dark:border-white/10 hover:border-purple-400/50 dark:hover:border-purple-400/30 hover:shadow-lg hover:shadow-purple-500/10'
             }`}
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: selectedPath === path.name ? 1.03 : 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <h3 className="font-bold text-xl mb-2">{path.name}</h3>
-            <p className="text-sm text-gray-400 mb-3">{path.description}</p>
-            <div className="text-yellow-400 mb-2 font-bold">
-              {typeof path.spots === 'number' 
-                ? `Solo ${path.spots} lugares`
-                : path.spots
-              }
+            {/* Popular Badge */}
+            {path.popular && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="px-3 py-1 text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-full shadow-lg">
+                  ⭐ MOST POPULAR
+                </span>
+              </div>
+            )}
+
+            {/* Icon & Title Row */}
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-2xl">{path.icon}</span>
+              <h3 className="font-bold text-xl text-gray-900 dark:text-white">{path.name}</h3>
             </div>
-            <div className="text-sm text-green-400">
-              {path.benefit}
+
+            {/* Description */}
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">{path.description}</p>
+
+            {/* Spots Badge */}
+            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-500/20 mb-3">
+              <span className="text-amber-700 dark:text-amber-300 font-semibold text-sm">
+                {typeof path.spots === 'number'
+                  ? `🔥 Only ${path.spots} spots`
+                  : `✨ ${path.spots}`
+                }
+              </span>
+            </div>
+
+            {/* Benefit */}
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                ✅ {path.benefit}
+              </span>
             </div>
           </motion.button>
         ))}
