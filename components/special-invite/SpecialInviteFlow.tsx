@@ -17,7 +17,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
 import { client } from '@/lib/thirdweb/client';
@@ -31,6 +31,23 @@ import { GraduationCap, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
+
+// Import persistence service for zero-friction state recovery
+import {
+  loadInviteProgress,
+  initializeInviteProgress,
+  updateStep,
+  updatePasswordValidated,
+  updateEducationCompleted,
+  updateEmailVerified,
+  updateCalendarBooked,
+  updateWalletConnected,
+  updateClaimAttempted,
+  markCompleted,
+  getResumeStep,
+  isFlowComplete,
+  type InviteFlowProgress,
+} from '@/lib/invites/invite-flow-persistence';
 
 // Dynamic imports for SalesMasterclass (Spanish and English versions) to avoid SSR issues
 const SalesMasterclassES = dynamic(() => import('../learn/SalesMasterclass'), {
@@ -123,6 +140,10 @@ export function SpecialInviteFlow({
   const account = useActiveAccount();
   const t = useTranslations('specialInvite');
 
+  // Persistence state ref (keeps current without triggering re-renders)
+  const progressRef = useRef<InviteFlowProgress | null>(null);
+  const isInitialized = useRef(false);
+
   // Flow State
   const [currentStep, setCurrentStep] = useState<FlowStep>('welcome');
   const [password, setPassword] = useState('');
@@ -145,14 +166,51 @@ export function SpecialInviteFlow({
   const emailResolverRef = useRef<{ resolve: () => void; reject: (error: Error) => void } | null>(null);
   const calendarResolverRef = useRef<{ resolve: () => void; reject: (error: Error) => void } | null>(null);
 
-  // Trigger confetti on welcome
+  // 🔒 PERSISTENCE: Load saved progress on mount (Zero Friction)
   useEffect(() => {
-    if (currentStep === 'welcome') {
+    if (isInitialized.current) return;
+    isInitialized.current = true;
+
+    const savedProgress = loadInviteProgress(inviteData.code);
+
+    if (savedProgress && !isFlowComplete(savedProgress)) {
+      // Resume from saved progress
+      console.log('[SpecialInviteFlow] 🔄 Resuming progress from:', savedProgress.currentStep);
+
+      // Determine the correct step to resume from
+      const resumeStep = getResumeStep(savedProgress, inviteData.hasPassword);
+
+      // Restore all state
+      setCurrentStep(resumeStep);
+      setEducationCompleted(savedProgress.educationCompleted);
+      setQuestionsScore(savedProgress.questionsScore);
+      setVerifiedEmail(savedProgress.verifiedEmail);
+      setCalendarBooked(savedProgress.calendarBooked);
+
+      // Store the progress ref
+      progressRef.current = savedProgress;
+
+      console.log('[SpecialInviteFlow] ✅ State restored:', {
+        step: resumeStep,
+        educationCompleted: savedProgress.educationCompleted,
+        verifiedEmail: savedProgress.verifiedEmail,
+        calendarBooked: savedProgress.calendarBooked
+      });
+    } else {
+      // Initialize new progress
+      console.log('[SpecialInviteFlow] 🆕 Starting new progress for:', inviteData.code);
+      progressRef.current = initializeInviteProgress(inviteData.code, isPermanent);
+    }
+  }, [inviteData.code, inviteData.hasPassword, isPermanent]);
+
+  // Trigger confetti on welcome (only if not resuming from later step)
+  useEffect(() => {
+    if (currentStep === 'welcome' && !progressRef.current?.educationCompleted) {
       setTimeout(() => {
         triggerConfetti();
       }, 500);
     }
-  }, []);
+  }, [currentStep]);
 
   // Read locale from cookie on mount
   useEffect(() => {
@@ -205,6 +263,12 @@ export function SpecialInviteFlow({
       if (data.success) {
         // Password correct, move to education
         setCurrentStep('education');
+
+        // 🔒 PERSISTENCE: Save password validated state
+        if (progressRef.current) {
+          progressRef.current = updatePasswordValidated(progressRef.current);
+          console.log('[SpecialInviteFlow] 💾 Password validated, progress saved');
+        }
       } else {
         setValidationError(data.error || 'Contrasena incorrecta');
       }
@@ -224,11 +288,23 @@ export function SpecialInviteFlow({
     setQuestionsScore(data.questionsScore);
     setCurrentStep('connect');
     triggerConfetti();
+
+    // 🔒 PERSISTENCE: Save education completed state
+    if (progressRef.current) {
+      progressRef.current = updateEducationCompleted(progressRef.current, data.questionsScore);
+      console.log('[SpecialInviteFlow] 💾 Education completed, progress saved');
+    }
   }, []);
 
   // Handle wallet connection
   const handleWalletConnected = useCallback(async () => {
     if (!account?.address) return;
+
+    // 🔒 PERSISTENCE: Save wallet connected state
+    if (progressRef.current) {
+      progressRef.current = updateWalletConnected(progressRef.current, account.address);
+      console.log('[SpecialInviteFlow] 💾 Wallet connected, progress saved');
+    }
 
     try {
       // Use appropriate API endpoint based on invite type
@@ -249,6 +325,12 @@ export function SpecialInviteFlow({
       const data = await response.json();
 
       if (data.success) {
+        // 🔒 PERSISTENCE: Save claim successful state
+        if (progressRef.current) {
+          progressRef.current = updateClaimAttempted(progressRef.current, true);
+          console.log('[SpecialInviteFlow] 💾 Claim successful, progress saved');
+        }
+
         // 🔄 Sync any social verifications that were completed during education step
         // (Twitter/Discord verification happens BEFORE wallet connection)
         try {
@@ -273,9 +355,18 @@ export function SpecialInviteFlow({
         setCurrentStep('delegate');
         triggerConfetti();
         onClaimComplete(account.address);
+      } else {
+        // 🔒 PERSISTENCE: Save claim failed state
+        if (progressRef.current) {
+          progressRef.current = updateClaimAttempted(progressRef.current, false);
+        }
       }
     } catch (error) {
       console.error('Error claiming invite:', error);
+      // 🔒 PERSISTENCE: Save claim error state
+      if (progressRef.current) {
+        progressRef.current = updateClaimAttempted(progressRef.current, false);
+      }
     }
   }, [account?.address, inviteData.code, onClaimComplete, isPermanent]);
 
@@ -283,14 +374,30 @@ export function SpecialInviteFlow({
   const handleDelegationComplete = useCallback(() => {
     setCurrentStep('complete');
     triggerConfetti();
+
+    // 🔒 PERSISTENCE: Mark flow as completed
+    if (progressRef.current) {
+      progressRef.current = markCompleted(progressRef.current);
+      console.log('[SpecialInviteFlow] 🎉 Flow completed, progress saved');
+    }
   }, []);
 
   // Start flow
   const handleStartFlow = () => {
     if (inviteData.hasPassword) {
       setCurrentStep('password');
+      // 🔒 PERSISTENCE: Save step change
+      if (progressRef.current) {
+        progressRef.current = updateStep(progressRef.current, 'password');
+        console.log('[SpecialInviteFlow] 💾 Started flow, moving to password');
+      }
     } else {
       setCurrentStep('education');
+      // 🔒 PERSISTENCE: Save step change (skip password)
+      if (progressRef.current) {
+        progressRef.current = updateStep(progressRef.current, 'education');
+        console.log('[SpecialInviteFlow] 💾 Started flow, moving to education');
+      }
     }
   };
 
@@ -331,6 +438,12 @@ export function SpecialInviteFlow({
       emailResolverRef.current.resolve();
       emailResolverRef.current = null;
     }
+
+    // 🔒 PERSISTENCE: Save email verified state
+    if (progressRef.current) {
+      progressRef.current = updateEmailVerified(progressRef.current, email);
+      console.log('[SpecialInviteFlow] 💾 Email verified, progress saved');
+    }
   }, []);
 
   // Handle calendar booking completion
@@ -342,6 +455,12 @@ export function SpecialInviteFlow({
     if (calendarResolverRef.current) {
       calendarResolverRef.current.resolve();
       calendarResolverRef.current = null;
+    }
+
+    // 🔒 PERSISTENCE: Save calendar booked state
+    if (progressRef.current) {
+      progressRef.current = updateCalendarBooked(progressRef.current);
+      console.log('[SpecialInviteFlow] 💾 Calendar booked, progress saved');
     }
   }, []);
 
