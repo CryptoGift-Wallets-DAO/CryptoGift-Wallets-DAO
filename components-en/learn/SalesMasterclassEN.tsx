@@ -66,7 +66,8 @@ import {
   BookOpen,
   Calendar,
   Twitter,
-  MessageSquare
+  MessageSquare,
+  ArrowLeft
 } from 'lucide-react';
 import { EmailVerificationModal } from '@/components/email/EmailVerificationModal';
 import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
@@ -630,6 +631,22 @@ const SALES_BLOCKS: SalesBlock[] = [
   }
 ];
 
+// 🔒 PERSISTENCE: Education state interface for granular persistence
+interface EducationBlockState {
+  currentBlockIndex: number;
+  introVideoCompleted: boolean;
+  outroVideoCompleted: boolean;
+  completedBlocks: string[];
+  questionsAnswered: Array<{
+    blockId: string;
+    questionText: string;
+    selectedAnswer: string;
+    correctAnswer: string;
+    isCorrect: boolean;
+    answeredAt: number;
+  }>;
+}
+
 interface SalesMasterclassProps {
   educationalMode?: boolean;
   giftId?: string; // CRITICAL FIX: Add giftId for appointment tracking
@@ -643,6 +660,21 @@ interface SalesMasterclassProps {
   onShowTwitterFollow?: () => Promise<void>; // NEW: For social engagement
   onShowDiscordJoin?: () => Promise<void>; // NEW: For community engagement
   verifiedEmail?: string;
+  // 🔒 PERSISTENCE: Props for granular state restoration
+  savedEducationState?: EducationBlockState | null;
+  onEducationStateChange?: (state: {
+    blockIndex: number;
+    blockId: string;
+    introVideoCompleted?: boolean;
+    outroVideoCompleted?: boolean;
+    questionAnswered?: {
+      blockId: string;
+      questionText: string;
+      selectedAnswer: string;
+      correctAnswer: string;
+      isCorrect: boolean;
+    };
+  }) => void;
 }
 
 const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
@@ -654,7 +686,10 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
   onShowCalendar,
   onShowTwitterFollow, // NEW: For social engagement
   onShowDiscordJoin, // NEW: For community engagement
-  verifiedEmail
+  verifiedEmail,
+  // 🔒 PERSISTENCE: Receive saved state and change handler
+  savedEducationState,
+  onEducationStateChange
 }) => {
   console.log('🚀 SALES MASTERCLASS INIT:', {
     educationalMode,
@@ -691,11 +726,33 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
   
   // Hooks
   const account = useActiveAccount();
-  
+
   // State
-  const [showIntroVideo, setShowIntroVideo] = useState(true);
-  const [currentBlock, setCurrentBlock] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(SALES_BLOCKS[0].duration);
+  // 🔒 PERSISTENCE: Initialize from saved state if available
+  // This ensures the user returns to exactly where they left off
+  const [showIntroVideo, setShowIntroVideo] = useState(() => {
+    // If we have saved state and intro is completed, don't show it
+    if (savedEducationState?.introVideoCompleted) {
+      console.log('[SalesMasterclass] 🔒 Restored: introVideoCompleted = true, skipping intro');
+      return false;
+    }
+    return true;
+  });
+  const [currentBlock, setCurrentBlock] = useState(() => {
+    // Restore from saved state if available
+    if (savedEducationState?.currentBlockIndex !== undefined) {
+      console.log('[SalesMasterclass] 🔒 Restored: currentBlockIndex =', savedEducationState.currentBlockIndex);
+      return savedEducationState.currentBlockIndex;
+    }
+    return 0;
+  });
+  const [timeLeft, setTimeLeft] = useState(() => {
+    // Use saved block's duration if restoring
+    if (savedEducationState?.currentBlockIndex !== undefined) {
+      return SALES_BLOCKS[savedEducationState.currentBlockIndex]?.duration || SALES_BLOCKS[0].duration;
+    }
+    return SALES_BLOCKS[0].duration;
+  });
   const [isPaused, setIsPaused] = useState(false);
   const [leadData, setLeadData] = useState<Partial<LeadData>>({
     questionsCorrect: 0,
@@ -967,6 +1024,56 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
     }
   }, [currentBlock, educationalMode, getNextBlock]);
 
+  // 🔙 BACK BUTTON: Navigate to previous block
+  const handlePreviousBlock = useCallback(() => {
+    if (currentBlock > 0) {
+      const prevBlockIndex = currentBlock - 1;
+
+      console.log('🔙 BLOCK NAVIGATION (Back):', {
+        currentBlock,
+        currentBlockId: SALES_BLOCKS[currentBlock].id,
+        prevBlockIndex,
+        prevBlockId: SALES_BLOCKS[prevBlockIndex].id,
+      });
+
+      setCurrentBlock(prevBlockIndex);
+
+      // Force scroll to top when changing blocks
+      setTimeout(() => {
+        const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = 'auto';
+
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+
+        const lessonContainer = document.getElementById('lesson-content-scroll-container');
+        if (lessonContainer) {
+          lessonContainer.scrollTop = 0;
+        }
+
+        const mainContainer = document.querySelector('.educational-mode-wrapper');
+        if (mainContainer) {
+          mainContainer.scrollTop = 0;
+        }
+
+        setTimeout(() => {
+          document.documentElement.style.scrollBehavior = originalScrollBehavior;
+        }, 50);
+      }, 100);
+
+      // Set appropriate duration for the previous block
+      const blockDuration = educationalMode
+        ? Math.min(SALES_BLOCKS[prevBlockIndex].duration, 15)
+        : SALES_BLOCKS[prevBlockIndex].duration;
+
+      setTimeLeft(blockDuration);
+      setSelectedAnswer(null);
+      setShowQuestionFeedback(false);
+      setCanProceed(educationalMode);
+    }
+  }, [currentBlock, educationalMode]);
+
   // Claim Monitoring
   const startClaimMonitoring = useCallback(() => {
     // Simulate claim detection with error handling
@@ -1223,25 +1330,29 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
 
     switch (block.type) {
       case 'opening':
-        return <OpeningBlock 
-          content={block.content} 
-          question={block.question}
-          onAnswer={handleAnswerSelect}
-          selectedAnswer={selectedAnswer}
-          showFeedback={showQuestionFeedback}
-          onNext={handleNextBlock}
-          canProceed={canProceed}
-          timeLeft={timeLeft}
-        />;
-      case 'problem':
-        return <ProblemBlock 
+        return <OpeningBlock
           content={block.content}
           question={block.question}
           onAnswer={handleAnswerSelect}
           selectedAnswer={selectedAnswer}
           showFeedback={showQuestionFeedback}
           onNext={handleNextBlock}
+          onPrevious={handlePreviousBlock}
           canProceed={canProceed}
+          canGoBack={currentBlock > 0}
+          timeLeft={timeLeft}
+        />;
+      case 'problem':
+        return <ProblemBlock
+          content={block.content}
+          question={block.question}
+          onAnswer={handleAnswerSelect}
+          selectedAnswer={selectedAnswer}
+          showFeedback={showQuestionFeedback}
+          onNext={handleNextBlock}
+          onPrevious={handlePreviousBlock}
+          canProceed={canProceed}
+          canGoBack={currentBlock > 0}
           timeLeft={timeLeft}
         />;
       case 'solution':
@@ -1252,11 +1363,13 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           selectedAnswer={selectedAnswer}
           showFeedback={showQuestionFeedback}
           onNext={handleNextBlock}
+          onPrevious={handlePreviousBlock}
           canProceed={canProceed}
+          canGoBack={currentBlock > 0}
           timeLeft={timeLeft}
         />;
       case 'demo':
-        return <DemoBlock 
+        return <DemoBlock
           content={block.content}
           question={block.question}
           showQR={showQR}
@@ -1266,7 +1379,9 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           selectedAnswer={selectedAnswer}
           showFeedback={showQuestionFeedback}
           onNext={handleNextBlock}
+          onPrevious={handlePreviousBlock}
           canProceed={canProceed}
+          canGoBack={currentBlock > 0}
           timeLeft={timeLeft}
         />;
       case 'comparison':
@@ -1277,18 +1392,22 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           selectedAnswer={selectedAnswer}
           showFeedback={showQuestionFeedback}
           onNext={handleNextBlock}
+          onPrevious={handlePreviousBlock}
           canProceed={canProceed}
+          canGoBack={currentBlock > 0}
           timeLeft={timeLeft}
         />;
       case 'cases':
-        return <CasesBlock 
+        return <CasesBlock
           content={block.content}
           question={block.question}
           onAnswer={handleAnswerSelect}
           selectedAnswer={selectedAnswer}
           showFeedback={showQuestionFeedback}
           onNext={handleNextBlock}
+          onPrevious={handlePreviousBlock}
           canProceed={canProceed}
+          canGoBack={currentBlock > 0}
           timeLeft={timeLeft}
         />;
       case 'business':
@@ -1299,7 +1418,9 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           selectedAnswer={selectedAnswer}
           showFeedback={showQuestionFeedback}
           onNext={handleNextBlock}
+          onPrevious={handlePreviousBlock}
           canProceed={canProceed}
+          canGoBack={currentBlock > 0}
           timeLeft={timeLeft}
         />;
       case 'roadmap':
@@ -1310,7 +1431,9 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           selectedAnswer={selectedAnswer}
           showFeedback={showQuestionFeedback}
           onNext={handleNextBlock}
+          onPrevious={handlePreviousBlock}
           canProceed={canProceed}
+          canGoBack={currentBlock > 0}
           timeLeft={timeLeft}
         />;
       case 'close':
@@ -1321,7 +1444,9 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           selectedAnswer={selectedAnswer}
           showFeedback={showQuestionFeedback}
           onNext={handleNextBlock}
+          onPrevious={handlePreviousBlock}
           canProceed={canProceed}
+          canGoBack={currentBlock > 0}
           timeLeft={timeLeft}
         />;
       case 'capture':
@@ -1707,49 +1832,77 @@ const QuestionSection: React.FC<{
   );
 };
 
-// ✅ FIX #1: Componente de navegación unificado con espacio fijo
+// ✅ FIX #1: Componente de navegación unificado con espacio fijo + BACK BUTTON
 const NavigationArea: React.FC<{
   onNext: () => void;
+  onPrevious?: () => void;
   canProceed: boolean;
+  canGoBack?: boolean;
   timeLeft: number;
   buttonText?: string;
   buttonIcon?: React.ReactNode;
   buttonColor?: string;
-}> = ({ 
-  onNext, 
-  canProceed, 
-  timeLeft, 
-  buttonText = "CONTINUE", 
+}> = ({
+  onNext,
+  onPrevious,
+  canProceed,
+  canGoBack = false,
+  timeLeft,
+  buttonText = "CONTINUE",
   buttonIcon = <Rocket className="w-6 h-6" />,
   buttonColor = "from-yellow-500 to-orange-500 text-black"
 }) => (
   <div className="NavigationArea text-center mt-8 flex-1 flex flex-col justify-center">
     {canProceed && timeLeft > 0 ? (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <motion.button
-          onClick={onNext}
-          className={`inline-flex items-center gap-3 px-8 py-4 
-                     bg-gradient-to-r ${buttonColor}
-                     backdrop-blur-xl
-                     font-bold text-xl rounded-xl 
-                     hover:scale-105 transition-all duration-300 
-                     shadow-lg hover:shadow-xl
-                     border border-white/10
-                     cursor-pointer`}
-          style={{
-            animation: 'pulse 1.43s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {buttonIcon}
-          {buttonText}
-          <ArrowRight className="w-6 h-6" />
-        </motion.button>
-        
+        {/* 🔙 BACK + CONTINUE BUTTONS */}
+        <div className="flex items-center justify-center gap-4">
+          {/* Back Button - Only show if canGoBack */}
+          {canGoBack && onPrevious && (
+            <motion.button
+              onClick={onPrevious}
+              className="inline-flex items-center gap-2 px-6 py-4
+                         bg-gradient-to-r from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700
+                         backdrop-blur-xl
+                         font-bold text-lg rounded-xl
+                         hover:scale-105 transition-all duration-300
+                         shadow-lg hover:shadow-xl
+                         border border-white/10
+                         cursor-pointer text-white"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ArrowLeft className="w-5 h-5" />
+              BACK
+            </motion.button>
+          )}
+
+          {/* Continue Button */}
+          <motion.button
+            onClick={onNext}
+            className={`inline-flex items-center gap-3 px-8 py-4
+                       bg-gradient-to-r ${buttonColor}
+                       backdrop-blur-xl
+                       font-bold text-xl rounded-xl
+                       hover:scale-105 transition-all duration-300
+                       shadow-lg hover:shadow-xl
+                       border border-white/10
+                       cursor-pointer`}
+            style={{
+              animation: 'pulse 1.43s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {buttonIcon}
+            {buttonText}
+            <ArrowRight className="w-6 h-6" />
+          </motion.button>
+        </div>
+
         <div className="mt-4 text-gray-600 dark:text-gray-400 text-sm flex items-center justify-center gap-2">
           <ChevronRight className="w-4 h-4" />
           <span>Click to continue</span>
@@ -1816,56 +1969,76 @@ const OpeningBlock: React.FC<{
   selectedAnswer: number | null;
   showFeedback: boolean;
   onNext: () => void;
+  onPrevious?: () => void;
   canProceed: boolean;
+  canGoBack?: boolean;
   timeLeft: number;
-}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
+}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, onPrevious, canProceed, canGoBack = false, timeLeft }) => (
   <div className="py-12">
-    <motion.div 
+    <motion.div
       className="text-center mb-8"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
     >
-      <h1 className="text-6xl font-black mb-6 bg-gradient-to-r 
-        from-blue-600 via-purple-600 to-emerald-600 
-        dark:from-blue-400 dark:via-purple-400 dark:to-emerald-400 
+      <h1 className="text-6xl font-black mb-6 bg-gradient-to-r
+        from-blue-600 via-purple-600 to-emerald-600
+        dark:from-blue-400 dark:via-purple-400 dark:to-emerald-400
         bg-clip-text text-transparent
         drop-shadow-2xl">
         {content.headline}
       </h1>
-      
+
       <div className="max-w-3xl mx-auto">
         <p className="text-xl text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
           {content.story}
         </p>
-        
-        <div className="bg-blue-50/60 dark:bg-blue-950/30 
-          backdrop-blur-xl backdrop-saturate-150 
-          p-6 rounded-2xl 
-          border border-blue-200/40 dark:border-blue-800/40 
+
+        <div className="bg-blue-50/60 dark:bg-blue-950/30
+          backdrop-blur-xl backdrop-saturate-150
+          p-6 rounded-2xl
+          border border-blue-200/40 dark:border-blue-800/40
           shadow-xl hover:shadow-2xl hover:shadow-blue-500/10 hover:bg-blue-50/80 dark:hover:bg-blue-950/40 transition-all duration-300 hover:scale-[1.02] mb-6">
           <p className="text-lg text-blue-800 dark:text-blue-200 font-medium">
             {content.emphasis}
           </p>
         </div>
-        
+
+        {/* CGC Reward Message - Dynamic from content */}
+        {content.message && (
+          <motion.div
+            className="bg-gradient-to-r from-emerald-50/70 to-green-50/70 dark:from-emerald-950/40 dark:to-green-950/40
+              backdrop-blur-xl backdrop-saturate-150
+              p-4 rounded-2xl
+              border border-emerald-300/50 dark:border-emerald-700/50
+              shadow-lg mb-6"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <p className="text-lg text-emerald-700 dark:text-emerald-300 font-semibold">
+              {content.message}
+            </p>
+          </motion.div>
+        )}
+
         <p className="text-2xl text-gray-900 dark:text-white font-bold">
           {content.hook}
         </p>
       </div>
     </motion.div>
 
-    {question && (
-      <QuestionSection
-        question={question}
-        onAnswer={onAnswer}
-        selectedAnswer={selectedAnswer}
-        showFeedback={showFeedback}
-      />
-    )}
+    <QuestionSection
+      question={question}
+      onAnswer={onAnswer}
+      selectedAnswer={selectedAnswer}
+      showFeedback={showFeedback}
+    />
 
     <NavigationArea
       onNext={onNext}
+      onPrevious={onPrevious}
       canProceed={canProceed}
+      canGoBack={canGoBack}
       timeLeft={timeLeft}
       buttonText="CONTINUE"
       buttonIcon={<Rocket className="w-6 h-6" />}
@@ -1881,9 +2054,11 @@ const ProblemBlock: React.FC<{
   selectedAnswer: number | null;
   showFeedback: boolean;
   onNext: () => void;
+  onPrevious?: () => void;
   canProceed: boolean;
+  canGoBack?: boolean;
   timeLeft: number;
-}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
+}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, onPrevious, canProceed, canGoBack = false, timeLeft }) => (
   <div className="py-12">
     <h2 className="text-5xl font-bold text-center mb-12 flex items-center justify-center gap-3">
       <span className="bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-300 dark:to-gray-100 bg-clip-text text-transparent">The 3 Market Gaps</span>
@@ -1933,7 +2108,9 @@ const ProblemBlock: React.FC<{
 
     <NavigationArea
       onNext={onNext}
+      onPrevious={onPrevious}
       canProceed={canProceed}
+      canGoBack={canGoBack}
       timeLeft={timeLeft}
       buttonText="VIEW SOLUTION"
       buttonIcon={<Shield className="w-6 h-6" />}
@@ -1949,9 +2126,11 @@ const SolutionBlock: React.FC<{
   selectedAnswer: number | null;
   showFeedback: boolean;
   onNext: () => void;
+  onPrevious?: () => void;
   canProceed: boolean;
+  canGoBack?: boolean;
   timeLeft: number;
-}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
+}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, onPrevious, canProceed, canGoBack = false, timeLeft }) => (
   <div className="py-12">
     <h2 className="text-5xl font-bold text-center mb-8 flex items-center justify-center gap-3">
       <span className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">NFT-Wallets: The Revolution</span>
@@ -2003,45 +2182,34 @@ const SolutionBlock: React.FC<{
       showFeedback={showFeedback}
     />
 
-    {canProceed && (
-      <motion.div 
-        className="text-center mt-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <motion.button
-          onClick={onNext}
-          className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-blue-500 
-                     text-white font-bold text-xl rounded-xl hover:scale-105 transition-all duration-300 shadow-lg
-                     cursor-pointer"
-          style={{
-            animation: 'pulse 1.43s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Zap className="w-6 h-6" />
-          VIEW LIVE DEMO
-          <ArrowRight className="w-6 h-6" />
-        </motion.button>
-      </motion.div>
-    )}
+    <NavigationArea
+      onNext={onNext}
+      onPrevious={onPrevious}
+      canProceed={canProceed}
+      canGoBack={canGoBack}
+      timeLeft={timeLeft}
+      buttonText="VIEW LIVE DEMO"
+      buttonIcon={<Zap className="w-6 h-6" />}
+      buttonColor="from-green-500 to-blue-500 text-white"
+    />
   </div>
 );
 
-const DemoBlock: React.FC<{ 
+const DemoBlock: React.FC<{
   content: any;
   question: any;
-  showQR: boolean; 
+  showQR: boolean;
   giftUrl: string;
   claimStatus: string;
   onAnswer: (idx: number) => void;
   selectedAnswer: number | null;
   showFeedback: boolean;
   onNext: () => void;
+  onPrevious?: () => void;
   canProceed: boolean;
+  canGoBack?: boolean;
   timeLeft: number;
-}> = ({ content, question, showQR, giftUrl, claimStatus, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
+}> = ({ content, question, showQR, giftUrl, claimStatus, onAnswer, selectedAnswer, showFeedback, onNext, onPrevious, canProceed, canGoBack = false, timeLeft }) => (
   <div className="text-center py-12">
     <h2 className="text-5xl font-bold mb-8">{content.instruction}</h2>
     
@@ -2107,7 +2275,9 @@ const DemoBlock: React.FC<{
 
     <NavigationArea
       onNext={onNext}
+      onPrevious={onPrevious}
       canProceed={canProceed}
+      canGoBack={canGoBack}
       timeLeft={timeLeft}
       buttonText="VIEW COMPARISON"
       buttonIcon={<BarChart3 className="w-6 h-6" />}
@@ -2123,9 +2293,11 @@ const ComparisonBlock: React.FC<{
   selectedAnswer: number | null;
   showFeedback: boolean;
   onNext: () => void;
+  onPrevious?: () => void;
   canProceed: boolean;
+  canGoBack?: boolean;
   timeLeft: number;
-}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
+}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, onPrevious, canProceed, canGoBack = false, timeLeft }) => (
   <div className="py-12">
     <h2 className="text-5xl font-bold text-center mb-12">{content.title} ⚔️</h2>
     
@@ -2157,7 +2329,9 @@ const ComparisonBlock: React.FC<{
 
     <NavigationArea
       onNext={onNext}
+      onPrevious={onPrevious}
       canProceed={canProceed}
+      canGoBack={canGoBack}
       timeLeft={timeLeft}
       buttonText="SEE RESULTS"
       buttonIcon={<TrendingUp className="w-6 h-6" />}
@@ -2173,9 +2347,11 @@ const CasesBlock: React.FC<{
   selectedAnswer: number | null;
   showFeedback: boolean;
   onNext: () => void;
+  onPrevious?: () => void;
   canProceed: boolean;
+  canGoBack?: boolean;
   timeLeft: number;
-}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
+}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, onPrevious, canProceed, canGoBack = false, timeLeft }) => (
   <div className="py-12">
     <h2 className="text-5xl font-bold text-center mb-12">Real Results 📊</h2>
     
@@ -2209,7 +2385,9 @@ const CasesBlock: React.FC<{
 
     <NavigationArea
       onNext={onNext}
+      onPrevious={onPrevious}
       canProceed={canProceed}
+      canGoBack={canGoBack}
       timeLeft={timeLeft}
       buttonText="SEE BUSINESS MODEL"
       buttonIcon={<Banknote className="w-6 h-6" />}
@@ -2225,9 +2403,11 @@ const BusinessBlock: React.FC<{
   selectedAnswer: number | null;
   showFeedback: boolean;
   onNext: () => void;
+  onPrevious?: () => void;
   canProceed: boolean;
+  canGoBack?: boolean;
   timeLeft: number;
-}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
+}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, onPrevious, canProceed, canGoBack = false, timeLeft }) => (
   <div className="py-12">
     <h2 className="text-5xl font-bold text-center mb-12 flex items-center justify-center gap-3">
       <span className="bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">{content.title}</span>
@@ -2273,7 +2453,9 @@ const BusinessBlock: React.FC<{
 
     <NavigationArea
       onNext={onNext}
+      onPrevious={onPrevious}
       canProceed={canProceed}
+      canGoBack={canGoBack}
       timeLeft={timeLeft}
       buttonText="VIEW ROADMAP"
       buttonIcon={<Globe className="w-6 h-6" />}
@@ -2289,9 +2471,11 @@ const RoadmapBlock: React.FC<{
   selectedAnswer: number | null;
   showFeedback: boolean;
   onNext: () => void;
+  onPrevious?: () => void;
   canProceed: boolean;
+  canGoBack?: boolean;
   timeLeft: number;
-}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
+}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, onPrevious, canProceed, canGoBack = false, timeLeft }) => (
   <div className="py-12">
     <h2 className="text-5xl font-bold text-center mb-12">The Future is Exponential 🚀</h2>
     
@@ -2322,7 +2506,9 @@ const RoadmapBlock: React.FC<{
 
     <NavigationArea
       onNext={onNext}
+      onPrevious={onPrevious}
       canProceed={canProceed}
+      canGoBack={canGoBack}
       timeLeft={timeLeft}
       buttonText="INSPIRATIONAL MOMENT"
       buttonIcon={<Heart className="w-6 h-6" />}
@@ -2338,9 +2524,11 @@ const CloseBlock: React.FC<{
   selectedAnswer: number | null;
   showFeedback: boolean;
   onNext: () => void;
+  onPrevious?: () => void;
   canProceed: boolean;
+  canGoBack?: boolean;
   timeLeft: number;
-}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, canProceed, timeLeft }) => (
+}> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, onPrevious, canProceed, canGoBack = false, timeLeft }) => (
   <div className="py-12">
     <div className="max-w-4xl mx-auto text-center">
       <motion.h2 
@@ -2394,7 +2582,9 @@ const CloseBlock: React.FC<{
 
     <NavigationArea
       onNext={onNext}
+      onPrevious={onPrevious}
       canProceed={canProceed}
+      canGoBack={canGoBack}
       timeLeft={timeLeft}
       buttonText="I WANT TO JOIN!"
       buttonIcon={<Rocket className="w-8 h-8" />}
