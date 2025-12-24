@@ -747,6 +747,11 @@ export function SpecialInviteFlow({
                 // 🔒 PERSISTENCE: Pass saved education state and change handler
                 savedEducationState={progressRef.current?.educationState}
                 onEducationStateChange={handleEducationStateChange}
+                // 🔙 NAVIGATION: Allow going back to Welcome step from video
+                onBackToWelcome={() => {
+                  console.log('[SpecialInviteFlow] 🔙 Going back to Welcome step from video');
+                  setCurrentStep('welcome');
+                }}
               />
             </div>
           </div>

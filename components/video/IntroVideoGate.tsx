@@ -12,7 +12,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { SkipForward } from 'lucide-react';
+import { SkipForward, ArrowLeft } from 'lucide-react';
 
 // Carga perezosa del Mux Player para optimización
 // @ts-ignore - Mux player types may not be available
@@ -41,6 +41,7 @@ interface IntroVideoGateProps {
   title?: string;             // Título del video
   description?: string;       // Descripción opcional
   onFinish: () => void;       // Callback al terminar/saltar
+  onBack?: () => void;        // Callback para volver atrás (al Welcome)
   autoSkip?: boolean;         // Si debe saltarse automáticamente si ya se vio
   forceShow?: boolean;        // Forzar mostrar aunque ya se haya visto
 }
@@ -53,6 +54,7 @@ export default function IntroVideoGate({
   title = "Video Introductorio",
   description,
   onFinish,
+  onBack,
   autoSkip = true,
   forceShow = false,
 }: IntroVideoGateProps) {
@@ -163,9 +165,29 @@ export default function IntroVideoGate({
             )}
           </div>
 
-          {/* Skip intro button */}
-          {showSkipButton && (
-            <div className="flex justify-center">
+          {/* Navigation buttons */}
+          <div className="flex justify-center gap-4">
+            {/* Back button */}
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="px-6 py-4 rounded-xl
+                  bg-white/10 dark:bg-black/30
+                  hover:bg-white/20 dark:hover:bg-black/40
+                  text-gray-700 dark:text-gray-300 font-bold text-lg
+                  backdrop-blur-xl border border-gray-300/30 dark:border-gray-700/30
+                  transition-all hover:scale-105
+                  shadow-lg
+                  flex items-center gap-3"
+                aria-label="Volver"
+              >
+                <ArrowLeft className="w-6 h-6" />
+                <span>Volver</span>
+              </button>
+            )}
+
+            {/* Skip intro button */}
+            {showSkipButton && (
               <button
                 onClick={handleSkip}
                 className="px-8 py-4 rounded-xl
@@ -181,8 +203,8 @@ export default function IntroVideoGate({
                 <SkipForward className="w-6 h-6" />
                 <span>Saltar intro</span>
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </motion.div>
     </AnimatePresence>

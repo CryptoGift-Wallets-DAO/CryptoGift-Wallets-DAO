@@ -586,6 +586,10 @@ export function isFlowComplete(progress: InviteFlowProgress | null): boolean {
 /**
  * Get the step to resume from based on saved progress
  * This handles the logic of determining where user should continue
+ *
+ * CRITICAL FIX (Dec 2025): Previously, refreshing on Welcome would auto-advance
+ * to education because !hasPassword was true. Now we respect the saved currentStep
+ * and only advance if user has explicitly moved past welcome.
  */
 export function getResumeStep(
   progress: InviteFlowProgress,
@@ -606,8 +610,14 @@ export function getResumeStep(
     return 'connect';
   }
 
-  // If password was validated (or not needed), go to education
-  if (progress.passwordValidated || !hasPassword) {
+  // CRITICAL FIX: If user is still on welcome, stay on welcome
+  // Don't auto-advance just because there's no password
+  if (progress.currentStep === 'welcome') {
+    return 'welcome';
+  }
+
+  // If password was validated (or not needed AND user has moved past welcome), go to education
+  if (progress.passwordValidated || (!hasPassword && progress.currentStep !== 'welcome')) {
     return 'education';
   }
 

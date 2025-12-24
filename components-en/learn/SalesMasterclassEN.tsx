@@ -675,6 +675,8 @@ interface SalesMasterclassProps {
       isCorrect: boolean;
     };
   }) => void;
+  // 🔙 NAVIGATION: Callback to go back to Welcome step
+  onBackToWelcome?: () => void;
 }
 
 const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
@@ -689,7 +691,9 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
   verifiedEmail,
   // 🔒 PERSISTENCE: Receive saved state and change handler
   savedEducationState,
-  onEducationStateChange
+  onEducationStateChange,
+  // 🔙 NAVIGATION: Callback to go back to Welcome step
+  onBackToWelcome
 }) => {
   console.log('🚀 SALES MASTERCLASS INIT:', {
     educationalMode,
@@ -1074,6 +1078,31 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
     }
   }, [currentBlock, educationalMode]);
 
+  // 🔙 Handler to go back to intro video from OpeningBlock (block 0)
+  const handleBackToVideo = useCallback(() => {
+    console.log('🔙 BACK TO VIDEO: Returning to intro video from OpeningBlock');
+    setShowIntroVideo(true);
+
+    // 🔒 PERSISTENCE: Reset intro video state so it shows again
+    if (onEducationStateChange) {
+      onEducationStateChange({
+        blockIndex: 0,
+        blockId: SALES_BLOCKS[0].id,
+        introVideoCompleted: false,
+      });
+      console.log('[SalesMasterclassEN] 🔒 Reset: introVideoCompleted = false');
+    }
+
+    // Force scroll to top
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      const lessonContainer = document.getElementById('lesson-content-scroll-container');
+      if (lessonContainer) lessonContainer.scrollTop = 0;
+    }, 100);
+  }, [onEducationStateChange]);
+
   // Claim Monitoring
   const startClaimMonitoring = useCallback(() => {
     // Simulate claim detection with error handling
@@ -1337,9 +1366,9 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           selectedAnswer={selectedAnswer}
           showFeedback={showQuestionFeedback}
           onNext={handleNextBlock}
-          onPrevious={handlePreviousBlock}
+          onPrevious={currentBlock === 0 ? handleBackToVideo : handlePreviousBlock}
           canProceed={canProceed}
-          canGoBack={currentBlock > 0}
+          canGoBack={true}
           timeLeft={timeLeft}
         />;
       case 'problem':
@@ -1585,6 +1614,7 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
             description={VIDEO_CONFIG.salesMasterclass.description}
             poster={VIDEO_CONFIG.salesMasterclass.poster}
             captionsVtt={VIDEO_CONFIG.salesMasterclass.captionsVtt}
+            onBack={onBackToWelcome}
             onFinish={() => {
               console.log('📹 Intro video completed');
               setShowIntroVideo(false);
