@@ -652,7 +652,7 @@ export interface Database {
           discord_id: string | null
           github_username: string | null
           total_cgc_earned: number
-          tasks_completed: number
+          total_tasks_completed: number
           level: string
           rank: number
         }

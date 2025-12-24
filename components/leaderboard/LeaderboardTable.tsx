@@ -11,15 +11,18 @@ import React, { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Trophy, Medal, Award, User } from 'lucide-react'
-import type { Collaborator } from '@/lib/supabase/types'
+import type { Database } from '@/lib/supabase/types'
+
+// Use the actual leaderboard_view type from Supabase
+type LeaderboardViewRow = Database['public']['Views']['leaderboard_view']['Row']
 
 interface LeaderboardTableProps {
   userAddress?: string
   refreshKey?: number
 }
 
-interface LeaderboardEntry extends Collaborator {
-  rank: number
+interface LeaderboardEntry extends LeaderboardViewRow {
+  tasks_in_progress?: number
 }
 
 export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTableProps) {
@@ -90,7 +93,7 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
             <div className="flex items-center space-x-3">
               {getRankIcon(userRank.rank)}
               <div>
-                <p className="font-semibold text-gray-900 dark:text-white">{userRank.wallet_address?.slice(0, 8)}...{userRank.wallet_address?.slice(-6)}</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{userRank.address?.slice(0, 8)}...{userRank.address?.slice(-6)}</p>
                 <p className="text-sm text-blue-600 dark:text-blue-400">{userRank.total_cgc_earned.toFixed(2)} CGC</p>
               </div>
             </div>
@@ -125,12 +128,12 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
           </thead>
           <tbody className="divide-y divide-white/5 dark:divide-white/5">
             {leaderboard.map((collaborator, index) => {
-              const isUserRow = collaborator.wallet_address === userAddress
+              const isUserRow = collaborator.address === userAddress
               const levelBadge = getLevelBadge('', collaborator.total_cgc_earned)
 
               return (
                 <tr
-                  key={collaborator.wallet_address || collaborator.id}
+                  key={collaborator.address}
                   className={`hover:bg-white/5 dark:hover:bg-white/5 transition-colors ${isUserRow ? 'bg-blue-500/10' : ''}`}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -141,10 +144,10 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
                       <User className="w-4 h-4 text-gray-400 dark:text-gray-500 mr-2" />
                       <div>
                         <p className={`font-medium ${isUserRow ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'}`}>
-                          {collaborator.wallet_address?.slice(0, 8)}...{collaborator.wallet_address?.slice(-6)}
+                          {collaborator.address?.slice(0, 8)}...{collaborator.address?.slice(-6)}
                         </p>
-                        {collaborator.discord_username && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Discord: {collaborator.discord_username}</p>
+                        {collaborator.discord_id && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Discord: {collaborator.discord_id}</p>
                         )}
                       </div>
                     </div>
@@ -161,7 +164,7 @@ export function LeaderboardTable({ userAddress, refreshKey = 0 }: LeaderboardTab
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{collaborator.tasks_completed}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{collaborator.total_tasks_completed}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {collaborator.tasks_in_progress || 0} {t('inProgressLabel')}
                       </p>
