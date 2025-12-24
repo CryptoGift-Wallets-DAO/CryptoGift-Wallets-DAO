@@ -9,7 +9,6 @@
 'use client'
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useAccount } from '@/lib/thirdweb'
 import { useCGCBalance } from '@/lib/web3/hooks'
@@ -67,12 +66,6 @@ export default function TasksPage() {
   const t = useTranslations('tasks')
   const tCommon = useTranslations('common')
 
-  // URL search params for tab navigation
-  const searchParams = useSearchParams()
-  const tabFromUrl = searchParams.get('tab')
-  const validTabs = ['available', 'progress', 'history', 'leaderboard', 'propose']
-  const initialTab = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'available'
-
   const { address, isConnected } = useAccount()
   const { balance } = useCGCBalance(address as `0x${string}` | undefined)
   const { success, error, warning, info } = useToast()
@@ -88,7 +81,7 @@ export default function TasksPage() {
   })
 
   const [refreshKey, setRefreshKey] = useState(0)
-  const [selectedTab, setSelectedTab] = useState(initialTab)
+  const [selectedTab, setSelectedTab] = useState('available')
 
   // Category filters for Task System v2.0
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory | null>(null)
@@ -98,13 +91,6 @@ export default function TasksPage() {
   // Ref for scrolling to task list when clicking featured tasks
   const taskListRef = useRef<HTMLDivElement>(null)
   const [selectedTaskIdFromFeatured, setSelectedTaskIdFromFeatured] = useState<string | null>(null)
-
-  // Sync tab with URL parameter
-  useEffect(() => {
-    if (tabFromUrl && validTabs.includes(tabFromUrl) && tabFromUrl !== selectedTab) {
-      setSelectedTab(tabFromUrl)
-    }
-  }, [tabFromUrl])
 
   // Load statistics
   useEffect(() => {

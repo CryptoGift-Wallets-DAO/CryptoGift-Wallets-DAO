@@ -175,25 +175,25 @@ export function ProposalList({ userAddress, refreshKey = 0, onProposalsLoaded }:
     <div className="space-y-6">
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="glass-crystal rounded-xl p-4 text-center">
+        <div className="bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl rounded-xl p-4 text-center border border-purple-200/50 dark:border-purple-500/30 shadow-lg shadow-purple-500/10">
           <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{activeProposals.length}</div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">{t('stats.activeProposals')}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-300">{t('stats.activeProposals')}</div>
         </div>
-        <div className="glass-crystal rounded-xl p-4 text-center">
+        <div className="bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl rounded-xl p-4 text-center border border-green-200/50 dark:border-green-500/30 shadow-lg shadow-green-500/10">
           <div className="text-2xl font-bold text-green-600 dark:text-green-400">{approvedProposals.length}</div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">{t('stats.approved')}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-300">{t('stats.approved')}</div>
         </div>
-        <div className="glass-crystal rounded-xl p-4 text-center">
+        <div className="bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl rounded-xl p-4 text-center border border-blue-200/50 dark:border-blue-500/30 shadow-lg shadow-blue-500/10">
           <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
             {proposals.reduce((sum, p) => sum + p.votesUp + p.votesDown, 0)}
           </div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">{t('stats.totalVotes')}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-300">{t('stats.totalVotes')}</div>
         </div>
-        <div className="glass-crystal rounded-xl p-4 text-center">
+        <div className="bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl rounded-xl p-4 text-center border border-indigo-200/50 dark:border-indigo-500/30 shadow-lg shadow-indigo-500/10">
           <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
             {syncStatus?.proposals?.synced || 0}
           </div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">Discord Sync</div>
+          <div className="text-sm text-gray-600 dark:text-gray-300">Discord Sync</div>
         </div>
       </div>
 
@@ -226,7 +226,7 @@ export function ProposalList({ userAddress, refreshKey = 0, onProposalsLoaded }:
 
       {/* Tabs for proposals */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="bg-white/50 dark:bg-white/5 border border-gray-200 dark:border-white/10">
+        <TabsList className="bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl border border-gray-200/80 dark:border-purple-500/20 shadow-md">
           <TabsTrigger
             value="active"
             className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300"
@@ -309,13 +309,15 @@ function EmptyState({ type }: { type: 'active' | 'approved' | 'rejected' }) {
   const t = useTranslations('proposals')
 
   return (
-    <div className="text-center py-12">
-      <MessageSquarePlus className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-      <p className="text-gray-500 dark:text-gray-400">
+    <div className="text-center py-12 bg-white/60 dark:bg-slate-800/50 backdrop-blur-xl rounded-xl border border-gray-200/50 dark:border-purple-500/20">
+      <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-500/20 w-fit mx-auto mb-4">
+        <MessageSquarePlus className="w-8 h-8 text-purple-500 dark:text-purple-400" />
+      </div>
+      <p className="text-gray-700 dark:text-gray-300 font-medium">
         {type === 'active' ? t('empty.noProposals') : t('empty.noMatching')}
       </p>
       {type === 'active' && (
-        <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
           {t('empty.beFirst')}
         </p>
       )}
@@ -344,7 +346,7 @@ function ProposalCard({
   )
 
   return (
-    <div className="glass-crystal rounded-xl p-5 border border-gray-200 dark:border-white/10 hover:border-purple-500/30 transition-all">
+    <div className="bg-white/90 dark:bg-slate-800/70 backdrop-blur-xl rounded-xl p-5 border border-gray-200/80 dark:border-purple-500/30 hover:border-purple-500/50 dark:hover:border-purple-400/50 transition-all shadow-lg hover:shadow-xl hover:shadow-purple-500/10">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2 flex-wrap">

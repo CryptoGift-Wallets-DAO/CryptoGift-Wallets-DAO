@@ -110,13 +110,6 @@ export const Navbar: React.FC = () => {
             </Link>
 
             <Link
-              href="/proposals"
-              className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-sm font-bold px-2"
-            >
-              {t('proposals')}
-            </Link>
-
-            <Link
               href="/referrals"
               className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-sm font-bold flex items-center gap-1 px-2"
             >
@@ -201,17 +194,6 @@ export const Navbar: React.FC = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 {t('tasksRewards')}
-              </Link>
-
-              {/* Mobile Separator */}
-              <div className="mx-4 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-slate-600 to-transparent opacity-30"></div>
-
-              <Link
-                href="/proposals"
-                className="block text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors px-4 py-3 font-bold text-base"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('proposals')}
               </Link>
 
               {/* Mobile Separator */}
