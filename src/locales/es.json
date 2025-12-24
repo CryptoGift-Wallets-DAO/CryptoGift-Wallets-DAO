@@ -583,6 +583,8 @@
       "leaderboardDescription": "Mejores colaboradores clasificados por total de CGC ganados a través de tareas completadas.",
       "proposeTitle": "Proponer Nueva Tarea",
       "proposeDescription": "Envía una propuesta de tarea para revisión. Las tareas aprobadas serán añadidas al grupo disponible.",
+      "communityProposals": "Propuestas de la Comunidad",
+      "communityProposalsDesc": "Vota las propuestas de la comunidad y ayuda a decidir qué tareas se añaden al pool.",
       "systemOperational": "Sistema de Tareas: Operacional",
       "completedLabel": "Completadas",
       "cgcDistributed": "CGC Distribuidos",
@@ -2004,34 +2006,46 @@
     "subtitle": "Propón nuevas tareas, vota por las ideas de la comunidad, y ayuda a dar forma al futuro del ecosistema CryptoGift DAO.",
     "stats": {
       "active": "Propuestas Activas",
+      "activeProposals": "Propuestas Activas",
       "approved": "Aprobadas",
       "totalVotes": "Votos Totales",
       "syncedToDiscord": "Sincronizadas a Discord"
     },
     "actions": {
       "createProposal": "Crear Propuesta",
+      "proposeTask": "Proponer Tarea",
       "syncToDiscord": "Sincronizar a Discord",
+      "refresh": "Actualizar",
       "discordBot": "Bot de Discord"
     },
     "tabs": {
       "active": "Activas",
+      "voting": "En Votación",
       "approved": "Aprobadas",
       "rejected": "Rechazadas"
     },
     "empty": {
       "active": "No hay propuestas activas",
+      "noProposals": "No hay propuestas activas",
       "activeHint": "¡Sé el primero en proponer una nueva tarea!",
+      "beFirst": "¡Sé el primero en proponer una nueva tarea!",
+      "noMatching": "No hay propuestas que coincidan",
       "approved": "Aún no hay propuestas aprobadas",
       "rejected": "No hay propuestas rechazadas"
     },
     "loading": "Cargando propuestas...",
+    "loadingText": "Cargando propuestas...",
     "card": {
       "proposedBy": "Propuesto por:",
-      "category": "Categoría:",
-      "reward": "Recompensa:",
+      "by": "Por",
+      "category": "Categoría",
+      "reward": "Recompensa",
       "anonymous": "Anónimo",
+      "noDescription": "Sin descripción",
       "votes": "votos",
-      "approval": "aprobación"
+      "approval": "aprobación",
+      "voteFor": "Votar a Favor",
+      "voteAgainst": "Votar en Contra"
     },
     "status": {
       "pending": "Pendiente",
@@ -2042,12 +2056,14 @@
     },
     "createModal": {
       "title": "Crear Nueva Propuesta",
+      "subtitle": "Las propuestas se pueden crear desde Discord usando el comando /propose, o a través de esta interfaz web.",
       "description": "Las propuestas se pueden crear desde Discord usando el comando /propose, o a través de esta interfaz web.",
       "titleLabel": "Título",
       "titlePlaceholder": "ej., Crear landing page para campaña de verano",
       "descriptionLabel": "Descripción",
       "descriptionPlaceholder": "Describe la tarea en detalle...",
       "categoryLabel": "Categoría",
+      "categoryPlaceholder": "Selecciona categoría",
       "selectCategory": "Selecciona categoría",
       "categories": {
         "development": "Desarrollo",
@@ -2059,16 +2075,30 @@
       "rewardLabel": "Recompensa Sugerida",
       "rewardPlaceholder": "ej., 500",
       "cancel": "Cancelar",
+      "submit": "Crear Propuesta",
       "create": "Crear Propuesta"
     },
-    "toast": {
+    "categories": {
+      "development": "Desarrollo",
+      "design": "Diseño",
+      "content": "Contenido",
+      "marketing": "Marketing",
+      "community": "Comunidad"
+    },
+    "toasts": {
       "connectWallet": "Conecta tu wallet para votar",
+      "connectWalletDesc": "Necesitas conectar tu wallet para votar en propuestas",
       "voteRecorded": "¡Voto registrado!",
       "voteRemoved": "Voto eliminado",
       "voteFailed": "Error al votar",
-      "syncSuccess": "Sincronizadas {count} propuestas a Discord",
+      "syncComplete": "¡Sincronización completa!",
+      "syncedProposals": "Sincronizadas {count} propuestas a Discord",
       "syncFailed": "Error de sincronización",
       "comingSoon": "¡Creación de propuestas próximamente!"
+    },
+    "errors": {
+      "connectWallet": "Conectar Wallet",
+      "connectWalletDesc": "Necesitas conectar tu wallet para votar"
     },
     "discord": {
       "badge": "Discord"

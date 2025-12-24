@@ -8,13 +8,15 @@
 
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useAccount } from '@/lib/thirdweb'
 import { useCGCBalance } from '@/lib/web3/hooks'
 import { TaskList } from '@/components/tasks/TaskList'
 import { TasksInProgress } from '@/components/tasks/TasksInProgress'
 import { TaskProposal } from '@/components/tasks/TaskProposal'
+import { ProposalList } from '@/components/proposals/ProposalList'
 import { TaskHistory } from '@/components/tasks/TaskHistory'
 import { LeaderboardTable } from '@/components/leaderboard/LeaderboardTable'
 import { StatsOverview } from '@/components/leaderboard/StatsOverview'
@@ -65,6 +67,12 @@ export default function TasksPage() {
   const t = useTranslations('tasks')
   const tCommon = useTranslations('common')
 
+  // URL search params for tab navigation
+  const searchParams = useSearchParams()
+  const tabFromUrl = searchParams.get('tab')
+  const validTabs = ['available', 'progress', 'history', 'leaderboard', 'propose']
+  const initialTab = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'available'
+
   const { address, isConnected } = useAccount()
   const { balance } = useCGCBalance(address as `0x${string}` | undefined)
   const { success, error, warning, info } = useToast()
@@ -80,7 +88,7 @@ export default function TasksPage() {
   })
 
   const [refreshKey, setRefreshKey] = useState(0)
-  const [selectedTab, setSelectedTab] = useState('available')
+  const [selectedTab, setSelectedTab] = useState(initialTab)
 
   // Category filters for Task System v2.0
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory | null>(null)
@@ -90,6 +98,13 @@ export default function TasksPage() {
   // Ref for scrolling to task list when clicking featured tasks
   const taskListRef = useRef<HTMLDivElement>(null)
   const [selectedTaskIdFromFeatured, setSelectedTaskIdFromFeatured] = useState<string | null>(null)
+
+  // Sync tab with URL parameter
+  useEffect(() => {
+    if (tabFromUrl && validTabs.includes(tabFromUrl) && tabFromUrl !== selectedTab) {
+      setSelectedTab(tabFromUrl)
+    }
+  }, [tabFromUrl])
 
   // Load statistics
   useEffect(() => {
@@ -508,30 +523,58 @@ export default function TasksPage() {
 
             {/* Propose Task Tab */}
             <TabsContent value="propose">
-              <div className="glass-panel rounded-2xl overflow-hidden shadow-xl">
-                <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/10">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 shadow-md">
-                      <PlusCircle className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                        {t('page.proposeTitle')}
-                      </h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {t('page.proposeDescription')}
-                      </p>
+              <div className="space-y-8">
+                {/* Proposal Form Section */}
+                <div className="glass-panel rounded-2xl overflow-hidden shadow-xl">
+                  <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/10">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 shadow-md">
+                        <PlusCircle className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                          {t('page.proposeTitle')}
+                        </h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t('page.proposeDescription')}
+                        </p>
+                      </div>
                     </div>
                   </div>
+                  <div className="p-6">
+                    <TaskProposal
+                      userAddress={address}
+                      onProposalSubmitted={() => {
+                        success(t('toasts.proposalSubmitted'), t('toasts.proposalSubmittedDesc'))
+                        setRefreshKey(prev => prev + 1)
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="p-6">
-                  <TaskProposal
-                    userAddress={address}
-                    onProposalSubmitted={() => {
-                      success(t('toasts.proposalSubmitted'), t('toasts.proposalSubmittedDesc'))
-                      handleRefresh()
-                    }}
-                  />
+
+                {/* Community Proposals List Section */}
+                <div className="glass-panel rounded-2xl overflow-hidden shadow-xl">
+                  <div className="px-6 py-4 border-b border-gray-200/50 dark:border-white/10">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500 shadow-md">
+                        <Users className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                          {t('page.communityProposals')}
+                        </h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t('page.communityProposalsDesc')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <ProposalList
+                      userAddress={address}
+                      refreshKey={refreshKey}
+                    />
+                  </div>
                 </div>
               </div>
             </TabsContent>

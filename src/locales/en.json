@@ -583,6 +583,8 @@
       "leaderboardDescription": "Top contributors ranked by total CGC earned through task completions.",
       "proposeTitle": "Propose New Task",
       "proposeDescription": "Submit a task proposal for review. Approved tasks will be added to the available pool.",
+      "communityProposals": "Community Proposals",
+      "communityProposalsDesc": "Vote on community proposals and help decide which tasks get added to the pool.",
       "systemOperational": "Tasks System: Operational",
       "completedLabel": "Completed",
       "cgcDistributed": "CGC Distributed",
@@ -2004,34 +2006,46 @@
     "subtitle": "Propose new tasks, vote on community ideas, and help shape the future of CryptoGift DAO",
     "stats": {
       "active": "Active Proposals",
+      "activeProposals": "Active Proposals",
       "approved": "Approved",
       "totalVotes": "Total Votes",
       "syncedToDiscord": "Synced to Discord"
     },
     "actions": {
       "createProposal": "Create Proposal",
+      "proposeTask": "Propose Task",
       "syncToDiscord": "Sync to Discord",
+      "refresh": "Refresh",
       "discordBot": "Discord Bot"
     },
     "tabs": {
       "active": "Active",
+      "voting": "Voting",
       "approved": "Approved",
       "rejected": "Rejected"
     },
     "empty": {
       "active": "No active proposals",
+      "noProposals": "No active proposals",
       "activeHint": "Be the first to propose a new task!",
+      "beFirst": "Be the first to propose a new task!",
+      "noMatching": "No matching proposals",
       "approved": "No approved proposals yet",
       "rejected": "No rejected proposals"
     },
     "loading": "Loading proposals...",
+    "loadingText": "Loading proposals...",
     "card": {
       "proposedBy": "Proposed by:",
-      "category": "Category:",
-      "reward": "Reward:",
+      "by": "By",
+      "category": "Category",
+      "reward": "Reward",
       "anonymous": "Anonymous",
+      "noDescription": "No description provided",
       "votes": "votes",
-      "approval": "approval"
+      "approval": "approval",
+      "voteFor": "Vote For",
+      "voteAgainst": "Vote Against"
     },
     "status": {
       "pending": "Pending",
@@ -2042,12 +2056,14 @@
     },
     "createModal": {
       "title": "Create New Proposal",
+      "subtitle": "Proposals can be created from Discord using the /propose command, or through this web interface.",
       "description": "Proposals can be created from Discord using the /propose command, or through this web interface.",
       "titleLabel": "Title",
       "titlePlaceholder": "e.g., Create landing page for summer campaign",
       "descriptionLabel": "Description",
       "descriptionPlaceholder": "Describe the task in detail...",
       "categoryLabel": "Category",
+      "categoryPlaceholder": "Select category",
       "selectCategory": "Select category",
       "categories": {
         "development": "Development",
@@ -2059,16 +2075,30 @@
       "rewardLabel": "Suggested Reward",
       "rewardPlaceholder": "e.g., 500",
       "cancel": "Cancel",
+      "submit": "Create Proposal",
       "create": "Create Proposal"
     },
-    "toast": {
+    "categories": {
+      "development": "Development",
+      "design": "Design",
+      "content": "Content",
+      "marketing": "Marketing",
+      "community": "Community"
+    },
+    "toasts": {
       "connectWallet": "Connect your wallet to vote",
+      "connectWalletDesc": "You need to connect your wallet to vote on proposals",
       "voteRecorded": "Vote recorded!",
       "voteRemoved": "Vote removed",
       "voteFailed": "Failed to vote",
-      "syncSuccess": "Synced {count} proposals to Discord",
+      "syncComplete": "Sync complete!",
+      "syncedProposals": "Synced {count} proposals to Discord",
       "syncFailed": "Sync failed",
       "comingSoon": "Proposal creation coming soon!"
+    },
+    "errors": {
+      "connectWallet": "Connect Wallet",
+      "connectWalletDesc": "You need to connect your wallet to vote"
     },
     "discord": {
       "badge": "Discord"
