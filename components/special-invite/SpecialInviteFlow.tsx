@@ -570,6 +570,9 @@ export function SpecialInviteFlow({
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                 {t('welcome.subtitle')}
               </p>
+              <p className="text-sm text-purple-600 dark:text-purple-400 mt-3 font-medium bg-purple-50 dark:bg-purple-900/20 rounded-lg px-3 py-2 border border-purple-200 dark:border-purple-700">
+                {t('welcome.rewardInfo')}
+              </p>
             </div>
 
             {/* Trust Indicators */}

@@ -321,6 +321,9 @@ export function SpecialInviteFlowEN({
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                 Someone special has selected you to join CryptoGift DAO
               </p>
+              <p className="text-sm text-purple-600 dark:text-purple-400 mt-3 font-medium bg-purple-50 dark:bg-purple-900/20 rounded-lg px-3 py-2 border border-purple-200 dark:border-purple-700">
+                ✨ By completing your community entry you&apos;ll receive 200 CGC as a reward, giving you access to all community tools and activating your voting power.
+              </p>
             </div>
 
             {/* Trust Indicators */}

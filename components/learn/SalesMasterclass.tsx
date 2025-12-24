@@ -2246,7 +2246,7 @@ const ProblemBlock: React.FC<{
       canProceed={canProceed}
       canGoBack={canGoBack}
       timeLeft={timeLeft}
-      buttonText="VER SOLUCIÓN"
+      buttonText="CONTINUAR A VER SOLUCIÓN"
       buttonIcon={<Shield className="w-6 h-6" />}
       buttonColor="from-gray-600 to-gray-800 text-white"
     />
@@ -2324,7 +2324,7 @@ const SolutionBlock: React.FC<{
       canProceed={canProceed}
       canGoBack={canGoBack}
       timeLeft={timeLeft}
-      buttonText="VER DEMO EN VIVO"
+      buttonText="CONTINUAR A VER DEMO EN VIVO"
       buttonIcon={<Zap className="w-6 h-6" />}
       buttonColor="from-green-500 to-blue-500 text-white"
     />
@@ -2415,7 +2415,7 @@ const DemoBlock: React.FC<{
       canProceed={canProceed}
       canGoBack={canGoBack}
       timeLeft={timeLeft}
-      buttonText="VER COMPARACIÓN"
+      buttonText="CONTINUAR A VER COMPARACIÓN"
       buttonIcon={<BarChart3 className="w-6 h-6" />}
       buttonColor="from-blue-500 to-purple-500 text-white"
     />
@@ -2469,7 +2469,7 @@ const ComparisonBlock: React.FC<{
       canProceed={canProceed}
       canGoBack={canGoBack}
       timeLeft={timeLeft}
-      buttonText="VER RESULTADOS"
+      buttonText="CONTINUAR A VER RESULTADOS"
       buttonIcon={<TrendingUp className="w-6 h-6" />}
       buttonColor="from-orange-500 to-red-500 text-white"
     />
@@ -2525,7 +2525,7 @@ const CasesBlock: React.FC<{
       canProceed={canProceed}
       canGoBack={canGoBack}
       timeLeft={timeLeft}
-      buttonText="VER MODELO DE NEGOCIO"
+      buttonText="CONTINUAR A VER MODELO DE NEGOCIO"
       buttonIcon={<Banknote className="w-6 h-6" />}
       buttonColor="from-purple-500 to-indigo-500 text-white"
     />
@@ -2593,7 +2593,7 @@ const BusinessBlock: React.FC<{
       canProceed={canProceed}
       canGoBack={canGoBack}
       timeLeft={timeLeft}
-      buttonText="VER ROADMAP"
+      buttonText="CONTINUAR A VER ROADMAP"
       buttonIcon={<Globe className="w-6 h-6" />}
       buttonColor="from-blue-500 to-purple-500 text-white"
     />
@@ -2646,7 +2646,7 @@ const RoadmapBlock: React.FC<{
       canProceed={canProceed}
       canGoBack={canGoBack}
       timeLeft={timeLeft}
-      buttonText="MOMENTO INSPIRACIONAL"
+      buttonText="CONTINUAR A MOMENTO INSPIRACIONAL"
       buttonIcon={<Heart className="w-6 h-6" />}
       buttonColor="from-indigo-500 to-purple-500 text-white"
     />
@@ -2722,7 +2722,7 @@ const CloseBlock: React.FC<{
       canProceed={canProceed}
       canGoBack={canGoBack}
       timeLeft={timeLeft}
-      buttonText="¡QUIERO SER PARTE!"
+      buttonText="CONTINUAR A ¡QUIERO SER PARTE!"
       buttonIcon={<Rocket className="w-8 h-8" />}
       buttonColor="from-blue-600 to-purple-600 text-white"
     />

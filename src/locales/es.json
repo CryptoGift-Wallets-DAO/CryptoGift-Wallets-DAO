@@ -1229,6 +1229,7 @@
     "welcome": {
       "title": "¡Felicidades! Has Recibido una Invitacion Especial",
       "subtitle": "Alguien especial te ha seleccionado para unirte a CryptoGift DAO",
+      "rewardInfo": "✨ Al completar tu entrada a la comunidad recibirás 200 CGC de recompensa, lo que te dará acceso a todas las herramientas de la comunidad y activará tu poder de voto.",
       "trustSecure": "100% Seguro",
       "trustMembers": "+10,000 miembros",
       "trustVerified": "Blockchain verificado",
