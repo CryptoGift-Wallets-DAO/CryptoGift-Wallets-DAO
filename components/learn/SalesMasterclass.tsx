@@ -689,6 +689,12 @@ interface SalesMasterclassProps {
   }) => void;
   // 🔙 NAVIGATION: Callback to go back to Welcome step
   onBackToWelcome?: () => void;
+  // 🆕 PERSISTENCE: Social verification state (restored from localStorage)
+  savedSocialVerification?: {
+    twitter: { verified: boolean; username: string | null; userId: string | null } | null;
+    discord: { verified: boolean; username: string | null; userId: string | null } | null;
+  } | null;
+  onSocialVerified?: (platform: 'twitter' | 'discord', data: { username: string; userId: string }) => void;
 }
 
 const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
@@ -705,7 +711,10 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   savedEducationState,
   onEducationStateChange,
   // 🔙 NAVIGATION: Callback to go back to Welcome step
-  onBackToWelcome
+  onBackToWelcome,
+  // 🆕 PERSISTENCE: Social verification state (restored from localStorage)
+  savedSocialVerification,
+  onSocialVerified
 }) => {
   // Video configs from Spanish config file
   const introVideoConfig = VIDEO_CONFIG.salesMasterclass;
@@ -2755,7 +2764,13 @@ const CaptureBlock: React.FC<{
   verifiedEmail?: string | null;
   onPrevious?: () => void;
   canGoBack?: boolean;
-}> = ({ content, onSubmit, questionsScore, educationalMode = false, onShowEmailVerification, onShowCalendar, onShowTwitterFollow, onShowDiscordJoin, verifiedEmail, onPrevious, canGoBack = false }) => {
+  // 🆕 PERSISTENCE: Social verification state from localStorage
+  savedSocialVerification?: {
+    twitter: { verified: boolean; username: string | null; userId: string | null } | null;
+    discord: { verified: boolean; username: string | null; userId: string | null } | null;
+  } | null;
+  onSocialVerified?: (platform: 'twitter' | 'discord', data: { username: string; userId: string }) => void;
+}> = ({ content, onSubmit, questionsScore, educationalMode = false, onShowEmailVerification, onShowCalendar, onShowTwitterFollow, onShowDiscordJoin, verifiedEmail, onPrevious, canGoBack = false, savedSocialVerification, onSocialVerified }) => {
   const account = useActiveAccount(); 
   const [selectedPath, setSelectedPath] = useState<string>('');
   const [formData, setFormData] = useState({
@@ -2774,6 +2789,7 @@ const CaptureBlock: React.FC<{
 
   // NEW: OAuth-based social verification (automatic verification via API)
   // Uses popup OAuth flow to verify user actually followed Twitter / joined Discord
+  // 🆕 PERSISTENCE: Restore verification state from localStorage to survive page refresh
   const {
     twitterVerified: twitterFollowed,
     discordVerified: discordJoined,
@@ -2784,8 +2800,17 @@ const CaptureBlock: React.FC<{
     error: socialOAuthError,
   } = useSocialOAuth({
     walletAddress: account?.address || '',
-    onVerified: (platform, username) => {
-      console.log(`✅ ${platform} verification completed: @${username}`);
+    // 🆕 PERSISTENCE: Initial values from localStorage (survives page refresh/language change)
+    initialTwitterVerified: savedSocialVerification?.twitter?.verified ?? false,
+    initialTwitterUsername: savedSocialVerification?.twitter?.username ?? null,
+    initialDiscordVerified: savedSocialVerification?.discord?.verified ?? false,
+    initialDiscordUsername: savedSocialVerification?.discord?.username ?? null,
+    onVerified: (platform, data) => {
+      console.log(`✅ ${platform} verification completed: @${data.username}`);
+      // 🆕 PERSISTENCE: Save to localStorage via callback to parent
+      if (onSocialVerified && data.userId) {
+        onSocialVerified(platform, { username: data.username, userId: data.userId });
+      }
     },
     onError: (error) => {
       console.error('❌ Social verification error:', error);
@@ -2793,8 +2818,9 @@ const CaptureBlock: React.FC<{
   });
 
   // State for checkbox visual feedback (processing indicator)
-  const [twitterChecked, setTwitterChecked] = useState(false);
-  const [discordChecked, setDiscordChecked] = useState(false);
+  // 🆕 PERSISTENCE: Initialize from saved state if available
+  const [twitterChecked, setTwitterChecked] = useState(savedSocialVerification?.twitter?.verified ?? false);
+  const [discordChecked, setDiscordChecked] = useState(savedSocialVerification?.discord?.verified ?? false);
 
   // Track if verification is in progress (for loading state)
   const [twitterVerifying, setTwitterVerifying] = useState(false);
@@ -3048,23 +3074,24 @@ const CaptureBlock: React.FC<{
         </div>
       )}
 
-      <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent drop-shadow-sm">
+      <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent drop-shadow-sm leading-normal pb-1">
         {content.title} 🚀
       </h2>
 
       {/* Score Display - Glass Crystal Style */}
+      {/* Note: Education flow always has dark background, so text colors must be light */}
       <div className="text-center mb-10">
         <div className="inline-block glass-crystal px-8 py-5 rounded-2xl shadow-xl">
-          <p className="text-xl md:text-2xl text-gray-800 dark:text-gray-100">
+          <p className="text-xl md:text-2xl text-gray-100">
             Tu puntuación: <span className="font-bold bg-gradient-to-r from-amber-500 to-yellow-500 bg-clip-text text-transparent">
               {questionsScore.correct}/{questionsScore.total}
             </span> respuestas correctas
           </p>
           {/* Show PERFECTO only for 8/9 or 9/9 (high scores) */}
           {questionsScore.total >= 9 && questionsScore.correct >= 8 ? (
-            <p className="text-emerald-600 dark:text-emerald-400 font-bold mt-3">¡PERFECTO! Eres un experto 🏆</p>
+            <p className="text-emerald-400 font-bold mt-3">¡PERFECTO! Eres un experto 🏆</p>
           ) : questionsScore.total > 0 && (
-            <p className="text-blue-600 dark:text-blue-400 font-medium mt-3 max-w-lg mx-auto leading-relaxed">
+            <p className="text-blue-400 font-medium mt-3 max-w-lg mx-auto leading-relaxed">
               ¡Felicidades por llegar hasta aquí! 🎉 Estás a solo un par de pasos de ser parte importante de esta comunidad.
             </p>
           )}
@@ -3094,17 +3121,18 @@ const CaptureBlock: React.FC<{
             )}
 
             {/* Icon & Title Row */}
+            {/* Note: Education flow always has dark background, so use light text colors */}
             <div className="flex items-center gap-3 mb-3">
               <span className="text-2xl">{path.icon}</span>
-              <h3 className="font-bold text-xl text-gray-900 dark:text-white">{path.nameEs || path.name}</h3>
+              <h3 className="font-bold text-xl text-white">{path.nameEs || path.name}</h3>
             </div>
 
             {/* Description */}
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">{path.description}</p>
+            <p className="text-sm text-gray-300 mb-4 leading-relaxed">{path.description}</p>
 
             {/* Spots Badge */}
-            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-500/20 mb-3">
-              <span className="text-amber-700 dark:text-amber-300 font-semibold text-sm">
+            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-500/20 mb-3">
+              <span className="text-amber-300 font-semibold text-sm">
                 {typeof path.spots === 'number'
                   ? `🔥 Solo ${path.spots} lugares`
                   : `✨ ${path.spots}`
@@ -3114,7 +3142,7 @@ const CaptureBlock: React.FC<{
 
             {/* Benefit */}
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+              <span className="text-emerald-400 font-medium">
                 ✅ {path.benefit}
               </span>
             </div>
@@ -3171,7 +3199,7 @@ const CaptureBlock: React.FC<{
                   </span>
                   Únete a Nuestra Comunidad
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 ml-13 leading-relaxed">
+                <p className="text-sm text-gray-300 mb-4 ml-13 leading-relaxed">
                   Al completar estos pasos, te conviertes en <strong className="text-purple-400">miembro activo</strong> de CryptoGift.
                   Recibirás <strong className="text-yellow-400">200 CGC</strong> como bienvenida —tus primeros tokens de gobernanza que te dan
                   voz en las decisiones del ecosistema. Esta comunidad es de todos los que la integramos, y tu presencia la fortalece.
@@ -3218,7 +3246,7 @@ const CaptureBlock: React.FC<{
                         border border-blue-500/30 group-hover:scale-110 transition-transform">
                         <span className="text-lg">📧</span>
                       </div>
-                      <span className="font-semibold text-gray-800 dark:text-white">
+                      <span className="font-semibold text-white">
                         Verificar tu email
                       </span>
                       {emailVerified && (
@@ -3234,7 +3262,7 @@ const CaptureBlock: React.FC<{
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
+                    <p className="text-sm text-gray-300 mt-2 ml-11">
                       Te enviaremos información exclusiva sobre el ecosistema cripto
                     </p>
                     {verifiedEmail && emailVerified && (
@@ -3270,7 +3298,7 @@ const CaptureBlock: React.FC<{
                           border border-purple-500/30 group-hover:scale-110 transition-transform">
                           <span className="text-lg">📅</span>
                         </div>
-                        <span className="font-semibold text-gray-800 dark:text-white">
+                        <span className="font-semibold text-white">
                           Agendar una sesión gratuita
                         </span>
                         {calendarScheduled && (
@@ -3286,7 +3314,7 @@ const CaptureBlock: React.FC<{
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
+                      <p className="text-sm text-gray-300 mt-2 ml-11">
                         {selectedPath === 'Investor'
                           ? 'Agenda una llamada para discutir oportunidades de inversión y conocer nuestros números'
                           : 'Agenda una demo personalizada para explorar opciones de White-Label para tu negocio'
@@ -3310,7 +3338,7 @@ const CaptureBlock: React.FC<{
                             border border-sky-500/30">
                             <Twitter className="w-4 h-4 text-sky-400" />
                           </div>
-                          <span className="font-semibold text-gray-800 dark:text-white">
+                          <span className="font-semibold text-white">
                             Seguir en X (Twitter)
                           </span>
                           {twitterFollowed && (
@@ -3321,7 +3349,7 @@ const CaptureBlock: React.FC<{
                           )}
                         </div>
 
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 ml-11">
+                        <p className="text-sm text-gray-300 mb-3 ml-11">
                           {selectedPath === 'Quest Creator'
                             ? 'Síguenos para ver ejemplos de quests exitosas'
                             : selectedPath === 'Integration Partner'
@@ -3373,7 +3401,7 @@ const CaptureBlock: React.FC<{
                             border border-indigo-500/30">
                             <MessageSquare className="w-4 h-4 text-indigo-400" />
                           </div>
-                          <span className="font-semibold text-gray-800 dark:text-white">
+                          <span className="font-semibold text-white">
                             Unirse a Discord
                           </span>
                           {discordJoined && (
@@ -3384,7 +3412,7 @@ const CaptureBlock: React.FC<{
                           )}
                         </div>
 
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 ml-11">
+                        <p className="text-sm text-gray-300 mb-3 ml-11">
                           {selectedPath === 'Quest Creator'
                             ? 'Accede al canal exclusivo de creators'
                             : selectedPath === 'Integration Partner'

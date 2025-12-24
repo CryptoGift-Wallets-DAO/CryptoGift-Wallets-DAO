@@ -45,6 +45,8 @@ import {
   updateEducationQuestionAnswered,
   updateEmailVerified,
   updateCalendarBooked,
+  updateTwitterVerified,
+  updateDiscordVerified,
   updateWalletConnected,
   updateClaimAttempted,
   markCompleted,
@@ -541,6 +543,30 @@ export function SpecialInviteFlow({
     }
   }, []);
 
+  /**
+   * 🆕 Handle social verification (Twitter/Discord)
+   * Persists verification state to localStorage to survive page refresh and language changes
+   */
+  const handleSocialVerified = useCallback((
+    platform: 'twitter' | 'discord',
+    data: { username: string; userId: string }
+  ) => {
+    if (!progressRef.current) {
+      console.warn('[SpecialInviteFlow] No progress ref, cannot save social verification');
+      return;
+    }
+
+    console.log(`[SpecialInviteFlow] 🔒 ${platform} verification:`, data.username);
+
+    if (platform === 'twitter') {
+      progressRef.current = updateTwitterVerified(progressRef.current, data);
+    } else if (platform === 'discord') {
+      progressRef.current = updateDiscordVerified(progressRef.current, data);
+    }
+
+    console.log(`[SpecialInviteFlow] 💾 ${platform} verification saved`);
+  }, []);
+
   // Render content based on current step
   const renderStepContent = () => {
     switch (currentStep) {
@@ -750,6 +776,16 @@ export function SpecialInviteFlow({
                 // 🔒 PERSISTENCE: Pass saved education state and change handler
                 savedEducationState={progressRef.current?.educationState}
                 onEducationStateChange={handleEducationStateChange}
+                // 🆕 PERSISTENCE: Pass saved social verification state and change handler
+                savedSocialVerification={progressRef.current?.socialVerification ? {
+                  twitter: progressRef.current.socialVerification.twitter.verified
+                    ? { verified: true, username: progressRef.current.socialVerification.twitter.username, userId: progressRef.current.socialVerification.twitter.userId }
+                    : null,
+                  discord: progressRef.current.socialVerification.discord.verified
+                    ? { verified: true, username: progressRef.current.socialVerification.discord.username, userId: progressRef.current.socialVerification.discord.userId }
+                    : null,
+                } : null}
+                onSocialVerified={handleSocialVerified}
                 // 🔙 NAVIGATION: Allow going back to Welcome step from video
                 onBackToWelcome={() => {
                   console.log('[SpecialInviteFlow] 🔙 Going back to Welcome step from video');

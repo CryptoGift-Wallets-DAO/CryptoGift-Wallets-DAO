@@ -685,6 +685,12 @@ interface SalesMasterclassProps {
   }) => void;
   // 🔙 NAVIGATION: Callback to go back to Welcome step
   onBackToWelcome?: () => void;
+  // 🆕 PERSISTENCE: Social verification state (restored from localStorage)
+  savedSocialVerification?: {
+    twitter: { verified: boolean; username: string | null; userId: string | null } | null;
+    discord: { verified: boolean; username: string | null; userId: string | null } | null;
+  } | null;
+  onSocialVerified?: (platform: 'twitter' | 'discord', data: { username: string; userId: string }) => void;
 }
 
 const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
@@ -701,7 +707,10 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
   savedEducationState,
   onEducationStateChange,
   // 🔙 NAVIGATION: Callback to go back to Welcome step
-  onBackToWelcome
+  onBackToWelcome,
+  // 🆕 PERSISTENCE: Social verification state (restored from localStorage)
+  savedSocialVerification,
+  onSocialVerified
 }) => {
   console.log('🚀 SALES MASTERCLASS INIT:', {
     educationalMode,
@@ -2674,7 +2683,13 @@ const CaptureBlock: React.FC<{
   verifiedEmail?: string | null;
   onPrevious?: () => void;
   canGoBack?: boolean;
-}> = ({ content, onSubmit, questionsScore, educationalMode = false, onShowEmailVerification, onShowCalendar, onShowTwitterFollow, onShowDiscordJoin, verifiedEmail, onPrevious, canGoBack = false }) => {
+  // 🆕 PERSISTENCE: Social verification state from localStorage
+  savedSocialVerification?: {
+    twitter: { verified: boolean; username: string | null; userId: string | null } | null;
+    discord: { verified: boolean; username: string | null; userId: string | null } | null;
+  } | null;
+  onSocialVerified?: (platform: 'twitter' | 'discord', data: { username: string; userId: string }) => void;
+}> = ({ content, onSubmit, questionsScore, educationalMode = false, onShowEmailVerification, onShowCalendar, onShowTwitterFollow, onShowDiscordJoin, verifiedEmail, onPrevious, canGoBack = false, savedSocialVerification, onSocialVerified }) => {
   const account = useActiveAccount();
   const [selectedPath, setSelectedPath] = useState<string>('');
   const [formData, setFormData] = useState({
@@ -2693,6 +2708,7 @@ const CaptureBlock: React.FC<{
 
   // NEW: OAuth-based social verification (automatic verification via API)
   // Uses popup OAuth flow to verify user actually followed Twitter / joined Discord
+  // 🆕 PERSISTENCE: Restore verification state from localStorage to survive page refresh
   const {
     twitterVerified: twitterFollowed,
     discordVerified: discordJoined,
@@ -2703,8 +2719,17 @@ const CaptureBlock: React.FC<{
     error: socialOAuthError,
   } = useSocialOAuth({
     walletAddress: account?.address || '',
-    onVerified: (platform, username) => {
-      console.log(`✅ ${platform} verification completed: @${username}`);
+    // 🆕 PERSISTENCE: Initial values from localStorage (survives page refresh/language change)
+    initialTwitterVerified: savedSocialVerification?.twitter?.verified ?? false,
+    initialTwitterUsername: savedSocialVerification?.twitter?.username ?? null,
+    initialDiscordVerified: savedSocialVerification?.discord?.verified ?? false,
+    initialDiscordUsername: savedSocialVerification?.discord?.username ?? null,
+    onVerified: (platform, data) => {
+      console.log(`✅ ${platform} verification completed: @${data.username}`);
+      // 🆕 PERSISTENCE: Save to localStorage via callback to parent
+      if (onSocialVerified && data.userId) {
+        onSocialVerified(platform, { username: data.username, userId: data.userId });
+      }
     },
     onError: (error) => {
       console.error('❌ Social verification error:', error);
@@ -2712,8 +2737,9 @@ const CaptureBlock: React.FC<{
   });
 
   // State for checkbox visual feedback (processing indicator)
-  const [twitterChecked, setTwitterChecked] = useState(false);
-  const [discordChecked, setDiscordChecked] = useState(false);
+  // 🆕 PERSISTENCE: Initialize from saved state if available
+  const [twitterChecked, setTwitterChecked] = useState(savedSocialVerification?.twitter?.verified ?? false);
+  const [discordChecked, setDiscordChecked] = useState(savedSocialVerification?.discord?.verified ?? false);
 
   // Track if verification is in progress (for loading state)
   const [twitterVerifying, setTwitterVerifying] = useState(false);
@@ -2949,7 +2975,7 @@ const CaptureBlock: React.FC<{
         </div>
       )}
 
-      <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent drop-shadow-sm">
+      <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent drop-shadow-sm leading-normal pb-1">
         {content.title} 🚀
       </h2>
 
@@ -2997,15 +3023,15 @@ const CaptureBlock: React.FC<{
             {/* Icon & Title Row */}
             <div className="flex items-center gap-3 mb-3">
               <span className="text-2xl">{path.icon}</span>
-              <h3 className="font-bold text-xl text-gray-900 dark:text-white">{path.name}</h3>
+              <h3 className="font-bold text-xl text-white">{path.name}</h3>
             </div>
 
             {/* Description */}
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">{path.description}</p>
+            <p className="text-sm text-gray-300 mb-4 leading-relaxed">{path.description}</p>
 
             {/* Spots Badge */}
-            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-500/20 mb-3">
-              <span className="text-amber-700 dark:text-amber-300 font-semibold text-sm">
+            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-500/20 mb-3">
+              <span className="text-amber-300 font-semibold text-sm">
                 {typeof path.spots === 'number'
                   ? `🔥 Only ${path.spots} spots`
                   : `✨ ${path.spots}`
@@ -3015,7 +3041,7 @@ const CaptureBlock: React.FC<{
 
             {/* Benefit */}
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+              <span className="text-emerald-400 font-medium">
                 ✅ {path.benefit}
               </span>
             </div>
@@ -3072,7 +3098,7 @@ const CaptureBlock: React.FC<{
                   </span>
                   Join Our Community
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 ml-13 leading-relaxed">
+                <p className="text-sm text-gray-300 mb-4 ml-13 leading-relaxed">
                   By completing these steps, you become an <strong className="text-purple-400">active member</strong> of CryptoGift.
                   You&apos;ll receive <strong className="text-yellow-400">200 CGC</strong> as a welcome bonus —your first governance tokens that give
                   you a voice in the ecosystem&apos;s decisions. This community belongs to everyone who joins, and your presence strengthens it.
@@ -3119,7 +3145,7 @@ const CaptureBlock: React.FC<{
                         border border-blue-500/30 group-hover:scale-110 transition-transform">
                         <span className="text-lg">📧</span>
                       </div>
-                      <span className="font-semibold text-gray-800 dark:text-white">
+                      <span className="font-semibold text-white">
                         Verify your email
                       </span>
                       {emailVerified && (
@@ -3135,7 +3161,7 @@ const CaptureBlock: React.FC<{
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
+                    <p className="text-sm text-gray-300 mt-2 ml-11">
                       We'll send you exclusive information about the crypto ecosystem
                     </p>
                     {verifiedEmail && emailVerified && (
@@ -3171,7 +3197,7 @@ const CaptureBlock: React.FC<{
                           border border-purple-500/30 group-hover:scale-110 transition-transform">
                           <span className="text-lg">📅</span>
                         </div>
-                        <span className="font-semibold text-gray-800 dark:text-white">
+                        <span className="font-semibold text-white">
                           Schedule a free session
                         </span>
                         {calendarScheduled && (
@@ -3187,7 +3213,7 @@ const CaptureBlock: React.FC<{
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
+                      <p className="text-sm text-gray-300 mt-2 ml-11">
                         {selectedPath === 'Investor'
                           ? 'Schedule a call to discuss investment opportunities and learn our metrics'
                           : 'Schedule a personalized demo to explore White-Label options for your business'
@@ -3211,7 +3237,7 @@ const CaptureBlock: React.FC<{
                             border border-sky-500/30">
                             <Twitter className="w-4 h-4 text-sky-400" />
                           </div>
-                          <span className="font-semibold text-gray-800 dark:text-white">
+                          <span className="font-semibold text-white">
                             Follow on X (Twitter)
                           </span>
                           {twitterFollowed && (
@@ -3222,7 +3248,7 @@ const CaptureBlock: React.FC<{
                           )}
                         </div>
 
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 ml-11">
+                        <p className="text-sm text-gray-300 mb-3 ml-11">
                           {selectedPath === 'Quest Creator'
                             ? 'Follow us for successful quest examples'
                             : selectedPath === 'Integration Partner'
@@ -3274,7 +3300,7 @@ const CaptureBlock: React.FC<{
                             border border-indigo-500/30">
                             <MessageSquare className="w-4 h-4 text-indigo-400" />
                           </div>
-                          <span className="font-semibold text-gray-800 dark:text-white">
+                          <span className="font-semibold text-white">
                             Join Discord
                           </span>
                           {discordJoined && (
@@ -3285,7 +3311,7 @@ const CaptureBlock: React.FC<{
                           )}
                         </div>
 
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 ml-11">
+                        <p className="text-sm text-gray-300 mb-3 ml-11">
                           {selectedPath === 'Quest Creator'
                             ? 'Access the exclusive creators channel'
                             : selectedPath === 'Integration Partner'

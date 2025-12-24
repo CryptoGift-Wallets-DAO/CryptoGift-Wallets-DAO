@@ -21,12 +21,26 @@ export interface OAuthResult {
 export interface UseSocialOAuthOptions {
   walletAddress?: string; // Optional - not needed for social verification
   sessionId?: string; // Alternative identifier for state tracking
-  onVerified?: (platform: SocialPlatform, username: string) => void;
+  onVerified?: (platform: SocialPlatform, data: { username: string; userId?: string }) => void;
   onError?: (error: string) => void;
+  // 🆕 Initial values for restoring from localStorage persistence
+  initialTwitterVerified?: boolean;
+  initialTwitterUsername?: string | null;
+  initialDiscordVerified?: boolean;
+  initialDiscordUsername?: string | null;
 }
 
 export function useSocialOAuth(options: UseSocialOAuthOptions) {
-  const { walletAddress, sessionId, onVerified, onError } = options;
+  const {
+    walletAddress,
+    sessionId,
+    onVerified,
+    onError,
+    initialTwitterVerified = false,
+    initialTwitterUsername = null,
+    initialDiscordVerified = false,
+    initialDiscordUsername = null,
+  } = options;
 
   // Generate a stable unique identifier for state tracking (wallet not required)
   // This identifier is used for OAuth state management, not blockchain operations
@@ -34,10 +48,11 @@ export function useSocialOAuth(options: UseSocialOAuthOptions) {
     return walletAddress || sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }, [walletAddress, sessionId]);
 
-  const [twitterVerified, setTwitterVerified] = useState(false);
-  const [discordVerified, setDiscordVerified] = useState(false);
-  const [twitterUsername, setTwitterUsername] = useState<string | null>(null);
-  const [discordUsername, setDiscordUsername] = useState<string | null>(null);
+  // 🆕 Initialize with persisted values (from localStorage) to survive page refresh
+  const [twitterVerified, setTwitterVerified] = useState(initialTwitterVerified);
+  const [discordVerified, setDiscordVerified] = useState(initialDiscordVerified);
+  const [twitterUsername, setTwitterUsername] = useState<string | null>(initialTwitterUsername);
+  const [discordUsername, setDiscordUsername] = useState<string | null>(initialDiscordUsername);
   const [isLoading, setIsLoading] = useState<SocialPlatform | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,11 +71,13 @@ export function useSocialOAuth(options: UseSocialOAuthOptions) {
         if (result.platform === 'twitter') {
           setTwitterVerified(true);
           setTwitterUsername(result.username || null);
-          onVerified?.('twitter', result.username || '');
+          // 🆕 Pass both username and userId for persistence
+          onVerified?.('twitter', { username: result.username || '', userId: result.userId });
         } else if (result.platform === 'discord') {
           setDiscordVerified(true);
           setDiscordUsername(result.username || null);
-          onVerified?.('discord', result.username || '');
+          // 🆕 Pass both username and userId for persistence
+          onVerified?.('discord', { username: result.username || '', userId: result.userId });
         }
         setError(null);
       } else if (result.success && !result.verified) {

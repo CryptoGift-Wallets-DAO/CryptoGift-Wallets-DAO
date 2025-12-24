@@ -25,7 +25,7 @@
 
 // Storage keys
 const STORAGE_PREFIX = 'cgdao_invite_progress_';
-const STORAGE_VERSION = 2; // v2: Added granular education state persistence
+const STORAGE_VERSION = 3; // v3: Added social verification persistence (Twitter, Discord)
 
 // Flow step type (must match SpecialInviteFlow)
 export type FlowStep = 'welcome' | 'password' | 'education' | 'connect' | 'delegate' | 'complete';
@@ -69,6 +69,22 @@ export interface InviteFlowProgress {
   // Verification state
   verifiedEmail: string | null;
   calendarBooked: boolean;
+
+  // 🆕 Social verification state (persisted to survive refresh/language change)
+  socialVerification: {
+    twitter: {
+      verified: boolean;
+      username: string | null;
+      userId: string | null;
+      verifiedAt: number | null;
+    };
+    discord: {
+      verified: boolean;
+      username: string | null;
+      userId: string | null;
+      verifiedAt: number | null;
+    };
+  } | null;
 
   // Wallet state (connected at end)
   walletAddress: string | null;
@@ -226,6 +242,7 @@ export function initializeInviteProgress(
     educationState: null, // Will be initialized when entering education
     verifiedEmail: null,
     calendarBooked: false,
+    socialVerification: null, // Will be initialized when first social is verified
     walletAddress: null,
     claimAttempted: false,
     claimSuccessful: false,
@@ -488,6 +505,123 @@ export function updateCalendarBooked(
 
   saveInviteProgress(updated);
   return updated;
+}
+
+/**
+ * 🆕 Initialize social verification state
+ */
+function initializeSocialVerification(): NonNullable<InviteFlowProgress['socialVerification']> {
+  return {
+    twitter: {
+      verified: false,
+      username: null,
+      userId: null,
+      verifiedAt: null,
+    },
+    discord: {
+      verified: false,
+      username: null,
+      userId: null,
+      verifiedAt: null,
+    },
+  };
+}
+
+/**
+ * 🆕 Update progress when Twitter/X is verified
+ * Persists verification state to survive page refresh and language changes
+ */
+export function updateTwitterVerified(
+  progress: InviteFlowProgress,
+  data: { username: string; userId: string }
+): InviteFlowProgress {
+  const socialVerification = progress.socialVerification ?? initializeSocialVerification();
+
+  const updated: InviteFlowProgress = {
+    ...progress,
+    socialVerification: {
+      ...socialVerification,
+      twitter: {
+        verified: true,
+        username: data.username,
+        userId: data.userId,
+        verifiedAt: Date.now(),
+      },
+    },
+    lastUpdatedAt: Date.now(),
+  };
+
+  saveInviteProgress(updated);
+  console.log('[InviteFlowPersistence] Twitter verification saved:', data.username);
+  return updated;
+}
+
+/**
+ * 🆕 Update progress when Discord is verified
+ * Persists verification state to survive page refresh and language changes
+ */
+export function updateDiscordVerified(
+  progress: InviteFlowProgress,
+  data: { username: string; userId: string }
+): InviteFlowProgress {
+  const socialVerification = progress.socialVerification ?? initializeSocialVerification();
+
+  const updated: InviteFlowProgress = {
+    ...progress,
+    socialVerification: {
+      ...socialVerification,
+      discord: {
+        verified: true,
+        username: data.username,
+        userId: data.userId,
+        verifiedAt: Date.now(),
+      },
+    },
+    lastUpdatedAt: Date.now(),
+  };
+
+  saveInviteProgress(updated);
+  console.log('[InviteFlowPersistence] Discord verification saved:', data.username);
+  return updated;
+}
+
+/**
+ * 🆕 Check if a specific social platform is verified
+ */
+export function isSocialVerified(
+  progress: InviteFlowProgress | null,
+  platform: 'twitter' | 'discord'
+): boolean {
+  if (!progress?.socialVerification) return false;
+  return progress.socialVerification[platform].verified;
+}
+
+/**
+ * 🆕 Get all social verification data for syncing to database after wallet connection
+ */
+export function getSocialVerificationData(
+  progress: InviteFlowProgress | null
+): {
+  twitter: { verified: boolean; username: string | null; userId: string | null } | null;
+  discord: { verified: boolean; username: string | null; userId: string | null } | null;
+} | null {
+  if (!progress?.socialVerification) return null;
+  return {
+    twitter: progress.socialVerification.twitter.verified
+      ? {
+          verified: true,
+          username: progress.socialVerification.twitter.username,
+          userId: progress.socialVerification.twitter.userId,
+        }
+      : null,
+    discord: progress.socialVerification.discord.verified
+      ? {
+          verified: true,
+          username: progress.socialVerification.discord.username,
+          userId: progress.socialVerification.discord.userId,
+        }
+      : null,
+  };
 }
 
 /**
