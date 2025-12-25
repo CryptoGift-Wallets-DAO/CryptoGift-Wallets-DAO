@@ -2776,6 +2776,33 @@ const CaptureBlock: React.FC<{
     }
   }, [discordJoined]);
 
+  // 🔄 SYNC: Update checkbox states when savedSocialVerification prop changes
+  // These may arrive after first render due to async localStorage loading
+  useEffect(() => {
+    if (savedSocialVerification?.twitter?.verified && !twitterChecked) {
+      console.log('[CaptureBlock] 🔄 Syncing Twitter checked from persistence');
+      setTwitterChecked(true);
+    }
+  }, [savedSocialVerification?.twitter?.verified, twitterChecked]);
+
+  useEffect(() => {
+    if (savedSocialVerification?.discord?.verified && !discordChecked) {
+      console.log('[CaptureBlock] 🔄 Syncing Discord checked from persistence');
+      setDiscordChecked(true);
+    }
+  }, [savedSocialVerification?.discord?.verified, discordChecked]);
+
+  // 🔄 SYNC: Update emailVerified state when verifiedEmail prop changes
+  // This is crucial because useState ignores initial value after first render
+  // The prop may arrive after initial render due to async localStorage loading
+  useEffect(() => {
+    if (verifiedEmail && !emailVerified) {
+      console.log('[CaptureBlock] 🔄 Syncing email verified from persistence:', verifiedEmail);
+      setEmailVerified(true);
+      setEmailChecked(true);
+    }
+  }, [verifiedEmail, emailVerified]);
+
   // Roles that require Calendly (Investor and White-Label)
   const CALENDLY_ROLES = ['Investor', 'White-Label'];
   // Determine if selected role requires Calendly or social engagement
@@ -3167,7 +3194,7 @@ const CaptureBlock: React.FC<{
                         border border-blue-500/30 group-hover:scale-110 transition-transform">
                         <span className="text-lg">📧</span>
                       </div>
-                      <span className="font-semibold text-white">
+                      <span className="font-semibold text-gray-900 dark:text-white">
                         Verify your email
                       </span>
                       {emailVerified && (
@@ -3183,7 +3210,7 @@ const CaptureBlock: React.FC<{
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-300 mt-2 ml-11">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
                       We'll send you exclusive information about the crypto ecosystem
                     </p>
                     {verifiedEmail && emailVerified && (
@@ -3259,7 +3286,7 @@ const CaptureBlock: React.FC<{
                             border border-sky-500/30">
                             <Twitter className="w-4 h-4 text-sky-400" />
                           </div>
-                          <span className="font-semibold text-white">
+                          <span className="font-semibold text-gray-900 dark:text-white">
                             Follow on X (Twitter)
                           </span>
                           {twitterFollowed && (
@@ -3270,7 +3297,7 @@ const CaptureBlock: React.FC<{
                           )}
                         </div>
 
-                        <p className="text-sm text-gray-300 mb-3 ml-11">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 ml-11">
                           {selectedPath === 'Quest Creator'
                             ? 'Follow us for successful quest examples'
                             : selectedPath === 'Integration Partner'
@@ -3322,7 +3349,7 @@ const CaptureBlock: React.FC<{
                             border border-indigo-500/30">
                             <MessageSquare className="w-4 h-4 text-indigo-400" />
                           </div>
-                          <span className="font-semibold text-white">
+                          <span className="font-semibold text-gray-900 dark:text-white">
                             Join Discord
                           </span>
                           {discordJoined && (
@@ -3333,7 +3360,7 @@ const CaptureBlock: React.FC<{
                           )}
                         </div>
 
-                        <p className="text-sm text-gray-300 mb-3 ml-11">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 ml-11">
                           {selectedPath === 'Quest Creator'
                             ? 'Access the exclusive creators channel'
                             : selectedPath === 'Integration Partner'
@@ -3394,7 +3421,7 @@ const CaptureBlock: React.FC<{
                           <span className="w-6 h-6 bg-yellow-500/20 rounded-full flex items-center justify-center">
                             ⏳
                           </span>
-                          <span className="text-gray-300">
+                          <span className="text-gray-600 dark:text-gray-300">
                             {requiresCalendly
                               ? 'Complete both requirements to continue'
                               : 'Complete all 3 requirements to continue'

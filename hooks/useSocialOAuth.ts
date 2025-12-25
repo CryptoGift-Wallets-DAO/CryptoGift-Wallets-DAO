@@ -58,6 +58,34 @@ export function useSocialOAuth(options: UseSocialOAuthOptions) {
 
   const popupRef = useRef<Window | null>(null);
 
+  // 🔄 SYNC: Update state when initial values change (loaded from localStorage after first render)
+  // This is crucial because useState ignores initial value after first render
+  useEffect(() => {
+    if (initialTwitterVerified && !twitterVerified) {
+      console.log('[useSocialOAuth] 🔄 Syncing Twitter verified from persistence');
+      setTwitterVerified(true);
+    }
+  }, [initialTwitterVerified, twitterVerified]);
+
+  useEffect(() => {
+    if (initialDiscordVerified && !discordVerified) {
+      console.log('[useSocialOAuth] 🔄 Syncing Discord verified from persistence');
+      setDiscordVerified(true);
+    }
+  }, [initialDiscordVerified, discordVerified]);
+
+  useEffect(() => {
+    if (initialTwitterUsername && !twitterUsername) {
+      setTwitterUsername(initialTwitterUsername);
+    }
+  }, [initialTwitterUsername, twitterUsername]);
+
+  useEffect(() => {
+    if (initialDiscordUsername && !discordUsername) {
+      setDiscordUsername(initialDiscordUsername);
+    }
+  }, [initialDiscordUsername, discordUsername]);
+
   // Listen for OAuth callback messages from popup
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
