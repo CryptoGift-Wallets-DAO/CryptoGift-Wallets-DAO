@@ -1358,26 +1358,26 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           </motion.div>
           
           <motion.p
-            className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto"
+            className="text-xl text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
             You have successfully completed the educational module "CryptoGift Project".
             {leadData.path && (
-              <span className="block mt-2 text-yellow-400">
+              <span className="block mt-2 text-yellow-600 dark:text-yellow-400">
                 Your selected role: <strong>{leadData.path}</strong>
               </span>
             )}
           </motion.p>
-          
+
           <motion.div
             className="mb-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
-            <p className="text-lg text-gray-400 mb-4">
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
               Generating your EIP-712 certification...
             </p>
             <div className="animate-spin w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full mx-auto" />
@@ -2981,10 +2981,10 @@ const CaptureBlock: React.FC<{
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <p className="text-2xl text-gray-300 mb-4">
-            Has elegido: <span className="font-bold text-blue-500 dark:text-blue-400">{selectedPath}</span>
+          <p className="text-2xl text-gray-700 dark:text-gray-300 mb-4">
+            You&apos;ve chosen: <span className="font-bold text-blue-600 dark:text-blue-400">{selectedPath}</span>
           </p>
-          <p className="text-xl text-gray-400">
+          <p className="text-xl text-gray-600 dark:text-gray-400">
             Preparing your gift access...
           </p>
         </motion.div>
@@ -3072,15 +3072,15 @@ const CaptureBlock: React.FC<{
             {/* Icon & Title Row */}
             <div className="flex items-center gap-3 mb-3">
               <span className="text-2xl">{path.icon}</span>
-              <h3 className="font-bold text-xl text-white">{path.name}</h3>
+              <h3 className="font-bold text-xl text-gray-900 dark:text-white">{path.name}</h3>
             </div>
 
             {/* Description */}
-            <p className="text-sm text-gray-300 mb-4 leading-relaxed">{path.description}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">{path.description}</p>
 
             {/* Spots Badge */}
             <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-500/20 mb-3">
-              <span className="text-amber-300 font-semibold text-sm">
+              <span className="text-amber-600 dark:text-amber-300 font-semibold text-sm">
                 {typeof path.spots === 'number'
                   ? `🔥 Only ${path.spots} spots`
                   : `✨ ${path.spots}`
@@ -3090,7 +3090,7 @@ const CaptureBlock: React.FC<{
 
             {/* Benefit */}
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-emerald-400 font-medium">
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium">
                 ✅ {path.benefit}
               </span>
             </div>
@@ -3112,24 +3112,24 @@ const CaptureBlock: React.FC<{
                 backdrop-blur-xl backdrop-saturate-150 
                 border border-purple-500/30 rounded-2xl p-6
                 shadow-xl shadow-purple-500/10">
-                <p className="text-lg text-gray-200 mb-3">
-                  You have selected: <span className="font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{selectedPath}</span>
+                <p className="text-lg text-gray-700 dark:text-gray-200 mb-3">
+                  You have selected: <span className="font-bold bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{selectedPath}</span>
                 </p>
-                <p className="text-sm text-gray-300/90 leading-relaxed">
+                <p className="text-sm text-gray-600/90 dark:text-gray-300/90 leading-relaxed">
                   {selectedPath === 'Quest Creator' && (
-                    <>🎯 As a <strong className="text-purple-300">Quest Creator</strong>, you&apos;ll be an architect of life-changing experiences. Your creativity will bridge traditional and Web3 worlds, and for each quest you design, you&apos;ll receive <strong className="text-yellow-400">CGC governance tokens</strong> recognizing your contribution to the ecosystem.</>
+                    <>🎯 As a <strong className="text-purple-600 dark:text-purple-300">Quest Creator</strong>, you&apos;ll be an architect of life-changing experiences. Your creativity will bridge traditional and Web3 worlds, and for each quest you design, you&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> recognizing your contribution to the ecosystem.</>
                   )}
                   {selectedPath === 'Integration Partner' && (
-                    <>🔧 As an <strong className="text-purple-300">Integration Partner</strong>, you&apos;ll take CryptoGift technology to new frontiers. Each integration you develop not only expands the ecosystem but positions you as a pioneer, and you&apos;ll be rewarded with <strong className="text-yellow-400">CGC governance tokens</strong> proportional to your impact.</>
+                    <>🔧 As an <strong className="text-purple-600 dark:text-purple-300">Integration Partner</strong>, you&apos;ll take CryptoGift technology to new frontiers. Each integration you develop not only expands the ecosystem but positions you as a pioneer, and you&apos;ll be rewarded with <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> proportional to your impact.</>
                   )}
                   {selectedPath === 'Community' && (
-                    <>🌟 As a <strong className="text-purple-300">Community Member</strong>, you are the heart of CryptoGift. Your active participation, feedback, and support are invaluable. For your commitment, you&apos;ll receive <strong className="text-yellow-400">CGC governance tokens</strong> that give you voice and vote in the platform&apos;s future.</>
+                    <>🌟 As a <strong className="text-purple-600 dark:text-purple-300">Community Member</strong>, you are the heart of CryptoGift. Your active participation, feedback, and support are invaluable. For your commitment, you&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that give you voice and vote in the platform&apos;s future.</>
                   )}
                   {selectedPath === 'Investor' && (
-                    <>💎 As an <strong className="text-purple-300">Investor</strong>, you have vision for the future. Your participation enables us to scale and transform the industry. You&apos;ll receive <strong className="text-yellow-400">CGC governance tokens</strong> that reflect your trust and give you a stake in strategic decisions.</>
+                    <>💎 As an <strong className="text-purple-600 dark:text-purple-300">Investor</strong>, you have vision for the future. Your participation enables us to scale and transform the industry. You&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that reflect your trust and give you a stake in strategic decisions.</>
                   )}
                   {selectedPath === 'White-Label' && (
-                    <>🏢 As a <strong className="text-purple-300">White-Label Partner</strong>, you&apos;ll bring CryptoGift&apos;s power to your own brand. This strategic alliance includes preferential <strong className="text-yellow-400">CGC governance tokens</strong> that recognize your role as a technology ambassador.</>
+                    <>🏢 As a <strong className="text-purple-600 dark:text-purple-300">White-Label Partner</strong>, you&apos;ll bring CryptoGift&apos;s power to your own brand. This strategic alliance includes preferential <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that recognize your role as a technology ambassador.</>
                   )}
                 </p>
               </div>
@@ -3147,9 +3147,9 @@ const CaptureBlock: React.FC<{
                   </span>
                   Join Our Community
                 </h3>
-                <p className="text-sm text-gray-300 mb-4 ml-13 leading-relaxed">
-                  By completing these steps, you become an <strong className="text-purple-400">active member</strong> of CryptoGift.
-                  You&apos;ll receive <strong className="text-yellow-400">200 CGC</strong> as a welcome bonus —your first governance tokens that give
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 ml-13 leading-relaxed">
+                  By completing these steps, you become an <strong className="text-purple-600 dark:text-purple-400">active member</strong> of CryptoGift.
+                  You&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">200 CGC</strong> as a welcome bonus —your first governance tokens that give
                   you a voice in the ecosystem&apos;s decisions. This community belongs to everyone who joins, and your presence strengthens it.
                 </p>
 
@@ -3198,7 +3198,7 @@ const CaptureBlock: React.FC<{
                         Verify your email
                       </span>
                       {emailVerified && (
-                        <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
+                        <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
                           border border-green-500/30 backdrop-blur-xl">
                           ✓ Verified
                         </span>
@@ -3246,11 +3246,11 @@ const CaptureBlock: React.FC<{
                           border border-purple-500/30 group-hover:scale-110 transition-transform">
                           <span className="text-lg">📅</span>
                         </div>
-                        <span className="font-semibold text-white">
+                        <span className="font-semibold text-gray-900 dark:text-white">
                           Schedule a free session
                         </span>
                         {calendarScheduled && (
-                          <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
+                          <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
                             border border-green-500/30 backdrop-blur-xl">
                             ✓ Scheduled
                           </span>
@@ -3262,7 +3262,7 @@ const CaptureBlock: React.FC<{
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-300 mt-2 ml-11">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
                         {selectedPath === 'Investor'
                           ? 'Schedule a call to discuss investment opportunities and learn our metrics'
                           : 'Schedule a personalized demo to explore White-Label options for your business'
@@ -3284,13 +3284,13 @@ const CaptureBlock: React.FC<{
                           <div className="w-8 h-8 bg-gradient-to-br from-sky-500/20 to-blue-500/20
                             rounded-lg flex items-center justify-center backdrop-blur-xl
                             border border-sky-500/30">
-                            <Twitter className="w-4 h-4 text-sky-400" />
+                            <Twitter className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                           </div>
                           <span className="font-semibold text-gray-900 dark:text-white">
                             Follow on X (Twitter)
                           </span>
                           {twitterFollowed && (
-                            <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
+                            <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
                               border border-green-500/30 backdrop-blur-xl">
                               ✓ Verified
                             </span>
@@ -3347,13 +3347,13 @@ const CaptureBlock: React.FC<{
                           <div className="w-8 h-8 bg-gradient-to-br from-indigo-500/20 to-purple-500/20
                             rounded-lg flex items-center justify-center backdrop-blur-xl
                             border border-indigo-500/30">
-                            <MessageSquare className="w-4 h-4 text-indigo-400" />
+                            <MessageSquare className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                           </div>
                           <span className="font-semibold text-gray-900 dark:text-white">
                             Join Discord
                           </span>
                           {discordJoined && (
-                            <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
+                            <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
                               border border-green-500/30 backdrop-blur-xl">
                               ✓ Verified
                             </span>

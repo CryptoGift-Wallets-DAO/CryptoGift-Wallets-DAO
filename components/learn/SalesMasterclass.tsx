@@ -1418,26 +1418,26 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
           </motion.div>
           
           <motion.p
-            className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto"
+            className="text-xl text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
             Has completado exitosamente el módulo educativo &quot;Proyecto CryptoGift&quot;.
             {leadData.path && (
-              <span className="block mt-2 text-yellow-400">
+              <span className="block mt-2 text-yellow-600 dark:text-yellow-400">
                 Tu rol seleccionado: <strong>{leadData.path}</strong>
               </span>
             )}
           </motion.p>
-          
+
           <motion.div
             className="mb-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
-            <p className="text-lg text-gray-400 mb-4">
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
               Generando tu certificación EIP-712...
             </p>
             <div className="animate-spin w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full mx-auto" />
@@ -3080,10 +3080,10 @@ const CaptureBlock: React.FC<{
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <p className="text-2xl text-gray-300 mb-4">
-            Has elegido: <span className="font-bold text-blue-500 dark:text-blue-400">{selectedPath}</span>
+          <p className="text-2xl text-gray-700 dark:text-gray-300 mb-4">
+            Has elegido: <span className="font-bold text-blue-600 dark:text-blue-400">{selectedPath}</span>
           </p>
-          <p className="text-xl text-gray-400">
+          <p className="text-xl text-gray-600 dark:text-gray-400">
             Preparando tu acceso al regalo...
           </p>
         </motion.div>
@@ -3122,11 +3122,10 @@ const CaptureBlock: React.FC<{
       </h2>
 
       {/* Score Display - Glass Crystal Style */}
-      {/* Note: Education flow always has dark background, so text colors must be light */}
       <div className="text-center mb-10">
         <div className="inline-block glass-crystal px-8 py-5 rounded-2xl shadow-xl">
-          <p className="text-xl md:text-2xl text-gray-100">
-            Tu puntuación: <span className="font-bold bg-gradient-to-r from-amber-500 to-yellow-500 bg-clip-text text-transparent">
+          <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-100">
+            Tu puntuación: <span className="font-bold bg-gradient-to-r from-amber-600 to-yellow-600 dark:from-amber-500 dark:to-yellow-500 bg-clip-text text-transparent">
               {questionsScore.correct}/{questionsScore.total}
             </span> respuestas correctas
           </p>
@@ -3170,18 +3169,17 @@ const CaptureBlock: React.FC<{
             )}
 
             {/* Icon & Title Row */}
-            {/* Note: Education flow always has dark background, so use light text colors */}
             <div className="flex items-center gap-3 mb-3">
               <span className="text-2xl">{path.icon}</span>
-              <h3 className="font-bold text-xl text-white">{path.nameEs || path.name}</h3>
+              <h3 className="font-bold text-xl text-gray-900 dark:text-white">{path.nameEs || path.name}</h3>
             </div>
 
             {/* Description */}
-            <p className="text-sm text-gray-300 mb-4 leading-relaxed">{path.description}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">{path.description}</p>
 
             {/* Spots Badge */}
             <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-500/20 mb-3">
-              <span className="text-amber-300 font-semibold text-sm">
+              <span className="text-amber-600 dark:text-amber-300 font-semibold text-sm">
                 {typeof path.spots === 'number'
                   ? `🔥 Solo ${path.spots} lugares`
                   : `✨ ${path.spots}`
@@ -3191,7 +3189,7 @@ const CaptureBlock: React.FC<{
 
             {/* Benefit */}
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-emerald-400 font-medium">
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium">
                 ✅ {path.benefit}
               </span>
             </div>
@@ -3213,24 +3211,24 @@ const CaptureBlock: React.FC<{
                 backdrop-blur-xl backdrop-saturate-150
                 border border-purple-500/30 rounded-2xl p-6
                 shadow-xl shadow-purple-500/10">
-                <p className="text-lg text-gray-200 mb-3">
-                  Has seleccionado: <span className="font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{selectedPath}</span>
+                <p className="text-lg text-gray-700 dark:text-gray-200 mb-3">
+                  Has seleccionado: <span className="font-bold bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{selectedPath}</span>
                 </p>
-                <p className="text-sm text-gray-300/90 leading-relaxed">
+                <p className="text-sm text-gray-600/90 dark:text-gray-300/90 leading-relaxed">
                   {selectedPath === 'Quest Creator' && (
-                    <>🎯 Como <strong className="text-purple-300">Quest Creator</strong>, serás arquitecto de experiencias que transforman vidas. Tu creatividad construirá el puente entre el mundo tradicional y Web3, y por cada misión que diseñes recibirás <strong className="text-yellow-400">tokens CGC de gobernanza</strong> que reconocen tu aporte al ecosistema.</>
+                    <>🎯 Como <strong className="text-purple-600 dark:text-purple-300">Quest Creator</strong>, serás arquitecto de experiencias que transforman vidas. Tu creatividad construirá el puente entre el mundo tradicional y Web3, y por cada misión que diseñes recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que reconocen tu aporte al ecosistema.</>
                   )}
                   {selectedPath === 'Integration Partner' && (
-                    <>🔧 Como <strong className="text-purple-300">Integration Partner</strong>, llevarás la tecnología CryptoGift a nuevas fronteras. Cada integración que desarrolles no solo expandirá el ecosistema, sino que te posicionará como pionero y serás recompensado con <strong className="text-yellow-400">tokens CGC de gobernanza</strong> proporcionales a tu impacto.</>
+                    <>🔧 Como <strong className="text-purple-600 dark:text-purple-300">Integration Partner</strong>, llevarás la tecnología CryptoGift a nuevas fronteras. Cada integración que desarrolles no solo expandirá el ecosistema, sino que te posicionará como pionero y serás recompensado con <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> proporcionales a tu impacto.</>
                   )}
                   {selectedPath === 'Community' && (
-                    <>🌟 Como <strong className="text-purple-300">Community Member</strong>, eres el corazón de CryptoGift. Tu participación activa, feedback y apoyo son invaluables. Por tu compromiso recibirás <strong className="text-yellow-400">tokens CGC de gobernanza</strong> que te dan voz y voto en el futuro de la plataforma.</>
+                    <>🌟 Como <strong className="text-purple-600 dark:text-purple-300">Community Member</strong>, eres el corazón de CryptoGift. Tu participación activa, feedback y apoyo son invaluables. Por tu compromiso recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que te dan voz y voto en el futuro de la plataforma.</>
                   )}
                   {selectedPath === 'Investor' && (
-                    <>💎 Como <strong className="text-purple-300">Inversor</strong>, tienes visión de futuro. Tu participación nos permite escalar y transformar la industria. Recibirás <strong className="text-yellow-400">tokens CGC de gobernanza</strong> que reflejan tu confianza y te dan participación en las decisiones estratégicas.</>
+                    <>💎 Como <strong className="text-purple-600 dark:text-purple-300">Inversor</strong>, tienes visión de futuro. Tu participación nos permite escalar y transformar la industria. Recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que reflejan tu confianza y te dan participación en las decisiones estratégicas.</>
                   )}
                   {selectedPath === 'White-Label' && (
-                    <>🏢 Como <strong className="text-purple-300">White-Label Partner</strong>, llevarás el poder de CryptoGift a tu propia marca. Esta alianza estratégica incluye <strong className="text-yellow-400">tokens CGC de gobernanza</strong> preferentes que reconocen tu rol como embajador de la tecnología.</>
+                    <>🏢 Como <strong className="text-purple-600 dark:text-purple-300">White-Label Partner</strong>, llevarás el poder de CryptoGift a tu propia marca. Esta alianza estratégica incluye <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> preferentes que reconocen tu rol como embajador de la tecnología.</>
                   )}
                 </p>
               </div>
@@ -3248,9 +3246,9 @@ const CaptureBlock: React.FC<{
                   </span>
                   Únete a Nuestra Comunidad
                 </h3>
-                <p className="text-sm text-gray-300 mb-4 ml-13 leading-relaxed">
-                  Al completar estos pasos, te conviertes en <strong className="text-purple-400">miembro activo</strong> de CryptoGift.
-                  Recibirás <strong className="text-yellow-400">200 CGC</strong> como bienvenida —tus primeros tokens de gobernanza que te dan
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 ml-13 leading-relaxed">
+                  Al completar estos pasos, te conviertes en <strong className="text-purple-600 dark:text-purple-400">miembro activo</strong> de CryptoGift.
+                  Recibirás <strong className="text-yellow-600 dark:text-yellow-400">200 CGC</strong> como bienvenida —tus primeros tokens de gobernanza que te dan
                   voz en las decisiones del ecosistema. Esta comunidad es de todos los que la integramos, y tu presencia la fortalece.
                 </p>
 
@@ -3299,13 +3297,13 @@ const CaptureBlock: React.FC<{
                         Verificar tu email
                       </span>
                       {emailVerified && (
-                        <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full 
+                        <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
                           border border-green-500/30 backdrop-blur-xl">
                           ✓ Verificado
                         </span>
                       )}
                       {processingEmail && (
-                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full 
+                        <span className="px-2 py-1 bg-blue-500/20 text-blue-600 dark:text-blue-400 text-xs rounded-full
                           border border-blue-500/30 backdrop-blur-xl animate-pulse">
                           Procesando...
                         </span>
@@ -3315,7 +3313,7 @@ const CaptureBlock: React.FC<{
                       Te enviaremos información exclusiva sobre el ecosistema cripto
                     </p>
                     {verifiedEmail && emailVerified && (
-                      <p className="text-xs text-green-400 mt-1 ml-11 font-mono">
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-1 ml-11 font-mono">
                         ✉️ {verifiedEmail}
                       </p>
                     )}
@@ -3347,23 +3345,23 @@ const CaptureBlock: React.FC<{
                           border border-purple-500/30 group-hover:scale-110 transition-transform">
                           <span className="text-lg">📅</span>
                         </div>
-                        <span className="font-semibold text-white">
+                        <span className="font-semibold text-gray-900 dark:text-white">
                           Agendar una sesión gratuita
                         </span>
                         {calendarScheduled && (
-                          <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
+                          <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
                             border border-green-500/30 backdrop-blur-xl">
                             ✓ Agendado
                           </span>
                         )}
                         {processingCalendar && (
-                          <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full
+                          <span className="px-2 py-1 bg-purple-500/20 text-purple-600 dark:text-purple-400 text-xs rounded-full
                             border border-purple-500/30 backdrop-blur-xl animate-pulse">
                             Procesando...
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-300 mt-2 ml-11">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 ml-11">
                         {selectedPath === 'Investor'
                           ? 'Agenda una llamada para discutir oportunidades de inversión y conocer nuestros números'
                           : 'Agenda una demo personalizada para explorar opciones de White-Label para tu negocio'
@@ -3385,13 +3383,13 @@ const CaptureBlock: React.FC<{
                           <div className="w-8 h-8 bg-gradient-to-br from-sky-500/20 to-blue-500/20
                             rounded-lg flex items-center justify-center backdrop-blur-xl
                             border border-sky-500/30">
-                            <Twitter className="w-4 h-4 text-sky-400" />
+                            <Twitter className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                           </div>
                           <span className="font-semibold text-gray-900 dark:text-white">
                             Seguir en X (Twitter)
                           </span>
                           {twitterFollowed && (
-                            <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
+                            <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
                               border border-green-500/30 backdrop-blur-xl">
                               ✓ Verificado
                             </span>
@@ -3448,13 +3446,13 @@ const CaptureBlock: React.FC<{
                           <div className="w-8 h-8 bg-gradient-to-br from-indigo-500/20 to-purple-500/20
                             rounded-lg flex items-center justify-center backdrop-blur-xl
                             border border-indigo-500/30">
-                            <MessageSquare className="w-4 h-4 text-indigo-400" />
+                            <MessageSquare className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                           </div>
                           <span className="font-semibold text-gray-900 dark:text-white">
                             Unirse a Discord
                           </span>
                           {discordJoined && (
-                            <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full
+                            <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
                               border border-green-500/30 backdrop-blur-xl">
                               ✓ Verificado
                             </span>
