@@ -959,16 +959,35 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
       totalQuestions: (prev.totalQuestions || 0) + 1,
       questionsCorrect: (prev.questionsCorrect || 0) + (isCorrect ? 1 : 0)
     }));
-    
+
+    // 🔒 PERSISTENCE: Save question answer to localStorage
+    const selectedOption = block.question?.options[optionIndex];
+    const correctOption = block.question?.options.find(opt => opt.isCorrect);
+    if (onEducationStateChange && selectedOption && block.question) {
+      onEducationStateChange({
+        blockIndex: currentBlock,
+        blockId: block.id,
+        introVideoCompleted: true, // If answering questions, intro is done
+        questionAnswered: {
+          blockId: block.id,
+          questionText: block.question.text,
+          selectedAnswer: selectedOption.text,
+          correctAnswer: correctOption?.text || '',
+          isCorrect
+        }
+      });
+      console.log('[SalesMasterclass] 🔒 Persisted: question answer for block', block.id);
+    }
+
     if (isCorrect) {
       celebrate();
     }
-    
+
     // Allow proceeding after answering
     setTimeout(() => {
       setCanProceed(true);
     }, 1500);
-  }, [currentBlock, celebrate]);
+  }, [currentBlock, celebrate, onEducationStateChange]);
 
   // FASE 2: State machine declarativa con next pointers
   const getNextBlock = useCallback((currentBlockIndex: number): number | null => {
@@ -1011,6 +1030,16 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
     
     if (nextBlockIndex !== null) {
       setCurrentBlock(nextBlockIndex);
+
+      // 🔒 PERSISTENCE: Save the new block index
+      if (onEducationStateChange) {
+        onEducationStateChange({
+          blockIndex: nextBlockIndex,
+          blockId: SALES_BLOCKS[nextBlockIndex].id,
+          introVideoCompleted: true, // We're past the intro if navigating blocks
+        });
+        console.log('[SalesMasterclass] 🔒 Saved: blockIndex =', nextBlockIndex, SALES_BLOCKS[nextBlockIndex].id);
+      }
 
       // Force scroll to top when changing blocks
       setTimeout(() => {
@@ -1075,7 +1104,7 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
         startClaimMonitoring();
       }
     }
-  }, [currentBlock, educationalMode, getNextBlock]);
+  }, [currentBlock, educationalMode, getNextBlock, onEducationStateChange]);
 
   // 🔙 BACK BUTTON: Navigate to previous block
   const handlePreviousBlock = useCallback(() => {
@@ -1090,6 +1119,16 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
       });
 
       setCurrentBlock(prevBlockIndex);
+
+      // 🔒 PERSISTENCE: Save the new block index (going back)
+      if (onEducationStateChange) {
+        onEducationStateChange({
+          blockIndex: prevBlockIndex,
+          blockId: SALES_BLOCKS[prevBlockIndex].id,
+          introVideoCompleted: true,
+        });
+        console.log('[SalesMasterclass] 🔒 Saved (back): blockIndex =', prevBlockIndex);
+      }
 
       // Force scroll to top when changing blocks
       setTimeout(() => {
@@ -1125,7 +1164,7 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
       setShowQuestionFeedback(false);
       setCanProceed(educationalMode);
     }
-  }, [currentBlock, educationalMode]);
+  }, [currentBlock, educationalMode, onEducationStateChange]);
 
   // 🔙 Handler to go back to intro video from OpeningBlock (block 0)
   const handleBackToVideo = useCallback(() => {
@@ -1673,6 +1712,17 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
             onFinish={() => {
               console.log('📹 Intro video completed');
               setShowIntroVideo(false);
+
+              // 🔒 PERSISTENCE: Save intro video completion
+              if (onEducationStateChange) {
+                onEducationStateChange({
+                  blockIndex: 0,
+                  blockId: SALES_BLOCKS[0].id,
+                  introVideoCompleted: true,
+                });
+                console.log('[SalesMasterclass] 🔒 Saved: introVideoCompleted = true');
+              }
+
               // Force scroll to top when video finishes
               setTimeout(() => {
                 const originalScrollBehavior = document.documentElement.style.scrollBehavior;
