@@ -695,6 +695,9 @@ interface SalesMasterclassProps {
     discord: { verified: boolean; username: string | null; userId: string | null } | null;
   } | null;
   onSocialVerified?: (platform: 'twitter' | 'discord', data: { username: string; userId: string }) => void;
+  // 🆕 PERSISTENCE: Selected role/path state (restored from localStorage)
+  savedSelectedPath?: string | null;
+  onPathSelected?: (path: string) => void;
 }
 
 const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
@@ -714,7 +717,10 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   onBackToWelcome,
   // 🆕 PERSISTENCE: Social verification state (restored from localStorage)
   savedSocialVerification,
-  onSocialVerified
+  onSocialVerified,
+  // 🆕 PERSISTENCE: Selected role/path state (restored from localStorage)
+  savedSelectedPath,
+  onPathSelected
 }) => {
   // Video configs from Spanish config file
   const introVideoConfig = VIDEO_CONFIG.salesMasterclass;
@@ -1600,6 +1606,12 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
           // Navigation props for back button
           onPrevious={handlePreviousBlock}
           canGoBack={currentBlock > 0}
+          // 🆕 PERSISTENCE: Social verification state (restored from localStorage)
+          savedSocialVerification={savedSocialVerification}
+          onSocialVerified={onSocialVerified}
+          // 🆕 PERSISTENCE: Selected role/path state (restored from localStorage)
+          savedSelectedPath={savedSelectedPath}
+          onPathSelected={onPathSelected}
         />;
       case 'success':
         return <SuccessBlock
@@ -2770,9 +2782,13 @@ const CaptureBlock: React.FC<{
     discord: { verified: boolean; username: string | null; userId: string | null } | null;
   } | null;
   onSocialVerified?: (platform: 'twitter' | 'discord', data: { username: string; userId: string }) => void;
-}> = ({ content, onSubmit, questionsScore, educationalMode = false, onShowEmailVerification, onShowCalendar, onShowTwitterFollow, onShowDiscordJoin, verifiedEmail, onPrevious, canGoBack = false, savedSocialVerification, onSocialVerified }) => {
-  const account = useActiveAccount(); 
-  const [selectedPath, setSelectedPath] = useState<string>('');
+  // 🆕 PERSISTENCE: Selected role/path state from localStorage
+  savedSelectedPath?: string | null;
+  onPathSelected?: (path: string) => void;
+}> = ({ content, onSubmit, questionsScore, educationalMode = false, onShowEmailVerification, onShowCalendar, onShowTwitterFollow, onShowDiscordJoin, verifiedEmail, onPrevious, canGoBack = false, savedSocialVerification, onSocialVerified, savedSelectedPath, onPathSelected }) => {
+  const account = useActiveAccount();
+  // 🆕 PERSISTENCE: Initialize with saved path from localStorage, or empty string
+  const [selectedPath, setSelectedPath] = useState<string>(savedSelectedPath || '');
   const [formData, setFormData] = useState({
     availability: '',
     contact: ''
@@ -3102,7 +3118,13 @@ const CaptureBlock: React.FC<{
         {content.paths.map((path: any) => (
           <motion.button
             key={path.name}
-            onClick={() => setSelectedPath(path.name)}
+            onClick={() => {
+              setSelectedPath(path.name);
+              // 🆕 PERSISTENCE: Save selected path to localStorage immediately
+              if (onPathSelected) {
+                onPathSelected(path.name);
+              }
+            }}
             className={`relative p-6 rounded-2xl transition-all text-left backdrop-blur-xl ${
               selectedPath === path.name
                 ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-2 border-amber-400/60 dark:border-amber-400/50 scale-[1.03] shadow-xl shadow-amber-500/20'

@@ -25,7 +25,7 @@
 
 // Storage keys
 const STORAGE_PREFIX = 'cgdao_invite_progress_';
-const STORAGE_VERSION = 3; // v3: Added social verification persistence (Twitter, Discord)
+const STORAGE_VERSION = 4; // v4: Added selectedPath (role) persistence
 
 // Flow step type (must match SpecialInviteFlow)
 export type FlowStep = 'welcome' | 'password' | 'education' | 'connect' | 'delegate' | 'complete';
@@ -65,6 +65,9 @@ export interface InviteFlowProgress {
 
   // 🆕 GRANULAR EDUCATION STATE - Per-block persistence
   educationState: EducationBlockState | null;
+
+  // 🆕 Selected role (Quest Creator, Integration Partner, etc.)
+  selectedPath: string | null;
 
   // Verification state
   verifiedEmail: string | null;
@@ -240,6 +243,7 @@ export function initializeInviteProgress(
     educationCompleted: false,
     questionsScore: { correct: 0, total: 0 },
     educationState: null, // Will be initialized when entering education
+    selectedPath: null, // Will be set when user selects a role
     verifiedEmail: null,
     calendarBooked: false,
     socialVerification: null, // Will be initialized when first social is verified
@@ -504,6 +508,25 @@ export function updateCalendarBooked(
   };
 
   saveInviteProgress(updated);
+  return updated;
+}
+
+/**
+ * 🆕 Update progress when user selects a role (Quest Creator, Integration Partner, etc.)
+ * This persists the selected role to survive page refresh and language changes
+ */
+export function updateSelectedPath(
+  progress: InviteFlowProgress,
+  selectedPath: string
+): InviteFlowProgress {
+  const updated: InviteFlowProgress = {
+    ...progress,
+    selectedPath,
+    lastUpdatedAt: Date.now(),
+  };
+
+  saveInviteProgress(updated);
+  console.log('[InviteFlowPersistence] Selected path saved:', selectedPath);
   return updated;
 }
 

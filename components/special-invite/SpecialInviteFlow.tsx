@@ -45,6 +45,7 @@ import {
   updateEducationQuestionAnswered,
   updateEmailVerified,
   updateCalendarBooked,
+  updateSelectedPath,
   updateTwitterVerified,
   updateDiscordVerified,
   updateWalletConnected,
@@ -567,6 +568,21 @@ export function SpecialInviteFlow({
     console.log(`[SpecialInviteFlow] 💾 ${platform} verification saved`);
   }, []);
 
+  /**
+   * 🆕 Handle role/path selection
+   * Persists selected role to localStorage to survive page refresh and language changes
+   */
+  const handlePathSelected = useCallback((path: string) => {
+    if (!progressRef.current) {
+      console.warn('[SpecialInviteFlow] No progress ref, cannot save selected path');
+      return;
+    }
+
+    console.log(`[SpecialInviteFlow] 🎯 Selected path:`, path);
+    progressRef.current = updateSelectedPath(progressRef.current, path);
+    console.log(`[SpecialInviteFlow] 💾 Selected path saved`);
+  }, []);
+
   // Render content based on current step
   const renderStepContent = () => {
     switch (currentStep) {
@@ -786,6 +802,9 @@ export function SpecialInviteFlow({
                     : null,
                 } : null}
                 onSocialVerified={handleSocialVerified}
+                // 🆕 PERSISTENCE: Pass saved role/path state and change handler
+                savedSelectedPath={progressRef.current?.selectedPath || null}
+                onPathSelected={handlePathSelected}
                 // 🔙 NAVIGATION: Allow going back to Welcome step from video
                 onBackToWelcome={() => {
                   console.log('[SpecialInviteFlow] 🔙 Going back to Welcome step from video');
