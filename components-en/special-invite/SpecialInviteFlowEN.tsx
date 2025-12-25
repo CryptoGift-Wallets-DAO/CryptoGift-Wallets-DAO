@@ -26,6 +26,31 @@ import { EmailVerificationModal } from '@/components/email/EmailVerificationModa
 import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
 import dynamic from 'next/dynamic';
 
+// Import persistence service for zero-friction state recovery
+import {
+  loadInviteProgress,
+  initializeInviteProgress,
+  initializeEducationState,
+  updateStep,
+  updatePasswordValidated,
+  updateEducationCompleted,
+  updateIntroVideoCompleted,
+  updateEducationBlock,
+  updateEducationQuestionAnswered,
+  updateEmailVerified,
+  updateCalendarBooked,
+  updateSelectedPath,
+  updateTwitterVerified,
+  updateDiscordVerified,
+  updateWalletConnected,
+  updateClaimAttempted,
+  markCompleted,
+  getResumeStep,
+  isFlowComplete,
+  type InviteFlowProgress,
+  type EducationBlockState,
+} from '@/lib/invites/invite-flow-persistence';
+
 // Dynamic import for SalesMasterclassEN to avoid SSR issues
 const SalesMasterclass = dynamic(() => import('@/components-en/learn/SalesMasterclassEN'), {
   ssr: false,
@@ -105,6 +130,10 @@ export function SpecialInviteFlowEN({
 }: SpecialInviteFlowProps) {
   const account = useActiveAccount();
 
+  // Persistence state ref (keeps current without triggering re-renders)
+  const progressRef = useRef<InviteFlowProgress | null>(null);
+  const isInitialized = useRef(false);
+
   // Flow State
   const [currentStep, setCurrentStep] = useState<FlowStep>('welcome');
   const [password, setPassword] = useState('');
@@ -120,18 +149,97 @@ export function SpecialInviteFlowEN({
   const [verifiedEmail, setVerifiedEmail] = useState<string | null>(null);
   const [calendarBooked, setCalendarBooked] = useState(false);
 
+  // 🆕 Social Verification State (useState to trigger re-render on restore)
+  const [savedTwitterVerification, setSavedTwitterVerification] = useState<{
+    verified: boolean;
+    username: string | null;
+    userId: string | null;
+  } | null>(null);
+  const [savedDiscordVerification, setSavedDiscordVerification] = useState<{
+    verified: boolean;
+    username: string | null;
+    userId: string | null;
+  } | null>(null);
+
+  // 🆕 Selected Path State (useState to trigger re-render on restore)
+  const [savedSelectedPath, setSavedSelectedPath] = useState<string | null>(null);
+
   // Promise resolvers for modal callbacks (both resolve and reject)
   const emailResolverRef = useRef<{ resolve: () => void; reject: (error: Error) => void } | null>(null);
   const calendarResolverRef = useRef<{ resolve: () => void; reject: (error: Error) => void } | null>(null);
 
-  // Trigger confetti on welcome
+  // 🔒 PERSISTENCE: Load saved progress on mount (Zero Friction)
   useEffect(() => {
-    if (currentStep === 'welcome') {
+    if (isInitialized.current) return;
+    isInitialized.current = true;
+
+    const savedProgress = loadInviteProgress(inviteData.code);
+
+    if (savedProgress && !isFlowComplete(savedProgress)) {
+      // Resume from saved progress
+      console.log('[SpecialInviteFlowEN] 🔄 Resuming progress from:', savedProgress.currentStep);
+
+      // Determine the correct step to resume from
+      const resumeStep = getResumeStep(savedProgress, inviteData.hasPassword);
+
+      // Restore all state
+      setCurrentStep(resumeStep);
+      setEducationCompleted(savedProgress.educationCompleted);
+      setQuestionsScore(savedProgress.questionsScore);
+      setVerifiedEmail(savedProgress.verifiedEmail);
+      setCalendarBooked(savedProgress.calendarBooked);
+
+      // 🆕 Restore social verification state (useState triggers re-render!)
+      if (savedProgress.socialVerification?.twitter?.verified) {
+        setSavedTwitterVerification({
+          verified: true,
+          username: savedProgress.socialVerification.twitter.username,
+          userId: savedProgress.socialVerification.twitter.userId,
+        });
+        console.log('[SpecialInviteFlowEN] 🔄 Twitter verification restored:', savedProgress.socialVerification.twitter.username);
+      }
+      if (savedProgress.socialVerification?.discord?.verified) {
+        setSavedDiscordVerification({
+          verified: true,
+          username: savedProgress.socialVerification.discord.username,
+          userId: savedProgress.socialVerification.discord.userId,
+        });
+        console.log('[SpecialInviteFlowEN] 🔄 Discord verification restored:', savedProgress.socialVerification.discord.username);
+      }
+
+      // 🆕 Restore selected path (role)
+      if (savedProgress.selectedPath) {
+        setSavedSelectedPath(savedProgress.selectedPath);
+        console.log('[SpecialInviteFlowEN] 🔄 Selected path restored:', savedProgress.selectedPath);
+      }
+
+      // Store the progress ref
+      progressRef.current = savedProgress;
+
+      console.log('[SpecialInviteFlowEN] ✅ State restored:', {
+        step: resumeStep,
+        educationCompleted: savedProgress.educationCompleted,
+        verifiedEmail: savedProgress.verifiedEmail,
+        calendarBooked: savedProgress.calendarBooked,
+        twitterVerified: savedProgress.socialVerification?.twitter?.verified || false,
+        discordVerified: savedProgress.socialVerification?.discord?.verified || false,
+        selectedPath: savedProgress.selectedPath,
+      });
+    } else {
+      // Initialize new progress
+      console.log('[SpecialInviteFlowEN] 🆕 Starting new progress for:', inviteData.code);
+      progressRef.current = initializeInviteProgress(inviteData.code, false);
+    }
+  }, [inviteData.code, inviteData.hasPassword]);
+
+  // Trigger confetti on welcome (only if not resuming from later step)
+  useEffect(() => {
+    if (currentStep === 'welcome' && !progressRef.current?.educationCompleted) {
       setTimeout(() => {
         triggerConfetti();
       }, 500);
     }
-  }, []);
+  }, [currentStep]);
 
   // Auto-advance when wallet connects after education
   useEffect(() => {
@@ -165,6 +273,13 @@ export function SpecialInviteFlowEN({
       if (data.success) {
         // Password correct, move to education
         setCurrentStep('education');
+
+        // 🔒 PERSISTENCE: Save password validated and step change
+        if (progressRef.current) {
+          progressRef.current = updatePasswordValidated(progressRef.current, true);
+          progressRef.current = updateStep(progressRef.current, 'education');
+          console.log('[SpecialInviteFlowEN] 💾 Password validated, moving to education');
+        }
       } else {
         setValidationError(data.error || 'Incorrect password');
       }
@@ -184,11 +299,23 @@ export function SpecialInviteFlowEN({
     setQuestionsScore(data.questionsScore);
     setCurrentStep('connect');
     triggerConfetti();
+
+    // 🔒 PERSISTENCE: Save education completed state
+    if (progressRef.current) {
+      progressRef.current = updateEducationCompleted(progressRef.current, data.questionsScore);
+      console.log('[SpecialInviteFlowEN] 💾 Education completed, progress saved');
+    }
   }, []);
 
   // Handle wallet connection
   const handleWalletConnected = useCallback(async () => {
     if (!account?.address) return;
+
+    // 🔒 PERSISTENCE: Save wallet connected state
+    if (progressRef.current) {
+      progressRef.current = updateWalletConnected(progressRef.current, account.address);
+      console.log('[SpecialInviteFlowEN] 💾 Wallet connected, progress saved');
+    }
 
     try {
       // Claim the invite
@@ -204,12 +331,53 @@ export function SpecialInviteFlowEN({
       const data = await response.json();
 
       if (data.success) {
+        // 🔒 PERSISTENCE: Save claim successful state
+        if (progressRef.current) {
+          progressRef.current = updateClaimAttempted(progressRef.current, true);
+          console.log('[SpecialInviteFlowEN] 💾 Claim successful, progress saved');
+        }
+
+        // 🔄 Sync any social verifications that were completed during education step
+        // (Twitter/Discord verification happens BEFORE wallet connection)
+        try {
+          console.log('[SpecialInviteFlowEN] Syncing social verifications to DB...');
+          const syncResponse = await fetch('/api/social/sync-verified', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ walletAddress: account.address })
+          });
+          const syncData = await syncResponse.json();
+          if (syncData.synced) {
+            console.log('[SpecialInviteFlowEN] ✅ Social verifications synced:', syncData.results);
+          } else {
+            console.log('[SpecialInviteFlowEN] No social verifications to sync (user may not have verified)');
+          }
+        } catch (syncError) {
+          // Non-blocking - don't fail the flow if sync fails
+          console.error('[SpecialInviteFlowEN] Social sync error (non-blocking):', syncError);
+        }
+
         setCurrentStep('complete');
         triggerConfetti();
         onClaimComplete(account.address);
+
+        // 🔒 PERSISTENCE: Mark flow as completed
+        if (progressRef.current) {
+          progressRef.current = markCompleted(progressRef.current);
+          console.log('[SpecialInviteFlowEN] 🎉 Flow completed, progress saved');
+        }
+      } else {
+        // 🔒 PERSISTENCE: Save claim failed state
+        if (progressRef.current) {
+          progressRef.current = updateClaimAttempted(progressRef.current, false);
+        }
       }
     } catch (error) {
       console.error('Error claiming invite:', error);
+      // 🔒 PERSISTENCE: Save claim error state
+      if (progressRef.current) {
+        progressRef.current = updateClaimAttempted(progressRef.current, false);
+      }
     }
   }, [account?.address, inviteData.code, onClaimComplete]);
 
@@ -217,8 +385,18 @@ export function SpecialInviteFlowEN({
   const handleStartFlow = () => {
     if (inviteData.hasPassword) {
       setCurrentStep('password');
+      // 🔒 PERSISTENCE: Save step change
+      if (progressRef.current) {
+        progressRef.current = updateStep(progressRef.current, 'password');
+        console.log('[SpecialInviteFlowEN] 💾 Started flow, moving to auth step');
+      }
     } else {
       setCurrentStep('education');
+      // 🔒 PERSISTENCE: Save step change (skip password)
+      if (progressRef.current) {
+        progressRef.current = updateStep(progressRef.current, 'education');
+        console.log('[SpecialInviteFlowEN] 💾 Started flow, moving to education');
+      }
     }
   };
 
@@ -259,6 +437,12 @@ export function SpecialInviteFlowEN({
       emailResolverRef.current.resolve();
       emailResolverRef.current = null;
     }
+
+    // 🔒 PERSISTENCE: Save email verified state
+    if (progressRef.current) {
+      progressRef.current = updateEmailVerified(progressRef.current, email);
+      console.log('[SpecialInviteFlowEN] 💾 Email verified, progress saved');
+    }
   }, []);
 
   // Handle calendar booking completion
@@ -270,6 +454,12 @@ export function SpecialInviteFlowEN({
     if (calendarResolverRef.current) {
       calendarResolverRef.current.resolve();
       calendarResolverRef.current = null;
+    }
+
+    // 🔒 PERSISTENCE: Save calendar booked state
+    if (progressRef.current) {
+      progressRef.current = updateCalendarBooked(progressRef.current);
+      console.log('[SpecialInviteFlowEN] 💾 Calendar booked, progress saved');
     }
   }, []);
 
@@ -290,6 +480,112 @@ export function SpecialInviteFlowEN({
       calendarResolverRef.current.reject(new Error('Modal closed without completing'));
       calendarResolverRef.current = null;
     }
+  }, []);
+
+  // 🔒 PERSISTENCE: Handle education state changes from SalesMasterclass
+  // This enables GRANULAR persistence - each block, each video, each question
+  const handleEducationStateChange = useCallback((state: {
+    blockIndex: number;
+    blockId: string;
+    introVideoCompleted?: boolean;
+    outroVideoCompleted?: boolean;
+    questionAnswered?: {
+      blockId: string;
+      questionText: string;
+      selectedAnswer: string;
+      correctAnswer: string;
+      isCorrect: boolean;
+    };
+  }) => {
+    if (!progressRef.current) {
+      console.warn('[SpecialInviteFlowEN] No progress ref, cannot save education state');
+      return;
+    }
+
+    console.log('[SpecialInviteFlowEN] 🔒 Education state change:', state);
+
+    // Initialize education state if not already present
+    if (!progressRef.current.educationState) {
+      progressRef.current = initializeEducationState(progressRef.current);
+    }
+
+    // Handle intro video completion
+    if (state.introVideoCompleted) {
+      progressRef.current = updateIntroVideoCompleted(progressRef.current);
+      console.log('[SpecialInviteFlowEN] 💾 Intro video completed, saved');
+    }
+
+    // Handle block navigation
+    if (state.blockIndex !== undefined) {
+      progressRef.current = updateEducationBlock(
+        progressRef.current,
+        state.blockIndex,
+        state.blockId
+      );
+      console.log('[SpecialInviteFlowEN] 💾 Block index saved:', state.blockIndex);
+    }
+
+    // Handle question answered
+    if (state.questionAnswered) {
+      progressRef.current = updateEducationQuestionAnswered(
+        progressRef.current,
+        state.questionAnswered
+      );
+      console.log('[SpecialInviteFlowEN] 💾 Question answer saved:', state.questionAnswered.blockId);
+    }
+  }, []);
+
+  /**
+   * 🆕 Handle social verification (Twitter/Discord)
+   * Persists verification state to localStorage to survive page refresh and language changes
+   */
+  const handleSocialVerified = useCallback((
+    platform: 'twitter' | 'discord',
+    data: { username: string; userId: string }
+  ) => {
+    if (!progressRef.current) {
+      console.warn('[SpecialInviteFlowEN] No progress ref, cannot save social verification');
+      return;
+    }
+
+    console.log(`[SpecialInviteFlowEN] 🔒 ${platform} verification:`, data.username);
+
+    if (platform === 'twitter') {
+      progressRef.current = updateTwitterVerified(progressRef.current, data);
+      // 🆕 Also update useState to trigger re-render
+      setSavedTwitterVerification({
+        verified: true,
+        username: data.username,
+        userId: data.userId,
+      });
+    } else if (platform === 'discord') {
+      progressRef.current = updateDiscordVerified(progressRef.current, data);
+      // 🆕 Also update useState to trigger re-render
+      setSavedDiscordVerification({
+        verified: true,
+        username: data.username,
+        userId: data.userId,
+      });
+    }
+
+    console.log(`[SpecialInviteFlowEN] 💾 ${platform} verification saved`);
+  }, []);
+
+  /**
+   * 🆕 Handle role/path selection
+   * Persists selected role to localStorage to survive page refresh and language changes
+   */
+  const handlePathSelected = useCallback((path: string) => {
+    if (!progressRef.current) {
+      console.warn('[SpecialInviteFlowEN] No progress ref, cannot save selected path');
+      return;
+    }
+
+    console.log(`[SpecialInviteFlowEN] 🎯 Selected path:`, path);
+    progressRef.current = updateSelectedPath(progressRef.current, path);
+    // 🆕 Also update useState to trigger re-render
+    setSavedSelectedPath(path);
+    console.log(`[SpecialInviteFlowEN] 💾 Selected path saved`);
   }, []);
 
   // Render content based on current step
@@ -490,6 +786,18 @@ export function SpecialInviteFlowEN({
               onShowEmailVerification={handleShowEmailVerification}
               onShowCalendar={handleShowCalendar}
               verifiedEmail={verifiedEmail || undefined}
+              // 🔒 PERSISTENCE: Pass saved education state and change handler
+              savedEducationState={progressRef.current?.educationState}
+              onEducationStateChange={handleEducationStateChange}
+              // 🆕 PERSISTENCE: Pass saved social verification state (from useState, triggers re-render!)
+              savedSocialVerification={(savedTwitterVerification || savedDiscordVerification) ? {
+                twitter: savedTwitterVerification,
+                discord: savedDiscordVerification,
+              } : null}
+              onSocialVerified={handleSocialVerified}
+              // 🆕 PERSISTENCE: Pass saved role/path state (from useState, triggers re-render!)
+              savedSelectedPath={savedSelectedPath}
+              onPathSelected={handlePathSelected}
             />
           </div>
         );
