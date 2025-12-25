@@ -121,7 +121,7 @@ interface SpecialInviteFlowProps {
   className?: string;
 }
 
-type FlowStep = 'welcome' | 'password' | 'education' | 'connect' | 'complete';
+type FlowStep = 'welcome' | 'password' | 'education' | 'connect' | 'delegate' | 'complete';
 
 export function SpecialInviteFlowEN({
   inviteData,
@@ -276,8 +276,7 @@ export function SpecialInviteFlowEN({
 
         // 🔒 PERSISTENCE: Save password validated and step change
         if (progressRef.current) {
-          progressRef.current = updatePasswordValidated(progressRef.current, true);
-          progressRef.current = updateStep(progressRef.current, 'education');
+          progressRef.current = updatePasswordValidated(progressRef.current);
           console.log('[SpecialInviteFlowEN] 💾 Password validated, moving to education');
         }
       } else {
