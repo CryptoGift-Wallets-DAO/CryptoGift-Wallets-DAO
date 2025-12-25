@@ -3105,7 +3105,7 @@ const CaptureBlock: React.FC<{
                 onPathSelected(path.name);
               }
             }}
-            className={`relative p-6 rounded-2xl transition-all text-left backdrop-blur-xl ${
+            className={`relative p-6 rounded-2xl transition-all text-left backdrop-blur-xl overflow-visible ${
               selectedPath === path.name
                 ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-2 border-amber-400/60 dark:border-amber-400/50 scale-[1.03] shadow-xl shadow-amber-500/20'
                 : 'glass-crystal border border-gray-200/50 dark:border-white/10 hover:border-purple-400/50 dark:hover:border-purple-400/30 hover:shadow-lg hover:shadow-purple-500/10'
@@ -3115,8 +3115,8 @@ const CaptureBlock: React.FC<{
           >
             {/* Popular Badge */}
             {path.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="px-3 py-1 text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-full shadow-lg">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                <span className="px-3 py-1 text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-full shadow-lg whitespace-nowrap">
                   ⭐ MOST POPULAR
                 </span>
               </div>
