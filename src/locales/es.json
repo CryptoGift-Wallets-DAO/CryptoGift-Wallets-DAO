@@ -1255,8 +1255,8 @@
     "connect": {
       "title": "¡Educacion Completada!",
       "score": "Puntuacion: {correct}/{total} respuestas correctas",
-      "readyTitle": "Estas listo para unirte",
-      "readyDescription": "Solo falta conectar tu wallet para completar tu ingreso al DAO",
+      "readyTitle": "¡Estás listo para unirte!",
+      "readyDescription": "Solo conecta tu wallet para recibir tus 200 CGC iniciales y completar tu entrada al DAO",
       "connectPrompt": "Conecta tu wallet para finalizar",
       "connectButton": "Conectar Wallet",
       "walletSupport": "Soportamos MetaMask, WalletConnect, Coinbase Wallet y mas",

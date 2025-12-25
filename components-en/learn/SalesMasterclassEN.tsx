@@ -3044,7 +3044,7 @@ const CaptureBlock: React.FC<{
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 max-w-6xl mx-auto">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 max-w-6xl mx-auto pt-4 overflow-visible">
         {content.paths.map((path: any) => (
           <motion.button
             key={path.name}

@@ -919,7 +919,7 @@ export function SpecialInviteFlow({
                   <div className="bg-white/60 dark:bg-gray-800/60 rounded-lg p-3 border border-yellow-200 dark:border-yellow-800">
                     <div className="flex items-center justify-center gap-2">
                       <span className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">200 CGC</span>
-                      <span className="text-sm text-yellow-600 dark:text-yellow-500">+ Comisiones multinivel</span>
+                      <span className="text-sm text-yellow-600 dark:text-yellow-500">+ Bonos por referidos</span>
                     </div>
                   </div>
                   <p className="text-xs text-yellow-700 dark:text-yellow-400 mt-2">
