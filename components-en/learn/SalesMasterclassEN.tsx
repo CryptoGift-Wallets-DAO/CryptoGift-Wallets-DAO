@@ -2743,8 +2743,11 @@ const CaptureBlock: React.FC<{
     onVerified: (platform, data) => {
       console.log(`✅ ${platform} verification completed: @${data.username}`);
       // 🆕 PERSISTENCE: Save to localStorage via callback to parent
-      if (onSocialVerified && data.userId) {
-        onSocialVerified(platform, { username: data.username, userId: data.userId });
+      // CRITICAL FIX: Always call callback - generate temp userId if not provided
+      if (onSocialVerified) {
+        const userId = data.userId || `temp_${platform}_${Date.now()}`;
+        onSocialVerified(platform, { username: data.username, userId });
+        console.log(`[SalesMasterclassEN] 💾 Saved ${platform} verification to persistence`);
       }
     },
     onError: (error) => {
