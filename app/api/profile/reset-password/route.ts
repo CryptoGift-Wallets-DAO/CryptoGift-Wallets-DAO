@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       data: result,
     });
   } catch (error) {
-    console.error('Error requesting password reset:', error);
+    console.error('Error requesting credential reset:', error);
     // Always return success to prevent email enumeration
     return NextResponse.json({
       success: true,
@@ -69,7 +69,7 @@ export async function PUT(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error resetting password:', error);
+    console.error('Error resetting credentials:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to reset password' },
       { status: 400 }

@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
       message: 'Password verified',
     });
   } catch (error) {
-    console.error('Error verifying password:', error);
+    console.error('Error verifying credentials:', error);
     return NextResponse.json(
       { error: 'Failed to verify password', success: false },
       { status: 500 }

@@ -275,13 +275,13 @@ export function SpecialInviteFlow({
         // 🔒 PERSISTENCE: Save password validated state
         if (progressRef.current) {
           progressRef.current = updatePasswordValidated(progressRef.current);
-          console.log('[SpecialInviteFlow] 💾 Password validated, progress saved');
+          console.log('[SpecialInviteFlow] 💾 Auth step validated, progress saved');
         }
       } else {
         setValidationError(data.error || 'Contrasena incorrecta');
       }
     } catch (error) {
-      console.error('Error validating password:', error);
+      console.error('Error validating auth:', error);
       setValidationError('Error al validar. Intenta de nuevo.');
     } finally {
       setIsValidating(false);
@@ -397,7 +397,7 @@ export function SpecialInviteFlow({
       // 🔒 PERSISTENCE: Save step change
       if (progressRef.current) {
         progressRef.current = updateStep(progressRef.current, 'password');
-        console.log('[SpecialInviteFlow] 💾 Started flow, moving to password');
+        console.log('[SpecialInviteFlow] 💾 Started flow, moving to auth step');
       }
     } else {
       setCurrentStep('education');

@@ -864,10 +864,10 @@ export async function requestPasswordReset(
           </div>
         `,
       });
-      console.log('✅ Password reset email sent to:', email.replace(/(.{2}).*(@.*)/, '$1***$2'));
+      console.log('✅ Credential reset email sent to:', email.replace(/(.{2}).*(@.*)/, '$1***$2'));
     }
   } catch (emailError) {
-    console.error('❌ Failed to send password reset email:', emailError);
+    console.error('❌ Failed to send credential reset email:', emailError);
   }
 
   return { success: true, message: 'If email exists, reset instructions will be sent' };

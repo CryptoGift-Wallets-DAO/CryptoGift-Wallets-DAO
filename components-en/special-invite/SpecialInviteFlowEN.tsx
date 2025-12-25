@@ -169,7 +169,7 @@ export function SpecialInviteFlowEN({
         setValidationError(data.error || 'Incorrect password');
       }
     } catch (error) {
-      console.error('Error validating password:', error);
+      console.error('Error validating auth:', error);
       setValidationError('Validation error. Please try again.');
     } finally {
       setIsValidating(false);
