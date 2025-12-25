@@ -167,6 +167,21 @@ export function SpecialInviteFlow({
   const [verifiedEmail, setVerifiedEmail] = useState<string | null>(null);
   const [calendarBooked, setCalendarBooked] = useState(false);
 
+  // 🆕 Social Verification State (useState to trigger re-render on restore)
+  const [savedTwitterVerification, setSavedTwitterVerification] = useState<{
+    verified: boolean;
+    username: string | null;
+    userId: string | null;
+  } | null>(null);
+  const [savedDiscordVerification, setSavedDiscordVerification] = useState<{
+    verified: boolean;
+    username: string | null;
+    userId: string | null;
+  } | null>(null);
+
+  // 🆕 Selected Path State (useState to trigger re-render on restore)
+  const [savedSelectedPath, setSavedSelectedPath] = useState<string | null>(null);
+
   // Language/Locale State for bilingual support
   const [currentLocale, setCurrentLocale] = useState<'es' | 'en'>('en'); // Default to 'en' to match system default
 
@@ -195,6 +210,30 @@ export function SpecialInviteFlow({
       setVerifiedEmail(savedProgress.verifiedEmail);
       setCalendarBooked(savedProgress.calendarBooked);
 
+      // 🆕 Restore social verification state (useState triggers re-render!)
+      if (savedProgress.socialVerification?.twitter?.verified) {
+        setSavedTwitterVerification({
+          verified: true,
+          username: savedProgress.socialVerification.twitter.username,
+          userId: savedProgress.socialVerification.twitter.userId,
+        });
+        console.log('[SpecialInviteFlow] 🔄 Twitter verification restored:', savedProgress.socialVerification.twitter.username);
+      }
+      if (savedProgress.socialVerification?.discord?.verified) {
+        setSavedDiscordVerification({
+          verified: true,
+          username: savedProgress.socialVerification.discord.username,
+          userId: savedProgress.socialVerification.discord.userId,
+        });
+        console.log('[SpecialInviteFlow] 🔄 Discord verification restored:', savedProgress.socialVerification.discord.username);
+      }
+
+      // 🆕 Restore selected path (role)
+      if (savedProgress.selectedPath) {
+        setSavedSelectedPath(savedProgress.selectedPath);
+        console.log('[SpecialInviteFlow] 🔄 Selected path restored:', savedProgress.selectedPath);
+      }
+
       // Store the progress ref
       progressRef.current = savedProgress;
 
@@ -202,7 +241,10 @@ export function SpecialInviteFlow({
         step: resumeStep,
         educationCompleted: savedProgress.educationCompleted,
         verifiedEmail: savedProgress.verifiedEmail,
-        calendarBooked: savedProgress.calendarBooked
+        calendarBooked: savedProgress.calendarBooked,
+        twitterVerified: savedProgress.socialVerification?.twitter?.verified || false,
+        discordVerified: savedProgress.socialVerification?.discord?.verified || false,
+        selectedPath: savedProgress.selectedPath,
       });
     } else {
       // Initialize new progress
@@ -561,8 +603,20 @@ export function SpecialInviteFlow({
 
     if (platform === 'twitter') {
       progressRef.current = updateTwitterVerified(progressRef.current, data);
+      // 🆕 Also update useState to trigger re-render
+      setSavedTwitterVerification({
+        verified: true,
+        username: data.username,
+        userId: data.userId,
+      });
     } else if (platform === 'discord') {
       progressRef.current = updateDiscordVerified(progressRef.current, data);
+      // 🆕 Also update useState to trigger re-render
+      setSavedDiscordVerification({
+        verified: true,
+        username: data.username,
+        userId: data.userId,
+      });
     }
 
     console.log(`[SpecialInviteFlow] 💾 ${platform} verification saved`);
@@ -580,6 +634,8 @@ export function SpecialInviteFlow({
 
     console.log(`[SpecialInviteFlow] 🎯 Selected path:`, path);
     progressRef.current = updateSelectedPath(progressRef.current, path);
+    // 🆕 Also update useState to trigger re-render
+    setSavedSelectedPath(path);
     console.log(`[SpecialInviteFlow] 💾 Selected path saved`);
   }, []);
 
@@ -792,18 +848,14 @@ export function SpecialInviteFlow({
                 // 🔒 PERSISTENCE: Pass saved education state and change handler
                 savedEducationState={progressRef.current?.educationState}
                 onEducationStateChange={handleEducationStateChange}
-                // 🆕 PERSISTENCE: Pass saved social verification state and change handler
-                savedSocialVerification={progressRef.current?.socialVerification ? {
-                  twitter: progressRef.current.socialVerification.twitter.verified
-                    ? { verified: true, username: progressRef.current.socialVerification.twitter.username, userId: progressRef.current.socialVerification.twitter.userId }
-                    : null,
-                  discord: progressRef.current.socialVerification.discord.verified
-                    ? { verified: true, username: progressRef.current.socialVerification.discord.username, userId: progressRef.current.socialVerification.discord.userId }
-                    : null,
+                // 🆕 PERSISTENCE: Pass saved social verification state (from useState, triggers re-render!)
+                savedSocialVerification={(savedTwitterVerification || savedDiscordVerification) ? {
+                  twitter: savedTwitterVerification,
+                  discord: savedDiscordVerification,
                 } : null}
                 onSocialVerified={handleSocialVerified}
-                // 🆕 PERSISTENCE: Pass saved role/path state and change handler
-                savedSelectedPath={progressRef.current?.selectedPath || null}
+                // 🆕 PERSISTENCE: Pass saved role/path state (from useState, triggers re-render!)
+                savedSelectedPath={savedSelectedPath}
                 onPathSelected={handlePathSelected}
                 // 🔙 NAVIGATION: Allow going back to Welcome step from video
                 onBackToWelcome={() => {
