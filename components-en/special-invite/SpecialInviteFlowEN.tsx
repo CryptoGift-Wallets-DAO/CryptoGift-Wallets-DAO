@@ -845,8 +845,14 @@ export function SpecialInviteFlowEN({
             <div className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-2 border-yellow-300 dark:border-yellow-700 rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center">
-                    <span className="text-2xl">💰</span>
+                  <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center overflow-hidden">
+                    <Image
+                      src="/cgc-logo-200x200.png"
+                      alt="CGC"
+                      width={40}
+                      height={40}
+                      className="object-contain"
+                    />
                   </div>
                 </div>
                 <div className="flex-1 text-left">
@@ -940,14 +946,44 @@ export function SpecialInviteFlowEN({
               </div>
             </div>
 
-            <div className="pt-4">
+            {/* Navigation Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
               <a
                 href="/"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-cyan-600 text-white px-8 py-3 rounded-xl font-medium hover:from-purple-700 hover:to-cyan-700 transition-all"
+                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-cyan-600 text-white px-6 py-3 rounded-xl font-medium hover:from-purple-700 hover:to-cyan-700 transition-all"
               >
                 <span>🚀</span>
                 Go to Dashboard
               </a>
+              <a
+                href="/"
+                className="inline-flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
+              >
+                <span>🏠</span>
+                Go to Home
+              </a>
+            </div>
+
+            {/* Social Links */}
+            <div className="pt-6">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Follow us on social media</p>
+              <div className="flex justify-center gap-4">
+                <a href="https://x.com/cryptogiftdao" target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Twitter/X">
+                  <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+                <a href="https://discord.gg/XzmKkrvhHc" target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Discord">
+                  <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                </a>
+                <a href="https://warpcast.com/cryptogiftdao" target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Farcaster">
+                  <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24"><path d="M18.24 3H5.76A2.76 2.76 0 0 0 3 5.76v12.48A2.76 2.76 0 0 0 5.76 21h12.48A2.76 2.76 0 0 0 21 18.24V5.76A2.76 2.76 0 0 0 18.24 3zm-1.2 14.4h-2.4v-4.8c0-.99-.81-1.8-1.8-1.8s-1.8.81-1.8 1.8v4.8H8.64V9.6h2.4v1.44c.54-.84 1.44-1.44 2.52-1.44 1.98 0 3.48 1.5 3.48 3.48v4.32z"/></svg>
+                </a>
+                <a href="https://youtube.com/@CryptoGiftDAO" target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="YouTube">
+                  <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                </a>
+                <a href="https://github.com/CryptoGiftDAO" target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="GitHub">
+                  <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+              </div>
             </div>
           </motion.div>
         );
@@ -998,41 +1034,102 @@ export function SpecialInviteFlowEN({
           className="mb-6"
         />
 
-        {/* Help Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            🎟️ Your Invitation Is Waiting!
-          </h3>
-          <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                <span className="text-white font-bold text-xs">💰</span>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white">CGC Tokens</p>
-                <p className="text-xs mt-1">Receive governance tokens to participate in the DAO.</p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                <span className="text-white font-bold text-xs">🚀</span>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Paid Tasks</p>
-                <p className="text-xs mt-1">Access paid tasks and earn more tokens.</p>
+        {/* Help Section - Dynamic based on step */}
+        {(currentStep === 'delegate' || currentStep === 'complete') ? (
+          /* CGC Import Instructions for delegate/complete steps */
+          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-5 border-2 border-amber-300 dark:border-amber-600">
+            <h3 className="font-bold text-amber-800 dark:text-amber-300 mb-3">
+              ⚠️ Important: View CGC in Your Wallet
+            </h3>
+            <p className="text-sm text-amber-700 dark:text-amber-400 mb-4">
+              We&apos;re in the CoinGecko/BaseScan listing process. For now, you need to import CGC manually to see it in your wallet.
+            </p>
+
+            {/* What you already have */}
+            <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-3 mb-4">
+              <p className="font-medium text-green-800 dark:text-green-300 text-sm mb-2">
+                You already have:
+              </p>
+              <div className="space-y-1 text-xs text-green-700 dark:text-green-400">
+                <p>✅ Voting power in the DAO</p>
+                <p>✅ Community access</p>
+                <p>✅ Full DAO membership</p>
               </div>
             </div>
-            <div className="flex items-start">
-              <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                <span className="text-white font-bold text-xs">🎓</span>
+
+            {/* Import steps */}
+            <p className="font-medium text-amber-800 dark:text-amber-300 text-sm mb-2">
+              To see CGC in your wallet:
+            </p>
+            <ol className="text-xs text-amber-700 dark:text-amber-400 space-y-2 mb-4">
+              <li>1. Open your wallet and tap &apos;+&apos; or &apos;Add Token&apos;</li>
+              <li>2. Select &apos;Custom Token&apos; and choose Base network</li>
+              <li className="flex flex-col gap-1">
+                <span>3. Paste the CGC address:</span>
+                <div className="flex items-center gap-2 bg-white dark:bg-slate-800 rounded p-2 font-mono text-xs">
+                  <span className="truncate flex-1">0x5e3a61b550328f3D8C44f60b3e10a49D3d806175</span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText('0x5e3a61b550328f3D8C44f60b3e10a49D3d806175');
+                      const btn = document.getElementById('copy-cgc-sidebar-en');
+                      if (btn) {
+                        btn.textContent = 'Copied!';
+                        setTimeout(() => {
+                          btn.textContent = 'Copy Address';
+                        }, 2000);
+                      }
+                    }}
+                    id="copy-cgc-sidebar-en"
+                    className="px-2 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs whitespace-nowrap"
+                  >
+                    Copy Address
+                  </button>
+                </div>
+              </li>
+              <li>4. Name: CGC, Decimals: 18 (should auto-fill)</li>
+            </ol>
+
+            <p className="text-xs text-amber-600 dark:text-amber-500 italic">
+              💡 Check your transaction history to confirm receipt
+            </p>
+          </div>
+        ) : (
+          /* Default Help Section for other steps */
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              🎟️ Your Invitation Is Waiting!
+            </h3>
+            <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                  <span className="text-white font-bold text-xs">💰</span>
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 dark:text-white">CGC Tokens</p>
+                  <p className="text-xs mt-1">Receive governance tokens to participate in the DAO.</p>
+                </div>
               </div>
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white">Community</p>
-                <p className="text-xs mt-1">Join thousands of pioneers in decentralized finance.</p>
+              <div className="flex items-start">
+                <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                  <span className="text-white font-bold text-xs">🚀</span>
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 dark:text-white">Paid Tasks</p>
+                  <p className="text-xs mt-1">Access paid tasks and earn more tokens.</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                  <span className="text-white font-bold text-xs">🎓</span>
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 dark:text-white">Community</p>
+                  <p className="text-xs mt-1">Join thousands of pioneers in decentralized finance.</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Right Panel - Flow Content */}

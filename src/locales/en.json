@@ -1778,6 +1778,8 @@
       "educationCompleted": "Education completed",
       "inviteClaimed": "Invitation claimed",
       "dashboardButton": "Go to Dashboard",
+      "homeButton": "Go to Home",
+      "followUs": "Follow us on social media",
       "importToken": {
         "title": "⚠️ Important: View CGC in Your Wallet",
         "description": "We're in the CoinGecko/BaseScan listing process. For now, you need to import CGC manually to see it in your wallet.",
