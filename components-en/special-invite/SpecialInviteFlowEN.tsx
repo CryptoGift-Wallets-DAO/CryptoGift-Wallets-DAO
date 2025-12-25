@@ -809,14 +809,20 @@ export function SpecialInviteFlowEN({
             className="space-y-6"
           >
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <span className="text-4xl">🎉</span>
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-4 animate-bounce shadow-lg overflow-hidden">
+                <Image
+                  src="/apeX.png"
+                  alt="apeX"
+                  width={72}
+                  height={72}
+                  className="object-cover"
+                />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                Education Completed!
+                Congratulations!
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                Score: {questionsScore.correct}/{questionsScore.total} correct answers
+                You've completed your initial training on our project
               </p>
             </div>
 
@@ -865,10 +871,6 @@ export function SpecialInviteFlowEN({
 
             {/* Connect Wallet */}
             <div className="text-center space-y-4">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                🔗 Connect your wallet to finish
-              </p>
-
               <div className="flex justify-center">
                 {client && (
                   <ConnectButton
@@ -1036,33 +1038,6 @@ export function SpecialInviteFlowEN({
       {/* Right Panel - Flow Content */}
       <div>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 relative">
-          {/* Step Indicator */}
-          <div className="flex justify-center gap-2 mb-6">
-            {['welcome', 'password', 'education', 'connect', 'complete'].map((step, idx) => {
-              const stepOrder = ['welcome', 'password', 'education', 'connect', 'complete'];
-              const currentIdx = stepOrder.indexOf(currentStep);
-              const stepIdx = stepOrder.indexOf(step);
-              const isActive = stepIdx === currentIdx;
-              const isCompleted = stepIdx < currentIdx;
-
-              // Skip password step indicator if no password required
-              if (step === 'password' && !inviteData.hasPassword) return null;
-
-              return (
-                <div
-                  key={step}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    isCompleted
-                      ? 'bg-green-500'
-                      : isActive
-                      ? 'bg-purple-500 scale-125'
-                      : 'bg-gray-300 dark:bg-gray-600'
-                  }`}
-                />
-              );
-            })}
-          </div>
-
           {renderStepContent()}
         </div>
 

@@ -1754,18 +1754,22 @@
       "validating": "Validating..."
     },
     "connect": {
-      "title": "Education Completed!",
-      "score": "Score: {correct}/{total} correct answers",
+      "title": "Congratulations!",
+      "subtitle": "You've completed your initial training on our project",
       "readyTitle": "You're ready to join!",
       "readyDescription": "Just connect your wallet to receive your initial 200 CGC and complete your entry to the DAO",
-      "connectPrompt": "Connect your wallet to finish",
       "connectButton": "Connect Wallet",
       "walletSupport": "We support MetaMask, WalletConnect, Coinbase Wallet and more",
       "benefitsTitle": "Upon connecting you'll receive:",
       "benefit1": "Welcome CGC tokens",
       "benefit2": "Access to task panel",
       "benefit3": "Voting power in the DAO",
-      "benefit4": "Founding member badge"
+      "benefit4": "Founding member badge",
+      "bonusTitle": "🎁 Welcome Bonus!",
+      "bonusDescription": "Upon connecting your wallet you'll automatically receive:",
+      "bonusAmount": "200 CGC",
+      "bonusReferral": "+ Referral bonuses",
+      "bonusNote": "Tokens will be deposited automatically to your wallet"
     },
     "complete": {
       "title": "Welcome to the DAO!",

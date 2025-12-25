@@ -875,14 +875,20 @@ export function SpecialInviteFlow({
             className="space-y-6"
           >
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <span className="text-4xl">🎉</span>
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-4 animate-bounce shadow-lg overflow-hidden">
+                <Image
+                  src="/apeX.png"
+                  alt="apeX"
+                  width={72}
+                  height={72}
+                  className="object-cover"
+                />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 {t('connect.title')}
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                {t('connect.score', { correct: questionsScore.correct, total: questionsScore.total })}
+                {t('connect.subtitle')}
               </p>
             </div>
 
@@ -911,19 +917,19 @@ export function SpecialInviteFlow({
                 </div>
                 <div className="flex-1 text-left">
                   <h4 className="font-bold text-yellow-900 dark:text-yellow-200 mb-1">
-                    🎁 ¡Bono de Bienvenida!
+                    {t('connect.bonusTitle')}
                   </h4>
                   <p className="text-sm text-yellow-800 dark:text-yellow-300 mb-2">
-                    Al conectar tu wallet recibirás automáticamente:
+                    {t('connect.bonusDescription')}
                   </p>
                   <div className="bg-white/60 dark:bg-gray-800/60 rounded-lg p-3 border border-yellow-200 dark:border-yellow-800">
                     <div className="flex items-center justify-center gap-2">
-                      <span className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">200 CGC</span>
-                      <span className="text-sm text-yellow-600 dark:text-yellow-500">+ Bonos por referidos</span>
+                      <span className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">{t('connect.bonusAmount')}</span>
+                      <span className="text-sm text-yellow-600 dark:text-yellow-500">{t('connect.bonusReferral')}</span>
                     </div>
                   </div>
                   <p className="text-xs text-yellow-700 dark:text-yellow-400 mt-2">
-                    Los tokens se depositarán automáticamente en tu wallet
+                    {t('connect.bonusNote')}
                   </p>
                 </div>
               </div>
@@ -931,10 +937,6 @@ export function SpecialInviteFlow({
 
             {/* Connect Wallet */}
             <div className="text-center space-y-4">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                🔗 {t('connect.connectPrompt')}
-              </p>
-
               <div className="flex justify-center">
                 {client && (
                   <ConnectButton
@@ -1207,33 +1209,6 @@ export function SpecialInviteFlow({
       {/* Right Panel - Flow Content */}
       <div>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 relative">
-          {/* Step Indicator */}
-          <div className="flex justify-center gap-2 mb-6">
-            {['welcome', 'password', 'education', 'connect', 'delegate', 'complete'].map((step, idx) => {
-              const stepOrder = ['welcome', 'password', 'education', 'connect', 'delegate', 'complete'];
-              const currentIdx = stepOrder.indexOf(currentStep);
-              const stepIdx = stepOrder.indexOf(step);
-              const isActive = stepIdx === currentIdx;
-              const isCompleted = stepIdx < currentIdx;
-
-              // Skip password step indicator if no password required
-              if (step === 'password' && !inviteData.hasPassword) return null;
-
-              return (
-                <div
-                  key={step}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    isCompleted
-                      ? 'bg-green-500'
-                      : isActive
-                      ? 'bg-purple-500 scale-125'
-                      : 'bg-gray-300 dark:bg-gray-600'
-                  }`}
-                />
-              );
-            })}
-          </div>
-
           {renderStepContent()}
         </div>
 

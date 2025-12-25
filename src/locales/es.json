@@ -1253,18 +1253,22 @@
       "validating": "Validando..."
     },
     "connect": {
-      "title": "¡Educacion Completada!",
-      "score": "Puntuacion: {correct}/{total} respuestas correctas",
+      "title": "¡Felicidades!",
+      "subtitle": "Has completado tu capacitación inicial sobre nuestro proyecto",
       "readyTitle": "¡Estás listo para unirte!",
       "readyDescription": "Solo conecta tu wallet para recibir tus 200 CGC iniciales y completar tu entrada al DAO",
-      "connectPrompt": "Conecta tu wallet para finalizar",
       "connectButton": "Conectar Wallet",
       "walletSupport": "Soportamos MetaMask, WalletConnect, Coinbase Wallet y mas",
       "benefitsTitle": "Al conectar recibiras:",
       "benefit1": "Tokens CGC de bienvenida",
       "benefit2": "Acceso al panel de tareas",
       "benefit3": "Poder de voto en el DAO",
-      "benefit4": "Badge de miembro fundador"
+      "benefit4": "Badge de miembro fundador",
+      "bonusTitle": "🎁 ¡Bono de Bienvenida!",
+      "bonusDescription": "Al conectar tu wallet recibirás automáticamente:",
+      "bonusAmount": "200 CGC",
+      "bonusReferral": "+ Bonos por referidos",
+      "bonusNote": "Los tokens se depositarán automáticamente en tu wallet"
     },
     "complete": {
       "title": "¡Bienvenido al DAO!",
