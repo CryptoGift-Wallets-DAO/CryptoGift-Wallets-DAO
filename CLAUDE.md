@@ -2,12 +2,12 @@
 
 ## 🎯 INFORMACIÓN CRÍTICA DEL PROYECTO
 
-### ESTADO ACTUAL (14 DIC 2025) - MINTERGATEWAY + AUTO-DELEGATION ✅
-- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **GOVERNANCE COMPLETO** ✅
-- **Fase actual**: Sistema DAO con MinterGateway v3.3 + TimelockController desplegados
-- **Último Deploy**: Governance contracts + Auto-delegation voting power
-- **Critical Update**: New governance model: Aragon DAO → TimelockController → CGC Token
-- **Nuevo**: Sistema auto-delegación ERC20Votes para activación de voting power en claim flow
+### ESTADO ACTUAL (26 DIC 2025) - RBAC PROGRAMÁTICO + DASHBOARD PANELS ✅
+- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **GOVERNANCE COMPLETO** + **RBAC ENTERPRISE** ✅
+- **Fase actual**: Sistema DAO con permisos programáticos desde Gnosis Safe on-chain
+- **Último Commit**: `69e8c5e` feat(dashboard): implement programmatic RBAC permission system
+- **Critical Update**: Dashboard RBAC lee wallets admin de Aragon Gnosis Safe contracts (NO hardcodeado)
+- **Nuevo**: Sistema de permisos con jerarquía visitor → holder → voter → proposer → admin → superadmin
 
 ### 🎮 DISCORD SERVER CONFIGURADO (9 DIC 2025) ✅
 ```
@@ -45,6 +45,41 @@ ROLES CREADOS (10 total):
 SCRIPTS DISPONIBLES:
 ├── scripts/setup-discord-rest.js    - Configuración via REST API (usado)
 └── scripts/setup-discord-server.js  - Configuración via discord.js
+```
+
+### 🔐 SISTEMA RBAC PROGRAMÁTICO (26 DIC 2025) ✅
+```
+ARQUITECTURA ENTERPRISE-GRADE:
+├── lib/aragon/client.ts              - Safe contract interactions (viem)
+├── lib/auth/permissions.ts           - Role hierarchy & permission logic
+├── components/auth/RoleGate.tsx      - React context + gate components
+├── components/auth/index.ts          - Auth exports
+├── components/dashboard/MyGovernancePanel.tsx    - Voting power panel
+├── components/dashboard/MyWalletPanel.tsx        - Wallet & tokens panel
+├── components/dashboard/MyTasksPanel.tsx         - Task overview panel
+├── components/dashboard/AdminDashboardPanel.tsx  - Admin controls (Safe signers only)
+└── components/dashboard/index.ts                 - Dashboard exports
+
+JERARQUÍA DE ROLES (PROGRAMÁTICA):
+├── visitor   - Sin wallet conectada
+├── holder    - Tiene CGC tokens (balance > 0)
+├── voter     - Tiene voting power (delegación activa)
+├── proposer  - Puede crear propuestas en DAO
+├── admin     - Es signer de Safe Guardian (2/3)
+└── superadmin - Es signer de Safe Owner (3/5)
+
+DETECCIÓN AUTOMÁTICA ON-CHAIN:
+├── Safe Owner signers → useIsOwnerSigner() hook
+├── Safe Guardian signers → useIsGuardianSigner() hook
+├── Ambos → Admin access al dashboard
+└── Queries via viem getContractRead (getOwners())
+
+COMPONENTES GATE:
+├── <HolderGate> - Solo holders CGC
+├── <VoterGate> - Solo con voting power
+├── <AdminGate> - Solo Safe signers
+├── <SuperAdminGate> - Solo Safe Owner signers
+└── Todos soportan: children, fallback, showFallback
 ```
 
 ### 💰 FUNDING & GRANTS SYSTEM (12 DIC 2025) ✅
@@ -211,7 +246,7 @@ NOTA: Los contratos siguientes fueron reemplazados por el nuevo sistema:
 - MerklePayouts: 0xC75Be1A1fCb412078102b7C286d12E8ACc75b922 (funcionalidad en Escrow)
 ```
 
-### DATOS CRÍTICOS (ACTUALIZADOS 14 DIC 2025)
+### DATOS CRÍTICOS (ACTUALIZADOS 26 DIC 2025)
 - **Deployer**: 0xc655BF2Bd9AfA997c757Bef290A9Bb6ca41c5dE6
 - **Balance**: ~0.003 ETH (post-deployment, suficiente para operaciones)
 - **DAO Aragon**: 0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
@@ -224,9 +259,10 @@ NOTA: Los contratos siguientes fueron reemplazados por el nuevo sistema:
 - **Verificación**: ✅ Todos los contratos verificados en BaseScan con badge verde
 - **🔐 MinterGateway**: ✅ DESPLEGADO - TimelockController + MinterGateway v3.3 en mainnet
 - **🗳️ Auto-Delegation**: ✅ Sistema ERC20Votes con activación automática de voting power
+- **🔐 RBAC Programático**: ✅ Dashboard con permisos on-chain desde Gnosis Safe (NO hardcodeado)
 - **🤖 apeX Agent**: ✅ GPT-5 con máximo reasoning + MCP tools + UI mejorada
 - **🎯 Task System**: ✅ Sistema competitivo con timeouts automáticos y confirmación
-- **👨‍💼 Admin Panel**: ✅ Validación segura con autorización wallet-based
+- **👨‍💼 Admin Panel**: ✅ Validación segura con autorización wallet-based (Safe signers)
 - **⏰ Competitive Features**: ✅ Countdown timers, auto-expiration, claim confirmation
 - **🏷️ Token Metadata**: ✅ Sistema completo con logos optimizados, APIs CoinGecko
 - **📊 CoinGecko Ready**: ✅ Total Supply + Circulating Supply APIs + whitepaper actualizado
@@ -290,7 +326,10 @@ const tCommon = useTranslations('common');   // Para textos comunes
 // components/ui/LanguageToggle.tsx - Toggle EN|ES
 ```
 
-### 🎯 COMMITS RECIENTES i18n (26 NOV 2025)
+### 🎯 COMMITS RECIENTES (26 DIC 2025) - RBAC PROGRAMÁTICO
+- `69e8c5e` - feat(dashboard): implement programmatic RBAC permission system
+
+### 🎯 COMMITS ANTERIORES i18n (26 NOV 2025)
 - `1b72ff2` - feat(i18n): complete Dashboard translation with all Action Panels
 - `7fa809c` - fix(i18n): read NEXT_LOCALE cookie directly in getRequestConfig
 - `7e5cdf9` - feat(i18n): implement useTranslations for Navbar and Dashboard
@@ -489,7 +528,7 @@ npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
 
 ## 🎯 ROADMAP INMEDIATO
 
-### 🔥 PRÓXIMOS PASOS CRÍTICOS (ACTUALIZADOS 14 DIC 2025)
+### 🔥 PRÓXIMOS PASOS CRÍTICOS (ACTUALIZADOS 26 DIC 2025)
 1. ✅ **Deployment completo** - COMPLETADO CON MÁXIMA EXCELENCIA
 2. ✅ **Verificar contratos en BaseScan** - COMPLETADO (todos con badge verde)
 3. ✅ **Implementar sistema completo** - COMPLETADO (3 capas de seguridad)
@@ -507,16 +546,17 @@ npm install -g @anthropic-ai/claude-code  # ÚNICA excepción
 15. ✅ **Funding Application Guide** - COMPLETADO (16 secciones bilingües, Top 5 grants, PDF)
 16. ✅ **MinterGateway v3.3** - COMPLETADO (TimelockController + Gateway desplegados)
 17. ✅ **Auto-Delegation System** - COMPLETADO (ERC20Votes voting power activation)
-18. 🔄 **Apply Base Builder Grants** - Usar guía para enviar solicitud
-19. 🔄 **Register Optimism Atlas** - Crear perfil en atlas.optimism.io
-20. 🔄 **Register Gitcoin Grants** - Preparar para GG22
-21. 🔄 **BaseScan Logo Submission** - Enviar 32x32 SVG a BaseScan
-22. 🔄 **CoinGecko Form Submission** - Completar form con APIs y documentación
-23. 🔄 **Collab.Land TGR Config** - Configurar Token Gating Rules
-24. 🔄 **Execute Gateway Migration** - Ejecutar batch atómico para activar MinterGateway
-25. 🔄 **Production Testing** - Test completo con usuarios reales
+18. ✅ **RBAC Programático** - COMPLETADO (Dashboard con permisos on-chain desde Gnosis Safe)
+19. 🔄 **Apply Base Builder Grants** - Usar guía para enviar solicitud
+20. 🔄 **Register Optimism Atlas** - Crear perfil en atlas.optimism.io
+21. 🔄 **Register Gitcoin Grants** - Preparar para GG22
+22. 🔄 **BaseScan Logo Submission** - Enviar 32x32 SVG a BaseScan
+23. 🔄 **CoinGecko Form Submission** - Completar form con APIs y documentación
+24. 🔄 **Collab.Land TGR Config** - Configurar Token Gating Rules
+25. 🔄 **Execute Gateway Migration** - Ejecutar batch atómico para activar MinterGateway
+26. 🔄 **Production Testing** - Test completo con usuarios reales
 
-### Estado de Tokens (ACTUALIZADO 14 DIC 2025)
+### Estado de Tokens (ACTUALIZADO 26 DIC 2025)
 ```bash
 # GOVERNANCE MODEL - NUEVO SISTEMA DE MINTING
 # CGC Token: 0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
