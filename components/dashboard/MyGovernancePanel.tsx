@@ -26,12 +26,10 @@ import {
   XCircle,
   ExternalLink,
   Loader2,
-  ChevronRight,
   Crown,
   Shield,
   Info,
 } from 'lucide-react';
-import Link from 'next/link';
 
 // ============================================================================
 // CONSTANTS
@@ -257,19 +255,21 @@ export function MyGovernancePanel() {
           <ExternalLink className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </a>
 
-        {/* Delegate Voting Power */}
-        <Link
-          href="/governance/delegate"
+        {/* Delegate Voting Power - Opens Aragon DAO */}
+        <a
+          href={`${ARAGON_DAO_URL}/governance`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="glass-button w-full flex items-center justify-between group"
         >
           <span>{t('panels.governance.delegateVoting')}</span>
-          <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </Link>
+          <ExternalLink className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </a>
 
         {/* Create Proposal - Only if can propose */}
         {canPropose && (
           <a
-            href={`${ARAGON_DAO_URL}/new-proposal`}
+            href={`${ARAGON_DAO_URL}/governance/new-proposal`}
             target="_blank"
             rel="noopener noreferrer"
             className="glass-button w-full flex items-center justify-between group pulse-glow"
