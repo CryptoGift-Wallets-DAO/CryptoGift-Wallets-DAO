@@ -66,7 +66,6 @@ export default function CryptoGiftDAODashboard() {
     questsCompleted,
     activeTasks,
     milestonesReleased,
-    systemActive,
   } = useDashboardStats();
 
   // Format numbers for display
@@ -178,16 +177,14 @@ export default function CryptoGiftDAODashboard() {
           <footer className="glass-panel p-6 spring-in" style={{ animationDelay: '1.6s' }}>
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-3">
-                {/* Always show blue/pulsing for Beta mode - never show red "inactive" */}
-                <div className={`w-3 h-3 rounded-full ${systemActive ? 'bg-green-400 pulse-glow' : 'bg-blue-400 animate-pulse'}`}></div>
+                {/* Production mode - always show green active status */}
+                <div className="w-3 h-3 rounded-full bg-green-400 pulse-glow"></div>
                 <span className="text-glass-secondary text-sm">
-                  {systemActive ? tDashboard('system.active') : tDashboard('system.beta')}
+                  {tDashboard('system.active')}
                 </span>
-                {!systemActive && (
-                  <span className="text-xs text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">
-                    {tDashboard('system.syncing')}
-                  </span>
-                )}
+                <span className="text-xs text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">
+                  {tDashboard('system.operational')}
+                </span>
               </div>
 
               {!isConnected && (

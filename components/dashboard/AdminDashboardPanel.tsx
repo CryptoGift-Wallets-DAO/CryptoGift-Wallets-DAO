@@ -21,11 +21,9 @@ import { useTranslations } from 'next-intl';
 import { useAccount } from '@/lib/thirdweb';
 import { useDashboardStats } from '@/lib/web3/hooks';
 import { AdminGate, SuperAdminGate, usePermissions } from '@/components/auth/RoleGate';
-import Link from 'next/link';
 import {
   Settings,
   Shield,
-  Users,
   CheckCircle2,
   ExternalLink,
   ChevronRight,
@@ -66,10 +64,9 @@ export function AdminDashboardPanel() {
 
 function AdminDashboardContent() {
   const t = useTranslations('dashboard');
-  const { address } = useAccount();
+  useAccount(); // Hook required for wallet connection state
   const { permissions } = usePermissions();
   const {
-    systemActive,
     systemLimits,
     systemUsage,
     treasuryBalance,
@@ -145,17 +142,17 @@ function AdminDashboardContent() {
         </div>
       </div>
 
-      {/* System Status */}
+      {/* System Status - Production mode */}
       <div className="glass-card p-4 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${systemActive ? 'bg-green-400 pulse-glow' : 'bg-amber-400 animate-pulse'}`} />
+            <div className="w-3 h-3 rounded-full bg-green-400 pulse-glow" />
             <span className="text-glass text-sm">
               {t('panels.admin.systemStatus')}
             </span>
           </div>
-          <span className={`text-sm ${systemActive ? 'text-green-500' : 'text-amber-500'}`}>
-            {systemActive ? t('panels.admin.active') : t('panels.admin.syncing')}
+          <span className="text-sm text-green-500">
+            {t('panels.admin.active')}
           </span>
         </div>
 
@@ -290,21 +287,27 @@ function AdminDashboardContent() {
           </div>
 
           <div className="space-y-2">
-            <Link
-              href="/admin/treasury"
+            {/* Treasury management via Gnosis Safe Owner */}
+            <a
+              href={SAFE_OWNER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="glass-button w-full flex items-center justify-between group text-sm"
             >
               <span>{t('panels.admin.manageTreasury')}</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+              <ExternalLink className="w-4 h-4" />
+            </a>
 
-            <Link
-              href="/admin/system"
+            {/* System settings via DAO Aragon */}
+            <a
+              href={DAO_ARAGON_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="glass-button w-full flex items-center justify-between group text-sm"
             >
               <span>{t('panels.admin.systemSettings')}</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+              <ExternalLink className="w-4 h-4" />
+            </a>
           </div>
         </div>
       </SuperAdminGate>
