@@ -121,10 +121,16 @@ export default function LandingPage() {
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             {/* Left: Text Content */}
             <div className={`space-y-5 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/50 dark:bg-white/10 backdrop-blur-sm rounded-full border border-gray-200 dark:border-white/20">
-                <Sparkles className="w-3.5 h-3.5 text-yellow-500 dark:text-yellow-400" />
-                <span className="text-xs font-medium text-gray-700 dark:text-white">{t('hero.badge')}</span>
+              {/* Badges - Two stacked */}
+              <div className="flex flex-col gap-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/50 dark:bg-white/10 backdrop-blur-sm rounded-full border border-gray-200 dark:border-white/20 w-fit">
+                  <Sparkles className="w-3.5 h-3.5 text-yellow-500 dark:text-yellow-400" />
+                  <span className="text-xs font-medium text-gray-700 dark:text-white">{t('hero.badge1')}</span>
+                </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/50 dark:bg-white/10 backdrop-blur-sm rounded-full border border-gray-200 dark:border-white/20 w-fit">
+                  <Wallet className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
+                  <span className="text-xs font-medium text-gray-700 dark:text-white">{t('hero.badge2')}</span>
+                </div>
               </div>
 
               {/* Main Headline */}

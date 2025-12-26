@@ -1,7 +1,8 @@
 {
   "landing": {
     "hero": {
-      "badge": "Donde cada regalo se vuelve capital • Convierte Cualquier Regalo en una Web3 Wallet",
+      "badge1": "Donde cada regalo se vuelve capital",
+      "badge2": "Convierte Cualquier Regalo en una Web3 Wallet",
       "title1": "Regala el Futuro.",
       "title2": "Transforma Vidas.",
       "subtitle": "Regala una foto, un recuerdo, un NFT — y convierte a tu amigo que 'no entiende crypto' en holder, contribuidor DAO y protagonista de su libertad financiera. Sin seed phrases. Sin gas. Sin confusión.",
