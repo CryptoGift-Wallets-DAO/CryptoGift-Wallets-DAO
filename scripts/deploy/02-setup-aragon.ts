@@ -163,7 +163,7 @@ After this proposal, the Vault will be ready to process release orders signed by
   console.log(`\n📁 Proposal saved to: ${proposalFile}`);
   
   // Generate Aragon App URL
-  const aragonUrl = `https://app.aragon.org/#/daos/base/${DAO_ADDRESS}/dashboard`;
+  const aragonUrl = `https://app.aragon.org/dao/base-mainnet/${DAO_ADDRESS}/dashboard`;
   console.log(`\n🌐 Aragon DAO Dashboard: ${aragonUrl}`);
   
   // Print instructions

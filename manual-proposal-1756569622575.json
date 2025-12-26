@@ -25,7 +25,7 @@
   "target": "0xe8AF8cF18DA5c540daffe76Ae5fEE31C80c74899",
   "value": 0,
   "description": "Transfer 400,000 CGC to vault",
-  "aragon_url": "https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31",
+  "aragon_url": "https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31",
   "manual_instructions": {
     "step1": "Go to https://app.aragon.org",
     "step2": "Connect to DAO: 0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31",

@@ -162,7 +162,7 @@ This is a critical setup step for the DAO to function properly.`,
   
   console.log(`\n${colors.bright}${colors.yellow}⚠️ IMPORTANT: Manual Steps Required${colors.reset}`);
   console.log(`\nSince the Token Voting plugin needs to be installed first, you need to:`);
-  console.log(`\n1. Go to the Aragon App: https://app.aragon.org/#/daos/${network.name}/${aragonDAOAddress}/dashboard`);
+  console.log(`\n1. Go to the Aragon App: https://app.aragon.org/dao/base-mainnet/${aragonDAOAddress}/dashboard`);
   console.log(`\n2. Install the Token Voting Plugin with these settings:`);
   console.log(`   - Token: ${deploymentData.CGCToken.address}`);
   console.log(`   - Support Threshold: 51%`);
@@ -241,7 +241,7 @@ This is a critical setup step for the DAO to function properly.`,
   console.log(`   5. Disable shadow mode when ready for production`);
   
   console.log(`\n${colors.yellow}Resources:${colors.reset}`);
-  console.log(`   Aragon App: https://app.aragon.org/#/daos/${network.name}/${aragonDAOAddress}/dashboard`);
+  console.log(`   Aragon App: https://app.aragon.org/dao/base-mainnet/${aragonDAOAddress}/dashboard`);
   console.log(`   CGC Token: https://basescan.org/address/${deploymentData.CGCToken.address}#code`);
   console.log(`   GovTokenVault: https://basescan.org/address/${deploymentData.GovTokenVault.address}#code`);
 }

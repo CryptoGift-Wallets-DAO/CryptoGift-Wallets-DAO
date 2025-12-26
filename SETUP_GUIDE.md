@@ -136,7 +136,7 @@ This creates `proposals/001-initialize-vault.json`
 
 #### Create DAO Proposal:
 
-1. Go to: https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31/dashboard
+1. Go to: https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31/dashboard
 2. Click "New Proposal"
 3. Add the actions from the JSON file
 4. Submit for voting

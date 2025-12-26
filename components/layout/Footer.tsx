@@ -112,7 +112,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a
-                  href="https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31"
+                  href="https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"

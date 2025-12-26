@@ -205,7 +205,7 @@ Discord: https://discord.gg/XzmKkrvhHc
 GitHub: https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 BaseScan Token: https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
 BaseScan Pool: https://basescan.org/address/0x3032f62729513ec8a328143f7d5926b5257a43cd
-Aragon DAO: https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
+Aragon DAO: https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
 ```
 
 ---

@@ -200,7 +200,7 @@ Any changes to tokenomics require:
 ## Resources
 
 - **Whitepaper:** [Full Documentation](https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html)
-- **DAO Governance:** [Aragon App](https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31)
+- **DAO Governance:** [Aragon App](https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31)
 - **Token Contract:** [BaseScan](https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175)
 - **GitHub:** [Source Code](https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO)
 - **Website:** [Official Site](https://mbxarts.com)

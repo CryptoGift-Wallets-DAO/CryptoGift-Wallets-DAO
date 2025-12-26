@@ -169,7 +169,7 @@ MERKLE_DISTRIBUTOR_ADDRESS=0x...
 
 **IMPORTANTE**: Debes hacer esto manualmente en Aragon App
 
-1. Ir a: https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31/dashboard
+1. Ir a: https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31/dashboard
 
 2. Instalar Token Voting Plugin:
    - Token: `[CGC_TOKEN_ADDRESS del deployment]`

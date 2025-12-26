@@ -236,7 +236,7 @@ Somos una **Organización Autónoma Descentralizada (DAO)** en Base que recompen
 🌐 **Website:** https://mbxarts.com
 🐦 **Twitter:** https://x.com/cryptogiftdao
 📄 **Whitepaper:** https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.pdf
-🏛️ **Aragon DAO:** https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
+🏛️ **Aragon DAO:** https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
 🔍 **BaseScan CGC:** https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
 💻 **GitHub:** https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 
@@ -354,7 +354,7 @@ const LINKS_MESSAGE = `# 🔗 LINKS OFICIALES DE CRYPTOGIFT WALLETS DAO
 
 | Recurso | Link |
 |---------|------|
-| 🏛️ Aragon DAO | https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31 |
+| 🏛️ Aragon DAO | https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31 |
 | 💰 CGC Token | https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175 |
 | 📦 MilestoneEscrow | https://basescan.org/address/0x8346CFcaECc90d678d862319449E5a742c03f109 |
 

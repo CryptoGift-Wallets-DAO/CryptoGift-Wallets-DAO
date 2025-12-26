@@ -78,7 +78,7 @@ Base enables our vision through low gas costs ($0.10-0.30 per transaction), full
 - GitHub: https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 - Website: https://mbxarts.com
 - Token: https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
-- DAO: https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
+- DAO: https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
 
 **PASO 4: Seguimiento**
 - Guardar número de confirmación/referencia

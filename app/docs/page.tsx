@@ -651,7 +651,7 @@ export default function DocsPage() {
                   <Button
                     variant="outline"
                     className="mt-4 dark:border-slate-600 dark:text-gray-300"
-                    onClick={() => window.open(`https://app.aragon.org/#/daos/base/${CONTRACTS.aragonDAO}`, '_blank')}
+                    onClick={() => window.open(`https://app.aragon.org/dao/base-mainnet/${CONTRACTS.aragonDAO}`, '_blank')}
                   >
                     Open Aragon DAO
                     <ExternalLink className="h-4 w-4 ml-2" />

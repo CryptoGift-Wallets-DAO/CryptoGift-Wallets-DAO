@@ -35,7 +35,7 @@ import {
 // CONSTANTS
 // ============================================================================
 
-const ARAGON_DAO_URL = 'https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31';
+const ARAGON_DAO_URL = 'https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31';
 const MIN_PROPOSER_POWER = 1000; // Minimum voting power to create proposals
 
 // ============================================================================

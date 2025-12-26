@@ -43,7 +43,7 @@ import {
 
 const SAFE_OWNER_URL = 'https://app.safe.global/base:0x11323672b5f9bB899Fa332D5d464CC4e66637b42';
 const SAFE_GUARDIAN_URL = 'https://app.safe.global/base:0xe9411DD1f2AF42186b2bCE828B6e7d0dd0D7a6bc';
-const DAO_ARAGON_URL = 'https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31';
+const DAO_ARAGON_URL = 'https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31';
 const BASESCAN_DAO_URL = 'https://basescan.org/address/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31';
 
 // ============================================================================
