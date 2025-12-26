@@ -9,6 +9,25 @@ interface CachedStats {
 let cachedStats: CachedStats | null = null;
 const CACHE_TTL_MS = 30 * 1000; // 30 seconds cache
 
+// Type definitions for Supabase query results
+interface ProposalRow {
+  status: string;
+}
+
+interface TaskRow {
+  status: string;
+  reward_cgc: number | null;
+}
+
+interface CollaboratorRow {
+  is_active: boolean;
+  tasks_completed: number;
+}
+
+interface CompletedTaskRow {
+  reward_cgc: number | null;
+}
+
 export interface DashboardDBStats {
   // Proposals
   proposalsActive: number;
@@ -82,28 +101,28 @@ export async function GET() {
     ]);
 
     // Calculate proposal stats
-    const proposals = proposalsResult.data || [];
-    const proposalsPending = proposals.filter(p => p.status === 'pending').length;
-    const proposalsReviewing = proposals.filter(p => p.status === 'reviewing').length;
-    const proposalsApproved = proposals.filter(p => p.status === 'approved').length;
-    const proposalsRejected = proposals.filter(p => p.status === 'rejected').length;
+    const proposals = (proposalsResult.data || []) as ProposalRow[];
+    const proposalsPending = proposals.filter((p: ProposalRow) => p.status === 'pending').length;
+    const proposalsReviewing = proposals.filter((p: ProposalRow) => p.status === 'reviewing').length;
+    const proposalsApproved = proposals.filter((p: ProposalRow) => p.status === 'approved').length;
+    const proposalsRejected = proposals.filter((p: ProposalRow) => p.status === 'rejected').length;
 
     // Calculate task stats
-    const tasks = tasksResult.data || [];
-    const tasksCompleted = tasks.filter(t => t.status === 'completed').length;
-    const tasksValidated = tasks.filter(t => t.status === 'validated').length;
-    const tasksClaimed = tasks.filter(t => t.status === 'claimed').length;
-    const tasksInProgress = tasks.filter(t => t.status === 'in_progress').length;
-    const tasksSubmitted = tasks.filter(t => t.status === 'submitted').length;
-    const tasksAvailable = tasks.filter(t => t.status === 'available').length;
+    const tasks = (tasksResult.data || []) as TaskRow[];
+    const tasksCompleted = tasks.filter((t: TaskRow) => t.status === 'completed').length;
+    const tasksValidated = tasks.filter((t: TaskRow) => t.status === 'validated').length;
+    const tasksClaimed = tasks.filter((t: TaskRow) => t.status === 'claimed').length;
+    const tasksInProgress = tasks.filter((t: TaskRow) => t.status === 'in_progress').length;
+    const tasksSubmitted = tasks.filter((t: TaskRow) => t.status === 'submitted').length;
+    const tasksAvailable = tasks.filter((t: TaskRow) => t.status === 'available').length;
 
     // Calculate collaborator stats
-    const collaborators = collaboratorsResult.data || [];
-    const activeCollaborators = collaborators.filter(c => c.is_active).length;
+    const collaborators = (collaboratorsResult.data || []) as CollaboratorRow[];
+    const activeCollaborators = collaborators.filter((c: CollaboratorRow) => c.is_active).length;
 
     // Calculate total CGC distributed
-    const completedTasks = rewardsResult.data || [];
-    const totalCGCDistributed = completedTasks.reduce((sum, t) => sum + (t.reward_cgc || 0), 0);
+    const completedTasks = (rewardsResult.data || []) as CompletedTaskRow[];
+    const totalCGCDistributed = completedTasks.reduce((sum: number, t: CompletedTaskRow) => sum + (t.reward_cgc || 0), 0);
 
     const stats: DashboardDBStats = {
       // Proposals
