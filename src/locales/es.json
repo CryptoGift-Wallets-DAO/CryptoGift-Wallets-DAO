@@ -1,10 +1,10 @@
 {
   "landing": {
     "hero": {
-      "badge": "Donde cada regalo se vuelve capital",
+      "badge": "Donde cada regalo se vuelve capital • Convierte Cualquier Regalo en una Web3 Wallet",
       "title1": "Regala el Futuro.",
       "title2": "Transforma Vidas.",
-      "subtitle": "El sistema que convierte a tu amigo que 'no entiende crypto' en holder, contribuidor DAO y protagonista de su libertad financiera. Sin gas. Sin complicaciones. Sin miedo.",
+      "subtitle": "Regala una foto, un recuerdo, un NFT — y convierte a tu amigo que 'no entiende crypto' en holder, contribuidor DAO y protagonista de su libertad financiera. Sin seed phrases. Sin gas. Sin confusión.",
       "cta1": "Comienza Ahora",
       "cta2": "Ver Cómo Funciona",
       "trust1": "Contratos Verificados",
@@ -91,7 +91,7 @@
     "token": {
       "badge": "El Corazón del DAO",
       "title": "CryptoGift Coin",
-      "desc": "CGC es más que un token: es tu voz en una comunidad que cree en la adopción humana de Web3. Cada CGC representa participación real.",
+      "desc": "CGC es más que un token: es tu voz en una comunidad que cree en la adopción humana de Web3. 1 CGC = 1 Voto. Guarda tokens, gobierna el DAO, gana por tareas. 2M circulando ahora, 22M máximo siempre. Sin inflación. Sin sorpresas.",
       "initial": "Supply Inicial",
       "max": "Supply Máximo (vía Milestones)",
       "emission": "Modelo de Emisión",
@@ -115,7 +115,7 @@
     "team": {
       "badge": "Nuestro Equipo",
       "title": "El Equipo",
-      "subtitle": "Equipo lean liderado por fundadores, combinando producto, desarrollo Web3 y crecimiento. 104 días de beta cerrada con 0 bugs críticos y 85.7% tasa de reclamación. Listos para escalar con financiamiento y socios."
+      "subtitle": "2 fundadores. 104 días de beta. 0 bugs críticos. 85.7% tasa de éxito. $0 en marketing. Listos para 10x con los socios correctos."
     }
   },
   "invite": {
@@ -1227,11 +1227,11 @@
       "subtitle": "Invitacion Especial"
     },
     "welcome": {
-      "title": "¡Felicidades! Has Recibido una Invitacion Especial",
-      "subtitle": "Alguien especial te ha seleccionado para unirte a CryptoGift DAO",
-      "rewardInfo": "✨ Al completar tu entrada a la comunidad recibirás 200 CGC de recompensa, lo que te dará acceso a todas las herramientas de la comunidad y activará tu poder de voto.",
+      "title": "Has Sido Elegido para Algo Exclusivo",
+      "subtitle": "Alguien que te conoce cree que estás listo para Web3",
+      "rewardInfo": "✨ Completa en 5 minutos → Recibe 200 CGC (~$2 valor) → Desbloquea poder de gobernanza + acceso a tareas pagadas desde 50 CGC cada una.",
       "trustSecure": "100% Seguro",
-      "trustMembers": "+10,000 miembros",
+      "trustMembers": "Solo Miembros Fundadores",
       "trustVerified": "Blockchain verificado",
       "bannerTitle": "¡Bienvenido al futuro de las organizaciones!",
       "bannerDescription": "CryptoGift DAO es una comunidad descentralizada donde los miembros gobiernan, contribuyen y se benefician juntos. Tu invitacion te da acceso a tokens CGC, tareas remuneradas y votacion en decisiones.",
@@ -1253,10 +1253,10 @@
       "validating": "Validando..."
     },
     "connect": {
-      "title": "¡Felicidades!",
-      "subtitle": "Has completado tu capacitación inicial sobre nuestro proyecto",
-      "readyTitle": "¡Estás listo para unirte!",
-      "readyDescription": "Solo conecta tu wallet para recibir tus 200 CGC iniciales y completar tu entrada al DAO",
+      "title": "Estás a 1 Click",
+      "subtitle": "Pasaste. El 97% de las personas nunca llegan tan lejos.",
+      "readyTitle": "Tus 200 CGC están listos",
+      "readyDescription": "Conecta tu wallet → los tokens se depositan al instante → empieza a ganar hoy",
       "connectButton": "Conectar Wallet",
       "walletSupport": "Soportamos MetaMask, WalletConnect, Coinbase Wallet y mas",
       "benefitsTitle": "Al conectar recibiras:",
@@ -1271,8 +1271,8 @@
       "bonusNote": "Los tokens se depositarán automáticamente en tu wallet"
     },
     "complete": {
-      "title": "¡Bienvenido al DAO!",
-      "subtitle": "Tu ingreso ha sido registrado exitosamente",
+      "title": "¡Ya Estás Dentro! 🎉",
+      "subtitle": "Acabas de unirte a un movimiento. 200 CGC ya están en tu wallet.",
       "walletConnected": "Wallet conectada",
       "educationCompleted": "Educacion completada",
       "inviteClaimed": "Invitacion reclamada",
@@ -1314,20 +1314,20 @@
     },
     "card": {
       "name": "Invitacion Especial DAO",
-      "tokensTitle": "Tokens CGC",
-      "tokensDesc": "Recibe tokens de gobernanza para participar en el DAO.",
-      "tasksTitle": "Tareas Remuneradas",
-      "tasksDesc": "Accede a tareas pagadas y gana mas tokens.",
-      "communityTitle": "Comunidad",
-      "communityDesc": "Unete a miles de pioneros en finanzas descentralizadas."
+      "tokensTitle": "200 CGC Instantáneos",
+      "tokensDesc": "Empieza con ~$2 en tokens de gobernanza. 1 CGC = 1 Voto en decisiones reales.",
+      "tasksTitle": "Gana 50-500 CGC",
+      "tasksDesc": "Completa tareas, cobra en tokens. Sin jefe, sin permisos necesarios.",
+      "communityTitle": "Solo Miembros Fundadores",
+      "communityDesc": "Únete a los primeros 10,000 pioneros construyendo el futuro de la adopción Web3."
     },
     "helpSection": {
-      "title": "¡Tu Invitacion Te Esta Esperando!",
-      "whyTitle": "¿Por que CryptoGift DAO?",
-      "decentralized": "Descentralizado: Sin intermediarios ni jefes",
-      "transparent": "Transparente: Todo en blockchain publico",
-      "community": "Comunitario: Gobernado por los miembros",
-      "rewarded": "Remunerado: Gana por contribuir"
+      "title": "Este Lugar No Esperará Para Siempre",
+      "whyTitle": "Lo Que Obtienes Hoy:",
+      "decentralized": "200 CGC (~$2) depositados instantáneamente en tu wallet",
+      "transparent": "Acceso a 47+ tareas pagadas (50-500 CGC cada una)",
+      "community": "Poder de voto en un DAO real con gobernanza on-chain",
+      "rewarded": "Sistema de referidos 3 niveles: invita amigos, gana 10-20% por referido"
     }
   },
   "docs": {
@@ -1351,7 +1351,7 @@
       },
       "executive": {
         "title": "Resumen Ejecutivo",
-        "content": "CryptoGift Wallets DAO representa una evolución natural del ecosistema CryptoGift, transformando la educación Web3 en un modelo de gobernanza descentralizada donde el aprendizaje se convierte en poder de decisión. Construido sobre Base (Ethereum L2), el DAO empodera a su comunidad para co-gobernar el protocolo mientras aprenden y ganan."
+        "content": "CryptoGift Wallets DAO resuelve el problema #1 de Web3: la adopción. El 73% dice que crypto es 'muy complicado'. Cambiamos el juego con NFT-wallets que se sienten como regalos, no como tech. 104 días de beta, 85.7% tasa de éxito, 0 bugs críticos. Construido en Base (Ethereum L2). Aprende → Gana → Gobierna."
       },
       "vision": {
         "title": "Visión",
@@ -1419,9 +1419,9 @@
       },
       "utility": {
         "title": "Utilidad del Token",
-        "governance": "Gobernanza: Crear y votar propuestas, delegar poder de voto",
-        "access": "Acceso: Contenido premium, features prioritarias, badges NFT",
-        "boosts": "Boosts: Multiplicadores de experiencia, cooldowns reducidos, acceso anticipado"
+        "governance": "Gobernanza: 1 CGC = 1 Voto. Crea propuestas, vota sobre asignación de tesorería, delega poder",
+        "access": "Ganancias: Completa tareas (50-500 CGC), refiere amigos (10-20%), desbloquea features premium",
+        "boosts": "Estatus: Más tokens = acceso prioritario, canales exclusivos, beneficios de miembro fundador"
       }
     },
     "contracts": {
@@ -1662,15 +1662,15 @@
         "note": "Ambas APIs retornan valores numéricos en unidades CGC (sin decimales)"
       },
       "fraudWarning": {
-        "title": "Aviso de Advertencia de Fraude en Wallets",
-        "problem": "Problema Actual",
-        "problemDesc": "MetaMask y Coinbase Wallet pueden mostrar transferencias de CGC como transacciones fraudulentas",
-        "reason": "Razón",
-        "reasonDesc": "El token aún no está listado en CoinGecko o listas de tokens verificados",
-        "impact": "Impacto",
-        "impactDesc": "Esto afecta la confianza del usuario y la experiencia de onboarding",
-        "resolution": "Línea de Tiempo de Resolución",
-        "resolutionDesc": "Se espera resolver una vez que se apruebe el listado en CoinGecko (2-6 semanas después de la creación del pool)"
+        "title": "Por Qué Tu Wallet Muestra una Advertencia (y por qué eso es buena señal)",
+        "problem": "Qué está pasando",
+        "problemDesc": "MetaMask/Coinbase pueden marcar transferencias CGC. Esto es normal para tokens nuevos.",
+        "reason": "La razón real",
+        "reasonDesc": "Estamos en pre-listado. Una vez que CoinGecko nos apruebe (solicitud enviada), las advertencias desaparecen.",
+        "impact": "Qué significa para ti",
+        "impactDesc": "Eres early. Los miembros fundadores que entran antes del listado obtienen los mismos tokens—solo con un paso extra de verificación.",
+        "resolution": "Timeline",
+        "resolutionDesc": "Listado en CoinGecko esperado en 2-6 semanas. Tus tokens son 100% reales, verificados en BaseScan."
       }
     }
   },
