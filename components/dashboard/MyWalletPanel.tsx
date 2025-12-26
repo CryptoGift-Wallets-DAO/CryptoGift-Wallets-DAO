@@ -35,6 +35,19 @@ import {
 } from 'lucide-react';
 
 // ============================================================================
+// TYPE DECLARATIONS
+// ============================================================================
+
+// Extend Window interface for Web3 wallet providers
+declare global {
+  interface Window {
+    ethereum?: {
+      request: (args: { method: string; params?: unknown }) => Promise<unknown>;
+    };
+  }
+}
+
+// ============================================================================
 // CONSTANTS
 // ============================================================================
 
