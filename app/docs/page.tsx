@@ -1288,9 +1288,18 @@ export default function DocsPage() {
                       <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
                         Head of Community &amp; Growth / Marketing Advisor
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                         6 years Community strategy designer &amp; Crypto community builder. Management of moderators, ambassadors, and content creators.
                       </p>
+                      <a
+                        href="https://www.linkedin.com/in/roberto-legra-7746993a1"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        <span>LinkedIn</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
                     </div>
 
                     {/* Leodanni Avila */}
