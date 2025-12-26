@@ -535,22 +535,85 @@ export function useTaskValidation() {
 // ===== Utility Hooks =====
 
 /**
+ * Dashboard database stats interface (from Supabase)
+ */
+interface DashboardDBStats {
+  proposalsActive: number;
+  proposalsPending: number;
+  proposalsApproved: number;
+  proposalsRejected: number;
+  proposalsTotal: number;
+  tasksCompleted: number;
+  tasksActive: number;
+  tasksAvailable: number;
+  tasksSubmitted: number;
+  tasksTotal: number;
+  totalCGCDistributed: number;
+  activeCollaborators: number;
+  totalCollaborators: number;
+}
+
+/**
+ * Get dashboard stats from Supabase database
+ * This fetches real data from task_proposals and tasks tables
+ */
+export function useDashboardDBStats() {
+  const [stats, setStats] = useState<DashboardDBStats | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isError, setIsError] = useState(false)
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        setIsLoading(true)
+        const response = await fetch('/api/dashboard/stats')
+        const data = await response.json()
+
+        if (data.success && data.data) {
+          setStats(data.data)
+        }
+        setIsError(false)
+      } catch (error) {
+        console.error('Error fetching dashboard DB stats:', error)
+        setIsError(true)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStats()
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchStats, 30 * 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return {
+    stats,
+    isLoading,
+    isError,
+  }
+}
+
+/**
  * Get all dashboard stats in one hook
- * All data is fetched dynamically from blockchain and BaseScan API
+ * Combines blockchain data (token stats) with Supabase data (tasks/proposals)
  */
 export function useDashboardStats() {
   const { address } = useAccount()
+
+  // Blockchain data (token stats)
   const { totalSupply } = useCGCTotalSupply()
   const { holders } = useCGCHolders() // Dynamic from BaseScan API
   const { balance: treasuryBalance } = useCGCBalance(contracts.aragonDAO)
   // Use CGC balance of escrow contract (real token balance)
   const { balance: escrowCGCBalance } = useCGCBalance(contracts.milestoneEscrow)
   const { milestonesReleased } = useMilestonesReleased()
-  const { proposalCount } = useAragonProposals()
-  const { activeTasks, completedTasks, totalTasks } = useTaskStats()
   const { balance: userBalance } = useCGCBalance(address)
   const { earnings } = useCollaboratorEarnings(address)
   const { isActive, limits, usage } = useSystemStatus()
+
+  // Database data (tasks/proposals from Supabase)
+  const { stats: dbStats, isLoading: dbLoading } = useDashboardDBStats()
 
   // Calculate circulating supply (total - treasury - escrow)
   const treasuryNum = parseFloat(treasuryBalance || '0')
@@ -559,20 +622,46 @@ export function useDashboardStats() {
   const circulatingSupply = Math.max(0, totalNum - treasuryNum - escrowNum)
 
   return {
+    // Token/Blockchain stats
     totalSupply,
     circulatingSupply: circulatingSupply.toFixed(2),
     treasuryBalance,
     escrowBalance: escrowCGCBalance,
     holdersCount: holders, // Dynamic from API
-    proposalsActive: proposalCount,
-    questsCompleted: completedTasks,
-    activeTasks,
-    totalTasks,
+
+    // Proposals from Supabase (real data)
+    proposalsActive: dbStats?.proposalsActive ?? 0,
+    proposalsPending: dbStats?.proposalsPending ?? 0,
+    proposalsApproved: dbStats?.proposalsApproved ?? 0,
+    proposalsTotal: dbStats?.proposalsTotal ?? 0,
+
+    // Tasks from Supabase (real data)
+    questsCompleted: dbStats?.tasksCompleted ?? 0,
+    activeTasks: dbStats?.tasksActive ?? 0,
+    tasksAvailable: dbStats?.tasksAvailable ?? 0,
+    tasksSubmitted: dbStats?.tasksSubmitted ?? 0,
+    totalTasks: dbStats?.tasksTotal ?? 0,
+
+    // CGC distributed from completed tasks
+    totalCGCDistributed: dbStats?.totalCGCDistributed ?? 0,
+
+    // Collaborators
+    activeCollaborators: dbStats?.activeCollaborators ?? 0,
+    totalCollaborators: dbStats?.totalCollaborators ?? 0,
+
+    // Milestones (from blockchain)
     milestonesReleased,
+
+    // User specific
     userBalance,
     userEarnings: earnings,
+
+    // System status
     systemActive: isActive,
     systemLimits: limits,
     systemUsage: usage,
+
+    // Loading state
+    isDBLoading: dbLoading,
   }
 }
