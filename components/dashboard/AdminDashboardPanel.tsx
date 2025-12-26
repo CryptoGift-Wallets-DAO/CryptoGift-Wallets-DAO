@@ -52,46 +52,11 @@ const BASESCAN_DAO_URL = 'https://basescan.org/address/0x3244DFBf9E5374DF2f106E8
 // ============================================================================
 
 export function AdminDashboardPanel() {
+  // Only render for admins - returns null for non-admins (no fallback message)
   return (
-    <AdminGate showFallback fallback={<AdminAccessDenied />}>
+    <AdminGate>
       <AdminDashboardContent />
     </AdminGate>
-  );
-}
-
-// ============================================================================
-// ACCESS DENIED FALLBACK
-// ============================================================================
-
-function AdminAccessDenied() {
-  const t = useTranslations('dashboard');
-
-  return (
-    <div className="glass-panel p-6">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 glass-bubble">
-          <Lock className="w-6 h-6 text-gray-500" />
-        </div>
-        <div>
-          <h3 className="text-xl font-semibold text-glass">
-            {t('panels.admin.title')}
-          </h3>
-          <p className="text-glass-secondary text-sm">
-            {t('panels.admin.restricted')}
-          </p>
-        </div>
-      </div>
-
-      <div className="text-center py-8">
-        <Shield className="w-12 h-12 mx-auto mb-3 text-gray-500 opacity-50" />
-        <p className="text-glass-secondary text-sm mb-2">
-          {t('panels.admin.accessDenied')}
-        </p>
-        <p className="text-glass-secondary text-xs">
-          {t('panels.admin.gnosisSafeRequired')}
-        </p>
-      </div>
-    </div>
   );
 }
 
