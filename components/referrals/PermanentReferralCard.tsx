@@ -413,6 +413,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
         neverExpires: true,
         expiresAt: null,
         maxClaims: maxClaims ? parseInt(maxClaims) : null,
+        masterclassType,
         totalClicks: 0,
         totalClaims: 0,
         totalCompleted: 0,

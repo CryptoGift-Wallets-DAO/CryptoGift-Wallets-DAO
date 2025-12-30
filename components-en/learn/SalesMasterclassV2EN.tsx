@@ -263,7 +263,7 @@ interface SalesBlock {
   title: string;
   duration: number;
   type: SalesBlockType;
-  content?: SalesBlockContent;
+  content: SalesBlockContent;
   question?: {
     text: string;
     options: Array<{
@@ -433,7 +433,6 @@ const SALES_BLOCKS: SalesBlock[] = [
       paths: [
         {
           name: 'Community',
-          nameEs: 'Community',
           description: 'Adoption ambassador',
           spots: 'Unlimited',
           benefit: 'Exclusive NFT + Discord',
@@ -442,7 +441,6 @@ const SALES_BLOCKS: SalesBlock[] = [
         },
         {
           name: 'Quest Creator',
-          nameEs: 'Quest Creator',
           description: 'Create gamified experiences',
           spots: 33,
           benefit: '30% revenue share',
@@ -450,7 +448,6 @@ const SALES_BLOCKS: SalesBlock[] = [
         },
         {
           name: 'Integration Partner',
-          nameEs: 'Integration Partner',
           description: 'Integrate our widget',
           spots: 19,
           benefit: '1M free transactions',
@@ -458,7 +455,6 @@ const SALES_BLOCKS: SalesBlock[] = [
         },
         {
           name: 'White-Label',
-          nameEs: 'White-Label',
           description: 'Your own platform',
           spots: 6,
           benefit: 'SLA 99.99%',
@@ -466,7 +462,6 @@ const SALES_BLOCKS: SalesBlock[] = [
         },
         {
           name: 'Investor',
-          nameEs: 'Investor',
           description: 'Invest in the future',
           spots: 'Limited',
           benefit: 'Min $50k',

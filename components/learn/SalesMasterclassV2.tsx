@@ -244,12 +244,23 @@ interface SalesBlockContent {
 
 // V2 Block Types: Video-first funnel approach (no quizzes)
 type SalesBlockType =
+  // V2 new types
   | 'video'       // NEW: Video content block (uses IntroVideoGate)
   | 'checkpoint'  // NEW: Simple emotional engagement (yes/no, not quiz)
+  | 'social'      // NEW: Social verification (Twitter/Discord)
+  // Reused from legacy
   | 'demo'        // REUSED: QR code experience
   | 'capture'     // REUSED: Role selection
-  | 'social'      // NEW: Social verification (Twitter/Discord)
-  | 'success';    // REUSED: Celebration screen
+  | 'success'     // REUSED: Celebration screen
+  // Legacy types (for backwards compatibility)
+  | 'opening'
+  | 'problem'
+  | 'solution'
+  | 'comparison'
+  | 'cases'
+  | 'business'
+  | 'roadmap'
+  | 'close';
 
 interface SalesBlock {
   id: string;
