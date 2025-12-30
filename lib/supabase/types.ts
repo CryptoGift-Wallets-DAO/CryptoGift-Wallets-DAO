@@ -768,15 +768,115 @@ export type ReferralClick = Database['public']['Tables']['referral_clicks']['Row
 export type ReferralClickInsert = Database['public']['Tables']['referral_clicks']['Insert']
 export type ReferralClickUpdate = Database['public']['Tables']['referral_clicks']['Update']
 
-export type PermanentSpecialInvite = Database['public']['Tables']['permanent_special_invites']['Row']
-export type PermanentSpecialInviteInsert = Database['public']['Tables']['permanent_special_invites']['Insert']
-export type PermanentSpecialInviteUpdate = Database['public']['Tables']['permanent_special_invites']['Update']
+// ============================================
+// 🎓 MASTERCLASS TYPE SYSTEM (Added 2025-12-30)
+// Defined early so it can be used in extended types
+// ============================================
+
+/**
+ * Available Sales Masterclass types for referral links
+ * - 'v2': Video-first neuromarketing funnel (3 strategic videos) - DEFAULT
+ * - 'legacy': Original 11-block quiz-based educational experience
+ * - 'none': No education required, direct to wallet connection
+ */
+export type MasterclassType = 'v2' | 'legacy' | 'none'
+
+// Base types from Supabase - auto-updated when supabase types regenerate
+type PermanentSpecialInviteBase = Database['public']['Tables']['permanent_special_invites']['Row']
+type PermanentSpecialInviteInsertBase = Database['public']['Tables']['permanent_special_invites']['Insert']
+type PermanentSpecialInviteUpdateBase = Database['public']['Tables']['permanent_special_invites']['Update']
+
+// Extended types with masterclass_type - ensures TypeScript works before/after migration
+export type PermanentSpecialInvite = PermanentSpecialInviteBase & {
+  masterclass_type?: MasterclassType
+}
+export type PermanentSpecialInviteInsert = PermanentSpecialInviteInsertBase & {
+  masterclass_type?: MasterclassType
+}
+export type PermanentSpecialInviteUpdate = PermanentSpecialInviteUpdateBase & {
+  masterclass_type?: MasterclassType
+}
 
 export type PermanentSpecialInviteClaim = Database['public']['Tables']['permanent_special_invite_claims']['Row']
 export type PermanentSpecialInviteClaimInsert = Database['public']['Tables']['permanent_special_invite_claims']['Insert']
 export type PermanentSpecialInviteClaimUpdate = Database['public']['Tables']['permanent_special_invite_claims']['Update']
 
 export type PermanentInviteStatus = 'active' | 'paused' | 'disabled'
+
+/**
+ * Masterclass type configuration for UI display
+ */
+export interface MasterclassTypeOption {
+  typeId: MasterclassType
+  nameEn: string
+  nameEs: string
+  descriptionEn: string
+  descriptionEs: string
+  isDefault: boolean
+  sortOrder: number
+}
+
+/**
+ * Available masterclass options for dropdown selector
+ */
+export const MASTERCLASS_TYPE_OPTIONS: MasterclassTypeOption[] = [
+  {
+    typeId: 'v2',
+    nameEn: 'Sales Masterclass V2',
+    nameEs: 'Sales Masterclass V2',
+    descriptionEn: 'Video-first neuromarketing funnel with 3 strategic videos',
+    descriptionEs: 'Embudo de neuromarketing con 3 videos estratégicos',
+    isDefault: true,
+    sortOrder: 1
+  },
+  {
+    typeId: 'legacy',
+    nameEn: 'Sales Masterclass (Legacy)',
+    nameEs: 'Sales Masterclass (Clásico)',
+    descriptionEn: 'Original 11-block quiz-based educational experience',
+    descriptionEs: 'Experiencia educativa original con 11 bloques y quiz',
+    isDefault: false,
+    sortOrder: 2
+  },
+  {
+    typeId: 'none',
+    nameEn: 'No Education Required',
+    nameEs: 'Sin Educación Requerida',
+    descriptionEn: 'Skip masterclass - direct to wallet connection',
+    descriptionEs: 'Saltar masterclass - directo a conexión de wallet',
+    isDefault: false,
+    sortOrder: 3
+  }
+]
+
+/**
+ * Get masterclass type option by type ID
+ */
+export function getMasterclassTypeOption(typeId: MasterclassType): MasterclassTypeOption | undefined {
+  return MASTERCLASS_TYPE_OPTIONS.find(opt => opt.typeId === typeId)
+}
+
+/**
+ * Masterclass completion record
+ */
+export interface MasterclassCompletion {
+  id: string
+  wallet_address: string
+  masterclass_type: MasterclassType
+  invite_code: string | null
+  completion_proof: Record<string, unknown>
+  score: number
+  time_spent_seconds: number
+  completed_at: string
+  created_at: string
+}
+
+/**
+ * Extended PermanentSpecialInvite with masterclass_type
+ */
+export interface PermanentSpecialInviteWithMasterclass extends PermanentSpecialInvite {
+  masterclass_type: MasterclassType
+}
 
 export type ReferralLevel = 1 | 2 | 3
 export type ReferralStatus = 'pending' | 'active' | 'inactive' | 'banned'

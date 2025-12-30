@@ -64,7 +64,42 @@ export const VIDEO_CONFIG: Record<string, VideoConfig> = {
     muxPlaybackId: "YOUR_MUX_PLAYBACK_ID_HERE",
     title: "DeFi for Beginners",
     description: "Discover the power of decentralized finance",
-  }
+  },
+
+  // =============================================================================
+  // SALES MASTERCLASS V2 - VIDEO FUNNEL (NEUROMARKETING APPROACH)
+  // 3 videos: TOFU (emotion) → MOFU (logic) → BOFU (trust/action)
+  // =============================================================================
+
+  // Video 1: THE GIFT (TOFU - Top of Funnel) - ~1:05
+  // Psychology: Emotion + Desire
+  // Script: FROM "How many times we wanted to share..." TO "...the first step toward real trust."
+  salesMasterclassV2_TheGift: {
+    lessonId: "sales-masterclass-v2-gift-en-v1",
+    muxPlaybackId: "PENDING_MUX_ID_GIFT",
+    title: "The Gift",
+    description: "The first step toward real trust.\n\nHow many times did you want to share the future of Web3 with someone you love?",
+  },
+
+  // Video 2: THE SOLUTION (MOFU - Middle of Funnel) - ~2:15
+  // Psychology: Logic + Proof
+  // Script: FROM "But let's be real for a second..." TO "...this is where things get really exciting"
+  salesMasterclassV2_TheSolution: {
+    lessonId: "sales-masterclass-v2-solution-en-v1",
+    muxPlaybackId: "PENDING_MUX_ID_SOLUTION",
+    title: "The Solution",
+    description: "The technology behind the magic.\n\n5 verified contracts. 717+ on-chain transactions. 85.7% claim rate.",
+  },
+
+  // Video 3: THE OPPORTUNITY (BOFU - Bottom of Funnel) - ~3:00
+  // Psychology: Trust + Action
+  // Script: FROM "The system isn't just for one on one gifting..." TO "...a little piece of the future."
+  salesMasterclassV2_TheOpportunity: {
+    lessonId: "sales-masterclass-v2-opportunity-en-v1",
+    muxPlaybackId: "PENDING_MUX_ID_OPPORTUNITY",
+    title: "The Opportunity",
+    description: "Your invitation to the future.\n\nWe're early. The infrastructure is ready. The community is forming.",
+  },
 };
 
 /**

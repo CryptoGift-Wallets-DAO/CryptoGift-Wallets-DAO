@@ -58,6 +58,7 @@ import {
 } from '@/lib/invites/invite-flow-persistence';
 
 // Dynamic imports for SalesMasterclass (Spanish and English versions) to avoid SSR issues
+// LEGACY (original quiz-based education)
 const SalesMasterclassES = dynamic(() => import('../learn/SalesMasterclass'), {
   ssr: false,
   loading: () => (
@@ -68,6 +69,25 @@ const SalesMasterclassES = dynamic(() => import('../learn/SalesMasterclass'), {
 });
 
 const SalesMasterclassEN = dynamic(() => import('@/components-en/learn/SalesMasterclassEN'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+    </div>
+  )
+});
+
+// V2 (video-first neuromarketing funnel)
+const SalesMasterclassV2ES = dynamic(() => import('../learn/SalesMasterclassV2'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+    </div>
+  )
+});
+
+const SalesMasterclassV2EN = dynamic(() => import('@/components-en/learn/SalesMasterclassV2EN'), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center min-h-[400px]">
@@ -120,6 +140,8 @@ function triggerConfetti() {
   }, 250);
 }
 
+import type { MasterclassType } from '@/lib/supabase/types';
+
 interface InviteData {
   code: string;
   referrerCode?: string;
@@ -128,6 +150,7 @@ interface InviteData {
   createdAt?: string;
   expiresAt?: string;
   image?: string;
+  masterclassType?: MasterclassType; // Which Sales Masterclass version to show (v2, legacy, none)
 }
 
 interface SpecialInviteFlowProps {
@@ -823,8 +846,25 @@ export function SpecialInviteFlow({
         );
 
       case 'education':
-        // Select the correct language component based on current locale
-        const SalesMasterclass = currentLocale === 'en' ? SalesMasterclassEN : SalesMasterclassES;
+        // Handle 'none' masterclass type - skip education, go directly to connect
+        if (inviteData.masterclassType === 'none') {
+          // Auto-advance to connect step (no education required)
+          setTimeout(() => setCurrentStep('connect'), 0);
+          return (
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+            </div>
+          );
+        }
+
+        // Select masterclass component based on type and locale
+        // V2: New video-first neuromarketing funnel (3 strategic videos)
+        // Legacy: Original 11-block quiz-based experience
+        const isV2 = inviteData.masterclassType === 'v2' || !inviteData.masterclassType; // Default to V2
+        const SalesMasterclass = isV2
+          ? (currentLocale === 'en' ? SalesMasterclassV2EN : SalesMasterclassV2ES)
+          : (currentLocale === 'en' ? SalesMasterclassEN : SalesMasterclassES);
+
         return (
           <div className="fixed top-16 inset-x-0 bottom-0 z-50 bg-slate-900 overflow-hidden overscroll-none">
             {/* Inner scrollable container with strict overflow control - prevents scrolling beyond content */}

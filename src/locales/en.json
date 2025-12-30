@@ -1099,7 +1099,17 @@
         "message": "Custom Welcome Message",
         "messagePlaceholder": "Enter a personalized message for your invite...",
         "messageDefault": "You have been invited to join CryptoGift DAO! Complete the Sales Masterclass to unlock your membership and start earning CGC tokens.",
-        "messageHelp": "This message will be shown to recipients"
+        "messageHelp": "This message will be shown to recipients",
+        "masterclassType": "Educational Experience",
+        "masterclassTypeHelp": "Select which Sales Masterclass version this person will see",
+        "masterclassTypeOptions": {
+          "v2": "Sales Masterclass V2 (Recommended)",
+          "v2Description": "Neuromarketing funnel with 3 strategic videos",
+          "legacy": "Sales Masterclass (Legacy)",
+          "legacyDescription": "Original 11-block quiz-based educational experience",
+          "none": "No Education Required",
+          "noneDescription": "Direct to wallet connection"
+        }
       },
       "generate": "Generate Special Link",
       "generating": "Generating...",
@@ -1166,7 +1176,17 @@
         "maxClaimsHelp": "Set a maximum number of users who can claim this link (empty = unlimited)",
         "customMessage": "Custom Message (optional)",
         "customMessagePlaceholder": "I invite you to join CryptoGift DAO...",
-        "customMessageHelp": "Customize the welcome message"
+        "customMessageHelp": "Customize the welcome message",
+        "masterclassType": "Educational Experience",
+        "masterclassTypeHelp": "Select which Sales Masterclass version your invitees will see",
+        "masterclassTypeOptions": {
+          "v2": "Sales Masterclass V2 (Recommended)",
+          "v2Description": "Neuromarketing funnel with 3 strategic videos",
+          "legacy": "Sales Masterclass (Legacy)",
+          "legacyDescription": "Original 11-block quiz-based educational experience",
+          "none": "No Education Required",
+          "noneDescription": "Direct to wallet connection"
+        }
       },
       "generate": "Generate Permanent Link",
       "generating": "Generating...",

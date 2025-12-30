@@ -27,6 +27,8 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import { useTranslations } from 'next-intl';
 
+import type { MasterclassType } from '@/lib/supabase/types';
+
 interface InviteData {
   code: string;
   referrerCode?: string;
@@ -35,6 +37,7 @@ interface InviteData {
   createdAt?: string;
   expiresAt?: string;
   image?: string;
+  masterclassType?: MasterclassType; // Which Sales Masterclass version to show
 }
 
 type PageState = 'loading' | 'ready' | 'error';
@@ -73,6 +76,7 @@ export default function SpecialInvitePage() {
           createdAt: data.invite.createdAt,
           expiresAt: data.invite.expiresAt,
           image: data.invite.image || undefined,
+          masterclassType: data.invite.masterclassType || 'v2', // Default to V2 if not set
         });
         setPageState('ready');
       } catch (err) {

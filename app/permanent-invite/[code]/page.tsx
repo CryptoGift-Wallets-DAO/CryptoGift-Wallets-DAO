@@ -32,6 +32,8 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import { useTranslations } from 'next-intl';
 
+import type { MasterclassType } from '@/lib/supabase/types';
+
 interface PermanentInviteData {
   code: string;
   referrerCode?: string;
@@ -48,6 +50,7 @@ interface PermanentInviteData {
   conversionRate?: number;
   status?: string;
   alreadyClaimed?: boolean;
+  masterclassType?: MasterclassType; // Which Sales Masterclass version to show
 }
 
 type PageState = 'loading' | 'ready' | 'error' | 'already_claimed' | 'max_reached';
@@ -101,6 +104,7 @@ export default function PermanentInvitePage() {
           conversionRate: invite.conversionRate,
           status: invite.status,
           alreadyClaimed: data.alreadyClaimed,
+          masterclassType: invite.masterclassType || 'v2', // Default to V2 if not set
         });
 
         // Check if already claimed
@@ -230,6 +234,7 @@ export default function PermanentInvitePage() {
           createdAt: inviteData.createdAt,
           expiresAt: inviteData.expiresAt || undefined,
           image: inviteData.image,
+          masterclassType: inviteData.masterclassType, // Which Sales Masterclass version to show
         }}
         onClaimComplete={handleClaimComplete}
         isPermanent={true} // Flag to use permanent invite API instead

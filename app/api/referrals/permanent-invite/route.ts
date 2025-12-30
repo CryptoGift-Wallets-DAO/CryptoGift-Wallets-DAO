@@ -21,6 +21,7 @@ import crypto from 'crypto';
 import type {
   PermanentSpecialInviteInsert,
   PermanentSpecialInvite,
+  MasterclassType,
 } from '@/lib/supabase/types';
 
 // =====================================================
@@ -90,7 +91,19 @@ export async function POST(request: NextRequest) {
       image,
       maxClaims,
       neverExpires = true,
-    } = body;
+      masterclassType = 'v2', // Default to V2 (new neuromarketing funnel)
+    } = body as {
+      referrerWallet: string;
+      referrerCode?: string;
+      password?: string;
+      customMessage?: string;
+      customMessageEs?: string;
+      customTitle?: string;
+      image?: string;
+      maxClaims?: number;
+      neverExpires?: boolean;
+      masterclassType?: MasterclassType;
+    };
 
     // Validation
     if (!referrerWallet || !isValidWallet(referrerWallet)) {
@@ -122,6 +135,7 @@ export async function POST(request: NextRequest) {
       total_claims: 0,
       total_completed: 0,
       conversion_rate: 0,
+      masterclass_type: masterclassType, // Which Sales Masterclass version invitees will see
     };
 
     const { data: createdInvite, error: insertError } = await db
@@ -158,6 +172,7 @@ export async function POST(request: NextRequest) {
       hasImage: !!image,
       neverExpires,
       maxClaims: maxClaims || 'unlimited',
+      masterclassType, // V2 (video funnel), legacy (quiz), or none
     });
 
     return NextResponse.json({
@@ -281,6 +296,7 @@ export async function GET(request: NextRequest) {
         totalCompleted: invite.total_completed,
         conversionRate: invite.conversion_rate,
         status: invite.status,
+        masterclassType: invite.masterclass_type || 'v2', // Which Sales Masterclass version to show
       },
       alreadyClaimed,
       recentClaims: recentClaims || [],

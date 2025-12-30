@@ -61,6 +61,11 @@ import {
   QrCode,
 } from 'lucide-react';
 import { QRCodeModal } from './QRCodeModal';
+import {
+  MASTERCLASS_TYPE_OPTIONS,
+  type MasterclassType
+} from '@/lib/supabase/types';
+import { BookOpen } from 'lucide-react';
 
 interface PermanentReferralCardProps {
   referralCode: string;
@@ -74,6 +79,7 @@ interface PermanentInviteData {
   customTitle?: string;
   image?: string;
   maxClaims?: number;
+  masterclassType: MasterclassType;
   createdAt: string;
 }
 
@@ -88,6 +94,7 @@ interface StoredPermanentInvite {
   neverExpires: boolean;
   expiresAt: string | null;
   maxClaims: number | null;
+  masterclassType: MasterclassType;
   totalClicks: number;
   totalClaims: number;
   totalCompleted: number;
@@ -114,6 +121,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
   const [customImage, setCustomImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [maxClaims, setMaxClaims] = useState<string>(''); // Empty = unlimited
+  const [masterclassType, setMasterclassType] = useState<MasterclassType>('v2'); // V2 is default
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
@@ -360,6 +368,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
         customTitle: customTitle || defaultTitle,
         image: imageUrl,
         maxClaims: maxClaims ? parseInt(maxClaims) : undefined,
+        masterclassType, // V2 is default, user can select legacy or none
         createdAt: new Date().toISOString(),
       };
 
@@ -644,6 +653,34 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                 <span className="text-xs text-gray-400">
                   {customMessage.length}/500
                 </span>
+              </div>
+            </div>
+
+            {/* Masterclass Type Selector */}
+            <div className="space-y-2">
+              <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                <BookOpen className="h-4 w-4 mr-2 text-amber-500" />
+                {t('form.masterclassType')}
+              </label>
+              <select
+                value={masterclassType}
+                onChange={(e) => setMasterclassType(e.target.value as MasterclassType)}
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-white/70 dark:bg-slate-800/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+              >
+                {MASTERCLASS_TYPE_OPTIONS.map((option) => (
+                  <option key={option.typeId} value={option.typeId}>
+                    {t(`form.masterclassTypeOptions.${option.typeId}`)}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {t('form.masterclassTypeHelp')}
+              </p>
+              {/* Preview of selected masterclass */}
+              <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                <p className="text-xs text-amber-700 dark:text-amber-300">
+                  {t(`form.masterclassTypeOptions.${masterclassType}Description`)}
+                </p>
               </div>
             </div>
 

@@ -1099,7 +1099,17 @@
         "message": "Mensaje de Bienvenida Personalizado",
         "messagePlaceholder": "Escribe un mensaje personalizado para tu invitación...",
         "messageDefault": "¡Has sido invitado a unirte a CryptoGift DAO! Completa el Sales Masterclass para desbloquear tu membresía y comenzar a ganar tokens CGC.",
-        "messageHelp": "Este mensaje se mostrará a los destinatarios"
+        "messageHelp": "Este mensaje se mostrará a los destinatarios",
+        "masterclassType": "Experiencia Educativa",
+        "masterclassTypeHelp": "Selecciona qué versión del Sales Masterclass verá esta persona",
+        "masterclassTypeOptions": {
+          "v2": "Sales Masterclass V2 (Recomendado)",
+          "v2Description": "Embudo de neuromarketing con 3 videos estratégicos",
+          "legacy": "Sales Masterclass (Clásico)",
+          "legacyDescription": "Experiencia educativa original con 11 bloques y quiz",
+          "none": "Sin Educación Requerida",
+          "noneDescription": "Directo a conexión de wallet"
+        }
       },
       "generate": "Generar Enlace Especial",
       "generating": "Generando...",
@@ -1166,7 +1176,17 @@
         "maxClaimsHelp": "Establece un límite máximo de usuarios que pueden reclamar este enlace (vacío = ilimitado)",
         "customMessage": "Mensaje Personalizado (opcional)",
         "customMessagePlaceholder": "Te invito a unirte a CryptoGift DAO...",
-        "customMessageHelp": "Personaliza el mensaje de bienvenida"
+        "customMessageHelp": "Personaliza el mensaje de bienvenida",
+        "masterclassType": "Experiencia Educativa",
+        "masterclassTypeHelp": "Selecciona qué versión del Sales Masterclass verán tus invitados",
+        "masterclassTypeOptions": {
+          "v2": "Sales Masterclass V2 (Recomendado)",
+          "v2Description": "Embudo de neuromarketing con 3 videos estratégicos",
+          "legacy": "Sales Masterclass (Clásico)",
+          "legacyDescription": "Experiencia educativa original con 11 bloques y quiz",
+          "none": "Sin Educación Requerida",
+          "noneDescription": "Directo a conexión de wallet"
+        }
       },
       "generate": "Generar Enlace Permanente",
       "generating": "Generando...",

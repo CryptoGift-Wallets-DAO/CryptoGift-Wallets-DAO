@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
+import type { MasterclassType } from '@/lib/supabase/types';
 
 // Lazy Supabase initialization
 let supabase: ReturnType<typeof createClient> | null = null;
@@ -50,7 +51,15 @@ export async function POST(request: NextRequest) {
       password,
       customMessage,
       image, // Custom image URL for the invite card
-    } = body;
+      masterclassType = 'v2', // Default to V2 (new neuromarketing funnel)
+    } = body as {
+      referrerWallet: string;
+      referrerCode?: string;
+      password?: string;
+      customMessage?: string;
+      image?: string;
+      masterclassType?: MasterclassType;
+    };
 
     // Validation
     if (!referrerWallet || !/^0x[a-fA-F0-9]{40}$/.test(referrerWallet)) {
@@ -71,6 +80,7 @@ export async function POST(request: NextRequest) {
       referrer_code: referrerCode || null,
       password_hash: password ? hashPassword(password) : null,
       custom_message: customMessage || null,
+      masterclass_type: masterclassType, // V2, legacy, or none
       status: 'active',
       created_at: new Date().toISOString(),
       expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days expiry
@@ -174,6 +184,7 @@ export async function POST(request: NextRequest) {
       hasPassword: !!password,
       hasImage: !!image,
       imageSaved,
+      masterclassType, // V2 (video funnel), legacy (quiz), or none
     });
 
     return NextResponse.json({
@@ -245,6 +256,7 @@ export async function GET(request: NextRequest) {
         createdAt: invite.created_at,
         expiresAt: invite.expires_at,
         image: invite.image_url ?? null, // Custom image for the invite card (may not exist in DB)
+        masterclassType: invite.masterclass_type || 'v2', // Which Sales Masterclass version to show
       },
     });
   } catch (error) {
