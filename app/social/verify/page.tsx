@@ -377,6 +377,26 @@ function VerifyContent() {
                 </p>
               </div>
 
+              {/* Discord-specific pre-authorization warning */}
+              {platform === 'discord' && (
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm">
+                      <p className="font-semibold text-amber-700 dark:text-amber-300 mb-2">
+                        ⚠️ Importante antes de continuar
+                      </p>
+                      <p className="text-amber-700 dark:text-amber-300 mb-2">
+                        Discord requiere que tu <strong>email esté verificado</strong> para autorizar apps externas.
+                      </p>
+                      <p className="text-amber-600 dark:text-amber-400 text-xs">
+                        Si no has verificado tu email en Discord, te mostrará un error y no podrás continuar. Verifica tu email primero en Discord → Configuración → Mi Cuenta.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={startOAuth}
                 className={`w-full py-4 px-6 bg-gradient-to-r ${gradientFrom} ${gradientTo} text-white font-bold rounded-xl
@@ -385,6 +405,18 @@ function VerifyContent() {
                 <Icon className="w-5 h-5" />
                 Authorize with {platformName}
               </button>
+
+              {/* Use different account - more prominent for Discord */}
+              {platform === 'discord' && (
+                <button
+                  onClick={clearOAuthAndReset}
+                  className="w-full py-3 px-6 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-xl
+                    hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Usar otra cuenta de Discord
+                </button>
+              )}
 
               <button
                 onClick={handleCancel}
@@ -457,6 +489,19 @@ function VerifyContent() {
                   {(isTwitter ? twitterBypassReady : hasOpened) ? 'Verify Now' : 'Follow us first'}
                 </button>
               </div>
+
+              {/* Use different account option - especially useful for Discord */}
+              {platform === 'discord' && (
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={clearOAuthAndReset}
+                    className="w-full py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    ¿Cuenta equivocada? Usar otra cuenta de Discord
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

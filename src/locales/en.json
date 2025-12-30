@@ -2060,7 +2060,25 @@
     "whyVerify": "Why verify your accounts?",
     "benefit1": "Build trust with other community members",
     "benefit2": "Easier collaboration and communication",
-    "benefit3": "Access to exclusive features and rewards"
+    "benefit3": "Access to exclusive features and rewards",
+    "discordWarning": {
+      "title": "⚠️ Important before continuing",
+      "emailRequired": "Discord requires your email to be verified to authorize external apps.",
+      "instructions": "If you haven't verified your Discord email, you'll see an error and won't be able to continue. Verify your email first in Discord → Settings → My Account.",
+      "useAnotherAccount": "Use a different Discord account",
+      "wrongAccount": "Wrong account? Use a different Discord account",
+      "verificationRequired": "Account verification required",
+      "verificationNeededDesc": "Your Discord account needs verification before continuing",
+      "howToVerify": "How do I verify my account?",
+      "step1": "Open Discord on your computer or phone",
+      "step2": "Go to Settings → My Account",
+      "step3": "Look for the Verify Email message",
+      "step4": "Check your inbox and click the link",
+      "step5": "Once verified, return here and try again",
+      "spamTip": "Tip: If you can't find the email, check your spam or junk folder",
+      "retryWithAccount": "Retry with this account",
+      "cancel": "Cancel"
+    }
   },
   "socialEngagement": {
     "title": "Earn {amount} CGC!",

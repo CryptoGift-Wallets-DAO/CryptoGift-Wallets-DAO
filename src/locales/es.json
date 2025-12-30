@@ -2060,7 +2060,25 @@
     "whyVerify": "¿Por qué verificar tus cuentas?",
     "benefit1": "Genera confianza con otros miembros de la comunidad",
     "benefit2": "Colaboración y comunicación más fáciles",
-    "benefit3": "Acceso a funciones exclusivas y recompensas"
+    "benefit3": "Acceso a funciones exclusivas y recompensas",
+    "discordWarning": {
+      "title": "⚠️ Importante antes de continuar",
+      "emailRequired": "Discord requiere que tu email esté verificado para autorizar apps externas.",
+      "instructions": "Si no has verificado tu email en Discord, te mostrará un error y no podrás continuar. Verifica tu email primero en Discord → Configuración → Mi Cuenta.",
+      "useAnotherAccount": "Usar otra cuenta de Discord",
+      "wrongAccount": "¿Cuenta equivocada? Usar otra cuenta de Discord",
+      "verificationRequired": "Verificación de cuenta requerida",
+      "verificationNeededDesc": "Tu cuenta de Discord necesita verificación antes de continuar",
+      "howToVerify": "¿Cómo verifico mi cuenta?",
+      "step1": "Abre Discord en tu computadora o celular",
+      "step2": "Ve a Configuración → Mi Cuenta",
+      "step3": "Busca el mensaje de Verificar Email",
+      "step4": "Revisa tu bandeja de entrada y haz clic en el enlace",
+      "step5": "Una vez verificado, vuelve aquí e intenta de nuevo",
+      "spamTip": "Tip: Si no encuentras el email, revisa tu carpeta de spam o correo no deseado",
+      "retryWithAccount": "Reintentar con esta cuenta",
+      "cancel": "Cancelar"
+    }
   },
   "socialEngagement": {
     "title": "¡Gana {amount} CGC!",
