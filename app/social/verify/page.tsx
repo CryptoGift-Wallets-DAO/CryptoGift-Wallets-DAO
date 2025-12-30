@@ -542,11 +542,46 @@ function VerifyContent() {
                   <AlertTriangle className="w-10 h-10 text-amber-500" />
                 </div>
                 <h2 className="text-xl font-bold text-amber-600 dark:text-amber-400 mb-2">
-                  Verificación de cuenta requerida
+                  ¡Solo un paso más! 🔐
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Tu cuenta de Discord necesita verificación antes de continuar
+                  Discord necesita que verifiques tu cuenta para proteger tu seguridad
                 </p>
+              </div>
+
+              {/* Explanation Card - Why Discord requires this */}
+              <div className="p-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-700">
+                <p className="text-sm text-indigo-700 dark:text-indigo-300 mb-3">
+                  <strong>¿Por qué Discord pide esto?</strong>
+                </p>
+                <p className="text-sm text-indigo-600 dark:text-indigo-400 leading-relaxed">
+                  Discord bloquea el acceso a apps externas para cuentas sin verificar. Es una medida de seguridad que <strong>te protege</strong> contra el robo de cuentas y el spam. ¡Solo toma 2 minutos verificar!
+                </p>
+              </div>
+
+              {/* Benefits Card - Persuasive but honest */}
+              <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-700">
+                <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-2">
+                  ✨ Beneficios de verificar tu cuenta:
+                </p>
+                <ul className="space-y-1.5 text-sm text-green-600 dark:text-green-400">
+                  <li className="flex items-start gap-2">
+                    <span>🔒</span>
+                    <span><strong>Seguridad:</strong> Protege tu cuenta de accesos no autorizados</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span>🔄</span>
+                    <span><strong>Recuperación:</strong> Podrás recuperar tu cuenta si olvidas la contraseña</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span>🌐</span>
+                    <span><strong>Acceso completo:</strong> Usa Discord en cualquier app y comunidad</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span>💎</span>
+                    <span><strong>Confianza:</strong> Los servidores serios solo aceptan cuentas verificadas</span>
+                  </li>
+                </ul>
               </div>
 
               {/* Instructions Card */}
@@ -555,7 +590,7 @@ function VerifyContent() {
                   <Mail className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-blue-700 dark:text-blue-300 text-sm">
-                      ¿Cómo verifico mi cuenta?
+                      ¿Cómo verifico mi cuenta? (2 minutos)
                     </p>
                   </div>
                 </div>
@@ -570,15 +605,15 @@ function VerifyContent() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold">3.</span>
-                    <span>Busca el mensaje de <strong>&quot;Verificar Email&quot;</strong></span>
+                    <span>Busca <strong>&quot;Verificar Email&quot;</strong> o <strong>&quot;Añadir Teléfono&quot;</strong></span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold">4.</span>
-                    <span>Revisa tu bandeja de entrada y haz clic en el enlace</span>
+                    <span>Sigue las instrucciones (email o SMS)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold">5.</span>
-                    <span>Una vez verificado, vuelve aquí e intenta de nuevo</span>
+                    <span>¡Listo! Vuelve aquí y continúa 🎉</span>
                   </li>
                 </ol>
               </div>
@@ -586,7 +621,7 @@ function VerifyContent() {
               {/* Tip for spam folder */}
               <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700">
                 <p className="text-xs text-amber-700 dark:text-amber-300 text-center">
-                  💡 <strong>Tip:</strong> Si no encuentras el email, revisa tu carpeta de spam o correo no deseado
+                  💡 <strong>Tip:</strong> Si no encuentras el email, revisa tu carpeta de spam. También puedes verificar con tu número de teléfono.
                 </p>
               </div>
 
