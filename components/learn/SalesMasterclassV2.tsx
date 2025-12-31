@@ -650,15 +650,14 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   const account = useActiveAccount();
   
   // State
-  // 🔒 PERSISTENCE: Initialize from saved state if available
-  // This ensures the user returns to exactly where they left off
+  // 🔒 V2 FIX: In V2 flow, there is NO separate intro video
+  // V2 starts directly with the video1 block ("The Gift")
+  // The old intro video (salesMasterclass) was a legacy feature - we skip it in V2
   const [showIntroVideo, setShowIntroVideo] = useState(() => {
-    // If we have saved state and intro is completed, don't show it
-    if (savedEducationState?.introVideoCompleted) {
-      console.log('[SalesMasterclass] 🔒 Restored: introVideoCompleted = true, skipping intro');
-      return false;
-    }
-    return true;
+    // V2 NEVER shows the old intro video - we go directly to the video1 block
+    // The video1 block IS the intro for V2 (The Gift - The first step toward real trust)
+    console.log('[SalesMasterclassV2] 🎬 V2 mode: skipping legacy intro video, starting with video1 block');
+    return false;
   });
   const [currentBlock, setCurrentBlock] = useState(() => {
     // Restore from saved state if available
@@ -1520,13 +1519,18 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
           console.error(`❌ Missing videoConfigKey for video block: ${block.id}`);
           return null;
         }
+        // For first video block (video1), allow going back to Welcome
+        const isFirstBlock = currentBlock === 0;
+        const backHandler = isFirstBlock ? onBackToWelcome : handlePreviousBlock;
+        const canNavigateBack = isFirstBlock ? !!onBackToWelcome : currentBlock > 0;
+
         return <VideoBlock
           videoConfig={videoConfigForBlock}
           blockTitle={block.title}
           blockDescription={block.content?.description}
           onComplete={handleNextBlock}
-          onPrevious={handlePreviousBlock}
-          canGoBack={currentBlock > 0}
+          onPrevious={backHandler}
+          canGoBack={canNavigateBack}
         />;
       }
 
