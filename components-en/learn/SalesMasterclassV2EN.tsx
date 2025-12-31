@@ -371,7 +371,7 @@ const SALES_BLOCKS: SalesBlock[] = [
     content: {
       title: 'The Solution',
       description: 'The technology behind the magic',
-      emphasis: '5 verified contracts • 717+ on-chain transactions • 85.7% claim rate'
+      emphasis: '2M CGC distributed • 6+ contracts on Base Mainnet • 85.7% claim rate'
     },
     triggers: ['logic', 'proof', 'credibility'],
     nextBlock: 'demo'
@@ -471,12 +471,13 @@ const SALES_BLOCKS: SalesBlock[] = [
       urgency: '20% lifetime bonus for the first 100'
     },
     triggers: ['urgency', 'scarcity'],
-    nextBlock: 'social'
+    // NOTE: Social verification is now integrated in CaptureBlock, so we skip directly to success
+    nextBlock: 'success'
   },
 
   // =============================================================================
-  // SOCIAL: Twitter/Discord Verification
-  // Builds community before final success
+  // SOCIAL: DEPRECATED - Twitter/Discord verification now integrated in CaptureBlock
+  // Kept for backwards compatibility with saved user states
   // =============================================================================
   {
     id: 'social',
@@ -3008,24 +3009,26 @@ const CaptureBlock: React.FC<{
         {content.title} 🚀
       </h2>
 
-      {/* Score Display - Glass Crystal Style */}
-      <div className="text-center mb-10">
-        <div className="inline-block glass-crystal px-8 py-5 rounded-2xl shadow-xl">
-          <p className="text-xl md:text-2xl text-gray-800 dark:text-gray-100">
-            Your score: <span className="font-bold bg-gradient-to-r from-amber-500 to-yellow-500 bg-clip-text text-transparent">
-              {questionsScore.correct}/{questionsScore.total}
-            </span> correct answers
-          </p>
-          {/* Show PERFECT only for 8/9 or 9/9 (high scores) */}
-          {questionsScore.total >= 9 && questionsScore.correct >= 8 ? (
-            <p className="text-emerald-600 dark:text-emerald-400 font-bold mt-3">PERFECT! You're an expert 🏆</p>
-          ) : questionsScore.total > 0 && (
-            <p className="text-blue-600 dark:text-blue-400 font-medium mt-3 max-w-lg mx-auto leading-relaxed">
-              Congratulations on making it this far! 🎉 You're just a couple of steps away from becoming an important part of this community.
+      {/* Score Display - Glass Crystal Style - Only show if quiz was completed */}
+      {questionsScore.total > 0 && (
+        <div className="text-center mb-10">
+          <div className="inline-block glass-crystal px-8 py-5 rounded-2xl shadow-xl">
+            <p className="text-xl md:text-2xl text-gray-800 dark:text-gray-100">
+              Your score: <span className="font-bold bg-gradient-to-r from-amber-500 to-yellow-500 bg-clip-text text-transparent">
+                {questionsScore.correct}/{questionsScore.total}
+              </span> correct answers
             </p>
-          )}
+            {/* Show PERFECT only for 8/9 or 9/9 (high scores) */}
+            {questionsScore.correct >= 8 ? (
+              <p className="text-emerald-600 dark:text-emerald-400 font-bold mt-3">PERFECT! You're an expert 🏆</p>
+            ) : (
+              <p className="text-blue-600 dark:text-blue-400 font-medium mt-3 max-w-lg mx-auto leading-relaxed">
+                Congratulations on making it this far! 🎉 You're just a couple of steps away from becoming an important part of this community.
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 max-w-6xl mx-auto pt-4 overflow-visible">
         {content.paths.map((path: any) => (

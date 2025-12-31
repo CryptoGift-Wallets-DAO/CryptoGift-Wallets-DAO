@@ -22,6 +22,7 @@
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Twitter, MessageSquare, CheckCircle, XCircle, Loader2, ExternalLink, RefreshCw, AlertTriangle, Mail, Shield } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type Platform = 'twitter' | 'discord';
 type Step = 'loading' | 'authorize' | 'action' | 'verifying' | 'success' | 'error' | 'discord_verify_needed';
@@ -30,6 +31,7 @@ type Step = 'loading' | 'authorize' | 'action' | 'verifying' | 'success' | 'erro
 type ErrorType = 'generic' | 'discord_verification' | 'access_denied' | 'expired' | 'popup_blocked';
 
 function VerifyContent() {
+  const t = useTranslations('socialVerify');
   const searchParams = useSearchParams();
   const platform = (searchParams.get('platform') as Platform) || 'twitter';
   const walletAddress = searchParams.get('wallet') || ''; // Wallet passed from parent for DB persistence
@@ -159,7 +161,7 @@ function VerifyContent() {
 
         // Check for access_denied (user cancelled or verification required)
         if (oauthError.includes('access_denied')) {
-          setError('Autorización denegada. Puede que necesites verificar tu cuenta de Discord primero.');
+          setError('Authorization denied. You may need to verify your Discord account first.');
           setErrorType('access_denied');
           if (platform === 'discord') {
             setStep('discord_verify_needed');
@@ -384,13 +386,13 @@ function VerifyContent() {
                     <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                     <div className="text-sm">
                       <p className="font-semibold text-amber-700 dark:text-amber-300 mb-2">
-                        ⚠️ Importante antes de continuar
+                        {t('discordWarning.title')}
                       </p>
                       <p className="text-amber-700 dark:text-amber-300 mb-2">
-                        Discord requiere que tu <strong>email esté verificado</strong> para autorizar apps externas.
+                        {t('discordWarning.emailRequired')}
                       </p>
                       <p className="text-amber-600 dark:text-amber-400 text-xs">
-                        Si no has verificado tu email en Discord, te mostrará un error y no podrás continuar. Verifica tu email primero en Discord → Configuración → Mi Cuenta.
+                        {t('discordWarning.instructions')}
                       </p>
                     </div>
                   </div>
@@ -414,7 +416,7 @@ function VerifyContent() {
                     hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600"
                 >
                   <RefreshCw className="w-4 h-4" />
-                  Usar otra cuenta de Discord
+                  {t('discordWarning.useAnotherAccount')}
                 </button>
               )}
 
@@ -498,7 +500,7 @@ function VerifyContent() {
                     className="w-full py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm flex items-center justify-center gap-2"
                   >
                     <RefreshCw className="w-3 h-3" />
-                    ¿Cuenta equivocada? Usar otra cuenta de Discord
+                    {t('discordWarning.wrongAccount')}
                   </button>
                 </div>
               )}
@@ -542,44 +544,44 @@ function VerifyContent() {
                   <AlertTriangle className="w-10 h-10 text-amber-500" />
                 </div>
                 <h2 className="text-xl font-bold text-amber-600 dark:text-amber-400 mb-2">
-                  ¡Solo un paso más! 🔐
+                  {t('discordWarning.verificationRequired')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Discord necesita que verifiques tu cuenta para proteger tu seguridad
+                  {t('discordWarning.verificationNeededDesc')}
                 </p>
               </div>
 
               {/* Explanation Card - Why Discord requires this */}
               <div className="p-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-700">
                 <p className="text-sm text-indigo-700 dark:text-indigo-300 mb-3">
-                  <strong>¿Por qué Discord pide esto?</strong>
+                  <strong>{t('discordWarning.whyDiscordAsks')}</strong>
                 </p>
                 <p className="text-sm text-indigo-600 dark:text-indigo-400 leading-relaxed">
-                  Discord bloquea el acceso a apps externas para cuentas sin verificar. Es una medida de seguridad que <strong>te protege</strong> contra el robo de cuentas y el spam. ¡Solo toma 2 minutos verificar!
+                  {t('discordWarning.whyExplanation')}
                 </p>
               </div>
 
               {/* Benefits Card - Persuasive but honest */}
               <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-700">
                 <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-2">
-                  ✨ Beneficios de verificar tu cuenta:
+                  {t('discordWarning.benefits')}
                 </p>
                 <ul className="space-y-1.5 text-sm text-green-600 dark:text-green-400">
                   <li className="flex items-start gap-2">
                     <span>🔒</span>
-                    <span><strong>Seguridad:</strong> Protege tu cuenta de accesos no autorizados</span>
+                    <span>{t('discordWarning.benefitSecurity')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span>🔄</span>
-                    <span><strong>Recuperación:</strong> Podrás recuperar tu cuenta si olvidas la contraseña</span>
+                    <span>{t('discordWarning.benefitRecovery')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span>🌐</span>
-                    <span><strong>Acceso completo:</strong> Usa Discord en cualquier app y comunidad</span>
+                    <span>{t('discordWarning.benefitFullAccess')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span>💎</span>
-                    <span><strong>Confianza:</strong> Los servidores serios solo aceptan cuentas verificadas</span>
+                    <span>{t('discordWarning.benefitTrust')}</span>
                   </li>
                 </ul>
               </div>
@@ -590,30 +592,30 @@ function VerifyContent() {
                   <Mail className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-blue-700 dark:text-blue-300 text-sm">
-                      ¿Cómo verifico mi cuenta? (2 minutos)
+                      {t('discordWarning.howToVerify')}
                     </p>
                   </div>
                 </div>
                 <ol className="space-y-2 text-sm text-blue-700 dark:text-blue-300 ml-8">
                   <li className="flex items-start gap-2">
                     <span className="font-bold">1.</span>
-                    <span>Abre Discord en tu computadora o celular</span>
+                    <span>{t('discordWarning.step1')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold">2.</span>
-                    <span>Ve a <strong>Configuración → Mi Cuenta</strong></span>
+                    <span>{t('discordWarning.step2')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold">3.</span>
-                    <span>Busca <strong>&quot;Verificar Email&quot;</strong> o <strong>&quot;Añadir Teléfono&quot;</strong></span>
+                    <span>{t('discordWarning.step3')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold">4.</span>
-                    <span>Sigue las instrucciones (email o SMS)</span>
+                    <span>{t('discordWarning.step4')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold">5.</span>
-                    <span>¡Listo! Vuelve aquí y continúa 🎉</span>
+                    <span>{t('discordWarning.step5')}</span>
                   </li>
                 </ol>
               </div>
@@ -621,7 +623,7 @@ function VerifyContent() {
               {/* Tip for spam folder */}
               <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700">
                 <p className="text-xs text-amber-700 dark:text-amber-300 text-center">
-                  💡 <strong>Tip:</strong> Si no encuentras el email, revisa tu carpeta de spam. También puedes verificar con tu número de teléfono.
+                  💡 {t('discordWarning.spamTip')}
                 </p>
               </div>
 
@@ -634,7 +636,7 @@ function VerifyContent() {
                     hover:from-indigo-600 hover:to-purple-600 transition-all flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
-                  Reintentar con esta cuenta
+                  {t('discordWarning.retryWithAccount')}
                 </button>
 
                 {/* Use Different Account Button */}
@@ -644,7 +646,7 @@ function VerifyContent() {
                     hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600"
                 >
                   <Shield className="w-4 h-4" />
-                  Usar otra cuenta de Discord
+                  {t('discordWarning.useAnotherAccount')}
                 </button>
 
                 {/* Cancel Button */}
@@ -652,7 +654,7 @@ function VerifyContent() {
                   onClick={handleCancel}
                   className="w-full py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-sm"
                 >
-                  Cancelar
+                  Cancel
                 </button>
               </div>
             </div>
@@ -682,7 +684,7 @@ function VerifyContent() {
                   onClick={clearOAuthAndReset}
                   className="block w-full px-6 py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-sm transition-all"
                 >
-                  Usar otra cuenta
+                  {t('discordWarning.useAnotherAccount')}
                 </button>
               </div>
             </div>
