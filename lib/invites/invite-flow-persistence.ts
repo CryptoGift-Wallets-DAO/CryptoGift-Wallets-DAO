@@ -747,6 +747,10 @@ export function isFlowComplete(progress: InviteFlowProgress | null): boolean {
  * CRITICAL FIX (Dec 2025): Previously, refreshing on Welcome would auto-advance
  * to education because !hasPassword was true. Now we respect the saved currentStep
  * and only advance if user has explicitly moved past welcome.
+ *
+ * CRITICAL FIX #2 (Dec 31, 2025): When education is NOT completed, ALWAYS show
+ * Welcome first so user can see the referrer's personalized message.
+ * The customMessage from the referrer is displayed in InviteImageCard on Welcome.
  */
 export function getResumeStep(
   progress: InviteFlowProgress,
@@ -767,25 +771,11 @@ export function getResumeStep(
     return 'connect';
   }
 
-  // CRITICAL FIX: If user is still on welcome, stay on welcome
-  // Don't auto-advance just because there's no password
-  if (progress.currentStep === 'welcome') {
-    return 'welcome';
-  }
-
-  // If password was validated (or not needed), go to education
-  // Note: We already returned on 'welcome' above, so user has moved past welcome here
-  if (progress.passwordValidated || !hasPassword) {
-    return 'education';
-  }
-
-  // User has moved past welcome but needs password validation
-  if (hasPassword) {
-    return 'password';
-  }
-
-  // Default to saved step or welcome
-  return progress.currentStep;
+  // CRITICAL FIX #2: If education is NOT completed, ALWAYS show Welcome first
+  // This ensures the user ALWAYS sees the referrer's personalized message
+  // The customMessage is displayed in InviteImageCard which only shows on Welcome step
+  // Without this fix, returning users who left mid-education would skip Welcome
+  return 'welcome';
 }
 
 /**
