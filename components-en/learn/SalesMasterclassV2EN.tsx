@@ -650,8 +650,17 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
   const [currentBlock, setCurrentBlock] = useState(() => {
     // Restore from saved state if available
     if (savedEducationState?.currentBlockIndex !== undefined) {
-      console.log('[SalesMasterclass] 🔒 Restored: currentBlockIndex =', savedEducationState.currentBlockIndex);
-      return savedEducationState.currentBlockIndex;
+      const savedIndex = savedEducationState.currentBlockIndex;
+      // CRITICAL FIX: Bounds validation - V2 has fewer blocks than legacy (8 vs 11)
+      // If user had legacy progress, their saved index may be out of bounds for V2
+      if (savedIndex >= 0 && savedIndex < SALES_BLOCKS.length) {
+        console.log('[SalesMasterclassV2EN] 🔒 Restored: currentBlockIndex =', savedIndex);
+        return savedIndex;
+      } else {
+        console.warn('[SalesMasterclassV2EN] ⚠️ Invalid saved index:', savedIndex,
+          '(max:', SALES_BLOCKS.length - 1, ') - resetting to 0 (legacy→V2 migration)');
+        return 0;
+      }
     }
     return 0;
   });

@@ -109,99 +109,90 @@ SELECT
 FROM user_profiles
 WHERE COALESCE(is_active, true) = true AND is_public = true;
 
--- Fix 4: referral_leaderboard
+-- Fix 4: referral_leaderboard (using pre-calculated values from referral_codes)
 DROP VIEW IF EXISTS public.referral_leaderboard;
 CREATE VIEW public.referral_leaderboard
 WITH (security_invoker = true)
 AS
 SELECT
   rc.wallet_address,
-  rc.referral_code,
+  rc.code as referral_code,
+  rc.total_referrals,
+  rc.total_earnings,
+  rc.click_count,
+  rc.conversion_rate,
   p.display_name,
   p.avatar_url,
-  COUNT(DISTINCT r.referred_wallet) as total_referrals,
-  COALESCE(SUM(rr.amount), 0) as total_earnings,
-  rc.tier,
-  RANK() OVER (ORDER BY COUNT(DISTINCT r.referred_wallet) DESC) as rank
+  RANK() OVER (ORDER BY rc.total_earnings DESC) as earnings_rank,
+  RANK() OVER (ORDER BY rc.total_referrals DESC) as referrals_rank
 FROM referral_codes rc
-LEFT JOIN referrals r ON rc.wallet_address = r.referrer_wallet
-LEFT JOIN referral_rewards rr ON rc.wallet_address = rr.wallet_address
 LEFT JOIN user_profiles p ON rc.wallet_address = p.wallet_address
-GROUP BY rc.wallet_address, rc.referral_code, rc.tier, p.display_name, p.avatar_url
-ORDER BY total_referrals DESC;
+WHERE rc.is_active = true
+ORDER BY rc.total_earnings DESC;
 
--- Fix 5: referral_network
+-- Fix 5: referral_network (using referrals table columns)
 DROP VIEW IF EXISTS public.referral_network;
 CREATE VIEW public.referral_network
 WITH (security_invoker = true)
 AS
 SELECT
-  r.referrer_wallet,
-  r.referred_wallet,
+  r.referrer_address,
+  r.referred_address,
+  r.referral_code,
   r.level,
   r.status,
+  r.tasks_completed,
+  r.cgc_earned,
+  r.referrer_earnings,
+  r.source,
+  r.joined_at,
+  r.last_activity,
   r.created_at,
   p.display_name as referred_display_name,
   p.avatar_url as referred_avatar
 FROM referrals r
-LEFT JOIN user_profiles p ON r.referred_wallet = p.wallet_address
-WHERE r.status = 'active';
+LEFT JOIN user_profiles p ON r.referred_address = p.wallet_address
+WHERE r.status != 'banned'
+ORDER BY r.joined_at DESC;
 
--- Fix 6: active_tasks_with_assignees
+-- Fix 6: active_tasks_with_assignees (using actual tasks table columns)
 DROP VIEW IF EXISTS public.active_tasks_with_assignees;
 CREATE VIEW public.active_tasks_with_assignees
 WITH (security_invoker = true)
 AS
 SELECT
   t.id,
+  t.task_id,
   t.title,
   t.description,
   t.category,
-  t.difficulty,
-  t.cgc_reward,
-  t.xp_reward,
+  t.complexity,
+  t.reward_cgc,
+  t.estimated_days,
+  t.priority,
   t.status,
-  t.assignee_wallet,
-  t.estimated_hours,
-  t.due_date,
+  t.assignee_address,
+  t.assignee_discord_id,
+  t.claimed_at,
   t.created_at,
+  t.domain,
+  t.task_type,
+  t.is_featured,
+  t.is_urgent,
   p.display_name as assignee_name,
   p.avatar_url as assignee_avatar
 FROM tasks t
-LEFT JOIN user_profiles p ON t.assignee_wallet = p.wallet_address
+LEFT JOIN user_profiles p ON t.assignee_address = p.wallet_address
 WHERE t.status IN ('available', 'claimed', 'in_progress')
 ORDER BY t.created_at DESC;
 
--- Fix 7: v_proposals_with_stats
-DROP VIEW IF EXISTS public.v_proposals_with_stats;
-CREATE VIEW public.v_proposals_with_stats
-WITH (security_invoker = true)
-AS
-SELECT
-  p.id,
-  p.title,
-  p.description,
-  p.proposal_type,
-  p.status,
-  p.creator_wallet,
-  p.start_date,
-  p.end_date,
-  p.created_at,
-  p.aragon_proposal_id,
-  p.votes_for,
-  p.votes_against,
-  p.votes_abstain,
-  p.total_voting_power,
-  pr.display_name as creator_name,
-  pr.avatar_url as creator_avatar,
-  COALESCE(pr.role, 'member') as creator_role,
-  CASE
-    WHEN p.end_date < NOW() THEN 'ended'
-    WHEN p.start_date > NOW() THEN 'pending'
-    ELSE 'active'
-  END as time_status
-FROM proposals p
-LEFT JOIN user_profiles pr ON p.creator_wallet = pr.wallet_address;
+-- =============================================================================
+-- NOTE: v_proposals_with_stats REMOVED
+-- The 'proposals' table does not exist in the database schema.
+-- Only 'task_proposals' exists with a different structure.
+-- If governance proposals view is needed later, it should be created
+-- when the proposals table is actually added to the schema.
+-- =============================================================================
 
 -- =============================================================================
 -- VERIFICATION
@@ -211,7 +202,8 @@ DO $$
 BEGIN
   RAISE NOTICE '✅ Added role, level, xp, is_active columns to user_profiles';
   RAISE NOTICE '✅ Created indexes for new columns';
-  RAISE NOTICE '✅ Fixed 7 views to use user_profiles table';
+  RAISE NOTICE '✅ Fixed 6 views to use user_profiles table';
+  RAISE NOTICE '⚠️ v_proposals_with_stats SKIPPED - proposals table does not exist';
 END $$;
 
-SELECT 'Migration completed: columns added + views fixed' as status;
+SELECT 'Migration completed: columns added + 6 views fixed' as status;
