@@ -362,7 +362,7 @@ const SALES_BLOCKS: SalesBlock[] = [
     title: '¿Resuena Contigo?',
     duration: 15,
     type: 'checkpoint',
-    checkpointQuestion: '¿Alguna vez quisiste compartir el futuro de Web3 con alguien que amas?',
+    checkpointQuestion: '¿Alguna vez quisiste compartir el futuro de Web3 con alguien que aprecias?',
     content: {
       title: '¿Resuena Contigo?',
       description: 'Un momento para reflexionar antes de continuar',
@@ -450,7 +450,7 @@ const SALES_BLOCKS: SalesBlock[] = [
           nameEs: 'Comunidad',
           description: 'Embajador de la adopción',
           spots: 'Ilimitado',
-          benefit: 'NFT exclusivo + Discord',
+          benefit: 'Tokens CGC + Poder de voto real',
           icon: '🌟',
           popular: true
         },

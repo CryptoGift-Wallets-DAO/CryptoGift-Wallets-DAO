@@ -1830,7 +1830,7 @@
     "welcome": {
       "title": "You've Been Chosen for Something Exclusive",
       "subtitle": "Someone who knows you believes you're ready for Web3",
-      "rewardInfo": "✨ Complete in 5 minutes → Receive 200 CGC (~$2 value) → Unlock governance power + access to paid tasks starting at 50 CGC each.",
+      "rewardInfo": "✨ Complete in 5 minutes → Receive 200 CGC → Unlock governance power + access to paid tasks starting at 200 CGC each.",
       "trustSecure": "100% Secure",
       "trustMembers": "Founding Members Only",
       "trustVerified": "Blockchain verified",
@@ -1916,8 +1916,8 @@
     "card": {
       "name": "Special Invite DAO",
       "tokensTitle": "200 CGC Instant",
-      "tokensDesc": "Start with ~$2 in governance tokens. 1 CGC = 1 Vote in real decisions.",
-      "tasksTitle": "Earn 50-500 CGC",
+      "tokensDesc": "Start with governance tokens. 1 CGC = 1 Vote in real decisions.",
+      "tasksTitle": "Earn 200-3000 CGC",
       "tasksDesc": "Complete tasks, get paid in tokens. No boss, no permissions needed.",
       "communityTitle": "Founding Members Only",
       "communityDesc": "Join the first 10,000 pioneers building the future of Web3 adoption."
@@ -1925,8 +1925,8 @@
     "helpSection": {
       "title": "This Spot Won't Wait Forever",
       "whyTitle": "What You Get Today:",
-      "decentralized": "200 CGC (~$2) deposited instantly to your wallet",
-      "transparent": "Access to 47+ paid tasks (50-500 CGC each)",
+      "decentralized": "200 CGC deposited instantly to your wallet",
+      "transparent": "Access to 47+ paid tasks (200-3000 CGC each)",
       "community": "Voting power in a real DAO with on-chain governance",
       "rewarded": "3-level referral system: invite friends, earn 10-20% per referral"
     }

@@ -348,7 +348,7 @@ const SALES_BLOCKS: SalesBlock[] = [
     title: 'Does This Resonate?',
     duration: 15,
     type: 'checkpoint',
-    checkpointQuestion: 'Have you ever wanted to share the future of Web3 with someone you love?',
+    checkpointQuestion: 'Have you ever wanted to share the future of Web3 with someone you care about?',
     content: {
       title: 'Does This Resonate?',
       description: 'A moment to reflect before continuing',
@@ -435,7 +435,7 @@ const SALES_BLOCKS: SalesBlock[] = [
           name: 'Community',
           description: 'Adoption ambassador',
           spots: 'Unlimited',
-          benefit: 'Exclusive NFT + Discord',
+          benefit: 'CGC Tokens + Real voting power',
           icon: '🌟',
           popular: true
         },
