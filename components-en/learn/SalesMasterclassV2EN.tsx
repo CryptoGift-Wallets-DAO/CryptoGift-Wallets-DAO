@@ -641,12 +641,10 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
   // 🔒 PERSISTENCE: Initialize from saved state if available
   // This ensures the user returns to exactly where they left off
   const [showIntroVideo, setShowIntroVideo] = useState(() => {
-    // If we have saved state and intro is completed, don't show it
-    if (savedEducationState?.introVideoCompleted) {
-      console.log('[SalesMasterclass] 🔒 Restored: introVideoCompleted = true, skipping intro');
-      return false;
-    }
-    return true;
+    // V2 NEVER shows the old intro video - we go directly to the video1 block
+    // The video1 block IS the intro for V2 (The Gift - The first step toward real trust)
+    console.log('[SalesMasterclassV2EN] 🎬 V2 mode: skipping legacy intro video, starting with video1 block');
+    return false;
   });
   const [currentBlock, setCurrentBlock] = useState(() => {
     // Restore from saved state if available
@@ -1464,19 +1462,24 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
       // =============================================================================
 
       case 'video': {
-        // Use block scope to prevent lexical declaration issues
+        // V2: Video block using IntroVideoGate
         const videoConfigForBlock = block.videoConfigKey ? VIDEO_CONFIG[block.videoConfigKey] : null;
         if (!videoConfigForBlock) {
           console.error(`❌ Missing videoConfigKey for video block: ${block.id}`);
           return null;
         }
+        // For first video block (video1), allow going back to Welcome
+        const isFirstBlock = currentBlock === 0;
+        const backHandler = isFirstBlock ? onBackToWelcome : handlePreviousBlock;
+        const canNavigateBack = isFirstBlock ? !!onBackToWelcome : currentBlock > 0;
+
         return <VideoBlock
           videoConfig={videoConfigForBlock}
           blockTitle={block.title}
           blockDescription={block.content?.description}
           onComplete={handleNextBlock}
-          onPrevious={handlePreviousBlock}
-          canGoBack={currentBlock > 0}
+          onPrevious={backHandler}
+          canGoBack={canNavigateBack}
         />;
       }
 
