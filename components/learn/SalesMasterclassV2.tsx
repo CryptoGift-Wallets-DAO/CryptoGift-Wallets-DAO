@@ -3781,6 +3781,20 @@ const CheckpointBlock: React.FC<{
           )}
         </motion.div>
 
+        {/* Back Button - Always visible when canGoBack */}
+        {canGoBack && onPrevious && (
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            onClick={onPrevious}
+            className="mt-8 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-2 mx-auto"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Atrás
+          </motion.button>
+        )}
+
         {/* Trust Indicator */}
         <motion.p
           initial={{ opacity: 0 }}

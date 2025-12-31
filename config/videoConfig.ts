@@ -29,11 +29,12 @@ export const VIDEO_CONFIG: Record<string, VideoConfig> = {
     description: "Descubre cómo regalar activos digitales de valor real con CryptoGift\n\nTiempo estimado: 10 minutos",
   },
 
-  // Presentation CGC - Final video after EIP-712 and before claim (Spanish)
+  // Presentation CGC - Gallery video after role selection (Spanish)
+  // Updated: 2025-01-01 - New gallery video
   presentationCGC: {
-    lessonId: "presentation-cgc-es-v2",
-    muxPlaybackId: "PBqn7kacf00PoAczsHLk02TyU01OAx4VdUNYJaYdbbasQw",
-    title: "Presentación CryptoGift Club",
+    lessonId: "presentation-cgc-es-v3",
+    muxPlaybackId: "lsT00V7M302d9EIrKr9vUaVTnxvee3q15yF1OUKZYFpMc",
+    title: "CryptoGift DAO Gallery",
     description: "Descubre las oportunidades exclusivas que te esperan como miembro del CryptoGift Club",
   },
 
@@ -73,30 +74,30 @@ export const VIDEO_CONFIG: Record<string, VideoConfig> = {
 
   // Video 1: THE GIFT (TOFU - Top of Funnel) - ~1:05
   // Psychology: Emotion + Desire
-  // Script: FROM "How many times we wanted to share..." TO "...the first step toward real trust."
+  // Updated: 2025-01-01 - CryptoGift DAO 1
   salesMasterclassV2_TheGift: {
-    lessonId: "sales-masterclass-v2-gift-es-v1",
-    muxPlaybackId: "PENDING_MUX_ID_GIFT",
+    lessonId: "sales-masterclass-v2-gift-v2",
+    muxPlaybackId: "2pXJpOHR016nushIeTDxdTSmayS2SEY4a0093PRpLKXCE",
     title: "El Regalo",
     description: "El primer paso hacia la confianza real.\n\n¿Cuántas veces quisiste compartir el futuro de Web3 con alguien que amas?",
   },
 
   // Video 2: THE SOLUTION (MOFU - Middle of Funnel) - ~2:15
   // Psychology: Logic + Proof
-  // Script: FROM "But let's be real for a second..." TO "...this is where things get really exciting"
+  // Updated: 2025-01-01 - CryptoGift DAO 2
   salesMasterclassV2_TheSolution: {
-    lessonId: "sales-masterclass-v2-solution-es-v1",
-    muxPlaybackId: "PENDING_MUX_ID_SOLUTION",
+    lessonId: "sales-masterclass-v2-solution-v2",
+    muxPlaybackId: "PbwZJ8q01JCT2N5IR164IptnK6wKU8XrznL4qt0102BVZw",
     title: "La Solución",
     description: "La tecnología detrás de la magia.\n\n5 contratos verificados. 717+ transacciones on-chain. 85.7% claim rate.",
   },
 
   // Video 3: THE OPPORTUNITY (BOFU - Bottom of Funnel) - ~3:00
   // Psychology: Trust + Action
-  // Script: FROM "The system isn't just for one on one gifting..." TO "...a little piece of the future."
+  // Updated: 2025-01-01 - CryptoGift DAO 3
   salesMasterclassV2_TheOpportunity: {
-    lessonId: "sales-masterclass-v2-opportunity-es-v1",
-    muxPlaybackId: "PENDING_MUX_ID_OPPORTUNITY",
+    lessonId: "sales-masterclass-v2-opportunity-v2",
+    muxPlaybackId: "ADwm9SB5dg1Hb7CQSFwd6Do3d5vufXv4sEZU201z7Hdo",
     title: "La Oportunidad",
     description: "Tu invitación al futuro.\n\nEstamos temprano. La infraestructura está lista. La comunidad se está formando.",
   },
