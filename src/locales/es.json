@@ -2235,5 +2235,31 @@
     "discord": {
       "badge": "Discord"
     }
+  },
+  "socialVerify": {
+    "discordWarning": {
+      "title": "Importante: Verificación de Discord Requerida",
+      "emailRequired": "Discord requiere que tu cuenta tenga un email verificado antes de autorizar aplicaciones de terceros.",
+      "instructions": "Si no has verificado tu email, debes hacerlo en Configuración de Discord → Mi Cuenta → Email.",
+      "useAnotherAccount": "Usar Otra Cuenta",
+      "wrongAccount": "¿Cuenta incorrecta? Usa otra",
+      "verificationRequired": "Verificación de Discord Requerida",
+      "verificationNeededDesc": "Tu cuenta de Discord necesita verificación de email antes de poder autorizar aplicaciones.",
+      "whyDiscordAsks": "¿Por qué Discord requiere esto?",
+      "whyExplanation": "Discord requiere verificación de email para proteger a los usuarios y prevenir spam. Esta es una política de seguridad de Discord, no nuestra.",
+      "benefits": "Beneficios de verificar:",
+      "benefitSecurity": "Tu cuenta está más segura",
+      "benefitRecovery": "Puedes recuperar tu cuenta si es necesario",
+      "benefitFullAccess": "Acceso completo a todas las funciones de Discord",
+      "benefitTrust": "Acceso a comunidades exclusivas como la nuestra",
+      "howToVerify": "Cómo verificar tu email:",
+      "step1": "Abre Discord (app o discord.com)",
+      "step2": "Ve a Configuración (icono de engranaje)",
+      "step3": "Haz clic en \"Mi Cuenta\"",
+      "step4": "En Email, haz clic en \"Verificar\" o añade tu email",
+      "step5": "Revisa tu bandeja de entrada y haz clic en el enlace de verificación",
+      "spamTip": "¡Revisa tu carpeta de spam si no ves el email!",
+      "retryWithAccount": "Ya Verifiqué - Intentar de Nuevo"
+    }
   }
 }

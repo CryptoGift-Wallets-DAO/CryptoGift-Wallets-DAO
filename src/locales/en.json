@@ -2235,5 +2235,31 @@
     "discord": {
       "badge": "Discord"
     }
+  },
+  "socialVerify": {
+    "discordWarning": {
+      "title": "Important: Discord Verification Required",
+      "emailRequired": "Discord requires your account to have a verified email before authorizing third-party apps.",
+      "instructions": "If you haven't verified your email, you'll need to do so in Discord Settings → My Account → Email.",
+      "useAnotherAccount": "Use a Different Account",
+      "wrongAccount": "Wrong account? Use a different one",
+      "verificationRequired": "Discord Verification Required",
+      "verificationNeededDesc": "Your Discord account needs email verification before you can authorize apps.",
+      "whyDiscordAsks": "Why does Discord require this?",
+      "whyExplanation": "Discord requires email verification to protect users and prevent spam. This is a Discord security policy, not ours.",
+      "benefits": "Benefits of verifying:",
+      "benefitSecurity": "Your account is more secure",
+      "benefitRecovery": "You can recover your account if needed",
+      "benefitFullAccess": "Full access to all Discord features",
+      "benefitTrust": "Access to exclusive communities like ours",
+      "howToVerify": "How to verify your email:",
+      "step1": "Open Discord (app or discord.com)",
+      "step2": "Go to Settings (gear icon)",
+      "step3": "Click on \"My Account\"",
+      "step4": "Under Email, click \"Verify\" or add your email",
+      "step5": "Check your inbox and click the verification link",
+      "spamTip": "Check your spam/junk folder if you don't see the email!",
+      "retryWithAccount": "I've Verified - Try Again"
+    }
   }
 }

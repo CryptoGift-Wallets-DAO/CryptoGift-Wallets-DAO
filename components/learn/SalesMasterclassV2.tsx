@@ -401,14 +401,14 @@ const SALES_BLOCKS: SalesBlock[] = [
     duration: 60,
     type: 'demo',
     content: {
-      instruction: '¡Escanea y Reclama tu NFT-Wallet!',
+      instruction: 'Así de simple es para tu amigo:',
       steps: [
-        '1️⃣ Escanea el código QR',
-        '2️⃣ Conecta tu wallet (o crea una)',
-        '3️⃣ Reclama tu regalo',
-        '4️⃣ ¡Listo! Ya tienes fondos'
+        '1️⃣ Escanea el QR o abre el link',
+        '2️⃣ Entiende los fundamentos crypto',
+        '3️⃣ Reclama el NFT — ES su wallet',
+        '4️⃣ Listo: de novato a holder'
       ],
-      emphasis: 'Gas = $0 • Fricción = 0 • Emoción = 100%'
+      emphasis: 'Sin seed phrases • Sin gas • Sin confusión'
     },
     triggers: ['live_demo', 'endowment_effect'],
     nextBlock: 'video3'

@@ -387,14 +387,14 @@ const SALES_BLOCKS: SalesBlock[] = [
     duration: 60,
     type: 'demo',
     content: {
-      instruction: 'Scan and Claim your NFT-Wallet!',
+      instruction: 'This is how simple it is for your friend:',
       steps: [
-        '1️⃣ Scan the QR code',
-        '2️⃣ Connect your wallet (or create one)',
-        '3️⃣ Claim your gift',
-        '4️⃣ Done! You have funds'
+        '1️⃣ Scan the QR or open the link',
+        '2️⃣ Learn the crypto fundamentals',
+        '3️⃣ Claim the NFT — IT IS their wallet',
+        '4️⃣ Done: from newbie to holder'
       ],
-      emphasis: 'Gas = $0 • Friction = 0 • Emotion = 100%'
+      emphasis: 'No seed phrases • No gas • No confusion'
     },
     triggers: ['live_demo', 'endowment_effect'],
     nextBlock: 'video3'
