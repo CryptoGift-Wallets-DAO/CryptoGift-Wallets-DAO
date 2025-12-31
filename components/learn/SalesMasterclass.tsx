@@ -776,17 +776,29 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
     return true;
   });
   const [currentBlock, setCurrentBlock] = useState(() => {
-    // Restore from saved state if available
+    // Restore from saved state if available, with bounds validation
     if (savedEducationState?.currentBlockIndex !== undefined) {
-      console.log('[SalesMasterclass] 🔒 Restored: currentBlockIndex =', savedEducationState.currentBlockIndex);
-      return savedEducationState.currentBlockIndex;
+      const savedIndex = savedEducationState.currentBlockIndex;
+      // Validate index is within bounds (0 to SALES_BLOCKS.length - 1)
+      if (savedIndex >= 0 && savedIndex < SALES_BLOCKS.length) {
+        console.log('[SalesMasterclass] 🔒 Restored: currentBlockIndex =', savedIndex);
+        return savedIndex;
+      } else {
+        console.warn('[SalesMasterclass] ⚠️ Invalid saved index:', savedIndex, 'max:', SALES_BLOCKS.length - 1, '- resetting to 0');
+        return 0;
+      }
     }
     return 0;
   });
   const [timeLeft, setTimeLeft] = useState(() => {
-    // Use saved block's duration if restoring
+    // Use saved block's duration if restoring, with bounds validation
     if (savedEducationState?.currentBlockIndex !== undefined) {
-      return SALES_BLOCKS[savedEducationState.currentBlockIndex]?.duration || SALES_BLOCKS[0].duration;
+      const savedIndex = savedEducationState.currentBlockIndex;
+      // Validate index is within bounds before accessing array
+      if (savedIndex >= 0 && savedIndex < SALES_BLOCKS.length) {
+        return SALES_BLOCKS[savedIndex].duration;
+      }
+      return SALES_BLOCKS[0].duration;
     }
     return SALES_BLOCKS[0].duration;
   });
@@ -3752,11 +3764,10 @@ const SuccessBlock: React.FC<{
                 transition={{ delay: 2.0 }}
                 className="text-center bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-2xl p-6 border border-emerald-500/20"
               >
-                <img 
-                  src="/Godez22.png" 
-                  alt="Godez22 Developer" 
-                  className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-emerald-500/50 shadow-lg"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                <img
+                  src="/team/rafael-gonzalez.jpg"
+                  alt="Godez22 Developer"
+                  className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-emerald-500/50 shadow-lg object-cover"
                 />
                 <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">💎 Godez22</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Desarrollador pionero que dio vida a este maravilloso sistema</p>
@@ -3769,11 +3780,10 @@ const SuccessBlock: React.FC<{
                 transition={{ delay: 2.2 }}
                 className="text-center bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-2xl p-6 border border-orange-500/20"
               >
-                <img 
-                  src="/RLGra95.PNG" 
-                  alt="RLGra95 Developer" 
-                  className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-orange-500/50 shadow-lg"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                <img
+                  src="/team/roberto-legra.jpg"
+                  alt="RLGra95 Developer"
+                  className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-orange-500/50 shadow-lg object-cover"
                 />
                 <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">🚀 RLGra95</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Co-fundador visionario en los primeros pasos del proyecto</p>
@@ -3791,11 +3801,10 @@ const SuccessBlock: React.FC<{
             {/* CG Wallet Utilities */}
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
               <div className="flex items-center gap-4 mb-4">
-                <img 
-                  src="/cg-wallet-logo.png" 
-                  alt="CG Wallet" 
+                <img
+                  src="/cgc-logo-200x200.png"
+                  alt="CG Wallet"
                   className="w-12 h-12 rounded-xl shadow-md"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">CG Wallet</h3>
               </div>
@@ -3812,21 +3821,19 @@ const SuccessBlock: React.FC<{
             {/* Art & Personalization */}
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
               <div className="flex items-center gap-4 mb-4">
-                <img 
-                  src="/Arte-IA-Personalizado.png" 
-                  alt="Arte Personalizado" 
+                <img
+                  src="/apeX-avatar.png"
+                  alt="Arte Personalizado IA"
                   className="w-12 h-12 rounded-xl shadow-md"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 dark:from-pink-400 dark:to-purple-400 bg-clip-text text-transparent">Arte IA</h3>
               </div>
               <p className="text-gray-700 dark:text-gray-300 mb-3">Crear valor a través del arte personalizado:</p>
               <div className="flex items-center gap-3 mb-2">
-                <img 
-                  src="/wallet-regalo.png" 
-                  alt="Wallet Regalo" 
+                <img
+                  src="/cgc-icon.png"
+                  alt="Wallet Regalo"
                   className="w-8 h-8 rounded-lg shadow-sm"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
                 <p className="text-sm text-gray-600 dark:text-gray-400">Una imagen dice más que mil palabras - la integración de la wallet le da la posibilidad de ser portador de vida</p>
               </div>
@@ -3841,11 +3848,10 @@ const SuccessBlock: React.FC<{
             className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 dark:from-purple-500/10 dark:to-blue-500/10 border border-purple-500/30 rounded-3xl p-8 shadow-2xl max-w-4xl mx-auto"
           >
             <div className="text-center mb-6">
-              <img 
-                src="/knowledge-logo.png" 
-                alt="Knowledge Center" 
+              <img
+                src="/cgc-logo-200x200.png"
+                alt="Knowledge Center"
                 className="w-16 h-16 mx-auto mb-4 rounded-2xl shadow-lg"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
               <h3 className="text-3xl font-black mb-4 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
                 🧠 Knowledge: Centro Neurálgico del Futuro
