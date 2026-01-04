@@ -17,6 +17,7 @@ import { useState, useRef, useCallback } from 'react';
 import { useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { ChevronLeft, ChevronRight, Play, Maximize2 } from 'lucide-react';
+import { VideoExperienceHint } from '@/components/ui/RotatePhoneHint';
 
 // Lazy load MUX Player
 const MuxPlayer = dynamic(
@@ -277,6 +278,11 @@ export function VideoCarousel() {
 
       <div className="absolute bottom-28 -right-36 lg:-right-52 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.8s ease-in-out infinite 1.8s' }}>
         <span className="font-medium text-sky-600 dark:text-sky-400">Base L2</span>
+      </div>
+
+      {/* Video experience hint - Below video */}
+      <div className="mt-4">
+        <VideoExperienceHint />
       </div>
 
       {/* Floating elements - LEFT SIDE (moved much further left) */}

@@ -1,4 +1,11 @@
 {
+  "video": {
+    "fullscreenHint": "Mejor experiencia",
+    "rotateHint": "Activa pantalla completa y gira tu teléfono para disfrutar mejor el video",
+    "rotateHintShort": "Gira tu teléfono para mejor experiencia",
+    "expandHint": "Doble clic para pantalla completa",
+    "expandHintShort": "Doble clic para ampliar el video"
+  },
   "landing": {
     "hero": {
       "badge1": "Donde cada regalo se vuelve capital",

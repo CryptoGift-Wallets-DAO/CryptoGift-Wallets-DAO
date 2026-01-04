@@ -264,4 +264,133 @@ export function RotatePhoneHintCompact({
   );
 }
 
+/**
+ * Desktop version - Floating hint to expand video
+ * Shows animated cursor with double-click indication
+ */
+export function ExpandVideoHintDesktop({
+  className = '',
+  locale
+}: Pick<RotatePhoneHintProps, 'className' | 'locale'>) {
+  const t = useTranslations('video');
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 768);
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
+
+  if (!isDesktop) return null;
+
+  const getText = (key: string, fallbackEs: string, fallbackEn: string) => {
+    try {
+      return t(key);
+    } catch {
+      return locale === 'en' ? fallbackEn : fallbackEs;
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 1.5, duration: 0.6 }}
+      className={`flex items-center justify-center gap-3 py-3 ${className}`}
+      style={{ animation: 'float 4s ease-in-out infinite' }}
+    >
+      {/* Animated Mouse with Double-Click */}
+      <div className="relative flex items-center gap-2">
+        {/* Mouse Icon */}
+        <div className="relative">
+          <motion.div
+            className="w-6 h-9 rounded-full border-2 border-purple-400 dark:border-purple-500 relative"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            {/* Scroll wheel / click indicator */}
+            <motion.div
+              className="absolute top-1.5 left-1/2 -translate-x-1/2 w-1 h-2 bg-purple-400 dark:bg-purple-500 rounded-full"
+              animate={{
+                opacity: [1, 0.3, 1, 0.3, 1],
+                scale: [1, 0.8, 1, 0.8, 1]
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                times: [0, 0.2, 0.4, 0.6, 1]
+              }}
+            />
+          </motion.div>
+
+          {/* Click ripple effect */}
+          <motion.div
+            className="absolute -inset-2 rounded-full border border-cyan-400/50"
+            animate={{
+              scale: [1, 1.5, 1],
+              opacity: [0.5, 0, 0.5]
+            }}
+            transition={{
+              duration: 1.2,
+              repeat: Infinity,
+              times: [0, 0.5, 1]
+            }}
+          />
+        </div>
+
+        {/* Double-click text indicator */}
+        <motion.div
+          className="flex items-center gap-1"
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <span className="text-xs font-medium text-purple-500 dark:text-purple-400">2×</span>
+        </motion.div>
+
+        {/* Expand icon */}
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 5, 0, -5, 0]
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: 'easeInOut'
+          }}
+        >
+          <Maximize2 className="w-5 h-5 text-cyan-500 dark:text-cyan-400" />
+        </motion.div>
+      </div>
+
+      {/* Text */}
+      <span className="text-sm text-gray-500 dark:text-gray-400">
+        {getText(
+          'expandHintShort',
+          'Doble clic para ampliar el video',
+          'Double-click to expand the video'
+        )}
+      </span>
+    </motion.div>
+  );
+}
+
+/**
+ * Combined component that shows the appropriate hint based on device
+ * - Mobile: Rotate phone hint
+ * - Desktop: Expand video hint
+ */
+export function VideoExperienceHint({
+  className = '',
+  locale
+}: Pick<RotatePhoneHintProps, 'className' | 'locale'>) {
+  return (
+    <>
+      <RotatePhoneHintCompact className={className} locale={locale} />
+      <ExpandVideoHintDesktop className={className} locale={locale} />
+    </>
+  );
+}
+
 export default RotatePhoneHint;

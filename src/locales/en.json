@@ -1,4 +1,11 @@
 {
+  "video": {
+    "fullscreenHint": "Best experience",
+    "rotateHint": "Enable fullscreen and rotate your phone to enjoy the video better",
+    "rotateHintShort": "Rotate your phone for better experience",
+    "expandHint": "Double-click for fullscreen",
+    "expandHintShort": "Double-click to expand the video"
+  },
   "landing": {
     "hero": {
       "badge1": "Where every gift becomes capital",
