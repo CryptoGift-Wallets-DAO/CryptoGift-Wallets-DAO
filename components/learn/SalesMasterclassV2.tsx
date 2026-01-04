@@ -11,6 +11,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 // Removed useRouter import to avoid App Router/Pages Router conflicts
 // Using window.location.href for navigation instead
 import { motion, AnimatePresence } from 'framer-motion';
+import { RotatePhoneHintCompact } from '@/components/ui/RotatePhoneHint';
 import { QRCodeSVG } from 'qrcode.react';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
 import { client } from '@/lib/thirdweb/client';
@@ -3624,6 +3625,9 @@ const VideoBlock: React.FC<{
         onBack={canGoBack && onPrevious ? onPrevious : undefined}
       />
     </motion.div>
+
+    {/* Rotate Phone Hint - Mobile Only */}
+    <RotatePhoneHintCompact locale="es" />
 
     {/* Progress Hint */}
     <motion.div

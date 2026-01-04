@@ -84,10 +84,10 @@ export const VIDEO_CONFIG: Record<string, VideoConfig> = {
 
   // Video 2: THE SOLUTION (MOFU - Middle of Funnel) - ~2:15
   // Psychology: Logic + Proof
-  // Updated: 2025-01-01 - CryptoGift DAO 2 (same for EN until ES version ready)
+  // Updated: 2025-01-04 - CryptoGift DAO 2 (final version)
   salesMasterclassV2_TheSolution: {
-    lessonId: "sales-masterclass-v2-solution-v2",
-    muxPlaybackId: "n3TUhQ39P02JJhHlWeGecvxkNAZZC01itPxFumoM95kUU",
+    lessonId: "sales-masterclass-v2-solution-v3",
+    muxPlaybackId: "jaqNcipaSjC8Dsk1L3P0202K02Eleo01oQmknS2zbqTN1hc",
     title: "The Solution",
     description: "The technology behind the magic.\n\n5 verified contracts. 717+ on-chain transactions. 85.7% claim rate.",
   },
