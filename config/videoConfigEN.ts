@@ -77,7 +77,7 @@ export const VIDEO_CONFIG: Record<string, VideoConfig> = {
   // Updated: 2025-01-01 - CryptoGift DAO 1 (same for EN until ES version ready)
   salesMasterclassV2_TheGift: {
     lessonId: "sales-masterclass-v2-gift-v2",
-    muxPlaybackId: "2pXJpOHR016nushIeTDxdTSmayS2SEY4a0093PRpLKXCE",
+    muxPlaybackId: "Y02PN1hp8Wu2bq7MOBR3YZlyQ7uoF02Bm01lnFVE5y018i4",
     title: "The Gift",
     description: "The first step toward real trust.\n\nHow many times did you want to share the future of Web3 with someone you love?",
   },
@@ -87,7 +87,7 @@ export const VIDEO_CONFIG: Record<string, VideoConfig> = {
   // Updated: 2025-01-01 - CryptoGift DAO 2 (same for EN until ES version ready)
   salesMasterclassV2_TheSolution: {
     lessonId: "sales-masterclass-v2-solution-v2",
-    muxPlaybackId: "PbwZJ8q01JCT2N5IR164IptnK6wKU8XrznL4qt0102BVZw",
+    muxPlaybackId: "n3TUhQ39P02JJhHlWeGecvxkNAZZC01itPxFumoM95kUU",
     title: "The Solution",
     description: "The technology behind the magic.\n\n5 verified contracts. 717+ on-chain transactions. 85.7% claim rate.",
   },
@@ -97,7 +97,7 @@ export const VIDEO_CONFIG: Record<string, VideoConfig> = {
   // Updated: 2025-01-01 - CryptoGift DAO 3 (same for EN until ES version ready)
   salesMasterclassV2_TheOpportunity: {
     lessonId: "sales-masterclass-v2-opportunity-v2",
-    muxPlaybackId: "ADwm9SB5dg1Hb7CQSFwd6Do3d5vufXv4sEZU201z7Hdo",
+    muxPlaybackId: "papdpJAYPT8r01ql01pQAu4025VJRMECe7tFM24Oy4T01gU",
     title: "The Opportunity",
     description: "Your invitation to the future.\n\nWe're early. The infrastructure is ready. The community is forming.",
   },
