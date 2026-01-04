@@ -13,8 +13,8 @@ import { useTranslations } from 'next-intl'
 import { CheckCircle, Gift, Trophy, Rocket, ArrowRight, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 
-// Star referral invite link from homepage
-const REFERRAL_INVITE_LINK = '/permanent-invite/PI-MJ3CJ0IF-D313F4D99755F78F'
+// Permanent invite link for campaign (OFFICIAL CAMPAIGN LINK)
+const REFERRAL_INVITE_LINK = '/permanent-invite/PI-MJUJWQG4-AC876FAE059DB7AD'
 
 /**
  * Custom content for insufficient balance state

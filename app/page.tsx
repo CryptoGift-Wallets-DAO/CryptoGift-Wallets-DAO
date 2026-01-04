@@ -39,8 +39,8 @@ import {
   BookOpen
 } from 'lucide-react';
 
-// Permanent invite link for new users
-const INVITE_LINK = '/permanent-invite/PI-MJ3CJ0IF-D313F4D99755F78F';
+// Permanent invite link for new users (OFFICIAL CAMPAIGN LINK)
+const INVITE_LINK = '/permanent-invite/PI-MJUJWQG4-AC876FAE059DB7AD';
 
 // Animations: float + holographic shimmer
 const animations = `

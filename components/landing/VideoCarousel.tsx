@@ -24,52 +24,81 @@ const MuxPlayer = dynamic(
   { ssr: false, loading: () => <div className="w-full h-full bg-black/50 animate-pulse rounded-xl" /> }
 );
 
-// Video configurations per language
+// Video configurations per language - Sales Funnel Structure
+// 01. The Gift (TOFU) → 02. The Solution (MOFU) → 03. The Opportunity (BOFU) → Gallery → Demo
 const VIDEOS = {
   es: [
     {
-      id: 'intro-es',
-      muxPlaybackId: '3W6iaGGBJN2AyMh37o5Qg3kdNDEFi2JP4UIBRK00QJhE',
-      title: 'Presentación Completa',
-      description: 'Descubre cómo regalar activos digitales de valor real',
-      duration: '10 min',
+      id: 'the-gift',
+      muxPlaybackId: 'Y02PN1hp8Wu2bq7MOBR3YZlyQ7uoF02Bm01lnFVE5y018i4',
+      title: '01. El Regalo',
+      description: 'El primer paso hacia la confianza real',
+      duration: '1 min',
+    },
+    {
+      id: 'the-solution',
+      muxPlaybackId: 'jaqNcipaSjC8Dsk1L3P0202K02Eleo01oQmknS2zbqTN1hc',
+      title: '02. La Solución',
+      description: '5 contratos verificados. 717+ transacciones on-chain',
+      duration: '2 min',
+    },
+    {
+      id: 'the-opportunity',
+      muxPlaybackId: 'papdpJAYPT8r01ql01pQAu4025VJRMECe7tFM24Oy4T01gU',
+      title: '03. La Oportunidad',
+      description: 'Tu invitación al futuro de Web3',
+      duration: '3 min',
+    },
+    {
+      id: 'gallery-es',
+      muxPlaybackId: 'lsT00V7M302d9EIrKr9vUaVTnxvee3q15yF1OUKZYFpMc',
+      title: 'Gallery',
+      description: 'Oportunidades exclusivas del CryptoGift Club',
+      duration: '2 min',
     },
     {
       id: 'demo',
       muxPlaybackId: 'FCb1PkEnWapDI01wHXObphFgQPa4PY8zK5akxw2o7DcE',
       title: 'Demo: Crear y Reclamar',
-      description: 'Demo del proceso de creación y reclamación de regalos',
+      description: 'Demo del proceso de creación y reclamación',
       duration: '1 min',
-    },
-    {
-      id: 'outro-es',
-      muxPlaybackId: 'PBqn7kacf00PoAczsHLk02TyU01OAx4VdUNYJaYdbbasQw',
-      title: 'CryptoGift Club',
-      description: 'Oportunidades exclusivas como miembro del club',
-      duration: '3 min',
     },
   ],
   en: [
     {
-      id: 'intro-en',
-      muxPlaybackId: '3lWAgyukmAHnff02tpTAzYD00DeftIi005YWLmk5AYFs00Y',
-      title: 'Full Presentation',
-      description: 'Learn how to gift real digital assets',
-      duration: '10 min',
+      id: 'the-gift',
+      muxPlaybackId: 'Y02PN1hp8Wu2bq7MOBR3YZlyQ7uoF02Bm01lnFVE5y018i4',
+      title: '01. The Gift',
+      description: 'The first step toward real trust',
+      duration: '1 min',
+    },
+    {
+      id: 'the-solution',
+      muxPlaybackId: 'jaqNcipaSjC8Dsk1L3P0202K02Eleo01oQmknS2zbqTN1hc',
+      title: '02. The Solution',
+      description: '5 verified contracts. 717+ on-chain transactions',
+      duration: '2 min',
+    },
+    {
+      id: 'the-opportunity',
+      muxPlaybackId: 'papdpJAYPT8r01ql01pQAu4025VJRMECe7tFM24Oy4T01gU',
+      title: '03. The Opportunity',
+      description: 'Your invitation to the future of Web3',
+      duration: '3 min',
+    },
+    {
+      id: 'gallery-en',
+      muxPlaybackId: 'ntscvAUpAGeSDLi00Yc383JpC028dAT5o5OqeBohx01sMI',
+      title: 'Gallery',
+      description: 'Exclusive CryptoGift Club opportunities',
+      duration: '2 min',
     },
     {
       id: 'demo',
       muxPlaybackId: 'FCb1PkEnWapDI01wHXObphFgQPa4PY8zK5akxw2o7DcE',
       title: 'Demo: Create & Claim',
-      description: 'Demo of the gift creation and claiming process',
+      description: 'Demo of the creation and claiming process',
       duration: '1 min',
-    },
-    {
-      id: 'outro-en',
-      muxPlaybackId: 'dsEZYVMpcrkuNvn0200p8C7nz9qEqY3dr7Mx9OiauZSro',
-      title: 'CryptoGift Club',
-      description: 'Exclusive opportunities as a club member',
-      duration: '3 min',
     },
   ],
 };
