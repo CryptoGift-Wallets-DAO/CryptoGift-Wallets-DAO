@@ -28,35 +28,17 @@ function useHorizontalOverscroll() {
   const [translateX, setTranslateX] = useState(0);
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
-  const lastScrollX = useRef(0);
   const isHorizontalGesture = useRef<boolean | null>(null);
-  const animationFrame = useRef<number | null>(null);
 
   useEffect(() => {
     // Only enable on mobile
     const isMobile = window.innerWidth < 768;
     if (!isMobile) return;
 
-    // Force scroll to left on mount and prevent horizontal scroll
-    const preventHorizontalScroll = () => {
-      if (window.scrollX !== 0) {
-        window.scrollTo(0, window.scrollY);
-      }
-    };
-
-    // Initial reset
-    preventHorizontalScroll();
-
     const handleTouchStart = (e: TouchEvent) => {
       touchStartX.current = e.touches[0].clientX;
       touchStartY.current = e.touches[0].clientY;
-      lastScrollX.current = window.scrollX;
       isHorizontalGesture.current = null;
-
-      // Cancel any ongoing animation
-      if (animationFrame.current) {
-        cancelAnimationFrame(animationFrame.current);
-      }
     };
 
     const handleTouchMove = (e: TouchEvent) => {
@@ -66,14 +48,14 @@ function useHorizontalOverscroll() {
       const deltaY = touchStartY.current - touchY;
 
       // Determine direction on first significant movement
-      if (isHorizontalGesture.current === null && (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8)) {
+      if (isHorizontalGesture.current === null && (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10)) {
         isHorizontalGesture.current = Math.abs(deltaX) > Math.abs(deltaY);
       }
 
-      // Handle horizontal gestures
+      // Handle horizontal gestures - prevent native scroll and apply our effect
       if (isHorizontalGesture.current === true) {
-        // Prevent default scroll behavior
-        preventHorizontalScroll();
+        // Prevent native horizontal scroll to avoid vibration
+        e.preventDefault();
 
         // Apply rubber band effect
         const resistance = 0.35;
@@ -87,37 +69,20 @@ function useHorizontalOverscroll() {
     };
 
     const handleTouchEnd = () => {
-      // Always reset scroll position
-      preventHorizontalScroll();
-
       // Animate back to center
       setTranslateX(0);
       isHorizontalGesture.current = null;
     };
 
-    // Continuously prevent horizontal scroll
-    const handleScroll = () => {
-      if (window.scrollX !== 0) {
-        animationFrame.current = requestAnimationFrame(() => {
-          window.scrollTo(0, window.scrollY);
-        });
-      }
-    };
-
-    // Add event listeners
+    // Add event listeners - touchmove must be non-passive to allow preventDefault
     document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd, { passive: true });
-    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('scroll', handleScroll);
-      if (animationFrame.current) {
-        cancelAnimationFrame(animationFrame.current);
-      }
     };
   }, []);
 
