@@ -23,66 +23,130 @@ import { VideoExperienceHint } from '@/components/ui/RotatePhoneHint';
  * Custom hook to handle horizontal scroll behavior
  * - Prevents real horizontal scroll (which would stay in place when released)
  * - Simulates iOS-like rubber band overscroll effect for BOTH directions
+ * - Works on MOBILE (touch) and PC (mouse drag + trackpad)
  */
 function useHorizontalOverscroll() {
   const [translateX, setTranslateX] = useState(0);
-  const touchStartX = useRef(0);
-  const touchStartY = useRef(0);
+  const startX = useRef(0);
+  const startY = useRef(0);
   const isHorizontalGesture = useRef<boolean | null>(null);
+  const isDragging = useRef(false);
+  const resetTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Only enable on mobile
     const isMobile = window.innerWidth < 768;
-    if (!isMobile) return;
+    const resistance = 0.5;
+    const maxTranslate = 140;
 
+    // ============ MOBILE: Touch Events ============
     const handleTouchStart = (e: TouchEvent) => {
-      touchStartX.current = e.touches[0].clientX;
-      touchStartY.current = e.touches[0].clientY;
+      startX.current = e.touches[0].clientX;
+      startY.current = e.touches[0].clientY;
       isHorizontalGesture.current = null;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       const touchX = e.touches[0].clientX;
       const touchY = e.touches[0].clientY;
-      const deltaX = touchStartX.current - touchX;
-      const deltaY = touchStartY.current - touchY;
+      const deltaX = startX.current - touchX;
+      const deltaY = startY.current - touchY;
 
-      // Determine direction on first significant movement
       if (isHorizontalGesture.current === null && (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10)) {
         isHorizontalGesture.current = Math.abs(deltaX) > Math.abs(deltaY);
       }
 
-      // Handle horizontal gestures - prevent native scroll and apply our effect
       if (isHorizontalGesture.current === true) {
-        // Prevent native horizontal scroll to avoid vibration
         e.preventDefault();
-
-        // Apply rubber band effect - increased range to show full floating labels
-        const resistance = 0.5;
-        const maxTranslate = 140;
         const translateAmount = Math.min(Math.abs(deltaX) * resistance, maxTranslate);
-
-        // Negative deltaX = pulling right (reveal left elements)
-        // Positive deltaX = pulling left (reveal right elements)
         setTranslateX(deltaX > 0 ? -translateAmount : translateAmount);
       }
     };
 
     const handleTouchEnd = () => {
-      // Animate back to center
       setTranslateX(0);
       isHorizontalGesture.current = null;
     };
 
-    // Add event listeners - touchmove must be non-passive to allow preventDefault
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    // ============ PC: Mouse Drag Events ============
+    const handleMouseDown = (e: MouseEvent) => {
+      isDragging.current = true;
+      startX.current = e.clientX;
+      startY.current = e.clientY;
+      isHorizontalGesture.current = null;
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+
+      const deltaX = startX.current - e.clientX;
+      const deltaY = startY.current - e.clientY;
+
+      if (isHorizontalGesture.current === null && (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10)) {
+        isHorizontalGesture.current = Math.abs(deltaX) > Math.abs(deltaY);
+      }
+
+      if (isHorizontalGesture.current === true) {
+        e.preventDefault();
+        const translateAmount = Math.min(Math.abs(deltaX) * resistance, maxTranslate);
+        setTranslateX(deltaX > 0 ? -translateAmount : translateAmount);
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (isDragging.current) {
+        setTranslateX(0);
+        isDragging.current = false;
+        isHorizontalGesture.current = null;
+      }
+    };
+
+    // ============ PC: Trackpad/Wheel Events ============
+    const handleWheel = (e: WheelEvent) => {
+      // Only handle horizontal scroll (trackpad gesture or shift+wheel)
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 5) {
+        e.preventDefault();
+
+        // Clear any existing reset timeout
+        if (resetTimeout.current) {
+          clearTimeout(resetTimeout.current);
+        }
+
+        const translateAmount = Math.min(Math.abs(e.deltaX) * 0.8, maxTranslate);
+        setTranslateX(e.deltaX > 0 ? -translateAmount : translateAmount);
+
+        // Reset after scrolling stops
+        resetTimeout.current = setTimeout(() => {
+          setTranslateX(0);
+        }, 150);
+      }
+    };
+
+    // Add event listeners based on device
+    if (isMobile) {
+      document.addEventListener('touchstart', handleTouchStart, { passive: true });
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    } else {
+      document.addEventListener('mousedown', handleMouseDown);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('wheel', handleWheel, { passive: false });
+    }
 
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
+      if (isMobile) {
+        document.removeEventListener('touchstart', handleTouchStart);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+      } else {
+        document.removeEventListener('mousedown', handleMouseDown);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('wheel', handleWheel);
+      }
+      if (resetTimeout.current) {
+        clearTimeout(resetTimeout.current);
+      }
     };
   }, []);
 
