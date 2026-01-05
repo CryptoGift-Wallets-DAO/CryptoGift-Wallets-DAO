@@ -13,11 +13,116 @@
  * Co-Author: Godez22
  */
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { ChevronLeft, ChevronRight, Play, Maximize2 } from 'lucide-react';
 import { VideoExperienceHint } from '@/components/ui/RotatePhoneHint';
+
+/**
+ * Custom hook to handle horizontal scroll behavior
+ * - Prevents real horizontal scroll (which would stay in place when released)
+ * - Simulates iOS-like rubber band overscroll effect for BOTH directions
+ */
+function useHorizontalOverscroll() {
+  const [translateX, setTranslateX] = useState(0);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const lastScrollX = useRef(0);
+  const isHorizontalGesture = useRef<boolean | null>(null);
+  const animationFrame = useRef<number | null>(null);
+
+  useEffect(() => {
+    // Only enable on mobile
+    const isMobile = window.innerWidth < 768;
+    if (!isMobile) return;
+
+    // Force scroll to left on mount and prevent horizontal scroll
+    const preventHorizontalScroll = () => {
+      if (window.scrollX !== 0) {
+        window.scrollTo(0, window.scrollY);
+      }
+    };
+
+    // Initial reset
+    preventHorizontalScroll();
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+      lastScrollX.current = window.scrollX;
+      isHorizontalGesture.current = null;
+
+      // Cancel any ongoing animation
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touchX = e.touches[0].clientX;
+      const touchY = e.touches[0].clientY;
+      const deltaX = touchStartX.current - touchX;
+      const deltaY = touchStartY.current - touchY;
+
+      // Determine direction on first significant movement
+      if (isHorizontalGesture.current === null && (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8)) {
+        isHorizontalGesture.current = Math.abs(deltaX) > Math.abs(deltaY);
+      }
+
+      // Handle horizontal gestures
+      if (isHorizontalGesture.current === true) {
+        // Prevent default scroll behavior
+        preventHorizontalScroll();
+
+        // Apply rubber band effect
+        const resistance = 0.35;
+        const maxTranslate = 60;
+        const translateAmount = Math.min(Math.abs(deltaX) * resistance, maxTranslate);
+
+        // Negative deltaX = pulling right (reveal left elements)
+        // Positive deltaX = pulling left (reveal right elements)
+        setTranslateX(deltaX > 0 ? -translateAmount : translateAmount);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      // Always reset scroll position
+      preventHorizontalScroll();
+
+      // Animate back to center
+      setTranslateX(0);
+      isHorizontalGesture.current = null;
+    };
+
+    // Continuously prevent horizontal scroll
+    const handleScroll = () => {
+      if (window.scrollX !== 0) {
+        animationFrame.current = requestAnimationFrame(() => {
+          window.scrollTo(0, window.scrollY);
+        });
+      }
+    };
+
+    // Add event listeners
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('scroll', handleScroll);
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
+    };
+  }, []);
+
+  return translateX;
+}
 
 // Lazy load MUX Player
 const MuxPlayer = dynamic(
@@ -110,8 +215,10 @@ export function VideoCarousel() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const playerRef = useRef<HTMLVideoElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Use custom overscroll hook for rubber band effect on mobile
+  const translateX = useHorizontalOverscroll();
 
   const currentVideo = videos[currentIndex];
 
@@ -149,7 +256,13 @@ export function VideoCarousel() {
   }, []);
 
   return (
-    <div className="relative w-full max-w-md mx-auto">
+    <div
+      className="relative w-full max-w-md mx-auto"
+      style={{
+        transform: translateX !== 0 ? `translateX(${translateX}px)` : undefined,
+        transition: translateX === 0 ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+      }}
+    >
       {/* Glass crystal container */}
       <div
         ref={containerRef}
@@ -256,53 +369,27 @@ export function VideoCarousel() {
       </div>
 
       {/* Floating elements - RIGHT SIDE */}
-      {/* Mobile: fixed with negative right (outside viewport), Desktop: absolute */}
-
-      {/* Open */}
-      <div className="md:hidden fixed -right-12 top-[180px] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 4s ease-in-out infinite 0.5s' }}>
-        <span className="font-medium text-purple-600 dark:text-purple-400">Open</span>
-      </div>
-      <div className="hidden md:block absolute -top-6 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 0.5s' }}>
+      <div className="absolute -top-6 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 0.5s' }}>
         <span className="font-medium text-purple-600 dark:text-purple-400">Open</span>
       </div>
 
-      {/* Secure */}
-      <div className="md:hidden fixed -right-16 top-[230px] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 5s ease-in-out infinite 1s' }}>
-        <span className="font-medium text-blue-600 dark:text-blue-400">Secure</span>
-      </div>
-      <div className="hidden md:block absolute top-4 -right-28 lg:-right-40 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 1s' }}>
+      <div className="absolute top-4 -right-28 lg:-right-40 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 1s' }}>
         <span className="font-medium text-blue-600 dark:text-blue-400">Secure</span>
       </div>
 
-      {/* Human */}
-      <div className="md:hidden fixed -right-14 top-[290px] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 4.5s ease-in-out infinite 0.2s' }}>
-        <span className="font-medium text-green-600 dark:text-green-400">Human</span>
-      </div>
-      <div className="hidden md:block absolute top-20 -right-24 lg:-right-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.5s ease-in-out infinite 0.2s' }}>
+      <div className="absolute top-20 -right-24 lg:-right-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.5s ease-in-out infinite 0.2s' }}>
         <span className="font-medium text-green-600 dark:text-green-400">Human</span>
       </div>
 
-      {/* Gift in 5 min */}
-      <div className="md:hidden fixed -right-20 top-[350px] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
-        <span className="font-medium text-cyan-600 dark:text-cyan-400">Gift in 5 min</span>
-      </div>
-      <div className="hidden md:block absolute top-36 -right-32 lg:-right-48 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
+      <div className="absolute top-36 -right-32 lg:-right-48 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
         <span className="font-medium text-cyan-600 dark:text-cyan-400">Gift in 5 min</span>
       </div>
 
-      {/* Easy claim */}
-      <div className="md:hidden fixed -right-12 top-[430px] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 4.3s ease-in-out infinite 0.7s' }}>
-        <span className="font-medium text-teal-600 dark:text-teal-400">Easy claim</span>
-      </div>
-      <div className="hidden md:block absolute bottom-12 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.3s ease-in-out infinite 0.7s' }}>
+      <div className="absolute bottom-12 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.3s ease-in-out infinite 0.7s' }}>
         <span className="font-medium text-teal-600 dark:text-teal-400">Easy claim</span>
       </div>
 
-      {/* Base L2 */}
-      <div className="md:hidden fixed -right-16 top-[390px] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 5.8s ease-in-out infinite 1.8s' }}>
-        <span className="font-medium text-sky-600 dark:text-sky-400">Base L2</span>
-      </div>
-      <div className="hidden md:block absolute bottom-28 -right-36 lg:-right-52 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.8s ease-in-out infinite 1.8s' }}>
+      <div className="absolute bottom-28 -right-36 lg:-right-52 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.8s ease-in-out infinite 1.8s' }}>
         <span className="font-medium text-sky-600 dark:text-sky-400">Base L2</span>
       </div>
 
