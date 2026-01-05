@@ -57,9 +57,9 @@ function useHorizontalOverscroll() {
         // Prevent native horizontal scroll to avoid vibration
         e.preventDefault();
 
-        // Apply rubber band effect
-        const resistance = 0.35;
-        const maxTranslate = 60;
+        // Apply rubber band effect - increased range to show full floating labels
+        const resistance = 0.5;
+        const maxTranslate = 140;
         const translateAmount = Math.min(Math.abs(deltaX) * resistance, maxTranslate);
 
         // Negative deltaX = pulling right (reveal left elements)
@@ -333,28 +333,28 @@ export function VideoCarousel() {
         </div>
       </div>
 
-      {/* Floating elements - RIGHT SIDE */}
-      <div className="absolute -top-6 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 0.5s' }}>
+      {/* Floating elements - RIGHT SIDE - md: for medium screens to prevent overlap */}
+      <div className="absolute -top-6 -right-20 md:-right-28 lg:-right-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 0.5s' }}>
         <span className="font-medium text-purple-600 dark:text-purple-400">Open</span>
       </div>
 
-      <div className="absolute top-4 -right-28 lg:-right-40 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 1s' }}>
+      <div className="absolute top-4 -right-28 md:-right-40 lg:-right-48 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 1s' }}>
         <span className="font-medium text-blue-600 dark:text-blue-400">Secure</span>
       </div>
 
-      <div className="absolute top-20 -right-24 lg:-right-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.5s ease-in-out infinite 0.2s' }}>
+      <div className="absolute top-20 -right-24 md:-right-32 lg:-right-40 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.5s ease-in-out infinite 0.2s' }}>
         <span className="font-medium text-green-600 dark:text-green-400">Human</span>
       </div>
 
-      <div className="absolute top-36 -right-32 lg:-right-48 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
+      <div className="absolute top-36 -right-32 md:-right-44 lg:-right-56 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
         <span className="font-medium text-cyan-600 dark:text-cyan-400">Gift in 5 min</span>
       </div>
 
-      <div className="absolute bottom-12 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.3s ease-in-out infinite 0.7s' }}>
+      <div className="absolute bottom-12 -right-20 md:-right-28 lg:-right-36 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.3s ease-in-out infinite 0.7s' }}>
         <span className="font-medium text-teal-600 dark:text-teal-400">Easy claim</span>
       </div>
 
-      <div className="absolute bottom-28 -right-36 lg:-right-52 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.8s ease-in-out infinite 1.8s' }}>
+      <div className="absolute bottom-28 -right-36 md:-right-48 lg:-right-60 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.8s ease-in-out infinite 1.8s' }}>
         <span className="font-medium text-sky-600 dark:text-sky-400">Base L2</span>
       </div>
 
@@ -363,28 +363,28 @@ export function VideoCarousel() {
         <VideoExperienceHint />
       </div>
 
-      {/* Floating elements - LEFT SIDE (moved much further left) */}
-      <div className="absolute -top-8 -left-24 lg:-left-36 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 0.8s' }}>
+      {/* Floating elements - LEFT SIDE - md: for medium screens to prevent overlap */}
+      <div className="absolute -top-8 -left-24 md:-left-32 lg:-left-40 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 0.8s' }}>
         <span className="font-medium text-emerald-600 dark:text-emerald-400">No gas</span>
       </div>
 
-      <div className="absolute top-6 -left-32 lg:-left-48 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.2s ease-in-out infinite 0.3s' }}>
+      <div className="absolute top-6 -left-32 md:-left-44 lg:-left-56 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.2s ease-in-out infinite 0.3s' }}>
         <span className="font-medium text-amber-600 dark:text-amber-400">No complications</span>
       </div>
 
-      <div className="absolute top-24 -left-28 lg:-left-40 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.2s ease-in-out infinite 1.2s' }}>
+      <div className="absolute top-24 -left-28 md:-left-36 lg:-left-44 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.2s ease-in-out infinite 1.2s' }}>
         <span className="font-medium text-rose-600 dark:text-rose-400">No fear</span>
       </div>
 
-      <div className="absolute top-40 -left-36 lg:-left-52 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.8s ease-in-out infinite 0.6s' }}>
+      <div className="absolute top-40 -left-36 md:-left-48 lg:-left-60 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.8s ease-in-out infinite 0.6s' }}>
         <span className="font-medium text-indigo-600 dark:text-indigo-400">100% yours</span>
       </div>
 
-      <div className="absolute bottom-20 -left-24 lg:-left-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.6s ease-in-out infinite 1.4s' }}>
+      <div className="absolute bottom-20 -left-24 md:-left-32 lg:-left-40 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.6s ease-in-out infinite 1.4s' }}>
         <span className="font-medium text-fuchsia-600 dark:text-fuchsia-400">Web3 simple</span>
       </div>
 
-      <div className="absolute bottom-4 -left-32 lg:-left-44 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.4s ease-in-out infinite 0.9s' }}>
+      <div className="absolute bottom-4 -left-32 md:-left-40 lg:-left-52 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.4s ease-in-out infinite 0.9s' }}>
         <span className="font-medium text-orange-600 dark:text-orange-400">Intuitive UX</span>
       </div>
     </div>
