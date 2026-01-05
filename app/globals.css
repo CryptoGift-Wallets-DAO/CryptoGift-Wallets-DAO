@@ -310,6 +310,29 @@
 }
 
 /* ====================================================
+   🎭 FLOATING ELEMENTS - NO HORIZONTAL SCROLL
+   Uses CSS `translate` property (separate from `transform`)
+   to position right-side elements without extending document width.
+   Works with float animation that uses `transform: translateY()`.
+   ==================================================== */
+
+/* Right-side floating element offsets - mobile values */
+.float-offset-right-20 { translate: calc(-100% + 5rem) 0; }
+.float-offset-right-24 { translate: calc(-100% + 6rem) 0; }
+.float-offset-right-28 { translate: calc(-100% + 7rem) 0; }
+.float-offset-right-32 { translate: calc(-100% + 8rem) 0; }
+.float-offset-right-36 { translate: calc(-100% + 9rem) 0; }
+
+/* Desktop overrides (lg: breakpoint) */
+@media (min-width: 1024px) {
+  .lg\:float-offset-right-28 { translate: calc(-100% + 7rem) 0; }
+  .lg\:float-offset-right-32 { translate: calc(-100% + 8rem) 0; }
+  .lg\:float-offset-right-40 { translate: calc(-100% + 10rem) 0; }
+  .lg\:float-offset-right-48 { translate: calc(-100% + 12rem) 0; }
+  .lg\:float-offset-right-52 { translate: calc(-100% + 13rem) 0; }
+}
+
+/* ====================================================
    📱 RESPONSIVE DESIGN
    ==================================================== */
 
