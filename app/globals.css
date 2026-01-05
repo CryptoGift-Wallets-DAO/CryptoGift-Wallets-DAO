@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Prevent horizontal scroll from extending document */
-html, body {
-  overflow-x: clip;
-}
-
 /* ====================================================
    🎨 CRYPTOGIFT DAO - GLASS MORPHISM DESIGN SYSTEM
    ==================================================== */
