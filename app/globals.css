@@ -366,13 +366,15 @@
 .scale-120 { transform: scale(1.2); }
 .hover\:scale-120:hover { transform: scale(1.2); }
 
-/* Typography */
+/* Typography & Scroll Prevention */
 html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent horizontal scroll from floating elements - works on both mobile and PC */
+  overflow-x: hidden;
 }
 
 body {
@@ -380,6 +382,8 @@ body {
   color: rgb(var(--text-primary));
   line-height: 1.5;
   transition: background-color 0.3s ease, color 0.3s ease;
+  /* Prevent horizontal scroll - redundant but ensures cross-browser compatibility */
+  overflow-x: hidden;
 }
 
 /* ====================================================
