@@ -206,21 +206,21 @@ const VIDEOS = {
   es: [
     {
       id: 'the-gift',
-      muxPlaybackId: 'Y02PN1hp8Wu2bq7MOBR3YZlyQ7uoF02Bm01lnFVE5y018i4',
+      muxPlaybackId: '02Sx72OAZtSl1ai3NTVTT3Cnd1LN6Xo2QpwNlRCQBAYI',
       title: '01. El Regalo',
       description: 'El primer paso hacia la confianza real',
       duration: '1 min',
     },
     {
       id: 'the-solution',
-      muxPlaybackId: 'jaqNcipaSjC8Dsk1L3P0202K02Eleo01oQmknS2zbqTN1hc',
+      muxPlaybackId: 'TRT85U1Ll3Us78KQIOuhC01AQk1LE74UWg023AwWKioeg',
       title: '02. La Solución',
       description: '5 contratos verificados. 717+ transacciones on-chain',
       duration: '2 min',
     },
     {
       id: 'the-opportunity',
-      muxPlaybackId: 'papdpJAYPT8r01ql01pQAu4025VJRMECe7tFM24Oy4T01gU',
+      muxPlaybackId: 'rF61CMLJ02io018xlko25uhCQsBZ4Eiyn015ImObGGt01qM',
       title: '03. La Oportunidad',
       description: 'Tu invitación al futuro de Web3',
       duration: '3 min',
