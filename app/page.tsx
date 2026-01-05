@@ -116,7 +116,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* HERO SECTION - Closer to navbar */}
-      <section className="relative pt-8 pb-12 px-4">
+      <section className="relative pt-8 pb-12 px-4 overflow-x-hidden">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             {/* Left: Text Content */}
