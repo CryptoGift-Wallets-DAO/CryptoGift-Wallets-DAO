@@ -255,27 +255,53 @@ export function VideoCarousel() {
         </div>
       </div>
 
-      {/* Floating elements - RIGHT SIDE (hidden on mobile to prevent scroll, visible md+) */}
+      {/* Floating elements - RIGHT SIDE */}
+      {/* Mobile: fixed position (doesn't create scroll), Desktop: absolute */}
+
+      {/* Open */}
+      <div className="md:hidden fixed right-0 top-[180px] translate-x-[60%] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 4s ease-in-out infinite 0.5s' }}>
+        <span className="font-medium text-purple-600 dark:text-purple-400">Open</span>
+      </div>
       <div className="hidden md:block absolute -top-6 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 0.5s' }}>
         <span className="font-medium text-purple-600 dark:text-purple-400">Open</span>
       </div>
 
+      {/* Secure */}
+      <div className="md:hidden fixed right-0 top-[220px] translate-x-[75%] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 5s ease-in-out infinite 1s' }}>
+        <span className="font-medium text-blue-600 dark:text-blue-400">Secure</span>
+      </div>
       <div className="hidden md:block absolute top-4 -right-28 lg:-right-40 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5s ease-in-out infinite 1s' }}>
         <span className="font-medium text-blue-600 dark:text-blue-400">Secure</span>
       </div>
 
+      {/* Human */}
+      <div className="md:hidden fixed right-0 top-[280px] translate-x-[65%] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 4.5s ease-in-out infinite 0.2s' }}>
+        <span className="font-medium text-green-600 dark:text-green-400">Human</span>
+      </div>
       <div className="hidden md:block absolute top-20 -right-24 lg:-right-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.5s ease-in-out infinite 0.2s' }}>
         <span className="font-medium text-green-600 dark:text-green-400">Human</span>
       </div>
 
+      {/* Gift in 5 min */}
+      <div className="md:hidden fixed right-0 top-[340px] translate-x-[70%] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
+        <span className="font-medium text-cyan-600 dark:text-cyan-400">Gift in 5 min</span>
+      </div>
       <div className="hidden md:block absolute top-36 -right-32 lg:-right-48 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
         <span className="font-medium text-cyan-600 dark:text-cyan-400">Gift in 5 min</span>
       </div>
 
+      {/* Easy claim */}
+      <div className="md:hidden fixed right-0 top-[420px] translate-x-[60%] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 4.3s ease-in-out infinite 0.7s' }}>
+        <span className="font-medium text-teal-600 dark:text-teal-400">Easy claim</span>
+      </div>
       <div className="hidden md:block absolute bottom-12 -right-20 lg:-right-28 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.3s ease-in-out infinite 0.7s' }}>
         <span className="font-medium text-teal-600 dark:text-teal-400">Easy claim</span>
       </div>
 
+      {/* Base L2 */}
+      <div className="md:hidden fixed right-0 top-[380px] translate-x-[80%] p-2 rounded-lg text-xs glass-crystal z-40" style={{ animation: 'float 5.8s ease-in-out infinite 1.8s' }}>
+        <span className="font-medium text-sky-600 dark:text-sky-400">Base L2</span>
+      </div>
       <div className="hidden md:block absolute bottom-28 -right-36 lg:-right-52 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.8s ease-in-out infinite 1.8s' }}>
         <span className="font-medium text-sky-600 dark:text-sky-400">Base L2</span>
       </div>
