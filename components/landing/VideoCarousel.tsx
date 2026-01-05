@@ -31,13 +31,55 @@ function useHorizontalOverscroll() {
   const startY = useRef(0);
   const isHorizontalGesture = useRef<boolean | null>(null);
   const isDragging = useRef(false);
-  const accumulatedDelta = useRef(0);
-  const decayAnimation = useRef<number | null>(null);
+
+  // For trackpad: smooth position tracking
+  const targetPosition = useRef(0);
+  const currentPosition = useRef(0);
+  const animationFrame = useRef<number | null>(null);
+  const lastWheelTime = useRef(0);
+  const isWheelActive = useRef(false);
 
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
     const resistance = 0.5;
     const maxTranslate = 140;
+
+    // ============ SMOOTH ANIMATION LOOP (PC only) ============
+    const animate = () => {
+      const now = Date.now();
+      const timeSinceLastWheel = now - lastWheelTime.current;
+
+      // If no wheel input for 100ms, start returning to center
+      if (timeSinceLastWheel > 100 && isWheelActive.current) {
+        targetPosition.current *= 0.92; // Smooth decay toward 0
+        if (Math.abs(targetPosition.current) < 0.5) {
+          targetPosition.current = 0;
+          isWheelActive.current = false;
+        }
+      }
+
+      // Smoothly interpolate current toward target
+      const diff = targetPosition.current - currentPosition.current;
+      currentPosition.current += diff * 0.15; // Smooth interpolation
+
+      // Apply to state
+      if (Math.abs(currentPosition.current) > 0.1 || isWheelActive.current) {
+        const translateAmount = Math.min(Math.abs(currentPosition.current), maxTranslate);
+        const direction = currentPosition.current > 0 ? 1 : -1;
+        setTranslateX(translateAmount * direction);
+        animationFrame.current = requestAnimationFrame(animate);
+      } else {
+        currentPosition.current = 0;
+        setTranslateX(0);
+        animationFrame.current = null;
+      }
+    };
+
+    const startAnimation = () => {
+      if (!animationFrame.current) {
+        animationFrame.current = requestAnimationFrame(animate);
+      }
+    };
 
     // ============ MOBILE: Touch Events ============
     const handleTouchStart = (e: TouchEvent) => {
@@ -74,11 +116,6 @@ function useHorizontalOverscroll() {
       startX.current = e.clientX;
       startY.current = e.clientY;
       isHorizontalGesture.current = null;
-      // Cancel any ongoing decay animation
-      if (decayAnimation.current) {
-        cancelAnimationFrame(decayAnimation.current);
-        decayAnimation.current = null;
-      }
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -106,49 +143,22 @@ function useHorizontalOverscroll() {
       }
     };
 
-    // ============ PC: Trackpad/Wheel - Smooth Accumulation ============
-    const startDecay = () => {
-      const decay = () => {
-        accumulatedDelta.current *= 0.85; // Smooth decay factor
-
-        if (Math.abs(accumulatedDelta.current) < 1) {
-          accumulatedDelta.current = 0;
-          setTranslateX(0);
-          decayAnimation.current = null;
-          return;
-        }
-
-        const translateAmount = Math.min(Math.abs(accumulatedDelta.current), maxTranslate);
-        setTranslateX(accumulatedDelta.current > 0 ? -translateAmount : translateAmount);
-        decayAnimation.current = requestAnimationFrame(decay);
-      };
-
-      if (!decayAnimation.current) {
-        decayAnimation.current = requestAnimationFrame(decay);
-      }
-    };
-
+    // ============ PC: Trackpad/Wheel - Natural Feel ============
     const handleWheel = (e: WheelEvent) => {
-      // Only handle horizontal scroll (trackpad gesture or shift+wheel)
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 2) {
+      // Only handle horizontal scroll (trackpad gesture)
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 1) {
         e.preventDefault();
 
-        // Cancel ongoing decay to accumulate new input
-        if (decayAnimation.current) {
-          cancelAnimationFrame(decayAnimation.current);
-          decayAnimation.current = null;
-        }
+        lastWheelTime.current = Date.now();
+        isWheelActive.current = true;
 
-        // Accumulate delta with resistance
-        accumulatedDelta.current += e.deltaX * 0.3;
-        // Clamp accumulated value
-        accumulatedDelta.current = Math.max(-maxTranslate * 2, Math.min(maxTranslate * 2, accumulatedDelta.current));
+        // Accumulate position naturally like dragging
+        targetPosition.current -= e.deltaX * 0.8;
 
-        const translateAmount = Math.min(Math.abs(accumulatedDelta.current), maxTranslate);
-        setTranslateX(accumulatedDelta.current > 0 ? -translateAmount : translateAmount);
+        // Clamp to max range
+        targetPosition.current = Math.max(-maxTranslate, Math.min(maxTranslate, targetPosition.current));
 
-        // Start decay after a brief pause
-        startDecay();
+        startAnimation();
       }
     };
 
@@ -175,8 +185,8 @@ function useHorizontalOverscroll() {
         document.removeEventListener('mouseup', handleMouseUp);
         document.removeEventListener('wheel', handleWheel);
       }
-      if (decayAnimation.current) {
-        cancelAnimationFrame(decayAnimation.current);
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
       }
     };
   }, []);
