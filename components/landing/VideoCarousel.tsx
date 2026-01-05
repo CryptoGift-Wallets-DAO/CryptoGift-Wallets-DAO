@@ -31,7 +31,8 @@ function useHorizontalOverscroll() {
   const startY = useRef(0);
   const isHorizontalGesture = useRef<boolean | null>(null);
   const isDragging = useRef(false);
-  const resetTimeout = useRef<NodeJS.Timeout | null>(null);
+  const accumulatedDelta = useRef(0);
+  const decayAnimation = useRef<number | null>(null);
 
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
@@ -73,6 +74,11 @@ function useHorizontalOverscroll() {
       startX.current = e.clientX;
       startY.current = e.clientY;
       isHorizontalGesture.current = null;
+      // Cancel any ongoing decay animation
+      if (decayAnimation.current) {
+        cancelAnimationFrame(decayAnimation.current);
+        decayAnimation.current = null;
+      }
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -100,24 +106,49 @@ function useHorizontalOverscroll() {
       }
     };
 
-    // ============ PC: Trackpad/Wheel Events ============
-    const handleWheel = (e: WheelEvent) => {
-      // Only handle horizontal scroll (trackpad gesture or shift+wheel)
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 5) {
-        e.preventDefault();
+    // ============ PC: Trackpad/Wheel - Smooth Accumulation ============
+    const startDecay = () => {
+      const decay = () => {
+        accumulatedDelta.current *= 0.85; // Smooth decay factor
 
-        // Clear any existing reset timeout
-        if (resetTimeout.current) {
-          clearTimeout(resetTimeout.current);
+        if (Math.abs(accumulatedDelta.current) < 1) {
+          accumulatedDelta.current = 0;
+          setTranslateX(0);
+          decayAnimation.current = null;
+          return;
         }
 
-        const translateAmount = Math.min(Math.abs(e.deltaX) * 0.8, maxTranslate);
-        setTranslateX(e.deltaX > 0 ? -translateAmount : translateAmount);
+        const translateAmount = Math.min(Math.abs(accumulatedDelta.current), maxTranslate);
+        setTranslateX(accumulatedDelta.current > 0 ? -translateAmount : translateAmount);
+        decayAnimation.current = requestAnimationFrame(decay);
+      };
 
-        // Reset after scrolling stops
-        resetTimeout.current = setTimeout(() => {
-          setTranslateX(0);
-        }, 150);
+      if (!decayAnimation.current) {
+        decayAnimation.current = requestAnimationFrame(decay);
+      }
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      // Only handle horizontal scroll (trackpad gesture or shift+wheel)
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 2) {
+        e.preventDefault();
+
+        // Cancel ongoing decay to accumulate new input
+        if (decayAnimation.current) {
+          cancelAnimationFrame(decayAnimation.current);
+          decayAnimation.current = null;
+        }
+
+        // Accumulate delta with resistance
+        accumulatedDelta.current += e.deltaX * 0.3;
+        // Clamp accumulated value
+        accumulatedDelta.current = Math.max(-maxTranslate * 2, Math.min(maxTranslate * 2, accumulatedDelta.current));
+
+        const translateAmount = Math.min(Math.abs(accumulatedDelta.current), maxTranslate);
+        setTranslateX(accumulatedDelta.current > 0 ? -translateAmount : translateAmount);
+
+        // Start decay after a brief pause
+        startDecay();
       }
     };
 
@@ -144,8 +175,8 @@ function useHorizontalOverscroll() {
         document.removeEventListener('mouseup', handleMouseUp);
         document.removeEventListener('wheel', handleWheel);
       }
-      if (resetTimeout.current) {
-        clearTimeout(resetTimeout.current);
+      if (decayAnimation.current) {
+        cancelAnimationFrame(decayAnimation.current);
       }
     };
   }, []);
