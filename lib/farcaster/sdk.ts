@@ -81,15 +81,26 @@ export async function getContext(): Promise<MiniAppContext> {
     const sdk = await getSDK();
     const context = await sdk.context;
 
+    // Map SDK user context to our FarcasterUser type
+    // Note: custody is not directly available in SDK, use verifiedAddresses instead
+    const sdkUser = context.user as {
+      fid: number;
+      username?: string;
+      displayName?: string;
+      pfpUrl?: string;
+      verifiedAddresses?: { ethAddresses?: string[]; solAddresses?: string[] };
+    } | null;
+
     return {
-      user: context.user
+      user: sdkUser
         ? {
-            fid: context.user.fid,
-            username: context.user.username,
-            displayName: context.user.displayName,
-            pfpUrl: context.user.pfpUrl,
-            custody: context.user.custody,
-            verifiedAddresses: context.user.verifiedAddresses,
+            fid: sdkUser.fid,
+            username: sdkUser.username,
+            displayName: sdkUser.displayName,
+            pfpUrl: sdkUser.pfpUrl,
+            // Custody address derived from first verified ETH address
+            custody: sdkUser.verifiedAddresses?.ethAddresses?.[0],
+            verifiedAddresses: sdkUser.verifiedAddresses,
           }
         : null,
       isReady: true,
