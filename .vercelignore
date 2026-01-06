@@ -42,6 +42,10 @@ build
 !public/farcaster-preview-1200x800.png
 !public/farcaster-hero-1200x630.png
 !public/farcaster-og-1200x630.png
+# Farcaster Screenshots (1284x2778 for Warpcast)
+!public/farcaster-screen-1.png
+!public/farcaster-screen-2.png
+!public/farcaster-screen-3.png
 # CGC Token Logos (CRITICAL for CoinGecko listing)
 !public/cgc-logo-32x32.png
 !public/cgc-logo-200x200.png

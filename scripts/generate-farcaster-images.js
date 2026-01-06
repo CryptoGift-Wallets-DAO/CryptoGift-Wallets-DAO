@@ -23,13 +23,14 @@ const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const LOGO_PATH = path.join(PUBLIC_DIR, 'farcaster-icon-1024.png');
 
 // Text overlay as SVG (since sharp doesn't support text directly)
+// NOTE: Avoid emojis in SVG text - they render as broken characters
 function createTextSVG(text, fontSize, color = '#ffffff') {
   return Buffer.from(`
     <svg width="1200" height="200">
       <text
         x="600"
         y="100"
-        font-family="Arial, sans-serif"
+        font-family="Arial, Helvetica, sans-serif"
         font-size="${fontSize}"
         font-weight="bold"
         fill="${color}"
@@ -61,10 +62,10 @@ async function generatePreviewImage() {
   // Title SVG
   const titleSVG = createTextSVG('CryptoGift DAO', 64);
 
-  // Tagline SVG
+  // Tagline SVG (no emojis - they break in SVG)
   const taglineSVG = Buffer.from(`
     <svg width="1200" height="60">
-      <text x="600" y="30" font-family="Arial, sans-serif" font-size="28" fill="#a5b4fc" text-anchor="middle" dominant-baseline="middle">Learn. Earn. Co-govern.</text>
+      <text x="600" y="30" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#a5b4fc" text-anchor="middle" dominant-baseline="middle">Learn. Earn. Co-govern.</text>
     </svg>
   `);
 
@@ -101,18 +102,18 @@ async function generateHeroImage() {
   // Title
   const titleSVG = createTextSVG('CryptoGift DAO', 56);
 
-  // Subtitle
+  // Subtitle (no emojis - they break in SVG)
   const subtitleSVG = Buffer.from(`
     <svg width="1200" height="50">
-      <text x="600" y="25" font-family="Arial, sans-serif" font-size="24" fill="#94a3b8" text-anchor="middle">Complete tasks • Earn CGC tokens • Join the DAO</text>
+      <text x="600" y="25" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#94a3b8" text-anchor="middle">Complete tasks - Earn CGC tokens - Join the DAO</text>
     </svg>
   `);
 
-  // Base network badge
+  // Base network badge (no emojis)
   const badgeSVG = Buffer.from(`
     <svg width="200" height="40">
       <rect x="0" y="0" width="200" height="40" rx="20" fill="#3b82f6"/>
-      <text x="100" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">🔵 Built on Base</text>
+      <text x="100" y="25" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">Built on Base</text>
     </svg>
   `);
 
@@ -149,10 +150,10 @@ async function generateOGImage() {
   // Big title for social
   const titleSVG = createTextSVG('CryptoGift DAO', 72);
 
-  // Call to action
+  // Call to action (no emojis - they break in SVG)
   const ctaSVG = Buffer.from(`
     <svg width="1200" height="50">
-      <text x="600" y="25" font-family="Arial, sans-serif" font-size="28" fill="#a5b4fc" text-anchor="middle">Earn CGC by completing tasks 🎯</text>
+      <text x="600" y="25" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#a5b4fc" text-anchor="middle">Earn CGC by completing tasks</text>
     </svg>
   `);
 
