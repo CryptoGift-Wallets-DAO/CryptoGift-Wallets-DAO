@@ -19,13 +19,13 @@ import { MiniAppProvider } from './components/MiniAppProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'CryptoGift DAO - Earn CGC Tokens',
-  description: 'Complete tasks, earn CGC tokens, and co-govern the DAO. Join the future of decentralized rewards on Base.',
+  title: 'CryptoGift DAO - Earn CGC Tokens by Completing Simple Tasks',
+  description: 'Complete tasks, earn CGC tokens, and help govern the DAO. Join CryptoGift on Base - the future of decentralized rewards. Start earning crypto today!',
 
   // Open Graph - For rich cards when sharing links
   openGraph: {
-    title: 'CryptoGift DAO - Earn CGC Tokens',
-    description: 'Complete tasks, earn CGC tokens, and co-govern the DAO. Join the future of decentralized rewards on Base.',
+    title: 'CryptoGift DAO - Earn CGC Tokens by Completing Simple Tasks',
+    description: 'Complete tasks, earn CGC tokens, and help govern the DAO. Join CryptoGift on Base - the future of decentralized rewards. Start earning crypto today!',
     url: 'https://mbxarts.com/miniapp',
     siteName: 'CryptoGift DAO',
     images: [
@@ -43,8 +43,8 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: 'summary_large_image',
-    title: 'CryptoGift DAO - Earn CGC Tokens',
-    description: 'Complete tasks, earn CGC tokens, and co-govern the DAO on Base.',
+    title: 'CryptoGift DAO - Earn CGC Tokens by Completing Simple Tasks',
+    description: 'Complete tasks, earn CGC tokens, and help govern the DAO. Join CryptoGift on Base - the future of decentralized rewards. Start earning crypto today!',
     images: ['https://mbxarts.com/farcaster-og-1200x630.png'],
     creator: '@cryptogiftdao',
   },
