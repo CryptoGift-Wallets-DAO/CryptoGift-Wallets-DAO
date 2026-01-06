@@ -14,7 +14,7 @@ import { CheckCircle, Gift, Trophy, Rocket, ArrowRight, Sparkles } from 'lucide-
 import Link from 'next/link'
 
 // Permanent invite link for campaign (OFFICIAL CAMPAIGN LINK)
-const REFERRAL_INVITE_LINK = '/permanent-invite/PI-MJUJWQG4-AC876FAE059DB7AD'
+const REFERRAL_INVITE_LINK = '/permanent-invite/PI-MK23MZ2Q-83C705CA88AE0B07'
 
 /**
  * Custom content for insufficient balance state
