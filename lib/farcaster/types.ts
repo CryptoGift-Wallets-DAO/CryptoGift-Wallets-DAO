@@ -17,8 +17,8 @@ export interface FarcasterUser {
   pfpUrl?: string;
   custody?: string; // Custody wallet address
   verifiedAddresses?: {
-    ethAddresses: string[];
-    solAddresses: string[];
+    ethAddresses?: string[];
+    solAddresses?: string[];
   };
 }
 
