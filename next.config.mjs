@@ -85,6 +85,17 @@ const nextConfig = {
       },
     ];
   },
+
+  // Redirects for Farcaster Mini App manifest
+  async redirects() {
+    return [
+      {
+        source: '/.well-known/farcaster.json',
+        destination: 'https://api.farcaster.xyz/miniapps/hosted-manifest/019b92e7-e20b-1847-fe81-4d0f3400145e',
+        permanent: false, // 307 temporary redirect
+      },
+    ];
+  },
 };
 
 // Sentry configuration temporarily disabled for development debugging
