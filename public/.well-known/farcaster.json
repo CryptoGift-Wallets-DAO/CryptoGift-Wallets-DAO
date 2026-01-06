@@ -7,8 +7,8 @@
   "miniapp": {
     "version": "1",
     "name": "CryptoGift DAO",
-    "iconUrl": "https://mbxarts.com/cgc-icon-1024.png",
-    "splashImageUrl": "https://mbxarts.com/splash-200.png",
+    "iconUrl": "https://mbxarts.com/farcaster-icon-1024.png",
+    "splashImageUrl": "https://mbxarts.com/farcaster-splash-200.png",
     "splashBackgroundColor": "#1a1a2e",
     "homeUrl": "https://mbxarts.com/miniapp",
     "webhookUrl": "https://mbxarts.com/api/miniapp/webhook",
