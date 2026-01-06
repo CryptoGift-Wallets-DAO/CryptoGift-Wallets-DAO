@@ -19,12 +19,40 @@ import { MiniAppProvider } from './components/MiniAppProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'CryptoGift DAO',
-  description: 'Complete tasks, earn CGC tokens, and grow your network.',
+  title: 'CryptoGift DAO - Earn CGC Tokens',
+  description: 'Complete tasks, earn CGC tokens, and co-govern the DAO. Join the future of decentralized rewards on Base.',
+
+  // Open Graph - For rich cards when sharing links
+  openGraph: {
+    title: 'CryptoGift DAO - Earn CGC Tokens',
+    description: 'Complete tasks, earn CGC tokens, and co-govern the DAO. Join the future of decentralized rewards on Base.',
+    url: 'https://mbxarts.com/miniapp',
+    siteName: 'CryptoGift DAO',
+    images: [
+      {
+        url: 'https://mbxarts.com/farcaster-og-1200x630.png',
+        width: 1200,
+        height: 630,
+        alt: 'CryptoGift DAO - Earn CGC by completing tasks',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+
+  // Twitter Card
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CryptoGift DAO - Earn CGC Tokens',
+    description: 'Complete tasks, earn CGC tokens, and co-govern the DAO on Base.',
+    images: ['https://mbxarts.com/farcaster-og-1200x630.png'],
+    creator: '@cryptogiftdao',
+  },
+
   // Farcaster Mini App meta tags
   other: {
     'fc:frame': 'vNext',
-    'fc:frame:image': 'https://mbxarts.com/splash-200.png',
+    'fc:frame:image': 'https://mbxarts.com/farcaster-preview-1200x800.png',
     'fc:frame:button:1': 'Open Mini App',
     'fc:frame:button:1:action': 'launch_frame',
     'fc:frame:button:1:target': 'https://mbxarts.com/miniapp',
