@@ -40,7 +40,7 @@ import {
 } from 'lucide-react';
 
 // Permanent invite link for new users (OFFICIAL CAMPAIGN LINK)
-const INVITE_LINK = '/permanent-invite/PI-MK23MZ2Q-83C705CA88AE0B07';
+const INVITE_LINK = '/permanent-invite/PI-MK29MMCI-E6284EC943D54CA3';
 
 // Animations: float + holographic shimmer
 const animations = `
