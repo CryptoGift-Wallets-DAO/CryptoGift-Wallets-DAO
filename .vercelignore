@@ -39,6 +39,9 @@ build
 # Farcaster Mini App Images (CRITICAL for Warpcast Hosted Manifest)
 !public/farcaster-icon-1024.png
 !public/farcaster-splash-200.png
+!public/farcaster-preview-1200x800.png
+!public/farcaster-hero-1200x630.png
+!public/farcaster-og-1200x630.png
 # CGC Token Logos (CRITICAL for CoinGecko listing)
 !public/cgc-logo-32x32.png
 !public/cgc-logo-200x200.png
