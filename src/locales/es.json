@@ -2268,5 +2268,70 @@
       "spamTip": "¡Revisa tu carpeta de spam si no ves el email!",
       "retryWithAccount": "Ya Verifiqué - Intentar de Nuevo"
     }
+  },
+  "miniapp": {
+    "tabs": {
+      "dashboard": "Panel",
+      "tasks": "Tareas",
+      "referrals": "Referidos"
+    },
+    "dashboard": {
+      "welcomeTitle": "Bienvenido a CryptoGift DAO",
+      "welcomeDesc": "Completa tareas, gana tokens CGC y crece tu red.",
+      "connectPrompt": "Conéctate con Farcaster para comenzar",
+      "error": "Error al cargar el panel",
+      "metrics": {
+        "availableTasks": "Tareas Disponibles",
+        "inProgress": "En Progreso",
+        "pendingCGC": "CGC Pendientes",
+        "referrals": "Referidos",
+        "streak": "Días Racha",
+        "rank": "Tu Posición"
+      },
+      "cta": {
+        "viewTasks": "Ver Tareas Disponibles",
+        "inviteFriends": "Invita Amigos y Gana"
+      },
+      "tips": {
+        "completeTask": "¡Tienes una tarea en progreso! Complétala para ganar CGC."
+      }
+    },
+    "tasks": {
+      "error": "Error al cargar tareas",
+      "retry": "Intentar de Nuevo",
+      "sections": {
+        "inProgress": "En Progreso",
+        "available": "Disponibles",
+        "completed": "Completadas Recientemente"
+      },
+      "empty": {
+        "available": "No hay tareas disponibles ahora. ¡Vuelve pronto!"
+      },
+      "status": {
+        "available": "Disponible",
+        "claimed": "Reclamada",
+        "in_progress": "En Progreso",
+        "completed": "Completada",
+        "validated": "Validada"
+      },
+      "actions": {
+        "claim": "Tomar Tarea",
+        "submit": "Entregar",
+        "share": "Compartir"
+      }
+    },
+    "referrals": {
+      "error": "Error al cargar referidos",
+      "connectPrompt": "Conéctate para ver tus estadísticas de referidos",
+      "yourLink": "Tu Enlace de Referido",
+      "generating": "Generando...",
+      "copy": "Copiar",
+      "shareToFeed": "Compartir en Farcaster",
+      "yourNetwork": "Tu Red",
+      "pendingRewards": "Recompensas Pendientes",
+      "conversion": "Tasa de Conversión",
+      "leaderboard": "Tabla de Posiciones",
+      "you": "Tú"
+    }
   }
 }

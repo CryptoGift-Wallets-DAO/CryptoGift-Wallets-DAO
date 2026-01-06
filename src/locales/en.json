@@ -2268,5 +2268,70 @@
       "spamTip": "Check your spam/junk folder if you don't see the email!",
       "retryWithAccount": "I've Verified - Try Again"
     }
+  },
+  "miniapp": {
+    "tabs": {
+      "dashboard": "Dashboard",
+      "tasks": "Tasks",
+      "referrals": "Referrals"
+    },
+    "dashboard": {
+      "welcomeTitle": "Welcome to CryptoGift DAO",
+      "welcomeDesc": "Complete tasks, earn CGC tokens, and grow your network.",
+      "connectPrompt": "Connect with Farcaster to get started",
+      "error": "Failed to load dashboard",
+      "metrics": {
+        "availableTasks": "Available Tasks",
+        "inProgress": "In Progress",
+        "pendingCGC": "Pending CGC",
+        "referrals": "Referrals",
+        "streak": "Streak Days",
+        "rank": "Your Rank"
+      },
+      "cta": {
+        "viewTasks": "View Available Tasks",
+        "inviteFriends": "Invite Friends & Earn"
+      },
+      "tips": {
+        "completeTask": "You have a task in progress! Complete it to earn CGC."
+      }
+    },
+    "tasks": {
+      "error": "Failed to load tasks",
+      "retry": "Try Again",
+      "sections": {
+        "inProgress": "In Progress",
+        "available": "Available",
+        "completed": "Recently Completed"
+      },
+      "empty": {
+        "available": "No tasks available right now. Check back soon!"
+      },
+      "status": {
+        "available": "Available",
+        "claimed": "Claimed",
+        "in_progress": "In Progress",
+        "completed": "Completed",
+        "validated": "Validated"
+      },
+      "actions": {
+        "claim": "Take Task",
+        "submit": "Submit",
+        "share": "Share"
+      }
+    },
+    "referrals": {
+      "error": "Failed to load referrals",
+      "connectPrompt": "Connect to view your referral stats",
+      "yourLink": "Your Referral Link",
+      "generating": "Generating...",
+      "copy": "Copy",
+      "shareToFeed": "Share to Farcaster Feed",
+      "yourNetwork": "Your Network",
+      "pendingRewards": "Pending Rewards",
+      "conversion": "Conversion Rate",
+      "leaderboard": "Leaderboard",
+      "you": "You"
+    }
   }
 }
