@@ -121,25 +121,72 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Get wallet address for a Farcaster FID
- * TODO: Implement proper Hub API call in production
+ * Neynar API response types
+ */
+interface NeynarUser {
+  fid: number;
+  username: string;
+  display_name: string;
+  verified_addresses: {
+    eth_addresses: string[];
+    sol_addresses: string[];
+  };
+  custody_address: string;
+}
+
+interface NeynarResponse {
+  users: NeynarUser[];
+}
+
+/**
+ * Get wallet address for a Farcaster FID via Neynar API
+ * Returns the first verified ETH address, or custody address as fallback
  */
 async function getWalletForFid(fid: number): Promise<string | null> {
-  try {
-    // In production, use Farcaster Hub API:
-    // const response = await fetch(`https://hub.farcaster.xyz/v1/userDataByFid?fid=${fid}`);
-    // Or use Neynar API:
-    // const response = await fetch(`https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`, {
-    //   headers: { 'api_key': process.env.NEYNAR_API_KEY! }
-    // });
+  const apiKey = process.env.NEYNAR_API_KEY;
 
-    // For MVP, we'll need to implement this properly
-    // Returning null will cause auth to fail, which is safe
-    console.log(`[MiniApp Auth] Would fetch wallet for FID: ${fid}`);
-
-    // Placeholder - in production, return actual wallet
-    // For testing, you can hardcode a test wallet
+  if (!apiKey) {
+    console.error('[MiniApp Auth] NEYNAR_API_KEY not configured');
     return null;
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`,
+      {
+        headers: {
+          'accept': 'application/json',
+          'x-api-key': apiKey,
+        },
+        next: { revalidate: 300 }, // Cache for 5 minutes
+      }
+    );
+
+    if (!response.ok) {
+      console.error(`[MiniApp Auth] Neynar API error: ${response.status}`);
+      return null;
+    }
+
+    const data: NeynarResponse = await response.json();
+
+    if (!data.users || data.users.length === 0) {
+      console.error(`[MiniApp Auth] No user found for FID: ${fid}`);
+      return null;
+    }
+
+    const user = data.users[0];
+
+    // Prefer verified ETH address, fallback to custody address
+    const verifiedAddresses = user.verified_addresses?.eth_addresses || [];
+    const wallet = verifiedAddresses[0] || user.custody_address;
+
+    if (!wallet) {
+      console.error(`[MiniApp Auth] No wallet found for FID: ${fid}`);
+      return null;
+    }
+
+    console.log(`[MiniApp Auth] Resolved FID ${fid} (@${user.username}) → ${wallet.slice(0, 10)}...`);
+    return wallet;
   } catch (error) {
     console.error('[MiniApp Auth] Error fetching wallet for FID:', error);
     return null;
