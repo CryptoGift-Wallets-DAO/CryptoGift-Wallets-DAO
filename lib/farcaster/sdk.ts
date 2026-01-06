@@ -125,11 +125,26 @@ export async function composeCast(options: ComposeCastOptions): Promise<boolean>
 
   try {
     const sdk = await getSDK();
-    await sdk.actions.composeCast({
+
+    // Build compose options with proper SDK types
+    const composeOptions: Parameters<typeof sdk.actions.composeCast>[0] = {
       text: options.text,
-      embeds: options.embeds,
-      parent: options.parentCastId,
-    });
+    };
+
+    // embeds must be a tuple of 0-2 URLs
+    if (options.embeds && options.embeds.length > 0) {
+      composeOptions.embeds = options.embeds.slice(0, 2) as [] | [string] | [string, string];
+    }
+
+    // parent requires type: "cast" format
+    if (options.parentCastId) {
+      composeOptions.parent = {
+        type: 'cast' as const,
+        hash: options.parentCastId.hash,
+      };
+    }
+
+    await sdk.actions.composeCast(composeOptions);
     return true;
   } catch (error) {
     console.error('[Farcaster SDK] Failed to compose cast:', error);
@@ -177,8 +192,9 @@ export async function requestAddToFavorites(): Promise<boolean> {
 
   try {
     const sdk = await getSDK();
-    const result = await sdk.actions.addFrame();
-    return result?.added ?? false;
+    await sdk.actions.addFrame();
+    // If we reach here without error, the app was added successfully
+    return true;
   } catch (error) {
     console.error('[Farcaster SDK] Failed to add to favorites:', error);
     return false;
