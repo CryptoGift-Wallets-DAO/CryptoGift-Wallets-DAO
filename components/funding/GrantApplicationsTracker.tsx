@@ -396,7 +396,7 @@ function ApplicationCard({
     return (
       <ApplicationForm
         initial={application}
-        onSubmit={onUpdate}
+        onSubmit={(data) => onUpdate(data as GrantApplicationUpdate)}
         onCancel={onCancelEdit}
         isEdit
       />
@@ -589,7 +589,7 @@ function ApplicationCard({
 // Application Form
 interface ApplicationFormProps {
   initial?: Partial<GrantApplication>;
-  onSubmit: (data: GrantApplicationInsert | GrantApplicationUpdate) => void;
+  onSubmit: (data: GrantApplicationInsert) => void;
   onCancel: () => void;
   isEdit?: boolean;
 }
@@ -625,7 +625,7 @@ function ApplicationForm({ initial, onSubmit, onCancel, isEdit = false }: Applic
       next_steps: formData.notes_next_steps ? formData.notes_next_steps.split('\n').filter(s => s.trim()) : undefined
     };
 
-    const data: GrantApplicationInsert | GrantApplicationUpdate = {
+    const baseData = {
       platform_name: formData.platform_name,
       program_name: formData.program_name || null,
       application_url: formData.application_url,
@@ -641,11 +641,15 @@ function ApplicationForm({ initial, onSubmit, onCancel, isEdit = false }: Applic
       contact_email: formData.contact_email || null,
       tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(t => t) : [],
       notes,
-      internal_notes: formData.internal_notes || null,
-      created_by: '' // Will be set by API
+      internal_notes: formData.internal_notes || null
     };
 
-    onSubmit(data);
+    // Always create a GrantApplicationInsert - the API handles the difference
+    const submitData: GrantApplicationInsert = {
+      ...baseData,
+      created_by: '' // Will be set by API
+    };
+    onSubmit(submitData);
   };
 
   return (
