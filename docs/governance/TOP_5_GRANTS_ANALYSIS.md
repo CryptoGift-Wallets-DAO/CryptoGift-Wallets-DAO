@@ -322,6 +322,8 @@ Try it: mbxarts.com
 - Website: https://mbxarts.com
 - Twitter: https://x.com/cryptogiftdao
 - Discord: https://discord.gg/XzmKkrvhHc
+- Telegram: https://t.me/cryptogiftwalletsdao
+- Giveth: https://giveth.io/project/cryptogift-wallets-dao
 
 **PASO 3: Aplicar Durante Ronda Activa**
 1. Esperar anuncio de próxima ronda
@@ -366,6 +368,8 @@ Antes de aplicar a cualquier grant:
 - [ ] GitHub actualizado
 - [ ] Twitter activo: @cryptogiftdao
 - [ ] Discord con miembros: discord.gg/XzmKkrvhHc
+- [ ] Telegram activo: t.me/cryptogiftwalletsdao
+- [ ] Giveth publicado: giveth.io/project/cryptogift-wallets-dao
 
 ## APIs Funcionando
 - [ ] Total Supply: https://mbxarts.com/api/token/total-supply

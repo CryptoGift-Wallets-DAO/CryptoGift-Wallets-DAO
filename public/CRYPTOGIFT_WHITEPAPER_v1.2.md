@@ -548,6 +548,8 @@ The team combines expertise in Web3 development, community building, and busines
 
 - **Twitter/X**: https://x.com/cryptogiftdao
 - **Discord**: https://discord.gg/XzmKkrvhHc
+- **Telegram**: https://t.me/cryptogiftwalletsdao
+- **Giveth**: https://giveth.io/project/cryptogift-wallets-dao
 - **Email**: admin@mbxarts.com
 
 ### APIs (CoinGecko Integration)

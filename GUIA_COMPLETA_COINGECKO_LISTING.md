@@ -352,9 +352,14 @@ https://x.com/cryptogiftdao
 https://discord.gg/XzmKkrvhHc
 ```
 
-#### **Telegram** (si tienes)
+#### **Telegram**
 ```
-[Dejar vacío si no tienes]
+https://t.me/cryptogiftwalletsdao
+```
+
+#### **Giveth**
+```
+https://giveth.io/project/cryptogift-wallets-dao
 ```
 
 #### **Medium/Blog** (opcional)

@@ -569,6 +569,8 @@ Actively seeking advisors in:
 | **Claim Rate (Beta)** | 85.7% | vs 3-4% industria |
 | **Pool de Liquidez** | ~$100 USD | Aerodrome WETH/CGC |
 | **Comunidad Discord** | Activa | discord.gg/XzmKkrvhHc |
+| **Comunidad Telegram** | Activa | t.me/cryptogiftwalletsdao |
+| **Giveth** | Activo | giveth.io/project/cryptogift-wallets-dao |
 
 ### Métricas Técnicas
 
@@ -998,6 +1000,8 @@ Actively seeking advisors in:
 |---------|-----|
 | **Twitter/X** | https://x.com/cryptogiftdao |
 | **Discord** | https://discord.gg/XzmKkrvhHc |
+| **Telegram** | https://t.me/cryptogiftwalletsdao |
+| **Giveth** | https://giveth.io/project/cryptogift-wallets-dao |
 
 ### APIs
 | Endpoint | URL |
@@ -1025,7 +1029,9 @@ Actively seeking advisors in:
 | **Empresa** | The Moon in a Box Inc. |
 | **Fundador** | Rafael González |
 | **Discord** | discord.gg/XzmKkrvhHc |
+| **Telegram** | t.me/cryptogiftwalletsdao |
 | **Twitter** | @cryptogiftdao |
+| **Giveth** | giveth.io/project/cryptogift-wallets-dao |
 
 ## Para Grants y Partnerships / For Grants and Partnerships
 

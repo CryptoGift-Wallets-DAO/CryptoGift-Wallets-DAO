@@ -342,7 +342,9 @@ Documentación: https://mbxarts.com/docs
 Whitepaper: https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html
 GitHub: https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 Discord: https://discord.gg/XzmKkrvhHc
+Telegram: https://t.me/cryptogiftwalletsdao
 Twitter: https://x.com/cryptogiftdao
+Giveth: https://giveth.io/project/cryptogift-wallets-dao
 
 APIs:
 Total Supply: https://mbxarts.com/api/token/total-supply
@@ -358,7 +360,9 @@ Documentation: https://mbxarts.com/docs
 Whitepaper: https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html
 GitHub: https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 Discord: https://discord.gg/XzmKkrvhHc
+Telegram: https://t.me/cryptogiftwalletsdao
 Twitter: https://x.com/cryptogiftdao
+Giveth: https://giveth.io/project/cryptogift-wallets-dao
 
 APIs:
 Total Supply: https://mbxarts.com/api/token/total-supply
@@ -377,14 +381,18 @@ Logo 512x512: https://raw.githubusercontent.com/CryptoGift-Wallets-DAO/CryptoGif
 Email: admin@mbxarts.com
 Empresa: The Moon in a Box Inc.
 Discord: https://discord.gg/XzmKkrvhHc
+Telegram: https://t.me/cryptogiftwalletsdao
 Twitter: @cryptogiftdao
+Giveth: https://giveth.io/project/cryptogift-wallets-dao
 
 Disponibilidad para Calls: Flexible, coordinar via email`,
     contentEn: `Primary Contact: Rafael González
 Email: admin@mbxarts.com
 Company: The Moon in a Box Inc.
 Discord: https://discord.gg/XzmKkrvhHc
+Telegram: https://t.me/cryptogiftwalletsdao
 Twitter: @cryptogiftdao
+Giveth: https://giveth.io/project/cryptogift-wallets-dao
 
 Availability for Calls: Flexible, coordinate via email`
   },

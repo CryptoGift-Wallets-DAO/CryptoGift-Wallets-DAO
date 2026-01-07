@@ -1,8 +1,9 @@
 # 📚 GUÍA MAESTRA DE SOLICITUDES DE GRANTS Y FINANCIAMIENTO
+
 ## CryptoGift Wallets DAO - Documento Oficial de Referencia
 
-**Versión**: 3.0
-**Última Actualización**: 11 de Diciembre, 2025
+**Versión**: 2.0
+**Última Actualización**: 10 de Diciembre, 2025
 **Idiomas**: Español (ES) + English (EN)
 **Uso**: Solicitudes de grants, aplicaciones de financiamiento, presentaciones a inversores
 
@@ -27,9 +28,8 @@ Made by mbxarts.com | The Moon in a Box Inc.
 11. [Impacto en el Ecosistema / Ecosystem Impact](#11-impacto-en-el-ecosistema--ecosystem-impact)
 12. [URLs y Recursos / URLs & Resources](#12-urls-y-recursos--urls--resources)
 13. [Contacto / Contact](#13-contacto--contact)
-14. [Top 5 Oportunidades de Grants / Top 5 Grant Opportunities](#14-top-5-oportunidades-de-grants--top-5-grant-opportunities)
-15. [Respuestas Específicas por Grant / Grant-Specific Answers](#15-respuestas-específicas-por-grant--grant-specific-answers)
-16. [Plantillas de Texto / Text Templates](#16-plantillas-de-texto--text-templates)
+14. [Respuestas Específicas por Grant / Grant-Specific Answers](#14-respuestas-específicas-por-grant--grant-specific-answers)
+15. [Plantillas de Texto / Text Templates](#15-plantillas-de-texto--text-templates)
 
 ---
 
@@ -109,151 +109,83 @@ Made by mbxarts.com | The Moon in a Box Inc.
 
 ## 🇪🇸 ESPAÑOL
 
-### 📖 Historia del Proyecto
-
-CryptoGift Wallets nace con una idea simple pero explosiva: **regalar no solo un objeto, sino una puerta**. Una puerta al futuro financiero… sin fricción, sin sustos técnicos y sin custodios. El "amigo que mira la cripto con recelo" no recibe un sermón ni un tutorial frío: recibe **una pieza de arte** que, por dentro, guarda **capital real on-chain**, listo para usar. Ahí empieza su historia como holder… y ahí empieza la nuestra.
-
-Desde el inicio, el proyecto se diseñó como **infraestructura de producción**, no como experimento:
-
-* **ERC-721 + ERC-6551 (TBA)**: *el NFT es la cuenta* (token-bound account).
-* **ERC-1155 + 6551-like (CryptoGift) = 1155-TBA-like**: nuestro protocolo central para **producción masiva** (campañas ilimitadas, concursos, sondeos, packs corporativos, educación y marketing) con **claim EIP-712**, **gas patrocinado**, reglas configurables y **auto-return** si no se reclama. "El arte abre la bóveda; la bóveda escala a millones."
-
-En paralelo, el proyecto evoluciona como **ecosistema gobernado por comunidad**: el DAO se concibe para **coordinar educación, incentivos, liquidez y crecimiento**, alineando recompensas con valor real creado (no con promesas vacías). Con despliegues, contratos verificados, documentación profesional y comunidad activa, CryptoGift Wallets avanza con consistencia y con una tesis clara: **la adopción masiva no se logra empujando wallets, se logra regalando confianza**.
-
----
-
-### 🎯 ¿De qué trata el proyecto?
-
-**CryptoGift Wallets DAO** es una organización autónoma descentralizada en **Base (L2 de Ethereum)** que convierte el aprendizaje y la participación en **poder real de gobernanza**. El usuario no "consume contenido": completa **quests**, contribuye a **hitos comunitarios** y gana **CGC (CryptoGift Coin)**, que se traduce en voto, propuestas, delegación y decisiones del protocolo.
-
-Y lo más importante: el DAO no existe "al lado" del producto… existe para **arrancar, gobernar y escalar** el producto principal:
-
-**CryptoGift Wallets** es la infraestructura que transforma NFTs en **wallets no custodiales funcionales** para:
-
-* **regalos cripto programables**,
-* **onboarding guiado para no-cripto nativos**,
-* **interacciones sin gas para el usuario** (paymaster / gas patrocinado),
-* y **campañas masivas** vía **1155-TBA-like**, donde cada token puede tener su mini-wallet vinculada y reglas de reclamo (condiciones, fechas, ubicación, tareas, verificación).
-
-El resultado: un sistema donde **la emoción (regalo) activa la adopción**, y la tecnología queda **invisible** hasta que el usuario ya está "dentro".
-
----
-
 ### Versión Corta (50 palabras)
-CryptoGift Wallets DAO transforma NFTs en wallets no custodiales mediante ERC-6551, permitiendo regalos cripto programables, onboarding gasless y campañas masivas vía 1155-TBA-like. El DAO gobierna y escala esta infraestructura, coordinando educación, liquidez e incentivos para que la adopción masiva llegue regalando confianza, no empujando wallets.
+CryptoGift Wallets DAO es la primera infraestructura Web3 que transforma NFTs en wallets completamente funcionales mediante ERC-6551, permitiendo a marcas, creadores y DAOs distribuir activos, recompensas y experiencias educativas a usuarios que aún no tienen wallet, con interacciones gasless y onboarding guiado.
 
 ### Versión Media (150 palabras)
-CryptoGift Wallets nace de una tesis simple: **la adopción masiva no se logra empujando wallets, se logra regalando confianza**.
+CryptoGift Wallets, el producto insignia del ecosistema, es una infraestructura de producción que convierte NFTs en wallets no custodiales completamente funcionales utilizando cuentas vinculadas a tokens ERC-6551 y account abstraction. Este diseño permite que marcas, creadores y DAOs distribuyan activos, quests y recompensas a usuarios que posiblemente no tengan una wallet tradicional, mientras la plataforma maneja las interacciones gasless y el onboarding guiado.
 
-El producto insignia convierte NFTs en wallets no custodiales completamente funcionales usando ERC-6551 (token-bound accounts) y account abstraction. Esto permite que marcas, creadores y DAOs distribuyan activos digitales, quests educativas y recompensas a usuarios sin wallet previa, con experiencia 100% gasless y onboarding guiado.
+El propósito central de CryptoGift Wallets DAO es impulsar, gobernar y escalar esta plataforma principal: coordinando liquidez, incentivos y educación comunitaria para que más marcas, creadores y organizaciones puedan usar CryptoGift Wallets para incorporar nuevos usuarios a Web3 de manera sostenible y alineada con la misión.
 
-Pero el core que nadie está ejecutando así es **1155-TBA-like**: producción masiva de tokens con mini-wallets vinculadas, claim EIP-712, gas patrocinado, reglas configurables y auto-return si no se reclama. "El arte abre la bóveda; la bóveda escala a millones."
-
-El propósito central del DAO es **arrancar, gobernar y escalar** esta plataforma, coordinando liquidez, incentivos y educación comunitaria. CryptoGift Wallets no es solo infraestructura educativa: es un **nuevo riel de distribución** para la adopción masiva de Web3 en Base.
+Como resultado, CryptoGift Wallets no es solo una capa educativa sino también un poderoso canal de distribución y activación para la adopción masiva de Web3 en Base.
 
 ### Versión Completa (400+ palabras)
+CryptoGift Wallets representa una revolución en cómo las personas ingresan al mundo cripto. Nuestra plataforma elimina las tres barreras fundamentales que impiden la adopción masiva: la complejidad técnica del setup de wallets, la falta de incentivos para el aprendizaje, y los costos ocultos de gas que arruinan la experiencia del usuario.
 
-**Historia**: CryptoGift Wallets nace con una idea explosiva: regalar no solo un objeto, sino una puerta al futuro financiero. El "amigo que mira la cripto con recelo" no recibe un sermón ni un tutorial frío: recibe una pieza de arte que, por dentro, guarda capital real on-chain, listo para usar. Ahí empieza su historia como holder.
+**El Problema**: Actualmente, el 97% de las gift cards cripto nunca son reclamadas. Los usuarios se enfrentan a un proceso intimidante: crear wallet, guardar seed phrase, pagar fees de gas. El 70% abandona en el primer minuto.
 
-**El Problema**: El 97% de las gift cards cripto nunca son reclamadas. Los usuarios enfrentan un proceso intimidante: crear wallet, guardar seed phrase, pagar fees de gas. El 70% abandona en el primer minuto. La adopción masiva está bloqueada por fricción técnica y miedo.
+**Nuestra Solución**: Usando ERC-6551 (Token Bound Accounts), transformamos cada NFT en una wallet completamente funcional. El flujo es simple:
 
-**Nuestra Solución - El Core Técnico**:
-- **ERC-721 + ERC-6551 (TBA)**: El NFT ES la cuenta (token-bound account)
-- **1155-TBA-like**: Producción masiva con claim EIP-712, gas patrocinado, reglas configurables y auto-return
-- **Account Abstraction (Biconomy)**: 100% gasless para receivers
-- **Base L2**: Transacciones económicas que hacen viable la economía de gifting
+1. **Para el Sender** (2 minutos): Sube una imagen, establece el monto, genera un link compartible.
+2. **Para el Receiver** (5 minutos): Hace clic en el link, completa una educación interactiva de 5 minutos, reclama automáticamente.
+3. **Resultado**: El NFT SE CONVIERTE en la wallet con cripto dentro, listo para usar.
 
-**El Flujo**:
-1. **Sender** (2 min): Sube imagen, establece monto, genera link compartible
-2. **Receiver** (5 min): Click en link → educación interactiva → claim automático
-3. **Resultado**: El NFT SE CONVIERTE en wallet con cripto dentro, listo para usar
+**Stack de Innovación**:
+- **ERC-6551**: Tu NFT ES tu wallet - no necesitas crear una aparte
+- **EIP-712 Signature Gating**: Flujo educativo asegurado con firmas criptográficas
+- **Account Abstraction (Biconomy)**: Experiencia 100% gasless para receivers
+- **Base L2**: Transacciones rápidas y económicas que hacen viable la economía de gifting
 
-**Infraestructura de Producción**: Desplegado en Base Mainnet desde Enero 2025, con todos los contratos verificados en BaseScan:
-- Sistema de tareas con mecánicas competitivas y timeouts automáticos
-- Panel de administración con validación segura EIP-712
+**Infraestructura de Producción**: CryptoGift Wallets está completamente desplegado en Base Mainnet desde Enero 2025, con todos los contratos verificados en BaseScan. El sistema incluye:
+- Sistema de tareas con mecánicas competitivas
+- Panel de administración para validación segura
 - Pagos automáticos de CGC post-validación
 - Sistema de referidos multinivel (10%, 5%, 2.5%)
 - Gobernanza descentralizada via Aragon DAO
 - Pool de liquidez activo en Aerodrome Finance
 
-**El DAO**: No existe "al lado" del producto - existe para arrancarlo, gobernarlo y escalarlo. Los usuarios completan quests, contribuyen a hitos comunitarios y ganan CGC, que se traduce en voto, propuestas y decisiones del protocolo. Las recompensas están alineadas con valor real creado, no con promesas vacías.
-
-**Visión**: Convertir CryptoGift Wallets en componentes plug-and-play/white-label para marcas, creadores, comunidades y ONGs: campañas masivas con 1155-TBA-like, reglas configurables, atribución y reporting en tiempo real. API para integración en fintechs "en dos líneas". Puente hacia activos tokenizados (RWA) y programas de lealtad, manteniendo transparencia radical: reservas on-chain, gasto de gas patrocinado visible, auditorías accesibles.
+**Visión a Futuro**: CryptoGift Wallets continuará evolucionando como una capa de infraestructura escalable para gifting cripto programable, onboarding y educación en Base. El roadmap incluye convertir las wallets token-bound en componentes plug-and-play para marcas, creadores y DAOs que quieran distribuir activos, recompensas y rutas de aprendizaje a usuarios no nativos de cripto con experiencias gasless y guiadas.
 
 ---
 
 ## 🇬🇧 ENGLISH
 
-### 📖 Project History
-
-CryptoGift Wallets was born with a simple yet explosive idea: **gifting not just an object, but a doorway**. A doorway to financial future... without friction, without technical scares, and without custodians. The "friend who looks at crypto with suspicion" doesn't receive a sermon or a cold tutorial: they receive **a piece of art** that, inside, holds **real on-chain capital**, ready to use. That's where their story as a holder begins... and that's where ours begins too.
-
-From the start, the project was designed as **production infrastructure**, not as an experiment:
-
-* **ERC-721 + ERC-6551 (TBA)**: *the NFT is the account* (token-bound account).
-* **ERC-1155 + 6551-like (CryptoGift) = 1155-TBA-like**: our core protocol for **massive production** (unlimited campaigns, contests, surveys, corporate packs, education and marketing) with **EIP-712 claim**, **sponsored gas**, configurable rules and **auto-return** if not claimed. "Art opens the vault; the vault scales to millions."
-
-In parallel, the project evolves as a **community-governed ecosystem**: the DAO is conceived to **coordinate education, incentives, liquidity and growth**, aligning rewards with real value created (not empty promises). With deployments, verified contracts, professional documentation and an active community, CryptoGift Wallets advances with consistency and a clear thesis: **mass adoption isn't achieved by pushing wallets, it's achieved by gifting trust**.
-
----
-
-### 🎯 What is the project about?
-
-**CryptoGift Wallets DAO** is a decentralized autonomous organization on **Base (Ethereum L2)** that converts learning and participation into **real governance power**. Users don't "consume content": they complete **quests**, contribute to **community milestones** and earn **CGC (CryptoGift Coin)**, which translates into voting, proposals, delegation and protocol decisions.
-
-And most importantly: the DAO doesn't exist "alongside" the product... it exists to **bootstrap, govern and scale** the main product:
-
-**CryptoGift Wallets** is the infrastructure that transforms NFTs into **functional non-custodial wallets** for:
-
-* **programmable crypto gifts**,
-* **guided onboarding for non-crypto natives**,
-* **gasless user interactions** (paymaster / sponsored gas),
-* and **massive campaigns** via **1155-TBA-like**, where each token can have its linked mini-wallet and claim rules (conditions, dates, location, tasks, verification).
-
-The result: a system where **emotion (gift) activates adoption**, and technology remains **invisible** until the user is already "inside".
-
----
-
 ### Short Version (50 words)
-CryptoGift Wallets DAO transforms NFTs into non-custodial wallets via ERC-6551, enabling programmable crypto gifts, gasless onboarding and massive campaigns via 1155-TBA-like. The DAO governs and scales this infrastructure, coordinating education, liquidity and incentives so mass adoption comes from gifting trust, not pushing wallets.
+CryptoGift Wallets DAO is the first Web3 infrastructure that transforms NFTs into fully functional wallets using ERC-6551, enabling brands, creators, and DAOs to distribute assets, rewards, and educational experiences to users who don't even have a traditional wallet yet, with gasless interactions and guided onboarding.
 
 ### Medium Version (150 words)
-CryptoGift Wallets is born from a simple thesis: **mass adoption isn't achieved by pushing wallets, it's achieved by gifting trust**.
+CryptoGift Wallets, the flagship product of the ecosystem, is a production-ready infrastructure that turns NFTs into fully functional, non-custodial wallets using ERC-6551 token-bound accounts and account abstraction. This design allows brands, creators, and DAOs to distribute assets, quests, and rewards to users who may not even have a traditional wallet yet, while the platform handles gasless interactions and guided onboarding.
 
-The flagship product converts NFTs into fully functional non-custodial wallets using ERC-6551 (token-bound accounts) and account abstraction. This allows brands, creators and DAOs to distribute digital assets, educational quests and rewards to users without prior wallets, with 100% gasless experience and guided onboarding.
+The core purpose of CryptoGift Wallets DAO is to bootstrap, govern, and scale this main platform: coordinating liquidity, incentives, and community education so that more brands, creators, and organizations can use CryptoGift Wallets to onboard new users into Web3 in a sustainable, mission-aligned way.
 
-But the core that nobody is executing like this is **1155-TBA-like**: massive production of tokens with linked mini-wallets, EIP-712 claim, sponsored gas, configurable rules and auto-return if not claimed. "Art opens the vault; the vault scales to millions."
-
-The DAO's core purpose is to **bootstrap, govern and scale** this platform, coordinating liquidity, incentives and community education. CryptoGift Wallets isn't just educational infrastructure: it's a **new distribution rail** for mass Web3 adoption on Base.
+As a result, CryptoGift Wallets is not only an education layer but also a powerful distribution and activation rail for large-scale Web3 adoption on Base.
 
 ### Full Version (400+ words)
+CryptoGift Wallets represents a revolution in how people enter the crypto world. Our platform eliminates the three fundamental barriers preventing mass adoption: the technical complexity of wallet setup, the lack of learning incentives, and the hidden gas costs that ruin the user experience.
 
-**History**: CryptoGift Wallets was born with an explosive idea: gifting not just an object, but a doorway to financial future. The "friend who looks at crypto with suspicion" doesn't receive a sermon or a cold tutorial: they receive a piece of art that, inside, holds real on-chain capital, ready to use. That's where their story as a holder begins.
+**The Problem**: Currently, 97% of crypto gift cards are never claimed. Users face an intimidating process: create wallet, save seed phrase, pay gas fees. 70% abandon in the first minute.
 
-**The Problem**: 97% of crypto gift cards are never claimed. Users face an intimidating process: create wallet, save seed phrase, pay gas fees. 70% abandon in the first minute. Mass adoption is blocked by technical friction and fear.
+**Our Solution**: Using ERC-6551 (Token Bound Accounts), we transform each NFT into a fully functional wallet. The flow is simple:
 
-**Our Solution - The Technical Core**:
-- **ERC-721 + ERC-6551 (TBA)**: The NFT IS the account (token-bound account)
-- **1155-TBA-like**: Massive production with EIP-712 claim, sponsored gas, configurable rules and auto-return
-- **Account Abstraction (Biconomy)**: 100% gasless for receivers
-- **Base L2**: Economic transactions that make gifting economics viable
+1. **For the Sender** (2 minutes): Upload an image, set the amount, generate a shareable link.
+2. **For the Receiver** (5 minutes): Click the link, complete a 5-minute interactive education, claim automatically.
+3. **Result**: The NFT BECOMES the wallet with crypto inside, ready to use.
 
-**The Flow**:
-1. **Sender** (2 min): Upload image, set amount, generate shareable link
-2. **Receiver** (5 min): Click link → interactive education → automatic claim
-3. **Result**: The NFT BECOMES wallet with crypto inside, ready to use
+**Innovation Stack**:
+- **ERC-6551**: Your NFT IS your wallet - no need to create a separate one
+- **EIP-712 Signature Gating**: Educational flow secured by cryptographic signatures
+- **Account Abstraction (Biconomy)**: 100% gasless experience for receivers
+- **Base L2**: Fast, cheap transactions enabling viable gifting economics
 
-**Production Infrastructure**: Deployed on Base Mainnet since January 2025, with all contracts verified on BaseScan:
-- Task system with competitive mechanics and automatic timeouts
-- Admin panel with secure EIP-712 validation
+**Production Infrastructure**: CryptoGift Wallets is fully deployed on Base Mainnet since January 2025, with all contracts verified on BaseScan. The system includes:
+- Task system with competitive mechanics
+- Admin panel for secure validation
 - Automatic CGC payments post-validation
 - Multi-level referral system (10%, 5%, 2.5%)
 - Decentralized governance via Aragon DAO
 - Active liquidity pool on Aerodrome Finance
 
-**The DAO**: It doesn't exist "alongside" the product - it exists to bootstrap, govern and scale it. Users complete quests, contribute to community milestones and earn CGC, which translates into voting, proposals and protocol decisions. Rewards are aligned with real value created, not empty promises.
-
-**Vision**: Transform CryptoGift Wallets into plug-and-play/white-label components for brands, creators, communities and NGOs: massive campaigns with 1155-TBA-like, configurable rules, attribution and real-time reporting. API for fintech integration "in two lines". Bridge to tokenized assets (RWA) and loyalty programs, maintaining radical transparency: on-chain reserves, visible sponsored gas spending, accessible audits.
+**Future Vision**: CryptoGift Wallets will continue to evolve as a scalable infrastructure layer for programmable crypto gifting, onboarding, and education on Base. The roadmap includes turning token-bound wallets into plug-and-play components for brands, creators, and DAOs that want to distribute assets, rewards, and learning paths to non-crypto-native users with gasless, guided experiences.
 
 ---
 
@@ -263,48 +195,31 @@ The DAO's core purpose is to **bootstrap, govern and scale** this platform, coor
 
 ### ¿Qué Hace Único a CryptoGift Wallets?
 
-CryptoGift Wallets no es "otro onboarding Web3". Es un **nuevo riel de distribución**: convierte el regalo en un mecanismo de adopción replicable, medible y escalable.
+**1. Primera Infraestructura NFT-to-Wallet del Mercado**
+Somos los primeros en implementar ERC-6551 específicamente para gifting cripto con educación integrada. No existe competidor directo que combine estas tres innovaciones: NFT como wallet, gates educativos, y experiencia gasless.
 
-**1. El core que nadie está ejecutando así (y para producción masiva): 1155-TBA-like**
-Esto NO es "futuro lejano". Es una de las piezas más valiosas del core:
-- Campañas de **millones de tokens**
-- **Claim EIP-712** sin custodia
-- **Gas patrocinado**
-- **Reglas configurables** (fecha/ubicación/tareas/verificación)
-- **Auto-return**: si no se reclama, los fondos vuelven automáticamente al emisor
-> Esto elimina "cajas negras", caducidades injustas y dependencia de terceros.
+**2. Tasa de Conversión 21x Superior**
+Mientras la industria promedia 3-4% de claim rate en gift cards cripto, nuestro sistema logra 85.7% en testing. Este diferencial demuestra product-market fit excepcional.
 
-**2. El NFT deja de ser "imagen" y se vuelve "bóveda"**
-Con **ERC-6551 + account abstraction**, el usuario siente que tiene un objeto con valor real, controlable con acciones simples ("retirar", "cambiar moneda"), sin pelear con gas, setups, ni fricción técnica.
+**3. Canal de Distribución B2B Único**
+Ofrecemos a marcas, DAOs y empresas una forma completamente nueva de distribuir valor: cada gift es simultáneamente onboarding, educación, y activación de usuario.
 
-**3. Adopción humana: empezamos por vínculo, no por frialdad**
-La mayoría entra a cripto por una rampa fría: exchange, QR, tutorial. Aquí se entra por algo que el cerebro entiende de inmediato: **un regalo con historia**. Eso convierte curiosidad en confianza.
+**4. Modelo de Emisión Sostenible**
+A diferencia de tokens con inflación predeterminada, CGC usa emisión basada en milestones: los tokens solo se mintean cuando el DAO crea valor verificable.
 
-**4. "Aprender para reclamar": la Academy como motor de crecimiento medible**
-La Academy no es adorno: es un "growth loop":
-- El valor se libera al completar módulos, tests, encuestas o misiones
-- Badges/certificaciones on-chain
-- KPIs y atribución listos para marcas/ONGs que necesitan medir impacto antes de soltar incentivos
-
-**5. Comunidades superpuestas (micro-DAOs) desde el primer día**
-Cada TBA/1155-TBA puede incluir tokens de gobernanza: micro-comunidades que votan, priorizan y gestionan tesorerías (compatible con Aragon). Esto habilita capítulos locales, voluntariado, fans de marca o cohorts educativas con gobernanza real.
-
-**6. Tokenomics con "credibilidad": emisión por hitos verificables**
-En lugar de inflar supply por calendario, la emisión progresa cuando hay hitos reales (valor creado). Sumado a verificación criptográfica de logros (EAS), contratos verificados y delegación de voto, el DAO se siente como institución, no como hype.
+**5. Infraestructura, No Solo Producto**
+CryptoGift Wallets no es una app aislada - es infraestructura que otras organizaciones pueden usar para sus propios casos de uso de onboarding y distribución.
 
 ### Diferenciadores Competitivos
 
 | Característica | CryptoGift | Gift Cards Tradicionales | Onboarding Tools |
 |---------------|------------|--------------------------|------------------|
 | Claim Rate | **85.7%** | 3-4% | N/A |
-| Wallet Real | ✅ ERC-6551/1155-TBA | ❌ Custodial | ⚠️ Requiere setup |
-| Gasless | ✅ 100% Patrocinado | ❌ | ⚠️ Parcial |
-| Educación Integrada | ✅ Academy Medible | ❌ | ❌ |
+| Wallet Real | ✅ ERC-6551 | ❌ Custodial | ⚠️ Requiere setup |
+| Gasless | ✅ 100% | ❌ | ⚠️ Parcial |
+| Educación Integrada | ✅ | ❌ | ❌ |
 | No Custodial | ✅ | ❌ | ✅ |
-| B2B Ready | ✅ White-label | ⚠️ | ❌ |
-| Auto-Return | ✅ | ❌ | ❌ |
-| Campañas Masivas | ✅ 1155-TBA | ❌ | ❌ |
-| Micro-DAOs | ✅ | ❌ | ❌ |
+| B2B Ready | ✅ | ⚠️ | ❌ |
 
 ---
 
@@ -312,48 +227,31 @@ En lugar de inflar supply por calendario, la emisión progresa cuando hay hitos 
 
 ### What Makes CryptoGift Wallets Unique?
 
-CryptoGift Wallets isn't "another Web3 onboarding". It's a **new distribution rail**: it turns gifting into a replicable, measurable, scalable adoption mechanism.
+**1. First NFT-to-Wallet Infrastructure in the Market**
+We are the first to implement ERC-6551 specifically for crypto gifting with integrated education. No direct competitor combines these three innovations: NFT as wallet, educational gates, and gasless experience.
 
-**1. The core nobody else is executing like this (and for massive production): 1155-TBA-like**
-This is NOT "distant future". It's one of the most valuable pieces of the core:
-- Campaigns of **millions of tokens**
-- **EIP-712 claim** without custody
-- **Sponsored gas**
-- **Configurable rules** (date/location/tasks/verification)
-- **Auto-return**: if not claimed, funds automatically return to sender
-> This eliminates "black boxes", unfair expirations and third-party dependence.
+**2. 21x Superior Conversion Rate**
+While the industry averages 3-4% claim rate on crypto gift cards, our system achieves 85.7% in testing. This differential demonstrates exceptional product-market fit.
 
-**2. The NFT stops being "image" and becomes "vault"**
-With **ERC-6551 + account abstraction**, users feel they have an object with real value, controllable with simple actions ("withdraw", "swap currency"), without fighting with gas, setups, or technical friction.
+**3. Unique B2B Distribution Channel**
+We offer brands, DAOs, and companies a completely new way to distribute value: each gift is simultaneously onboarding, education, and user activation.
 
-**3. Human adoption: we start with connection, not coldness**
-Most people enter crypto through a cold ramp: exchange, QR, tutorial. Here you enter through something the brain understands immediately: **a gift with a story**. That converts curiosity into trust.
+**4. Sustainable Emission Model**
+Unlike tokens with predetermined inflation, CGC uses milestone-based emission: tokens are only minted when the DAO creates verifiable value.
 
-**4. "Learn to claim": the Academy as a measurable growth engine**
-The Academy isn't decoration: it's a "growth loop":
-- Value is released upon completing modules, tests, surveys or missions
-- On-chain badges/certifications
-- KPIs and attribution ready for brands/NGOs that need to measure impact before releasing incentives
-
-**5. Overlapping communities (micro-DAOs) from day one**
-Each TBA/1155-TBA can include governance tokens: micro-communities that vote, prioritize and manage treasuries (Aragon compatible). This enables local chapters, volunteering, brand fans or educational cohorts with real governance.
-
-**6. Tokenomics with "credibility": emission by verifiable milestones**
-Instead of inflating supply by calendar, emission progresses when there are real milestones (value created). Combined with cryptographic achievement verification (EAS), verified contracts and vote delegation, the DAO feels like an institution, not hype.
+**5. Infrastructure, Not Just Product**
+CryptoGift Wallets is not an isolated app - it's infrastructure that other organizations can use for their own onboarding and distribution use cases.
 
 ### Competitive Differentiators
 
 | Feature | CryptoGift | Traditional Gift Cards | Onboarding Tools |
 |---------|------------|------------------------|------------------|
 | Claim Rate | **85.7%** | 3-4% | N/A |
-| Real Wallet | ✅ ERC-6551/1155-TBA | ❌ Custodial | ⚠️ Requires setup |
-| Gasless | ✅ 100% Sponsored | ❌ | ⚠️ Partial |
-| Integrated Education | ✅ Measurable Academy | ❌ | ❌ |
+| Real Wallet | ✅ ERC-6551 | ❌ Custodial | ⚠️ Requires setup |
+| Gasless | ✅ 100% | ❌ | ⚠️ Partial |
+| Integrated Education | ✅ | ❌ | ❌ |
 | Non-Custodial | ✅ | ❌ | ✅ |
-| B2B Ready | ✅ White-label | ⚠️ | ❌ |
-| Auto-Return | ✅ | ❌ | ❌ |
-| Massive Campaigns | ✅ 1155-TBA | ❌ | ❌ |
-| Micro-DAOs | ✅ | ❌ | ❌ |
+| B2B Ready | ✅ | ⚠️ | ❌ |
 
 ---
 
@@ -592,8 +490,8 @@ Instead of inflating supply by calendar, emission progresses when there are real
 **Rafael González** - Founder & Product/Engineering Lead
 - Desarrollo full-stack y smart contracts
 - Diseño de producto y arquitectura técnica
-- LinkedIn: https://linkedin.com/in/rafaelgonzalez
-- Email: admin@mbxarts.com
+- LinkedIn: [Por confirmar]
+- Ubicación: [Por confirmar]
 
 **Roberto Legrá** - Head of Community & Growth / Marketing Advisor
 - Estrategia de crecimiento y comunidad
@@ -611,8 +509,13 @@ Instead of inflating supply by calendar, emission progresses when there are real
 - Tipo: Delaware C-Corporation
 - Enfoque: Productos Web3 de consumo que eliminan barreras de adopción
 - Visión: Hacer la tecnología blockchain invisible para usuarios finales
-- Website: https://mbxarts.com
 - Email: admin@mbxarts.com
+
+### Advisory (Abierto)
+Activamente buscando advisors en:
+- Ecosistema Base
+- Infraestructura Web3
+- Growth y Marketing Cripto
 
 ---
 
@@ -623,8 +526,8 @@ Instead of inflating supply by calendar, emission progresses when there are real
 **Rafael González** - Founder & Product/Engineering Lead
 - Full-stack development and smart contracts
 - Product design and technical architecture
-- LinkedIn: https://linkedin.com/in/rafaelgonzalez
-- Email: admin@mbxarts.com
+- LinkedIn: [To confirm]
+- Location: [To confirm]
 
 **Roberto Legrá** - Head of Community & Growth / Marketing Advisor
 - Growth and community strategy
@@ -642,8 +545,13 @@ Instead of inflating supply by calendar, emission progresses when there are real
 - Type: Delaware C-Corporation
 - Focus: Consumer Web3 products that eliminate adoption barriers
 - Vision: Make blockchain technology invisible to end users
-- Website: https://mbxarts.com
 - Email: admin@mbxarts.com
+
+### Advisory (Open)
+Actively seeking advisors in:
+- Base Ecosystem
+- Web3 Infrastructure
+- Crypto Growth and Marketing
 
 ---
 
@@ -683,11 +591,9 @@ Instead of inflating supply by calendar, emission progresses when there are real
 - ✅ DAO Aragon operacional
 - ✅ Pool de liquidez en Aerodrome (Diciembre 2025)
 - ✅ APIs CoinGecko-compliant
-- ✅ Whitepaper v1.2.1 publicado
+- ✅ Whitepaper v1.2 publicado
 - ✅ Aplicación CoinGecko enviada (Diciembre 2025)
 - ✅ Aplicación BaseScan enviada (Diciembre 2025)
-- ✅ Discord server completamente configurado (21 canales, 10 roles)
-- ✅ SEO optimizado (robots.txt, sitemap.xml, metadata)
 
 ---
 
@@ -725,203 +631,79 @@ Instead of inflating supply by calendar, emission progresses when there are real
 - ✅ Aragon DAO operational
 - ✅ Liquidity pool on Aerodrome (December 2025)
 - ✅ CoinGecko-compliant APIs
-- ✅ Whitepaper v1.2.1 published
+- ✅ Whitepaper v1.2 published
 - ✅ CoinGecko application submitted (December 2025)
 - ✅ BaseScan application submitted (December 2025)
-- ✅ Discord server fully configured (21 channels, 10 roles)
-- ✅ SEO optimized (robots.txt, sitemap.xml, metadata)
 
 ---
 
-# 8. ROADMAP - ¿QUÉ SIGUE AHORA? / WHAT'S NEXT?
+# 8. ROADMAP
 
 ## 🇪🇸 ESPAÑOL
 
-### Visión Estratégica
+*Última actualización: Diciembre 2025*
 
-**Lo próximo no es "crecer por crecer". Es escalar sin perder el alma: emoción + infraestructura + medición.**
-
----
-
-### ✅ COMPLETADO (Q4 2024 - Q4 2025)
-
-**Q4 2024 - Fundación**
+### Q4 2024 - Q1 2025: Fundación e Infraestructura ✅ Completado
 - ✅ Deploy DAO en Aragon con Token Voting
-- ✅ Lanzar token CGC (2M supply inicial)
-- ✅ Arquitectura de contratos definida
-
-**Q1 2025 - Infraestructura Core**
+- ✅ Lanzar token CGC (2M supply)
 - ✅ Deploy MilestoneEscrow + MasterEIP712Controller + TaskRulesEIP712
-- ✅ Sistema de tareas con mecánicas competitivas y timeouts
-- ✅ Pagos automáticos de CGC post-validación
+- ✅ Sistema de tareas competitivas + Pagos automáticos CGC
 - ✅ Sistema de referidos multinivel (10%, 5%, 2.5%)
 
-**Q2-Q3 2025 - Crecimiento**
-- ✅ Pool de liquidez Aerodrome activo (WETH/CGC)
-- ✅ Token metadata completo (logos, APIs CoinGecko-compliant)
-- ✅ Whitepaper v1.2.1 publicado
-- ✅ Sistema i18n bilingüe (ES/EN)
+### Q2-Q3 2025: Crecimiento ✅ Completado
+- ✅ Pool de liquidez Aerodrome (WETH/CGC)
+- ✅ Token metadata + APIs CoinGecko-compliant
+- ✅ Whitepaper v1.2.1 + Sistema i18n bilingüe
 
-**Q4 2025 - Comunidad & Listings (AHORA - Diciembre 2025)**
-- ✅ Discord server completo (21 canales, 10 roles)
-- ✅ Domain migration a mbxarts.com
-- ✅ Collab.Land instalado para token gating
-- ✅ Funding Application Guide completo (Top 5 grants)
-- ✅ SEO optimizado (robots.txt, sitemap, metadata)
-- ✅ Twitter/X corregido (@cryptogiftdao)
-- ✅ QR Code con logo CGC para referidos
+### Q4 2025: Comunidad & Listings ✅ AHORA (Diciembre 2025)
+- ✅ Discord server (21 canales, 10 roles) + mbxarts.com
+- ✅ Collab.Land + SEO + Funding Application Guide
+- 🔄 CoinGecko (re-aplicar) + BaseScan (enviada)
+- 🔄 Grants: Base Builder, Optimism, Gitcoin - Ready to apply
 
----
+### Q1 2026: Tracción & Grants 📋 Próximo
+- 📋 Submit grants + Re-aplicar CoinGecko
+- 📋 Expand quests + Partnerships educativas
 
-### 🔄 EN PROGRESO (Q4 2025 - Diciembre)
+### Q2-Q3 2026: Escala 🎯 Planificado
+- 🎯 Automated Minting + White-label + 1155-TBA-like campaigns
 
-**Listings & Grants:**
-- 🔄 CoinGecko: Rechazada → Re-aplicar con más tracción (14 días)
-- 🔄 BaseScan: Enviada, esperando respuesta
-- 🔄 Base Builder Grants: Ready to apply
-- 🔄 Optimism Atlas: Crear perfil
-- 🔄 Gitcoin Grants: Preparar para GG24
-
-**Configuración:**
-- 🔄 Collab.Land TGR: Configurar Token Gating Rules
-- 🔄 Production testing con usuarios reales
-- 🔄 DAO Integration: Transferir CGC tokens al vault de Aragon
-
----
-
-### 📋 PRÓXIMO (Q1 2026)
-
-**Tracción & Grants:**
-- 📋 Re-aplicar CoinGecko con métricas de tracción
-- 📋 Submit Base Builder Grants application
-- 📋 Register en Optimism Atlas para RetroPGF
-- 📋 Aplicar a Gitcoin Grants GG24 (Oct 2025 deadline)
-
-**Producto:**
-- 📋 Expandir catálogo de quests
-- 📋 Onboarding de creadores/educadores
-- 📋 Dashboard de analytics avanzado con métricas de impacto
-- 📋 Partnerships con 3+ plataformas educativas
-
----
-
-### 🎯 PLANIFICADO (Q2-Q3 2026)
-
-**Escala sin perder alma:**
-- 🎯 Implementar Automated Minting System (diseño en docs/)
-- 🎯 Componentes **plug-and-play/white-label** para marcas/ONGs
-- 🎯 Campañas masivas **1155-TBA-like** con reglas configurables
-- 🎯 "**Gifting for events**" (bodas, cumpleaños, donaciones)
-- 🎯 Sistema de NFT achievements on-chain
-- 🎯 Interfaz mobile-optimizada
-
----
-
-### 🔮 VISIÓN (Q4 2026+)
-
-**El riel invisible - Infraestructura Financiera:**
-- 🔮 **API para fintechs "en dos líneas"**
-- 🔮 Puente hacia **activos tokenizados (RWA)** y programas de lealtad
-- 🔮 **Colaboraciones masivas** con proyectos del ecosistema Base
-- 🔮 Integraciones DeFi avanzadas
-- 🔮 Mecanismos de staking CGC
-- 🔮 Descentralización progresiva de gobernanza
-- 🔮 **Transparencia radical**: reservas on-chain, gas patrocinado visible, auditorías accesibles
+### Q4 2026+: Visión 🔮
+- 🔮 API fintechs + RWA + Colaboraciones ecosistema Base
 
 ---
 
 ## 🇬🇧 ENGLISH
 
-### Strategic Vision
+*Last Updated: December 2025*
 
-**What's next isn't "growing for the sake of growing". It's scaling without losing the soul: emotion + infrastructure + measurement.**
-
----
-
-### ✅ COMPLETED (Q4 2024 - Q4 2025)
-
-**Q4 2024 - Foundation**
+### Q4 2024 - Q1 2025: Foundation & Infrastructure ✅ Completed
 - ✅ Deploy DAO on Aragon with Token Voting
-- ✅ Launch CGC token (2M initial supply)
-- ✅ Contract architecture defined
-
-**Q1 2025 - Core Infrastructure**
+- ✅ Launch CGC token (2M supply)
 - ✅ Deploy MilestoneEscrow + MasterEIP712Controller + TaskRulesEIP712
-- ✅ Task system with competitive mechanics and timeouts
-- ✅ Automatic CGC payments post-validation
+- ✅ Competitive task system + Automatic CGC payments
 - ✅ Multi-level referral system (10%, 5%, 2.5%)
 
-**Q2-Q3 2025 - Growth**
-- ✅ Active Aerodrome liquidity pool (WETH/CGC)
-- ✅ Complete token metadata (logos, CoinGecko-compliant APIs)
-- ✅ Whitepaper v1.2.1 published
-- ✅ Bilingual i18n system (ES/EN)
+### Q2-Q3 2025: Growth ✅ Completed
+- ✅ Aerodrome liquidity pool (WETH/CGC)
+- ✅ Token metadata + CoinGecko-compliant APIs
+- ✅ Whitepaper v1.2.1 + Bilingual i18n system
 
-**Q4 2025 - Community & Listings (NOW - December 2025)**
-- ✅ Complete Discord server (21 channels, 10 roles)
-- ✅ Domain migration to mbxarts.com
-- ✅ Collab.Land installed for token gating
-- ✅ Complete Funding Application Guide (Top 5 grants)
-- ✅ SEO optimized (robots.txt, sitemap, metadata)
-- ✅ Twitter/X corrected (@cryptogiftdao)
-- ✅ QR Code with CGC logo for referrals
+### Q4 2025: Community & Listings ✅ NOW (December 2025)
+- ✅ Discord server (21 channels, 10 roles) + mbxarts.com
+- ✅ Collab.Land + SEO + Funding Application Guide
+- 🔄 CoinGecko (re-applying) + BaseScan (submitted)
+- 🔄 Grants: Base Builder, Optimism, Gitcoin - Ready to apply
 
----
+### Q1 2026: Traction & Grants 📋 Next
+- 📋 Submit grants + Re-apply CoinGecko
+- 📋 Expand quests + Educational partnerships
 
-### 🔄 IN PROGRESS (Q4 2025 - December)
+### Q2-Q3 2026: Scale 🎯 Planned
+- 🎯 Automated Minting + White-label + 1155-TBA-like campaigns
 
-**Listings & Grants:**
-- 🔄 CoinGecko: Rejected → Re-apply with more traction (14 days)
-- 🔄 BaseScan: Submitted, awaiting response
-- 🔄 Base Builder Grants: Ready to apply
-- 🔄 Optimism Atlas: Create profile
-- 🔄 Gitcoin Grants: Prepare for GG24
-
-**Configuration:**
-- 🔄 Collab.Land TGR: Configure Token Gating Rules
-- 🔄 Production testing with real users
-- 🔄 DAO Integration: Transfer CGC tokens to Aragon vault
-
----
-
-### 📋 NEXT (Q1 2026)
-
-**Traction & Grants:**
-- 📋 Re-apply CoinGecko with traction metrics
-- 📋 Submit Base Builder Grants application
-- 📋 Register on Optimism Atlas for RetroPGF
-- 📋 Apply to Gitcoin Grants GG24 (Oct 2025 deadline)
-
-**Product:**
-- 📋 Expand quest catalog
-- 📋 Creator/educator onboarding
-- 📋 Advanced analytics dashboard with impact metrics
-- 📋 Partnerships with 3+ educational platforms
-
----
-
-### 🎯 PLANNED (Q2-Q3 2026)
-
-**Scale without losing soul:**
-- 🎯 Implement Automated Minting System (design in docs/)
-- 🎯 **Plug-and-play/white-label components** for brands/NGOs
-- 🎯 Massive **1155-TBA-like campaigns** with configurable rules
-- 🎯 "**Gifting for events**" (weddings, birthdays, donations)
-- 🎯 On-chain NFT achievements system
-- 🎯 Mobile-optimized interface
-
----
-
-### 🔮 VISION (Q4 2026+)
-
-**The invisible rail - Financial Infrastructure:**
-- 🔮 **API for fintechs "in two lines"**
-- 🔮 Bridge to **tokenized assets (RWA)** and loyalty programs
-- 🔮 **Massive collaborations** with Base ecosystem projects
-- 🔮 Advanced DeFi integrations
-- 🔮 CGC staking mechanisms
-- 🔮 Progressive governance decentralization
-- 🔮 **Radical transparency**: on-chain reserves, visible sponsored gas, accessible audits
+### Q4 2026+: Vision 🔮
+- 🔮 Fintech API + RWA + Base ecosystem collaborations
 
 ---
 
@@ -931,7 +713,7 @@ Instead of inflating supply by calendar, emission progresses when there are real
 
 ### Fuentes de Ingresos
 
-**1. Modelo Freemium** (Lanzamiento Q2 2025)
+**1. Modelo Freemium** (Planificado Q1-Q2 2026)
 - **Gratis**: Hasta 10 gifts/mes
 - **Pro**: $9.99/mes ilimitado + features premium
 - **Conversión esperada**: 2-5% de usuarios gratuitos
@@ -948,6 +730,19 @@ Instead of inflating supply by calendar, emission progresses when there are real
 - Solo cuando usuarios compran cripto con tarjeta
 - Transparente y opt-in
 
+**4. Rev-Share con Creadores** (Futuro)
+- Influencers crean templates de gift personalizados
+- 10% rev-share en uso de sus templates
+- Marketing viral integrado
+
+### Unit Economics Proyectados
+
+| Métrica | Valor |
+|---------|-------|
+| **CAC** | $5-10 (orgánico + referrals) |
+| **LTV** | $50-100 (freemium + B2B) |
+| **LTV/CAC** | 5-10x |
+
 ### Proyecciones de Revenue
 
 | Período | Revenue Proyectado |
@@ -963,7 +758,7 @@ Instead of inflating supply by calendar, emission progresses when there are real
 
 ### Revenue Streams
 
-**1. Freemium Model** (Launch Q2 2025)
+**1. Freemium Model** (Planned Q1-Q2 2026)
 - **Free**: Up to 10 gifts/month
 - **Pro**: $9.99/month unlimited + premium features
 - **Expected conversion**: 2-5% of free users
@@ -979,6 +774,19 @@ Instead of inflating supply by calendar, emission progresses when there are real
 - 1-2% on fiat on-ramps only
 - Only when users buy crypto with card
 - Transparent and opt-in
+
+**4. Creator Rev-Share** (Future)
+- Influencers create custom gift templates
+- 10% rev-share on their template usage
+- Built-in viral marketing
+
+### Projected Unit Economics
+
+| Metric | Value |
+|--------|-------|
+| **CAC** | $5-10 (organic + referrals) |
+| **LTV** | $50-100 (freemium + B2B) |
+| **LTV/CAC** | 5-10x |
 
 ### Revenue Projections
 
@@ -1086,6 +894,23 @@ Instead of inflating supply by calendar, emission progresses when there are real
 - Documentación y mejores prácticas
 - Workshops para educación comunitaria
 
+### Impacto Indirecto
+
+**4. Casos de Uso B2B**
+- Comunidades usando CryptoGift para rewards → más transacciones Base
+- Empresas usándolo para adquisición → más direcciones Base
+- DAOs usándolo para compensación → más actividad Base
+
+**5. Narrativa & Branding**
+- "Gifting en Base" se convierte en parte de la identidad del ecosistema
+- Historia consumer-friendly (vs narrativa solo DeFi)
+- Cobertura mediática destacando ventajas UX de Base
+
+**6. Efectos de Red**
+- Sistema de referidos crea loops virales
+- Cada usuario puede regalar a 10+ personas
+- Potencial de crecimiento exponencial
+
 ### KPIs Medibles (6 meses post-grant)
 
 | Métrica | Target |
@@ -1117,6 +942,23 @@ Instead of inflating supply by calendar, emission progresses when there are real
 - Documentation and best practices
 - Workshops for community education
 
+### Indirect Impact
+
+**4. B2B Use Cases**
+- Communities using CryptoGift for rewards → more Base transactions
+- Companies using it for acquisition → more Base addresses
+- DAOs using it for compensation → more Base activity
+
+**5. Narrative & Branding**
+- "Gifting on Base" becomes part of ecosystem identity
+- Consumer-friendly story (vs DeFi-only narrative)
+- Media coverage highlighting Base's UX advantages
+
+**6. Network Effects**
+- Referral system creates viral loops
+- Each user can gift to 10+ people
+- Potential for exponential growth
+
 ### Measurable KPIs (6 months post-grant)
 
 | Metric | Target |
@@ -1129,7 +971,7 @@ Instead of inflating supply by calendar, emission progresses when there are real
 
 ---
 
-# 12. URLS Y RECURSOS / URLs & RESOURCES
+# 12. URLS Y RECURSOS / URLS & RESOURCES
 
 ## URLs Oficiales / Official URLs
 
@@ -1138,15 +980,14 @@ Instead of inflating supply by calendar, emission progresses when there are real
 |---------|-----|
 | **Website Principal** | https://mbxarts.com |
 | **Documentación** | https://mbxarts.com/docs |
-| **Whitepaper** | https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.html |
-| **Whitepaper PDF** | https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.pdf |
+| **Whitepaper** | https://mbxarts.com/CRYPTOGIFT_WHITEPAPER_v1.2.pdf |
 | **Funding Page** | https://mbxarts.com/funding |
 
 ### Blockchain / On-Chain
 | Recurso | URL |
 |---------|-----|
 | **CGC Token (BaseScan)** | https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175 |
-| **Aragon DAO** | https://app.aragon.org/#/daos/base/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31 |
+| **Aragon DAO** | https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31 |
 | **Pool Aerodrome** | https://basescan.org/address/0x3032f62729513ec8a328143f7d5926b5257a43cd |
 | **MilestoneEscrow** | https://basescan.org/address/0x8346CFcaECc90d678d862319449E5a742c03f109 |
 
@@ -1189,136 +1030,22 @@ Instead of inflating supply by calendar, emission progresses when there are real
 | **Email Principal** | admin@mbxarts.com |
 | **Empresa** | The Moon in a Box Inc. |
 | **Fundador** | Rafael González |
-| **Discord** | https://discord.gg/XzmKkrvhHc |
-| **Telegram** | https://t.me/cryptogiftwalletsdao |
+| **Discord** | discord.gg/XzmKkrvhHc |
+| **Telegram** | t.me/cryptogiftwalletsdao |
 | **Twitter** | @cryptogiftdao |
-| **Giveth** | https://giveth.io/project/cryptogift-wallets-dao |
+| **Giveth** | giveth.io/project/cryptogift-wallets-dao |
 
 ## Para Grants y Partnerships / For Grants and Partnerships
 
 **Contacto Principal**: Rafael González
 **Email**: admin@mbxarts.com
 **Preferencia**: Email para comunicaciones formales, Discord/Twitter para preguntas rápidas
+
 **Disponibilidad para Calls**: Flexible, coordinar via email
 
 ---
 
-# 14. TOP 5 OPORTUNIDADES DE GRANTS / TOP 5 GRANT OPPORTUNITIES
-
-## Resumen Ejecutivo / Executive Summary
-
-| # | Oportunidad | Monto | Dificultad | Estado CryptoGift | Prioridad |
-|---|-------------|-------|------------|-------------------|-----------|
-| 1 | Base Builder Grants | 1-5 ETH ($3k-15k) | Media | ✅ Listo para aplicar | ⭐⭐⭐⭐⭐ |
-| 2 | Base Weekly Rewards | 2 ETH/semana | Fácil | ✅ Registrarse en Talent Protocol | ⭐⭐⭐⭐⭐ |
-| 3 | Optimism RetroPGF | $10k-500k+ | Media | ⏳ Crear cuenta en Atlas | ⭐⭐⭐⭐ |
-| 4 | Gitcoin Grants | $1k-50k+ | Media | ⏳ Crear perfil | ⭐⭐⭐⭐ |
-| 5 | Base Batches | Mentorship + Funding | Alta | ⏳ H2 2025 | ⭐⭐⭐ |
-
----
-
-## 1. BASE BUILDER GRANTS
-
-### 🇪🇸 Información
-| Campo | Valor |
-|-------|-------|
-| **Monto** | 1-5 ETH (≈$3,000-$15,000 USD) |
-| **Tipo** | Retroactivo (reward shipped code) |
-| **Deadline** | Rolling (aplicar cuando esté listo) |
-| **URL** | https://docs.base.org/get-started/get-funded |
-
-### Requisitos
-- ✅ Proyecto desplegado en Base Mainnet (TENEMOS)
-- ✅ Código verificable/open-source (TENEMOS)
-- ✅ Documentación clara (TENEMOS)
-- ✅ Pool de liquidez activo (TENEMOS)
-
-### 🇬🇧 Information
-| Field | Value |
-|-------|-------|
-| **Amount** | 1-5 ETH (≈$3,000-$15,000 USD) |
-| **Type** | Retroactive (reward shipped code) |
-| **Deadline** | Rolling (apply when ready) |
-| **URL** | https://docs.base.org/get-started/get-funded |
-
----
-
-## 2. BASE WEEKLY REWARDS (BUILDER SCORE)
-
-### 🇪🇸 Información
-| Campo | Valor |
-|-------|-------|
-| **Monto** | 2 ETH distribuidos semanalmente |
-| **Tipo** | Competencia semanal via Talent Protocol |
-| **Dificultad** | Fácil |
-| **URL** | https://www.builderscore.xyz/ |
-
-### Cómo Participar
-1. Crear cuenta en builderscore.xyz
-2. Conectar wallet deployer
-3. Registrar proyecto
-4. Postear updates semanales en Twitter con #BuildOnBase
-
-### 🇬🇧 How to Participate
-1. Create account at builderscore.xyz
-2. Connect deployer wallet
-3. Register project
-4. Post weekly updates on Twitter with #BuildOnBase
-
----
-
-## 3. OPTIMISM RetroPGF
-
-### 🇪🇸 Información
-| Campo | Valor |
-|-------|-------|
-| **Monto** | $10,000 - $500,000+ |
-| **Tipo** | Retroactive Public Goods Funding |
-| **Deadline** | Rondas anuales (próxima: 2025) |
-| **URL** | https://atlas.optimism.io/ |
-
-### Por Qué CryptoGift Califica
-- Infraestructura open-source para onboarding Web3
-- Base es parte del Optimism Superchain
-- Documentación técnica disponible para otros developers
-
----
-
-## 4. GITCOIN GRANTS
-
-### 🇪🇸 Información
-| Campo | Valor |
-|-------|-------|
-| **Monto** | $1,000 - $50,000+ |
-| **Tipo** | Quadratic Funding |
-| **Deadline** | Rondas trimestrales |
-| **URL** | https://grants.gitcoin.co |
-
-### Cómo Funciona
-- Los usuarios donan pequeñas cantidades al proyecto
-- Un matching pool multiplica las donaciones
-- Muchas donaciones pequeñas > pocas donaciones grandes
-
----
-
-## 5. BASE BATCHES
-
-### 🇪🇸 Información
-| Campo | Valor |
-|-------|-------|
-| **Monto** | Mentorship + Resources + Funding |
-| **Tipo** | Accelerator/Incubator |
-| **Deadline** | Próximo cohort: H2 2025 |
-| **URL** | https://basebatches.xyz |
-
-### Estructura
-1. **Buildathon**: Desarrollo rápido con mentorship
-2. **Incubator**: 4 semanas de soporte estructurado
-3. **Pitch Day**: Presentaciones a inversores incluyendo Coinbase Ventures
-
----
-
-# 15. RESPUESTAS ESPECÍFICAS POR GRANT / GRANT-SPECIFIC ANSWERS
+# 14. RESPUESTAS ESPECÍFICAS POR GRANT / GRANT-SPECIFIC ANSWERS
 
 ## BASE BUILDERS GRANT
 
@@ -1368,29 +1095,45 @@ CryptoGift Wallets is open-source infrastructure that:
 
 ---
 
-## OPTIMISM RetroPGF
+## ARAGON GRANTS
+
+### 🇪🇸 ¿Cómo beneficiamos al ecosistema Aragon?
+
+- Usamos Aragon OSx v1.4.0 como nuestra capa de gobernanza
+- Demostramos que DAOs pueden ser accesibles para usuarios no técnicos
+- Contribuimos documentación sobre integración Aragon + consumer apps
+- Expandimos el alcance de Aragon a nuevos mercados
+
+### 🇬🇧 How do we benefit the Aragon ecosystem?
+
+- We use Aragon OSx v1.4.0 as our governance layer
+- We demonstrate that DAOs can be accessible to non-technical users
+- We contribute documentation on Aragon + consumer apps integration
+- We expand Aragon's reach to new markets
+
+---
+
+## OPTIMISM RETROPGF
 
 ### 🇪🇸 ¿Qué impacto hemos creado?
 
-Nuestro impacto incluye:
+Aunque somos nuevos en mainnet, nuestro impacto incluye:
 - Infraestructura open-source para onboarding Web3
 - Documentación técnica de ERC-6551 + Account Abstraction
 - Modelo innovador de tokenomics (milestone-based emission)
 - Comunidad activa educando sobre Web3
-- Base es parte del Optimism Superchain
 
 ### 🇬🇧 What impact have we created?
 
-Our impact includes:
+Although we are new to mainnet, our impact includes:
 - Open-source infrastructure for Web3 onboarding
 - Technical documentation of ERC-6551 + Account Abstraction
 - Innovative tokenomics model (milestone-based emission)
 - Active community educating about Web3
-- Base is part of the Optimism Superchain
 
 ---
 
-# 16. PLANTILLAS DE TEXTO / TEXT TEMPLATES
+# 15. PLANTILLAS DE TEXTO / TEXT TEMPLATES
 
 ## Pitch de 30 Segundos / 30-Second Pitch
 
@@ -1442,32 +1185,29 @@ With all contracts deployed and verified on Base Mainnet, an active liquidity po
 
 ---
 
+## Declaración Final / Final Declaration
+
+### 🇪🇸 Español
+Confirmo que toda la información proporcionada en esta aplicación es precisa y verificable. Todos los smart contracts están desplegados y verificados en Base Mainnet. Nos comprometemos a usar los fondos del grant exclusivamente para los propósitos establecidos y a proporcionar reportes transparentes sobre el progreso de los milestones.
+
+### 🇬🇧 English
+I confirm that all information provided in this application is accurate and verifiable. All smart contracts are deployed and verified on Base Mainnet. We commit to using grant funds exclusively for stated purposes and to providing transparent reporting on milestone progress.
+
+---
+
 # 📋 CHECKLIST PRE-APLICACIÓN / PRE-APPLICATION CHECKLIST
 
 Antes de enviar cualquier aplicación, verificar:
 
-- [x] URLs funcionando (website, docs, GitHub)
-- [x] Contratos verificados en BaseScan
-- [x] Logo disponible en formato requerido (PNG, SVG)
-- [x] Whitepaper actualizado (v1.2.1)
-- [x] APIs respondiendo correctamente
-- [x] Discord activo (21 canales, 10 roles)
-- [x] Twitter con actividad reciente
-- [x] Pool de liquidez verificable (Aerodrome)
-- [x] Datos de contacto correctos (admin@mbxarts.com)
-
----
-
-# 📊 ESTADO DE APLICACIONES / APPLICATION STATUS
-
-| Plataforma | Estado | Fecha | Notas |
-|------------|--------|-------|-------|
-| **CoinGecko** | ⏳ Enviado | Dic 2025 | Esperando respuesta |
-| **BaseScan** | ⏳ Enviado | Dic 2025 | Verificación de logo |
-| **Base Builder Grants** | 📋 Pendiente | - | Listo para aplicar |
-| **Base Weekly Rewards** | 📋 Pendiente | - | Registrarse en Talent Protocol |
-| **Optimism RetroPGF** | 📋 Pendiente | - | Crear cuenta en Atlas |
-| **Gitcoin Grants** | 📋 Pendiente | - | Crear perfil |
+- [ ] URLs funcionando (website, docs, GitHub)
+- [ ] Contratos verificados en BaseScan
+- [ ] Logo disponible en formato requerido
+- [ ] Whitepaper actualizado
+- [ ] APIs respondiendo correctamente
+- [ ] Discord activo
+- [ ] Twitter con actividad reciente
+- [ ] Pool de liquidez verificable
+- [ ] Datos de contacto correctos
 
 ---
 
@@ -1476,6 +1216,6 @@ Antes de enviar cualquier aplicación, verificar:
 ---
 
 © 2024-2025 The Moon in a Box Inc. | CryptoGift Wallets DAO
-Versión 3.0 - Diciembre 2025
+Versión 2.0 - Diciembre 2025
 
 Made by mbxarts.com | The Moon in a Box property
