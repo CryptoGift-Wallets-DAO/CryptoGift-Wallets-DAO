@@ -78,6 +78,16 @@ Telegram:       https://t.me/cryptogiftwalletsdao
 BaseScan Token: https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
 Aragon DAO:     https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
 Giveth:         https://giveth.io/project/cryptogift-wallets-dao
+Juicebox (OP):  https://juicebox.money/v5/op:66
+```
+
+### Juicebox Projects (Multi-Chain)
+```
+Optimism:        https://juicebox.money/v5/op:66 (Project #66)
+Base:            https://juicebox.money/v5/base:126 (Project #126)
+Ethereum:        https://juicebox.money/v5/eth:61 (Project #61)
+Arbitrum:        https://juicebox.money/v5/arb:67 (Project #67)
+Discord Support: https://discord.com/channels/1457694928590340138/1457694929198383191
 ```
 
 ### APIs (Para listings)
