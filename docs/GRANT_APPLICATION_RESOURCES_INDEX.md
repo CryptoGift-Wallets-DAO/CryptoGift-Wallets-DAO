@@ -1,19 +1,66 @@
 # 📚 ÍNDICE MAESTRO: RECURSOS PARA APLICACIONES DE GRANTS
 
 > **Propósito**: Este documento es una guía rápida para agentes y colaboradores que necesitan acceder a la documentación del proyecto para completar aplicaciones de grants.
-> **Fecha**: 6 Enero 2026
+> **Fecha**: 7 Enero 2026 (Actualizado)
 > **Proyecto**: CryptoGift Wallets DAO (CGC Token)
 
 ---
 
-## 🎯 DOCUMENTOS CRÍTICOS PARA APLICACIONES (LEER PRIMERO)
+## 🚨 DOCUMENTO PRINCIPAL PARA CLAUDE/AI AGENTS
+
+| Documento | Ruta | Uso |
+|-----------|------|-----|
+| **🎯 PROMPT DEFINITIVO** | `docs/GRANT_APPLICATION_PROMPT_DEFINITIVE.md` | **LEER PRIMERO** - Contexto completo con todos los links, contratos, y estrategia |
+
+---
+
+## 💰 WALLET PARA DONACIONES (TODAS LAS REDES)
+
+```
+🔐 SAFE MULTISIG (3/5): 0x11323672b5f9bB899Fa332D5d464CC4e66637b42
+
+Funciona en: Base, Ethereum, Optimism, Arbitrum, Polygon
+Link: https://app.safe.global/home?safe=base:0x11323672b5f9bB899Fa332D5d464CC4e66637b42
+```
+
+---
+
+## 📊 ESTADO ACTUAL DE APLICACIONES (7 Enero 2026)
+
+### ✅ ACTIVOS - Recibiendo Donaciones
+| Plataforma | Proyecto | Link |
+|------------|----------|------|
+| Giveth | CryptoGift Wallets DAO | https://giveth.io/project/cryptogift-wallets-dao |
+| Juicebox (Base) | Project #126 | https://juicebox.money/v5/base:126 |
+| Juicebox (Optimism) | Project #66 | https://juicebox.money/v5/op:66 |
+| Juicebox (Ethereum) | Project #61 | https://juicebox.money/v5/eth:61 |
+| Juicebox (Arbitrum) | Project #67 | https://juicebox.money/v5/arb:67 |
+
+### 📤 ENVIADOS - Esperando Respuesta
+| Programa | Monto | Estado |
+|----------|-------|--------|
+| Base Builder Grants | 1-5 ETH | Enviado Dic 2025 |
+
+### 🔄 PENDIENTES - Acción Requerida
+| Programa | Prioridad | Acción Necesaria |
+|----------|-----------|------------------|
+| Talent Protocol Weekly | 🔴 CRÍTICA | Registrar Basename + Farcaster + Score 100+ |
+| Optimism RetroPGF | 🟠 ALTA | Crear perfil en atlas.optimism.io |
+| Gasless Campaign | 🟠 ALTA | Integrar Coinbase Smart Wallet |
+| Gitcoin GG25 | 🟡 MEDIA | Crear perfil (Q1 2026) |
+| Base Batches 003 | 🟡 MEDIA | Preparar pitch deck (H1 2026) |
+
+---
+
+## 🎯 DOCUMENTOS CRÍTICOS PARA APLICACIONES
 
 ### 1. INFORMACIÓN DEL PROYECTO (Copy-Paste Ready)
 | Documento | Ruta | Contenido |
 |-----------|------|-----------|
-| **MASTER GUIDE** | `docs/governance/GRANT_APPLICATION_MASTER_GUIDE.md` | Toda la info del proyecto en formato bilingüe (ES/EN) lista para copiar |
-| **Whitepaper** | `docs/governance/whitepaper.md` | Documento técnico completo del proyecto |
-| **Tokenomics** | `docs/tokenomics/tokenomics.md` | Modelo económico detallado del token CGC |
+| **PROMPT DEFINITIVO** | `docs/GRANT_APPLICATION_PROMPT_DEFINITIVE.md` | TODO en un solo lugar para AI agents |
+| **MASTER GUIDE** | `docs/governance/GRANT_APPLICATION_MASTER_GUIDE.md` | Info bilingüe (ES/EN) lista para copiar |
+| **Whitepaper** | `docs/governance/whitepaper.md` | Documento técnico completo |
+| **Tokenomics** | `docs/tokenomics/tokenomics.md` | Modelo económico del token CGC |
 
 ### 2. ESTRATEGIAS DE FINANCIAMIENTO
 | Documento | Ruta | Contenido |
@@ -66,7 +113,7 @@ Aerodrome Pool:         0x3032f62729513ec8a328143f7d5926b5257a43cd
 Deployer Wallet:        0xc655BF2Bd9AfA997c757Bef290A9Bb6ca41c5dE6
 ```
 
-### Links Oficiales
+### Links Oficiales (COMPLETOS)
 ```
 Website:        https://mbxarts.com
 Docs:           https://mbxarts.com/docs
@@ -75,10 +122,12 @@ GitHub:         https://github.com/CryptoGift-Wallets-DAO/CryptoGift-Wallets-DAO
 Twitter/X:      https://x.com/cryptogiftdao
 Discord:        https://discord.gg/XzmKkrvhHc
 Telegram:       https://t.me/cryptogiftwalletsdao
+Farcaster:      https://warpcast.com/cryptogiftdao
+YouTube:        https://www.youtube.com/@CryptoGiftWalletsDAO
 BaseScan Token: https://basescan.org/token/0x5e3a61b550328f3D8C44f60b3e10a49D3d806175
 Aragon DAO:     https://app.aragon.org/dao/base-mainnet/0x3244DFBf9E5374DF2f106E89Cf7972E5D4C9ac31
 Giveth:         https://giveth.io/project/cryptogift-wallets-dao
-Juicebox (OP):  https://juicebox.money/v5/op:66
+Safe Multisig:  https://app.safe.global/home?safe=base:0x11323672b5f9bB899Fa332D5d464CC4e66637b42
 ```
 
 ### Juicebox Projects (Multi-Chain)
@@ -323,11 +372,15 @@ Discord:          discord.gg/XzmKkrvhHc
 Telegram:         t.me/cryptogiftwalletsdao
 Twitter:          @cryptogiftdao
 Farcaster:        @cryptogiftdao
+YouTube:          youtube.com/@CryptoGiftWalletsDAO
 Giveth:           giveth.io/project/cryptogift-wallets-dao
+Safe Multisig:    0x11323672b5f9bB899Fa332D5d464CC4e66637b42
 ```
 
 ---
 
-*Documento creado: 6 Enero 2026*
+*Documento actualizado: 7 Enero 2026*
 *Proyecto: CryptoGift Wallets DAO*
 *Made by mbxarts.com - The Moon in a Box*
+
+Co-Author: Godez22
