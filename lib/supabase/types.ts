@@ -1300,3 +1300,309 @@ export const SOCIAL_ENGAGEMENT_CONFIG = {
     action: 'join' as SocialEngagementAction,
   },
 } as const
+
+// ============================================
+// 📋 GRANT APPLICATIONS TRACKER TYPES
+// ============================================
+
+export type GrantApplicationStatus =
+  | 'draft'
+  | 'submitted'
+  | 'under_review'
+  | 'approved'
+  | 'rejected'
+  | 'funded'
+  | 'completed'
+  | 'cancelled'
+
+export type GrantPriority = 'low' | 'medium' | 'high' | 'critical'
+
+export interface GrantApplicationNotes {
+  summary?: string
+  actions_taken?: string[]
+  next_steps?: string[]
+  feedback?: string
+  custom?: Record<string, unknown>
+}
+
+export interface GrantMilestone {
+  id: string
+  title: string
+  description?: string
+  due_date?: string
+  completed?: boolean
+  completed_at?: string
+  deliverables?: string[]
+}
+
+export interface GrantDocument {
+  name: string
+  url?: string
+  type: string
+  uploaded_at?: string
+}
+
+export interface GrantApplicationsTable {
+  Row: {
+    id: string
+    platform_name: string
+    program_name: string | null
+    application_url: string
+    project_url: string | null
+    status: GrantApplicationStatus
+    priority: GrantPriority
+    submitted_at: string | null
+    deadline_at: string | null
+    response_expected_at: string | null
+    approved_at: string | null
+    funded_at: string | null
+    completed_at: string | null
+    requested_amount: number | null
+    requested_currency: string
+    approved_amount: number | null
+    approved_currency: string | null
+    tx_hash: string | null
+    contact_person: string | null
+    contact_email: string | null
+    communication_channel: string | null
+    last_contact_at: string | null
+    description: string | null
+    requirements_met: string[]
+    documents_submitted: GrantDocument[]
+    milestones: GrantMilestone[]
+    notes: GrantApplicationNotes
+    internal_notes: string | null
+    tags: string[]
+    category: string | null
+    created_by: string
+    updated_by: string | null
+    metadata: Json
+    created_at: string
+    updated_at: string
+  }
+  Insert: {
+    id?: string
+    platform_name: string
+    program_name?: string | null
+    application_url: string
+    project_url?: string | null
+    status?: GrantApplicationStatus
+    priority?: GrantPriority
+    submitted_at?: string | null
+    deadline_at?: string | null
+    response_expected_at?: string | null
+    approved_at?: string | null
+    funded_at?: string | null
+    completed_at?: string | null
+    requested_amount?: number | null
+    requested_currency?: string
+    approved_amount?: number | null
+    approved_currency?: string | null
+    tx_hash?: string | null
+    contact_person?: string | null
+    contact_email?: string | null
+    communication_channel?: string | null
+    last_contact_at?: string | null
+    description?: string | null
+    requirements_met?: string[]
+    documents_submitted?: GrantDocument[]
+    milestones?: GrantMilestone[]
+    notes?: GrantApplicationNotes
+    internal_notes?: string | null
+    tags?: string[]
+    category?: string | null
+    created_by: string
+    updated_by?: string | null
+    metadata?: Json
+    created_at?: string
+    updated_at?: string
+  }
+  Update: {
+    id?: string
+    platform_name?: string
+    program_name?: string | null
+    application_url?: string
+    project_url?: string | null
+    status?: GrantApplicationStatus
+    priority?: GrantPriority
+    submitted_at?: string | null
+    deadline_at?: string | null
+    response_expected_at?: string | null
+    approved_at?: string | null
+    funded_at?: string | null
+    completed_at?: string | null
+    requested_amount?: number | null
+    requested_currency?: string
+    approved_amount?: number | null
+    approved_currency?: string | null
+    tx_hash?: string | null
+    contact_person?: string | null
+    contact_email?: string | null
+    communication_channel?: string | null
+    last_contact_at?: string | null
+    description?: string | null
+    requirements_met?: string[]
+    documents_submitted?: GrantDocument[]
+    milestones?: GrantMilestone[]
+    notes?: GrantApplicationNotes
+    internal_notes?: string | null
+    tags?: string[]
+    category?: string | null
+    created_by?: string
+    updated_by?: string | null
+    metadata?: Json
+    created_at?: string
+    updated_at?: string
+  }
+}
+
+export interface GrantApplicationHistoryTable {
+  Row: {
+    id: string
+    application_id: string
+    action: string
+    old_status: GrantApplicationStatus | null
+    new_status: GrantApplicationStatus | null
+    changed_by: string
+    change_notes: string | null
+    metadata: Json
+    created_at: string
+  }
+  Insert: {
+    id?: string
+    application_id: string
+    action: string
+    old_status?: GrantApplicationStatus | null
+    new_status?: GrantApplicationStatus | null
+    changed_by: string
+    change_notes?: string | null
+    metadata?: Json
+    created_at?: string
+  }
+  Update: {
+    id?: string
+    application_id?: string
+    action?: string
+    old_status?: GrantApplicationStatus | null
+    new_status?: GrantApplicationStatus | null
+    changed_by?: string
+    change_notes?: string | null
+    metadata?: Json
+    created_at?: string
+  }
+}
+
+// Helper types for grant applications
+export type GrantApplication = GrantApplicationsTable['Row']
+export type GrantApplicationInsert = GrantApplicationsTable['Insert']
+export type GrantApplicationUpdate = GrantApplicationsTable['Update']
+
+export type GrantApplicationHistory = GrantApplicationHistoryTable['Row']
+export type GrantApplicationHistoryInsert = GrantApplicationHistoryTable['Insert']
+
+// Status display configuration
+export const GRANT_STATUS_CONFIG: Record<GrantApplicationStatus, {
+  label: string
+  labelEs: string
+  color: string
+  bgColor: string
+  icon: string
+}> = {
+  draft: {
+    label: 'Draft',
+    labelEs: 'Borrador',
+    color: 'text-gray-500',
+    bgColor: 'bg-gray-100',
+    icon: '📝'
+  },
+  submitted: {
+    label: 'Submitted',
+    labelEs: 'Enviada',
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-100',
+    icon: '📤'
+  },
+  under_review: {
+    label: 'Under Review',
+    labelEs: 'En Revisión',
+    color: 'text-yellow-600',
+    bgColor: 'bg-yellow-100',
+    icon: '🔍'
+  },
+  approved: {
+    label: 'Approved',
+    labelEs: 'Aprobada',
+    color: 'text-green-600',
+    bgColor: 'bg-green-100',
+    icon: '✅'
+  },
+  rejected: {
+    label: 'Rejected',
+    labelEs: 'Rechazada',
+    color: 'text-red-600',
+    bgColor: 'bg-red-100',
+    icon: '❌'
+  },
+  funded: {
+    label: 'Funded',
+    labelEs: 'Financiada',
+    color: 'text-emerald-600',
+    bgColor: 'bg-emerald-100',
+    icon: '💰'
+  },
+  completed: {
+    label: 'Completed',
+    labelEs: 'Completada',
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-100',
+    icon: '🏆'
+  },
+  cancelled: {
+    label: 'Cancelled',
+    labelEs: 'Cancelada',
+    color: 'text-gray-400',
+    bgColor: 'bg-gray-50',
+    icon: '🚫'
+  }
+}
+
+export const GRANT_PRIORITY_CONFIG: Record<GrantPriority, {
+  label: string
+  labelEs: string
+  color: string
+  bgColor: string
+}> = {
+  low: {
+    label: 'Low',
+    labelEs: 'Baja',
+    color: 'text-gray-500',
+    bgColor: 'bg-gray-100'
+  },
+  medium: {
+    label: 'Medium',
+    labelEs: 'Media',
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-100'
+  },
+  high: {
+    label: 'High',
+    labelEs: 'Alta',
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-100'
+  },
+  critical: {
+    label: 'Critical',
+    labelEs: 'Crítica',
+    color: 'text-red-600',
+    bgColor: 'bg-red-100'
+  }
+}
+
+// Authorized wallets for grant tracker access
+export const GRANT_TRACKER_AUTHORIZED_WALLETS = [
+  '0xc655BF2Bd9AfA997c757Bef290A9Bb6ca41c5dE6', // Deployer
+  '0xB5a639149dF81c673131F9082b9429ad00842420', // LEGRA
+  '0x57D32c363555f2ae35045Dc3797cA68c4096C9FE', // Safe signer
+  '0x3514433534c281D546B3c3b913c908Bd90689D29', // Safe signer
+  '0x11323672b5f9bB899Fa332D5d464CC4e66637b42'  // Safe Owner
+].map(addr => addr.toLowerCase())

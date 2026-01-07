@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { ApplicationGuide } from '@/components/funding/ApplicationGuide';
 import { GrowthStrategy } from '@/components/funding/GrowthStrategy';
+import { GrantApplicationsTracker } from '@/components/funding/GrantApplicationsTracker';
 import {
   ChevronDown,
   ChevronRight,
@@ -24,7 +25,8 @@ import {
   Zap,
   Building,
   Coins,
-  BookOpen
+  BookOpen,
+  ClipboardList
 } from 'lucide-react';
 
 // ===== TIPOS =====
@@ -1341,7 +1343,7 @@ export default function FundingPage() {
 function FundingDashboard() {
   const [completedItems, setCompletedItems] = useState<Record<string, boolean>>({});
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<'guide' | 'growth' | 'grants' | 'crowdfunding'>('guide');
+  const [activeTab, setActiveTab] = useState<'guide' | 'growth' | 'grants' | 'crowdfunding' | 'tracker'>('guide');
   const [filterTier, setFilterTier] = useState<number | null>(null);
 
   // Load from localStorage
@@ -1446,6 +1448,17 @@ function FundingDashboard() {
           <Users className="w-4 h-4 inline mr-2" />
           Crowdfunding ({totalCrowdfunding})
         </button>
+        <button
+          onClick={() => setActiveTab('tracker')}
+          className={`px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${
+            activeTab === 'tracker'
+              ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 border-b-2 border-amber-500'
+              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+          }`}
+        >
+          <ClipboardList className="w-4 h-4 inline mr-2" />
+          My Applications
+        </button>
       </div>
 
       {/* Content */}
@@ -1453,6 +1466,8 @@ function FundingDashboard() {
         <ApplicationGuide />
       ) : activeTab === 'growth' ? (
         <GrowthStrategy />
+      ) : activeTab === 'tracker' ? (
+        <GrantApplicationsTracker />
       ) : activeTab === 'grants' ? (
         <div className="space-y-6">
           {/* Tier Filter */}
