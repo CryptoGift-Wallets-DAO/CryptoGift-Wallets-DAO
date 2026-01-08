@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { NFTImageModal } from './NFTImageModal';
 import { useAutoTranslate } from '@/hooks/useAutoTranslate';
+import { EmbeddedVideoDevice } from '@/components/video/EmbeddedVideoDevice';
+import { VIDEO_CONFIG } from '@/config/videoConfig';
 
 interface InviteImageCardProps {
   image: string;
@@ -16,6 +18,10 @@ interface InviteImageCardProps {
   status?: 'active' | 'claimed' | 'expired' | 'revoked';
   className?: string;
   onRefresh?: () => void;
+  /** Show the intro video below the referrer message */
+  showIntroVideo?: boolean;
+  /** Callback when video completes */
+  onVideoComplete?: () => void;
 }
 
 /**
@@ -39,7 +45,9 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
   expiresAt,
   status = 'active',
   className = '',
-  onRefresh
+  onRefresh,
+  showIntroVideo = true,
+  onVideoComplete
 }) => {
   const t = useTranslations('inviteCard');
   const [showImageModal, setShowImageModal] = useState(false);
@@ -204,6 +212,64 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
                 <p className={`text-sm text-purple-700 dark:text-purple-400 italic transition-opacity ${isTranslating ? 'opacity-50' : 'opacity-100'}`}>
                   &ldquo;{displayMessage || customMessage}&rdquo;
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================== */}
+        {/* EMBEDDED INTRO VIDEO - iPad/Tablet Style with Floating Words */}
+        {/* The first video of the sales masterclass embedded here */}
+        {/* ========================================================== */}
+        {showIntroVideo && status === 'active' && (
+          <div className="mt-6">
+            {/* Section Header */}
+            <div className="text-center mb-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-cyan-100 dark:from-purple-900/30 dark:to-cyan-900/30 rounded-full border border-purple-200 dark:border-purple-700">
+                <span className="text-lg">🎬</span>
+                <span className="text-sm font-semibold bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
+                  {t('introVideo.badge', { defaultValue: 'Descubre CryptoGift' })}
+                </span>
+              </div>
+            </div>
+
+            {/* Embedded Video Device */}
+            <EmbeddedVideoDevice
+              muxPlaybackId={VIDEO_CONFIG.salesMasterclassV2_TheGift.muxPlaybackId}
+              lessonId={VIDEO_CONFIG.salesMasterclassV2_TheGift.lessonId}
+              title={VIDEO_CONFIG.salesMasterclassV2_TheGift.title}
+              description={VIDEO_CONFIG.salesMasterclassV2_TheGift.description}
+              onVideoComplete={onVideoComplete}
+              className="mb-4"
+            />
+
+            {/* Urgency Banner Below Video */}
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-4 border border-amber-200 dark:border-amber-700 text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-xl animate-bounce">🎟️</span>
+                <span className="font-bold text-amber-800 dark:text-amber-300">
+                  {t('introVideo.urgencyTitle', { defaultValue: 'Este Lugar No Esperará Para Siempre' })}
+                </span>
+              </div>
+              <div className="space-y-2 text-sm text-amber-700 dark:text-amber-400">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">💰</span>
+                  <span>
+                    <strong>200 CGC Instantáneos</strong> - {t('introVideo.benefit1', { defaultValue: 'Empieza con tokens de gobernanza. 1 CGC = 1 Voto en decisiones reales.' })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🚀</span>
+                  <span>
+                    <strong>{t('introVideo.earnRange', { defaultValue: 'Gana 200-3000 CGC' })}</strong> - {t('introVideo.benefit2', { defaultValue: 'Completa tareas, cobra en tokens. Sin jefe, sin permisos necesarios.' })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">⭐</span>
+                  <span>
+                    <strong>{t('introVideo.founderMembers', { defaultValue: 'Solo Miembros Fundadores' })}</strong> - {t('introVideo.benefit3', { defaultValue: 'Únete a los primeros 10,000 pioneros construyendo el futuro de la adopción Web3.' })}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

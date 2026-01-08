@@ -329,15 +329,19 @@ const GIFT_CLAIM_URL = process.env.NEXT_PUBLIC_SITE_URL
 
 /**
  * SALES MASTERCLASS V2 - VIDEO FUNNEL BLOCKS
- * Neuromarketing approach: 3 videos + emotional checkpoints
- * Total duration: ~7 minutes (vs ~15 min legacy)
+ * Neuromarketing approach: 3 videos + streamlined flow
+ * Total duration: ~6 minutes (vs ~15 min legacy)
  *
- * Flow: video1 → checkpoint → video2 → demo → video3 → capture → social → success
+ * UPDATED FLOW: video1 → video2 → demo → video3 → capture → success
+ * NOTE: Checkpoint removed for streamlined experience
+ * NOTE: video1 is now also shown in the invite page (InviteImageCard)
  */
 const SALES_BLOCKS: SalesBlock[] = [
   // =============================================================================
   // VIDEO 1: THE GIFT (TOFU - Top of Funnel) - ~1:05
   // Psychology: Emotion + Desire
+  // NOTE: This video is now shown in the invite page (InviteImageCard)
+  // When user gets here, they may have already watched it
   // =============================================================================
   {
     id: 'video1',
@@ -351,12 +355,15 @@ const SALES_BLOCKS: SalesBlock[] = [
       message: '🎁 Completa este video-funnel y recibe 200 CGC'
     },
     triggers: ['emotional_connection', 'curiosity'],
-    nextBlock: 'checkpoint'
+    // 🔄 FLOW UPDATE: Skip checkpoint, go directly to video2
+    // The checkpoint was removed from the flow to streamline the experience
+    nextBlock: 'video2'
   },
 
   // =============================================================================
-  // CHECKPOINT: Emotional Engagement (NOT a quiz)
-  // Simple yes/no to continue - builds commitment
+  // CHECKPOINT: HIDDEN - Emotional Engagement
+  // NOTE: This block is kept for backwards compatibility but is now skipped
+  // The flow goes directly from video1 → video2
   // =============================================================================
   {
     id: 'checkpoint',

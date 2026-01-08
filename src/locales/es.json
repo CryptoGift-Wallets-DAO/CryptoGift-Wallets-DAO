@@ -2,9 +2,10 @@
   "video": {
     "fullscreenHint": "Mejor experiencia",
     "rotateHint": "Activa pantalla completa y gira tu teléfono para disfrutar mejor el video",
-    "rotateHintShort": "Gira tu teléfono para mejor experiencia",
+    "rotateHintShort": "Gira tu dispositivo para mejor experiencia",
     "expandHint": "Doble clic para pantalla completa",
-    "expandHintShort": "Doble clic para ampliar el video"
+    "expandHintShort": "Doble clic para ampliar el video",
+    "tapToPlay": "Toca para reproducir"
   },
   "landing": {
     "hero": {
@@ -1277,6 +1278,15 @@
       "typeValue": "Invitación Especial",
       "status": "Estado",
       "referrer": "Referidor"
+    },
+    "introVideo": {
+      "badge": "Descubre CryptoGift",
+      "urgencyTitle": "Este Lugar No Esperará Para Siempre",
+      "benefit1": "Empieza con tokens de gobernanza. 1 CGC = 1 Voto en decisiones reales.",
+      "benefit2": "Completa tareas, cobra en tokens. Sin jefe, sin permisos necesarios.",
+      "benefit3": "Únete a los primeros 10,000 pioneros construyendo el futuro de la adopción Web3.",
+      "earnRange": "Gana 200-3000 CGC",
+      "founderMembers": "Solo Miembros Fundadores"
     }
   },
   "funding": {
