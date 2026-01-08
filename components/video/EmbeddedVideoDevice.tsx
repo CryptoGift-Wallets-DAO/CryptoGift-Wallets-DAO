@@ -1,23 +1,23 @@
 'use client';
 
 /**
- * EMBEDDED VIDEO DEVICE - Premium iPad/Tablet Style Video Player
+ * EMBEDDED VIDEO DEVICE - Clean Video Player with Auto-Play & PiP
  *
- * Gorgeous embedded video component with:
- * - Realistic iPad/tablet frame with bezel
- * - Floating words animation around the device
- * - Device rotation hint animation
- * - Holographic glow effects
- * - Premium glass morphism aesthetics
+ * Features:
+ * - Auto-play when >50% visible with low volume
+ * - Picture-in-Picture when scrolled out of view
+ * - Rounded corners, ultra-thin border
+ * - Floating badge words below the video
+ * - Device rotation hint
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { Play, Smartphone, Maximize2, RotateCcw, X, Volume2, VolumeX } from 'lucide-react';
+import { Play, Smartphone, Maximize2, Volume2, VolumeX } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 // Lazy load Mux Player for optimization
@@ -46,65 +46,49 @@ interface EmbeddedVideoDeviceProps {
   locale?: 'en' | 'es';
 }
 
-// Floating words configuration
-const FLOATING_WORDS_ES = [
-  { text: 'Web3', delay: 0, position: 'top-left' },
-  { text: 'Regalo', delay: 0.5, position: 'top-right' },
-  { text: 'Futuro', delay: 1, position: 'bottom-left' },
-  { text: 'Confianza', delay: 1.5, position: 'bottom-right' },
-  { text: 'DAO', delay: 2, position: 'left' },
-  { text: 'Tokens', delay: 2.5, position: 'right' },
+// Floating badges configuration - shown below video
+const FLOATING_BADGES_ES = [
+  { text: 'Abierto', color: 'from-emerald-400 to-green-500' },
+  { text: 'Seguro', color: 'from-blue-400 to-cyan-500' },
+  { text: 'Humano', color: 'from-pink-400 to-rose-500' },
+  { text: 'Regalo en 5 min', color: 'from-amber-400 to-orange-500' },
+  { text: 'Base L2', color: 'from-purple-400 to-indigo-500' },
 ];
 
-const FLOATING_WORDS_EN = [
-  { text: 'Web3', delay: 0, position: 'top-left' },
-  { text: 'Gift', delay: 0.5, position: 'top-right' },
-  { text: 'Future', delay: 1, position: 'bottom-left' },
-  { text: 'Trust', delay: 1.5, position: 'bottom-right' },
-  { text: 'DAO', delay: 2, position: 'left' },
-  { text: 'Tokens', delay: 2.5, position: 'right' },
+const FLOATING_BADGES_EN = [
+  { text: 'Open', color: 'from-emerald-400 to-green-500' },
+  { text: 'Secure', color: 'from-blue-400 to-cyan-500' },
+  { text: 'Human', color: 'from-pink-400 to-rose-500' },
+  { text: 'Gift in 5 min', color: 'from-amber-400 to-orange-500' },
+  { text: 'Base L2', color: 'from-purple-400 to-indigo-500' },
 ];
 
 // CSS Keyframes for animations
 const animationStyles = `
-  @keyframes deviceFloat {
-    0%, 100% { transform: translateY(0px) rotateX(2deg); }
-    50% { transform: translateY(-8px) rotateX(-1deg); }
+  @keyframes videoFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
   }
 
-  @keyframes wordFloat {
+  @keyframes badgeFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+  }
+
+  @keyframes subtleGlow {
     0%, 100% {
-      transform: translateY(0px) scale(1);
-      opacity: 0.7;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+                  0 0 40px rgba(139, 92, 246, 0.1);
     }
     50% {
-      transform: translateY(-12px) scale(1.05);
-      opacity: 1;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4),
+                  0 0 60px rgba(6, 182, 212, 0.15);
     }
   }
 
-  @keyframes holographicGlow {
-    0% {
-      box-shadow: 0 0 30px rgba(139, 92, 246, 0.4),
-                  0 0 60px rgba(6, 182, 212, 0.2),
-                  inset 0 0 30px rgba(139, 92, 246, 0.1);
-    }
-    50% {
-      box-shadow: 0 0 40px rgba(6, 182, 212, 0.5),
-                  0 0 80px rgba(139, 92, 246, 0.3),
-                  inset 0 0 40px rgba(6, 182, 212, 0.1);
-    }
-    100% {
-      box-shadow: 0 0 30px rgba(139, 92, 246, 0.4),
-                  0 0 60px rgba(6, 182, 212, 0.2),
-                  inset 0 0 30px rgba(139, 92, 246, 0.1);
-    }
-  }
-
-  @keyframes screenGlare {
-    0% { transform: translateX(-150%) rotate(45deg); opacity: 0; }
-    50% { opacity: 0.3; }
-    100% { transform: translateX(150%) rotate(45deg); opacity: 0; }
+  @keyframes pulseRing {
+    0% { transform: scale(1); opacity: 0.6; }
+    100% { transform: scale(1.5); opacity: 0; }
   }
 
   @keyframes rotateHint {
@@ -112,11 +96,20 @@ const animationStyles = `
     50%, 90% { transform: rotate(90deg); }
   }
 
-  @keyframes pulseRing {
-    0% { transform: scale(1); opacity: 0.5; }
-    100% { transform: scale(1.4); opacity: 0; }
+  @keyframes pipSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 `;
+
+// Initial low volume for auto-play (0.0 to 1.0)
+const AUTO_PLAY_VOLUME = 0.15;
 
 export function EmbeddedVideoDevice({
   muxPlaybackId,
@@ -128,11 +121,19 @@ export function EmbeddedVideoDevice({
   locale
 }: EmbeddedVideoDeviceProps) {
   const t = useTranslations('video');
-  const [isPlaying, setIsPlaying] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [showRotateHint, setShowRotateHint] = useState(true);
+  const [volume, setVolume] = useState(AUTO_PLAY_VOLUME);
+  const [isInPiP, setIsInPiP] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [currentLocale, setCurrentLocale] = useState<'es' | 'en'>(locale || 'es');
+
+  // Refs
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const muxPlayerRef = useRef<any>(null);
+  const hasAutoPlayed = useRef(false);
 
   // Detect locale from cookie
   useEffect(() => {
@@ -148,36 +149,169 @@ export function EmbeddedVideoDevice({
     }
   }, [locale]);
 
-  // Hide rotate hint after 5 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => setShowRotateHint(false), 5000);
-    return () => clearTimeout(timer);
+  const floatingBadges = currentLocale === 'en' ? FLOATING_BADGES_EN : FLOATING_BADGES_ES;
+
+  // Get video element from MuxPlayer
+  const getVideoElement = useCallback((): HTMLVideoElement | null => {
+    if (videoRef.current) return videoRef.current;
+
+    if (muxPlayerRef.current) {
+      // MuxPlayer stores the video element internally
+      const muxElement = muxPlayerRef.current;
+      if (muxElement?.media?.nativeEl) {
+        videoRef.current = muxElement.media.nativeEl;
+        return videoRef.current;
+      }
+      // Fallback: try to find video element in shadow DOM or children
+      const videoEl = muxElement?.querySelector?.('video') ||
+                      muxElement?.shadowRoot?.querySelector?.('video');
+      if (videoEl) {
+        videoRef.current = videoEl;
+        return videoRef.current;
+      }
+    }
+    return null;
   }, []);
 
-  const floatingWords = currentLocale === 'en' ? FLOATING_WORDS_EN : FLOATING_WORDS_ES;
+  // Enter Picture-in-Picture mode
+  const enterPiP = useCallback(async () => {
+    const video = getVideoElement();
+    if (!video || isInPiP) return;
+
+    try {
+      if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
+        await video.requestPictureInPicture();
+        setIsInPiP(true);
+        console.log('[EmbeddedVideoDevice] Entered PiP mode');
+      }
+    } catch (err) {
+      console.log('[EmbeddedVideoDevice] PiP not available:', err);
+    }
+  }, [getVideoElement, isInPiP]);
+
+  // Exit Picture-in-Picture mode
+  const exitPiP = useCallback(async () => {
+    if (!isInPiP) return;
+
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+        setIsInPiP(false);
+        console.log('[EmbeddedVideoDevice] Exited PiP mode');
+      }
+    } catch (err) {
+      console.log('[EmbeddedVideoDevice] Error exiting PiP:', err);
+    }
+  }, [isInPiP]);
+
+  // Handle PiP events
+  useEffect(() => {
+    const handlePiPEnter = () => setIsInPiP(true);
+    const handlePiPLeave = () => setIsInPiP(false);
+
+    const video = getVideoElement();
+    if (video) {
+      video.addEventListener('enterpictureinpicture', handlePiPEnter);
+      video.addEventListener('leavepictureinpicture', handlePiPLeave);
+
+      return () => {
+        video.removeEventListener('enterpictureinpicture', handlePiPEnter);
+        video.removeEventListener('leavepictureinpicture', handlePiPLeave);
+      };
+    }
+  }, [getVideoElement, showVideo]);
+
+  // IntersectionObserver for auto-play and PiP
+  useEffect(() => {
+    if (!showVideo || !containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const visibilityRatio = entry.intersectionRatio;
+
+          // Auto-play when >50% visible
+          if (visibilityRatio > 0.5 && !hasAutoPlayed.current) {
+            const video = getVideoElement();
+            if (video && video.paused) {
+              video.volume = AUTO_PLAY_VOLUME;
+              video.muted = false;
+              video.play().then(() => {
+                hasAutoPlayed.current = true;
+                setIsPlaying(true);
+                setVolume(AUTO_PLAY_VOLUME);
+                console.log('[EmbeddedVideoDevice] Auto-playing with volume:', AUTO_PLAY_VOLUME);
+              }).catch(err => {
+                // Auto-play blocked, try muted
+                console.log('[EmbeddedVideoDevice] Auto-play blocked, trying muted:', err);
+                video.muted = true;
+                setIsMuted(true);
+                video.play().then(() => {
+                  hasAutoPlayed.current = true;
+                  setIsPlaying(true);
+                });
+              });
+            }
+          }
+
+          // Enter PiP when <30% visible and video is playing
+          if (visibilityRatio < 0.3 && isPlaying && !isInPiP && hasUserInteracted) {
+            enterPiP();
+          }
+
+          // Exit PiP when >50% visible again
+          if (visibilityRatio > 0.5 && isInPiP) {
+            exitPiP();
+          }
+        });
+      },
+      {
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        rootMargin: '0px'
+      }
+    );
+
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, [showVideo, isPlaying, isInPiP, hasUserInteracted, getVideoElement, enterPiP, exitPiP]);
 
   const handlePlayClick = useCallback(() => {
     setShowVideo(true);
-    setIsPlaying(true);
-  }, []);
+    setHasUserInteracted(true);
+
+    // Small delay to ensure MuxPlayer is mounted
+    setTimeout(() => {
+      const video = getVideoElement();
+      if (video) {
+        video.volume = AUTO_PLAY_VOLUME;
+        video.muted = false;
+        video.play().then(() => {
+          setIsPlaying(true);
+          hasAutoPlayed.current = true;
+        }).catch(console.error);
+      }
+    }, 500);
+  }, [getVideoElement]);
 
   const handleVideoEnd = useCallback(() => {
     console.log('[EmbeddedVideoDevice] Video completed');
     localStorage.setItem(`video_seen:${lessonId}`, 'completed');
+    setIsPlaying(false);
+    exitPiP();
     onVideoComplete?.();
-  }, [lessonId, onVideoComplete]);
+  }, [lessonId, onVideoComplete, exitPiP]);
 
-  const getWordPosition = (position: string) => {
-    switch (position) {
-      case 'top-left': return 'top-0 left-0 -translate-x-1/2 -translate-y-full';
-      case 'top-right': return 'top-0 right-0 translate-x-1/2 -translate-y-full';
-      case 'bottom-left': return 'bottom-0 left-0 -translate-x-1/2 translate-y-full';
-      case 'bottom-right': return 'bottom-0 right-0 translate-x-1/2 translate-y-full';
-      case 'left': return 'top-1/2 left-0 -translate-x-full -translate-y-1/2';
-      case 'right': return 'top-1/2 right-0 translate-x-full -translate-y-1/2';
-      default: return '';
+  const toggleMute = useCallback(() => {
+    const video = getVideoElement();
+    if (video) {
+      video.muted = !video.muted;
+      setIsMuted(video.muted);
+      if (!video.muted) {
+        video.volume = volume;
+      }
     }
-  };
+  }, [getVideoElement, volume]);
 
   // Get translated text with fallback
   const getText = (key: string, fallbackEs: string, fallbackEn: string) => {
@@ -192,67 +326,25 @@ export function EmbeddedVideoDevice({
     <>
       <style jsx global>{animationStyles}</style>
 
-      <div className={`relative ${className}`}>
-        {/* Floating Words Around Device */}
-        <div className="absolute inset-0 pointer-events-none z-10">
-          {floatingWords.map((word, index) => (
-            <motion.div
-              key={word.text}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: word.delay, duration: 0.5 }}
-              className={`absolute ${getWordPosition(word.position)} px-3 py-1.5 hidden sm:block`}
-              style={{
-                animation: `wordFloat 3s ease-in-out ${word.delay}s infinite`
-              }}
-            >
-              <span className="text-sm font-bold bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent whitespace-nowrap drop-shadow-lg">
-                {word.text}
-              </span>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* iPad/Tablet Device Frame */}
+      <div ref={containerRef} className={`relative ${className}`}>
+        {/* Clean Video Container */}
         <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          initial={{ opacity: 0, y: 20, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
           className="relative mx-auto max-w-2xl"
-          style={{
-            animation: 'deviceFloat 6s ease-in-out infinite',
-            perspective: '1000px'
-          }}
+          style={{ animation: showVideo ? 'none' : 'videoFloat 5s ease-in-out infinite' }}
         >
-          {/* Device Outer Frame (Bezel) */}
+          {/* Video Frame - Ultra thin border, rounded corners */}
           <div
-            className="relative bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 rounded-[2rem] p-3 sm:p-4"
+            className="relative rounded-2xl overflow-hidden"
             style={{
-              animation: 'holographicGlow 4s ease-in-out infinite',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 100px rgba(139, 92, 246, 0.2)'
+              border: '1px solid rgba(0, 0, 0, 0.8)',
+              animation: 'subtleGlow 4s ease-in-out infinite'
             }}
           >
-            {/* Metallic Edge Highlight */}
-            <div className="absolute inset-0 rounded-[2rem] border border-white/10 pointer-events-none" />
-            <div className="absolute inset-[1px] rounded-[2rem] border border-black/50 pointer-events-none" />
-
-            {/* Camera Notch (Top) */}
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-slate-700 border border-slate-600" />
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
-            </div>
-
-            {/* Screen Container */}
-            <div className="relative aspect-video bg-black rounded-2xl overflow-hidden">
-              {/* Screen Glare Effect */}
-              <div
-                className="absolute inset-0 pointer-events-none z-20"
-                style={{
-                  background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.1) 45%, transparent 50%)',
-                  animation: 'screenGlare 8s ease-in-out infinite'
-                }}
-              />
-
+            {/* Aspect ratio container */}
+            <div className="relative aspect-video bg-black">
               {/* Video or Play Overlay */}
               <AnimatePresence mode="wait">
                 {!showVideo ? (
@@ -261,14 +353,14 @@ export function EmbeddedVideoDevice({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-gradient-to-br from-purple-900/90 via-slate-900 to-cyan-900/90 flex items-center justify-center cursor-pointer group"
+                    className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-slate-900 to-cyan-900/80 flex items-center justify-center cursor-pointer group"
                     onClick={handlePlayClick}
                   >
-                    {/* Background Pattern */}
-                    <div className="absolute inset-0 opacity-10">
+                    {/* Subtle background pattern */}
+                    <div className="absolute inset-0 opacity-5">
                       <div className="absolute inset-0" style={{
                         backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-                        backgroundSize: '32px 32px'
+                        backgroundSize: '24px 24px'
                       }} />
                     </div>
 
@@ -276,26 +368,26 @@ export function EmbeddedVideoDevice({
                     <div className="relative z-10 text-center">
                       {/* Pulse Rings */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-24 h-24 rounded-full border-2 border-purple-400/50" style={{ animation: 'pulseRing 2s ease-out infinite' }} />
-                        <div className="absolute w-24 h-24 rounded-full border-2 border-cyan-400/50" style={{ animation: 'pulseRing 2s ease-out 0.5s infinite' }} />
+                        <div className="w-20 h-20 rounded-full border-2 border-purple-400/40" style={{ animation: 'pulseRing 2s ease-out infinite' }} />
+                        <div className="absolute w-20 h-20 rounded-full border-2 border-cyan-400/40" style={{ animation: 'pulseRing 2s ease-out 0.5s infinite' }} />
                       </div>
 
                       {/* Play Icon */}
                       <motion.div
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
-                        className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-2xl shadow-purple-500/50 group-hover:shadow-purple-500/70 transition-shadow"
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-2xl shadow-purple-500/40 group-hover:shadow-purple-500/60 transition-shadow"
                       >
-                        <Play className="w-8 h-8 sm:w-10 sm:h-10 text-white ml-1" fill="white" />
+                        <Play className="w-7 h-7 sm:w-9 sm:h-9 text-white ml-1" fill="white" />
                       </motion.div>
 
-                      {/* Title Below */}
+                      {/* Title Below Play */}
                       {title && (
                         <motion.p
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.3 }}
-                          className="mt-4 text-white font-bold text-lg sm:text-xl"
+                          transition={{ delay: 0.2 }}
+                          className="mt-4 text-white font-bold text-base sm:text-lg"
                         >
                           {title}
                         </motion.p>
@@ -304,8 +396,8 @@ export function EmbeddedVideoDevice({
                       <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                        className="mt-2 text-white/70 text-sm"
+                        transition={{ delay: 0.4 }}
+                        className="mt-2 text-white/60 text-xs sm:text-sm"
                       >
                         {getText('tapToPlay', 'Toca para reproducir', 'Tap to play')}
                       </motion.p>
@@ -319,12 +411,15 @@ export function EmbeddedVideoDevice({
                     className="absolute inset-0"
                   >
                     <MuxPlayer
+                      ref={muxPlayerRef}
                       playbackId={muxPlaybackId}
                       streamType="on-demand"
-                      autoPlay={true}
+                      autoPlay={false}
                       muted={isMuted}
                       playsInline
                       onEnded={handleVideoEnd}
+                      onPlay={() => setIsPlaying(true)}
+                      onPause={() => setIsPlaying(false)}
                       style={{
                         width: '100%',
                         height: '100%',
@@ -341,62 +436,78 @@ export function EmbeddedVideoDevice({
                 )}
               </AnimatePresence>
             </div>
-
-            {/* Home Button / Touch Bar (Bottom) */}
-            <div className="flex justify-center mt-2">
-              <div className="w-24 h-1 rounded-full bg-slate-700" />
-            </div>
           </div>
-        </motion.div>
 
-        {/* Rotate/Expand Hint - Below Device */}
-        <AnimatePresence>
-          {showRotateHint && (
+          {/* Volume indicator when auto-playing */}
+          {showVideo && isPlaying && !hasUserInteracted && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="flex items-center justify-center gap-3 mt-4 text-sm text-gray-500 dark:text-gray-400"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="absolute top-3 right-3 z-30"
             >
-              {/* Animated Phone Icon */}
-              <motion.div
-                style={{ animation: 'rotateHint 3s ease-in-out infinite' }}
-              >
-                <Smartphone className="w-5 h-5 text-purple-500" />
-              </motion.div>
-
-              <span>
-                {getText('rotateHintShort',
-                  'Gira tu dispositivo para mejor experiencia',
-                  'Rotate your device for better experience'
-                )}
-              </span>
-
-              <motion.div
-                animate={{ x: [0, 4, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              >
-                <Maximize2 className="w-4 h-4 text-cyan-500" />
-              </motion.div>
-
-              {/* Dismiss button */}
               <button
-                onClick={() => setShowRotateHint(false)}
-                className="ml-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setHasUserInteracted(true);
+                  toggleMute();
+                }}
+                className="p-2 rounded-full bg-black/60 backdrop-blur-sm text-white hover:bg-black/80 transition-colors"
+                title={isMuted ? 'Activar sonido' : 'Silenciar'}
               >
-                <X className="w-3 h-3 text-gray-400" />
+                {isMuted ? (
+                  <VolumeX className="w-5 h-5" />
+                ) : (
+                  <Volume2 className="w-5 h-5" />
+                )}
               </button>
             </motion.div>
           )}
-        </AnimatePresence>
+        </motion.div>
+
+        {/* Rotate Device Hint */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="flex items-center justify-center gap-2 mt-3 text-xs text-gray-500 dark:text-gray-400"
+        >
+          <motion.div style={{ animation: 'rotateHint 3s ease-in-out infinite' }}>
+            <Smartphone className="w-4 h-4 text-purple-400" />
+          </motion.div>
+          <span>{getText('rotateHintShort', 'Gira tu dispositivo para mejor experiencia', 'Rotate your device for better experience')}</span>
+          <Maximize2 className="w-3 h-3 text-cyan-400" />
+        </motion.div>
+
+        {/* Floating Badges Below Video */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
+          className="flex flex-wrap justify-center gap-2 mt-4"
+        >
+          {floatingBadges.map((badge, index) => (
+            <motion.div
+              key={badge.text}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.9 + index * 0.1 }}
+              style={{
+                animation: `badgeFloat 3s ease-in-out ${index * 0.3}s infinite`
+              }}
+              className={`px-3 py-1.5 rounded-full bg-gradient-to-r ${badge.color} text-white text-xs font-semibold shadow-lg`}
+            >
+              {badge.text}
+            </motion.div>
+          ))}
+        </motion.div>
 
         {/* Description Below */}
         {description && (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="text-center text-sm text-gray-600 dark:text-gray-400 mt-3 max-w-md mx-auto"
+            transition={{ delay: 1.2 }}
+            className="text-center text-sm text-gray-600 dark:text-gray-400 mt-4 max-w-md mx-auto"
           >
             {description}
           </motion.p>
