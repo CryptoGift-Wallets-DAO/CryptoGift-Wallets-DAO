@@ -1,11 +1,12 @@
 'use client';
 
 /**
- * EMBEDDED VIDEO DEVICE - Clean Video Player with Floating Badges
+ * EMBEDDED VIDEO DEVICE - Clean Video Player with Auto-Play & PiP
  *
- * Minimal design with:
+ * Features:
+ * - Auto-play when >50% visible with low volume
+ * - Picture-in-Picture when scrolled out of view
  * - Rounded corners, ultra-thin border
- * - Subtle floating animation
  * - Floating badge words below the video
  * - Device rotation hint
  *
@@ -13,10 +14,10 @@
  * Co-Author: Godez22
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { Play, Smartphone, Maximize2 } from 'lucide-react';
+import { Play, Smartphone, Maximize2, Volume2, VolumeX } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 // Lazy load Mux Player for optimization
@@ -94,7 +95,21 @@ const animationStyles = `
     0%, 40%, 100% { transform: rotate(0deg); }
     50%, 90% { transform: rotate(90deg); }
   }
+
+  @keyframes pipSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
 `;
+
+// Initial low volume for auto-play (0.0 to 1.0)
+const AUTO_PLAY_VOLUME = 0.15;
 
 export function EmbeddedVideoDevice({
   muxPlaybackId,
@@ -106,9 +121,19 @@ export function EmbeddedVideoDevice({
   locale
 }: EmbeddedVideoDeviceProps) {
   const t = useTranslations('video');
-  const [isPlaying, setIsPlaying] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(AUTO_PLAY_VOLUME);
+  const [isInPiP, setIsInPiP] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [currentLocale, setCurrentLocale] = useState<'es' | 'en'>(locale || 'es');
+
+  // Refs
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const muxPlayerRef = useRef<any>(null);
+  const hasAutoPlayed = useRef(false);
 
   // Detect locale from cookie
   useEffect(() => {
@@ -126,16 +151,167 @@ export function EmbeddedVideoDevice({
 
   const floatingBadges = currentLocale === 'en' ? FLOATING_BADGES_EN : FLOATING_BADGES_ES;
 
+  // Get video element from MuxPlayer
+  const getVideoElement = useCallback((): HTMLVideoElement | null => {
+    if (videoRef.current) return videoRef.current;
+
+    if (muxPlayerRef.current) {
+      // MuxPlayer stores the video element internally
+      const muxElement = muxPlayerRef.current;
+      if (muxElement?.media?.nativeEl) {
+        videoRef.current = muxElement.media.nativeEl;
+        return videoRef.current;
+      }
+      // Fallback: try to find video element in shadow DOM or children
+      const videoEl = muxElement?.querySelector?.('video') ||
+                      muxElement?.shadowRoot?.querySelector?.('video');
+      if (videoEl) {
+        videoRef.current = videoEl;
+        return videoRef.current;
+      }
+    }
+    return null;
+  }, []);
+
+  // Enter Picture-in-Picture mode
+  const enterPiP = useCallback(async () => {
+    const video = getVideoElement();
+    if (!video || isInPiP) return;
+
+    try {
+      if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
+        await video.requestPictureInPicture();
+        setIsInPiP(true);
+        console.log('[EmbeddedVideoDevice] Entered PiP mode');
+      }
+    } catch (err) {
+      console.log('[EmbeddedVideoDevice] PiP not available:', err);
+    }
+  }, [getVideoElement, isInPiP]);
+
+  // Exit Picture-in-Picture mode
+  const exitPiP = useCallback(async () => {
+    if (!isInPiP) return;
+
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+        setIsInPiP(false);
+        console.log('[EmbeddedVideoDevice] Exited PiP mode');
+      }
+    } catch (err) {
+      console.log('[EmbeddedVideoDevice] Error exiting PiP:', err);
+    }
+  }, [isInPiP]);
+
+  // Handle PiP events
+  useEffect(() => {
+    const handlePiPEnter = () => setIsInPiP(true);
+    const handlePiPLeave = () => setIsInPiP(false);
+
+    const video = getVideoElement();
+    if (video) {
+      video.addEventListener('enterpictureinpicture', handlePiPEnter);
+      video.addEventListener('leavepictureinpicture', handlePiPLeave);
+
+      return () => {
+        video.removeEventListener('enterpictureinpicture', handlePiPEnter);
+        video.removeEventListener('leavepictureinpicture', handlePiPLeave);
+      };
+    }
+  }, [getVideoElement, showVideo]);
+
+  // IntersectionObserver for auto-play and PiP
+  useEffect(() => {
+    if (!showVideo || !containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const visibilityRatio = entry.intersectionRatio;
+
+          // Auto-play when >50% visible
+          if (visibilityRatio > 0.5 && !hasAutoPlayed.current) {
+            const video = getVideoElement();
+            if (video && video.paused) {
+              video.volume = AUTO_PLAY_VOLUME;
+              video.muted = false;
+              video.play().then(() => {
+                hasAutoPlayed.current = true;
+                setIsPlaying(true);
+                setVolume(AUTO_PLAY_VOLUME);
+                console.log('[EmbeddedVideoDevice] Auto-playing with volume:', AUTO_PLAY_VOLUME);
+              }).catch(err => {
+                // Auto-play blocked, try muted
+                console.log('[EmbeddedVideoDevice] Auto-play blocked, trying muted:', err);
+                video.muted = true;
+                setIsMuted(true);
+                video.play().then(() => {
+                  hasAutoPlayed.current = true;
+                  setIsPlaying(true);
+                });
+              });
+            }
+          }
+
+          // Enter PiP when <30% visible and video is playing
+          if (visibilityRatio < 0.3 && isPlaying && !isInPiP && hasUserInteracted) {
+            enterPiP();
+          }
+
+          // Exit PiP when >50% visible again
+          if (visibilityRatio > 0.5 && isInPiP) {
+            exitPiP();
+          }
+        });
+      },
+      {
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        rootMargin: '0px'
+      }
+    );
+
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, [showVideo, isPlaying, isInPiP, hasUserInteracted, getVideoElement, enterPiP, exitPiP]);
+
   const handlePlayClick = useCallback(() => {
     setShowVideo(true);
-    setIsPlaying(true);
-  }, []);
+    setHasUserInteracted(true);
+
+    // Small delay to ensure MuxPlayer is mounted
+    setTimeout(() => {
+      const video = getVideoElement();
+      if (video) {
+        video.volume = AUTO_PLAY_VOLUME;
+        video.muted = false;
+        video.play().then(() => {
+          setIsPlaying(true);
+          hasAutoPlayed.current = true;
+        }).catch(console.error);
+      }
+    }, 500);
+  }, [getVideoElement]);
 
   const handleVideoEnd = useCallback(() => {
     console.log('[EmbeddedVideoDevice] Video completed');
     localStorage.setItem(`video_seen:${lessonId}`, 'completed');
+    setIsPlaying(false);
+    exitPiP();
     onVideoComplete?.();
-  }, [lessonId, onVideoComplete]);
+  }, [lessonId, onVideoComplete, exitPiP]);
+
+  const toggleMute = useCallback(() => {
+    const video = getVideoElement();
+    if (video) {
+      video.muted = !video.muted;
+      setIsMuted(video.muted);
+      if (!video.muted) {
+        video.volume = volume;
+      }
+    }
+  }, [getVideoElement, volume]);
 
   // Get translated text with fallback
   const getText = (key: string, fallbackEs: string, fallbackEn: string) => {
@@ -150,14 +326,14 @@ export function EmbeddedVideoDevice({
     <>
       <style jsx global>{animationStyles}</style>
 
-      <div className={`relative ${className}`}>
-        {/* Clean Video Container - No thick borders */}
+      <div ref={containerRef} className={`relative ${className}`}>
+        {/* Clean Video Container */}
         <motion.div
           initial={{ opacity: 0, y: 20, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="relative mx-auto max-w-2xl"
-          style={{ animation: 'videoFloat 5s ease-in-out infinite' }}
+          style={{ animation: showVideo ? 'none' : 'videoFloat 5s ease-in-out infinite' }}
         >
           {/* Video Frame - Ultra thin border, rounded corners */}
           <div
@@ -235,12 +411,15 @@ export function EmbeddedVideoDevice({
                     className="absolute inset-0"
                   >
                     <MuxPlayer
+                      ref={muxPlayerRef}
                       playbackId={muxPlaybackId}
                       streamType="on-demand"
-                      autoPlay={true}
-                      muted={false}
+                      autoPlay={false}
+                      muted={isMuted}
                       playsInline
                       onEnded={handleVideoEnd}
+                      onPlay={() => setIsPlaying(true)}
+                      onPause={() => setIsPlaying(false)}
                       style={{
                         width: '100%',
                         height: '100%',
@@ -258,6 +437,31 @@ export function EmbeddedVideoDevice({
               </AnimatePresence>
             </div>
           </div>
+
+          {/* Volume indicator when auto-playing */}
+          {showVideo && isPlaying && !hasUserInteracted && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="absolute top-3 right-3 z-30"
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setHasUserInteracted(true);
+                  toggleMute();
+                }}
+                className="p-2 rounded-full bg-black/60 backdrop-blur-sm text-white hover:bg-black/80 transition-colors"
+                title={isMuted ? 'Activar sonido' : 'Silenciar'}
+              >
+                {isMuted ? (
+                  <VolumeX className="w-5 h-5" />
+                ) : (
+                  <Volume2 className="w-5 h-5" />
+                )}
+              </button>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Rotate Device Hint */}
