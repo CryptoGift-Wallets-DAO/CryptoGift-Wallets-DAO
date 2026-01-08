@@ -658,13 +658,14 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   const account = useActiveAccount();
   
   // State
-  // 🔒 V2 FIX: In V2 flow, there is NO separate intro video
-  // V2 starts directly with the video1 block ("The Gift")
-  // The old intro video (salesMasterclass) was a legacy feature - we skip it in V2
+  // 🔒 V2 UPDATE: video1 ("El Regalo") is now shown in the invite page
+  // The masterclass now starts directly at video2 ("La Solución")
+  // Index mapping: 0=video1(skipped), 1=checkpoint(skipped), 2=video2(START HERE)
+  const VIDEO2_START_INDEX = 2; // video2 "La Solución" is at index 2
+
   const [showIntroVideo, setShowIntroVideo] = useState(() => {
-    // V2 NEVER shows the old intro video - we go directly to the video1 block
-    // The video1 block IS the intro for V2 (The Gift - The first step toward real trust)
-    console.log('[SalesMasterclassV2] 🎬 V2 mode: skipping legacy intro video, starting with video1 block');
+    // V2 NEVER shows the old intro video - video1 is in the invite page now
+    console.log('[SalesMasterclassV2] 🎬 V2 mode: video1 is in invite page, starting at video2');
     return false;
   });
   const [currentBlock, setCurrentBlock] = useState(() => {
@@ -674,22 +675,31 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
       // CRITICAL FIX: Bounds validation - V2 has fewer blocks than legacy (8 vs 11)
       // If user had legacy progress, their saved index may be out of bounds for V2
       if (savedIndex >= 0 && savedIndex < SALES_BLOCKS.length) {
+        // If saved at video1 or checkpoint, skip to video2
+        if (savedIndex < VIDEO2_START_INDEX) {
+          console.log('[SalesMasterclassV2] 🔒 Saved index was', savedIndex, '- skipping to video2 at index', VIDEO2_START_INDEX);
+          return VIDEO2_START_INDEX;
+        }
         console.log('[SalesMasterclassV2] 🔒 Restored: currentBlockIndex =', savedIndex);
         return savedIndex;
       } else {
         console.warn('[SalesMasterclassV2] ⚠️ Invalid saved index:', savedIndex,
-          '(max:', SALES_BLOCKS.length - 1, ') - resetting to 0 (legacy→V2 migration)');
-        return 0;
+          '(max:', SALES_BLOCKS.length - 1, ') - starting at video2');
+        return VIDEO2_START_INDEX;
       }
     }
-    return 0;
+    // Default: Start at video2 (index 2) since video1 is now in invite page
+    return VIDEO2_START_INDEX;
   });
   const [timeLeft, setTimeLeft] = useState(() => {
     // Use saved block's duration if restoring
     if (savedEducationState?.currentBlockIndex !== undefined) {
-      return SALES_BLOCKS[savedEducationState.currentBlockIndex]?.duration || SALES_BLOCKS[0].duration;
+      const savedIndex = savedEducationState.currentBlockIndex;
+      if (savedIndex >= VIDEO2_START_INDEX && savedIndex < SALES_BLOCKS.length) {
+        return SALES_BLOCKS[savedIndex]?.duration || SALES_BLOCKS[VIDEO2_START_INDEX].duration;
+      }
     }
-    return SALES_BLOCKS[0].duration;
+    return SALES_BLOCKS[VIDEO2_START_INDEX].duration;
   });
   const [isPaused, setIsPaused] = useState(false);
 
