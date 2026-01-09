@@ -46,43 +46,141 @@ interface EmbeddedVideoDeviceProps {
   locale?: 'en' | 'es';
 }
 
-// Floating badges configuration - shown below video
+// Artistic floating badges - Scattered design with unique positioning
+// Inspired by premium landing pages with floating elements
 const FLOATING_BADGES_ES = [
-  { text: 'Abierto', color: 'from-emerald-400 to-green-500' },
-  { text: 'Seguro', color: 'from-blue-400 to-cyan-500' },
-  { text: 'Humano', color: 'from-pink-400 to-rose-500' },
-  { text: 'Regalo en 5 min', color: 'from-amber-400 to-orange-500' },
-  { text: 'Base L2', color: 'from-purple-400 to-indigo-500' },
+  {
+    text: 'Sin gas',
+    color: 'from-amber-400 to-orange-500',
+    position: { top: '5%', left: '8%' },
+    delay: 0,
+    size: 'sm'
+  },
+  {
+    text: 'Sin complicaciones',
+    color: 'from-cyan-400 to-blue-500',
+    position: { top: '15%', right: '5%' },
+    delay: 0.2,
+    size: 'md'
+  },
+  {
+    text: 'Sin miedo',
+    color: 'from-pink-400 to-rose-500',
+    position: { top: '35%', left: '3%' },
+    delay: 0.4,
+    size: 'sm'
+  },
+  {
+    text: '100% tuyo',
+    color: 'from-emerald-400 to-green-500',
+    position: { top: '55%', left: '5%' },
+    delay: 0.6,
+    size: 'md'
+  },
+  {
+    text: 'Web3 simple',
+    color: 'from-violet-400 to-purple-500',
+    position: { bottom: '25%', right: '3%' },
+    delay: 0.8,
+    size: 'sm'
+  },
+  {
+    text: 'UX intuitiva',
+    color: 'from-fuchsia-400 to-pink-500',
+    position: { bottom: '8%', right: '8%' },
+    delay: 1.0,
+    size: 'sm'
+  },
 ];
 
 const FLOATING_BADGES_EN = [
-  { text: 'Open', color: 'from-emerald-400 to-green-500' },
-  { text: 'Secure', color: 'from-blue-400 to-cyan-500' },
-  { text: 'Human', color: 'from-pink-400 to-rose-500' },
-  { text: 'Gift in 5 min', color: 'from-amber-400 to-orange-500' },
-  { text: 'Base L2', color: 'from-purple-400 to-indigo-500' },
+  {
+    text: 'No gas',
+    color: 'from-amber-400 to-orange-500',
+    position: { top: '5%', left: '8%' },
+    delay: 0,
+    size: 'sm'
+  },
+  {
+    text: 'No complications',
+    color: 'from-cyan-400 to-blue-500',
+    position: { top: '15%', right: '5%' },
+    delay: 0.2,
+    size: 'md'
+  },
+  {
+    text: 'No fear',
+    color: 'from-pink-400 to-rose-500',
+    position: { top: '35%', left: '3%' },
+    delay: 0.4,
+    size: 'sm'
+  },
+  {
+    text: '100% yours',
+    color: 'from-emerald-400 to-green-500',
+    position: { top: '55%', left: '5%' },
+    delay: 0.6,
+    size: 'md'
+  },
+  {
+    text: 'Web3 simple',
+    color: 'from-violet-400 to-purple-500',
+    position: { bottom: '25%', right: '3%' },
+    delay: 0.8,
+    size: 'sm'
+  },
+  {
+    text: 'Intuitive UX',
+    color: 'from-fuchsia-400 to-pink-500',
+    position: { bottom: '8%', right: '8%' },
+    delay: 1.0,
+    size: 'sm'
+  },
 ];
 
-// CSS Keyframes for animations
+// CSS Keyframes for animations - Premium artistic design
 const animationStyles = `
   @keyframes videoFloat {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-6px); }
   }
 
-  @keyframes badgeFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-4px); }
+  @keyframes floatingBadge {
+    0%, 100% {
+      transform: translateY(0px) translateX(0px) rotate(0deg);
+      opacity: 0.95;
+    }
+    25% {
+      transform: translateY(-8px) translateX(3px) rotate(1deg);
+      opacity: 1;
+    }
+    50% {
+      transform: translateY(-4px) translateX(-2px) rotate(-1deg);
+      opacity: 0.9;
+    }
+    75% {
+      transform: translateY(-10px) translateX(1px) rotate(0.5deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes floatingBadgeSlow {
+    0%, 100% {
+      transform: translateY(0px) translateX(0px);
+      opacity: 0.9;
+    }
+    50% {
+      transform: translateY(-12px) translateX(-4px);
+      opacity: 1;
+    }
   }
 
   @keyframes subtleGlow {
     0%, 100% {
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
-                  0 0 40px rgba(139, 92, 246, 0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
     50% {
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4),
-                  0 0 60px rgba(6, 182, 212, 0.15);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     }
   }
 
@@ -105,6 +203,11 @@ const animationStyles = `
       opacity: 1;
       transform: translateY(0) scale(1);
     }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 `;
 
@@ -326,7 +429,8 @@ export function EmbeddedVideoDevice({
     <>
       <style jsx global>{animationStyles}</style>
 
-      <div ref={containerRef} className={`relative ${className}`}>
+      {/* Main container with relative positioning for floating badges */}
+      <div ref={containerRef} className={`relative ${className}`} style={{ minHeight: '400px' }}>
         {/* Clean Video Container */}
         <motion.div
           initial={{ opacity: 0, y: 20, scale: 0.98 }}
@@ -335,11 +439,11 @@ export function EmbeddedVideoDevice({
           className="relative mx-auto max-w-2xl"
           style={{ animation: showVideo ? 'none' : 'videoFloat 5s ease-in-out infinite' }}
         >
-          {/* Video Frame - Ultra thin border, rounded corners */}
+          {/* Video Frame - Ultra-minimal border, rounded corners, premium look */}
           <div
-            className="relative rounded-2xl overflow-hidden"
+            className="relative rounded-3xl overflow-hidden"
             style={{
-              border: '1px solid rgba(0, 0, 0, 0.8)',
+              border: '0.5px solid rgba(0, 0, 0, 0.2)',
               animation: 'subtleGlow 4s ease-in-out infinite'
             }}
           >
@@ -478,28 +582,50 @@ export function EmbeddedVideoDevice({
           <Maximize2 className="w-3 h-3 text-cyan-400" />
         </motion.div>
 
-        {/* Floating Badges Below Video */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-          className="flex flex-wrap justify-center gap-2 mt-4"
-        >
-          {floatingBadges.map((badge, index) => (
-            <motion.div
-              key={badge.text}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.9 + index * 0.1 }}
-              style={{
-                animation: `badgeFloat 3s ease-in-out ${index * 0.3}s infinite`
-              }}
-              className={`px-3 py-1.5 rounded-full bg-gradient-to-r ${badge.color} text-white text-xs font-semibold shadow-lg`}
-            >
-              {badge.text}
-            </motion.div>
-          ))}
-        </motion.div>
+        {/* Artistic Floating Badges - Scattered around the component */}
+        <div className="absolute inset-0 pointer-events-none overflow-visible" style={{ zIndex: 10 }}>
+          {floatingBadges.map((badge, index) => {
+            const positionStyle: React.CSSProperties = {
+              position: 'absolute',
+              ...badge.position
+            };
+            const animationDuration = 4 + index * 0.5;
+            const isSlowAnimation = index % 2 === 0;
+
+            return (
+              <motion.div
+                key={badge.text}
+                initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{
+                  delay: 0.6 + badge.delay,
+                  duration: 0.6,
+                  type: 'spring',
+                  stiffness: 100
+                }}
+                style={{
+                  ...positionStyle,
+                  animation: `${isSlowAnimation ? 'floatingBadgeSlow' : 'floatingBadge'} ${animationDuration}s ease-in-out ${badge.delay}s infinite`
+                }}
+                className={`
+                  px-3 py-1.5
+                  ${badge.size === 'md' ? 'px-4 py-2' : 'px-3 py-1.5'}
+                  rounded-full
+                  bg-gradient-to-r ${badge.color}
+                  text-white
+                  ${badge.size === 'md' ? 'text-sm' : 'text-xs'}
+                  font-semibold
+                  shadow-lg
+                  backdrop-blur-sm
+                  border border-white/20
+                  whitespace-nowrap
+                `}
+              >
+                {badge.text}
+              </motion.div>
+            );
+          })}
+        </div>
 
         {/* Description Below */}
         {description && (

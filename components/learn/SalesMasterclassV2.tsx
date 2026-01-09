@@ -1051,9 +1051,15 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   }, [currentBlock, educationalMode, getNextBlock, onEducationStateChange]);
 
   // 🔙 BACK BUTTON: Navigate to previous block
+  // V2: When at VIDEO2_START_INDEX, go back to previous PAGE (not previous block)
   const handlePreviousBlock = useCallback(() => {
-    if (currentBlock <= 0) {
-      console.log('🚫 Already at first block, cannot go back');
+    // If at first V2 block, go back to previous page instead of previous block
+    if (currentBlock <= VIDEO2_START_INDEX) {
+      console.log('🔙 At first V2 block - navigating back to previous page');
+      // Use browser history to go back to the presentation/invite page
+      if (typeof window !== 'undefined') {
+        window.history.back();
+      }
       return;
     }
 
@@ -1537,10 +1543,14 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
           console.error(`❌ Missing videoConfigKey for video block: ${block.id}`);
           return null;
         }
-        // For first video block (video1), allow going back to Welcome
-        const isFirstBlock = currentBlock === 0;
-        const backHandler = isFirstBlock ? onBackToWelcome : handlePreviousBlock;
-        const canNavigateBack = isFirstBlock ? !!onBackToWelcome : currentBlock > 0;
+        // V2: First V2 block is video2 (index 2), not video1 (index 0)
+        // video1 is now shown in the invite page, so "first block" = VIDEO2_START_INDEX
+        // Back button ALWAYS works - handlePreviousBlock uses history.back() at first block
+        const isFirstV2Block = currentBlock === VIDEO2_START_INDEX;
+        const backHandler = isFirstV2Block
+          ? (onBackToWelcome || handlePreviousBlock)  // Use onBackToWelcome if available, fallback to handlePreviousBlock (which uses history.back())
+          : handlePreviousBlock;
+        const canNavigateBack = true; // Always allow going back
 
         return <VideoBlock
           videoConfig={videoConfigForBlock}
@@ -1555,13 +1565,14 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
       case 'checkpoint':
         // V2: Simple emotional engagement (NOT a quiz)
         // Requires checkpointQuestion in block definition
+        // NOTE: In V2, checkpoint is skipped but kept for backwards compatibility
         return <CheckpointBlock
           question={block.checkpointQuestion || '¿Esto resuena contigo?'}
           title={block.title}
           description={block.content?.description}
           onContinue={handleNextBlock}
           onPrevious={handlePreviousBlock}
-          canGoBack={currentBlock > 0}
+          canGoBack={true}
         />;
 
       case 'social':
@@ -1570,7 +1581,7 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
           content={block.content || { title: 'Síguenos', description: 'Únete a la comunidad' }}
           onComplete={handleNextBlock}
           onPrevious={handlePreviousBlock}
-          canGoBack={currentBlock > 0}
+          canGoBack={true}
           savedSocialVerification={savedSocialVerification}
           onSocialVerified={onSocialVerified}
         />;
@@ -1635,18 +1646,22 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
               CryptoGift Masterclass
             </h1>
             <div className="flex gap-2">
-              {SALES_BLOCKS.map((block, idx) => (
-                <div
-                  key={block.id}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    idx === currentBlock 
-                      ? 'bg-blue-500 dark:bg-blue-400 w-8' 
-                      : idx < currentBlock 
-                        ? 'bg-purple-500 dark:bg-purple-400' 
-                        : 'bg-gray-300 dark:bg-gray-700'
-                  }`}
-                />
-              ))}
+              {/* V2: Only show blocks starting from video2 (skip video1 and checkpoint) */}
+              {SALES_BLOCKS.slice(VIDEO2_START_INDEX).map((block, idx) => {
+                const actualIndex = idx + VIDEO2_START_INDEX;
+                return (
+                  <div
+                    key={block.id}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      actualIndex === currentBlock
+                        ? 'bg-blue-500 dark:bg-blue-400 w-8'
+                        : actualIndex < currentBlock
+                          ? 'bg-purple-500 dark:bg-purple-400'
+                          : 'bg-gray-300 dark:bg-gray-700'
+                    }`}
+                  />
+                );
+              })}
             </div>
           </div>
           
