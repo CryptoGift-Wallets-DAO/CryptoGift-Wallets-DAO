@@ -2,9 +2,10 @@
   "video": {
     "fullscreenHint": "Best experience",
     "rotateHint": "Enable fullscreen and rotate your phone to enjoy the video better",
-    "rotateHintShort": "Rotate your phone for better experience",
+    "rotateHintShort": "Rotate your device for better experience",
     "expandHint": "Double-click for fullscreen",
-    "expandHintShort": "Double-click to expand the video"
+    "expandHintShort": "Double-click to expand the video",
+    "tapToPlay": "Tap to play"
   },
   "landing": {
     "hero": {
@@ -1277,6 +1278,15 @@
       "typeValue": "Special Invitation",
       "status": "Status",
       "referrer": "Referrer"
+    },
+    "introVideo": {
+      "badge": "Discover CryptoGift",
+      "urgencyTitle": "This Place Won't Wait Forever",
+      "benefit1": "Start with governance tokens. 1 CGC = 1 Vote in real decisions.",
+      "benefit2": "Complete tasks, get paid in tokens. No boss, no permissions needed.",
+      "benefit3": "Join the first 10,000 pioneers building the future of Web3 adoption.",
+      "earnRange": "Earn 200-3000 CGC",
+      "founderMembers": "Founding Members Only"
     }
   },
   "funding": {
