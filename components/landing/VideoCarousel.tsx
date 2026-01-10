@@ -8,6 +8,9 @@
  * - Double-click to fullscreen
  * - Glass crystal styling
  * - i18n support (ES/EN videos)
+ * - AMBIENT MODE: YouTube-style glow effect from video colors
+ * - Auto-play when >50% visible with 15% volume
+ * - Picture-in-Picture when <30% visible
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -16,8 +19,20 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
-import { ChevronLeft, ChevronRight, Play, Maximize2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Maximize2, Volume2, VolumeX } from 'lucide-react';
 import { VideoExperienceHint } from '@/components/ui/RotatePhoneHint';
+
+// Ambient Mode configuration
+const AMBIENT_CONFIG = {
+  blur: 60,
+  opacity: 0.45,
+  brightness: 1.15,
+  saturate: 1.3,
+  scale: 1.12,
+  updateInterval: 100
+};
+
+const AUTO_PLAY_VOLUME = 0.15;
 
 /**
  * Custom hook to handle horizontal scroll behavior
@@ -285,12 +300,200 @@ export function VideoCarousel() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isInPiP, setIsInPiP] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const ambientIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasAutoPlayed = useRef(false);
+
+  // Ambient Mode state
+  const [ambientColors, setAmbientColors] = useState({
+    dominant: 'rgba(139, 92, 246, 0.35)',
+    secondary: 'rgba(6, 182, 212, 0.25)',
+    accent: 'rgba(168, 85, 247, 0.3)'
+  });
 
   // Use custom overscroll hook for rubber band effect on mobile
   const translateX = useHorizontalOverscroll();
 
   const currentVideo = videos[currentIndex];
+
+  // Create canvas for color extraction
+  useEffect(() => {
+    if (typeof document !== 'undefined' && !canvasRef.current) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 16;
+      canvas.height = 9;
+      canvasRef.current = canvas;
+    }
+  }, []);
+
+  // Get video element from MuxPlayer
+  const getVideoElement = useCallback((): HTMLVideoElement | null => {
+    if (videoRef.current) return videoRef.current;
+    if (containerRef.current) {
+      const muxPlayer = containerRef.current.querySelector('mux-player');
+      if (muxPlayer) {
+        const shadowRoot = (muxPlayer as any).shadowRoot;
+        if (shadowRoot) {
+          const video = shadowRoot.querySelector('video');
+          if (video) {
+            videoRef.current = video;
+            return video;
+          }
+        }
+      }
+      const video = containerRef.current.querySelector('video');
+      if (video) {
+        videoRef.current = video;
+        return video;
+      }
+    }
+    return null;
+  }, []);
+
+  // Extract colors from video for Ambient Mode
+  const extractVideoColors = useCallback(() => {
+    const video = getVideoElement();
+    const canvas = canvasRef.current;
+    if (!video || !canvas || video.paused || video.ended) return;
+
+    try {
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return;
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const center = ctx.getImageData(canvas.width / 2 - 2, canvas.height / 2 - 2, 4, 4).data;
+      const topLeft = ctx.getImageData(0, 0, 4, 4).data;
+      const bottomRight = ctx.getImageData(canvas.width - 4, canvas.height - 4, 4, 4).data;
+
+      const avgColor = (data: Uint8ClampedArray) => {
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i]; g += data[i + 1]; b += data[i + 2]; count++;
+        }
+        return { r: Math.round(r / count), g: Math.round(g / count), b: Math.round(b / count) };
+      };
+
+      const adjust = (c: { r: number; g: number; b: number }) => {
+        const br = AMBIENT_CONFIG.brightness;
+        const sat = AMBIENT_CONFIG.saturate;
+        let r = Math.min(255, c.r * br), g = Math.min(255, c.g * br), b = Math.min(255, c.b * br);
+        const gray = (r + g + b) / 3;
+        r = Math.min(255, r + (r - gray) * (sat - 1));
+        g = Math.min(255, g + (g - gray) * (sat - 1));
+        b = Math.min(255, b + (b - gray) * (sat - 1));
+        return { r: Math.round(r), g: Math.round(g), b: Math.round(b) };
+      };
+
+      const d = adjust(avgColor(center));
+      const s = adjust(avgColor(topLeft));
+      const a = adjust(avgColor(bottomRight));
+
+      setAmbientColors({
+        dominant: `rgba(${d.r}, ${d.g}, ${d.b}, 0.4)`,
+        secondary: `rgba(${s.r}, ${s.g}, ${s.b}, 0.3)`,
+        accent: `rgba(${a.r}, ${a.g}, ${a.b}, 0.35)`
+      });
+    } catch {
+      // CORS error - use fallback colors
+    }
+  }, [getVideoElement]);
+
+  // Start/stop ambient color extraction
+  useEffect(() => {
+    if (isPlaying) {
+      ambientIntervalRef.current = setInterval(extractVideoColors, AMBIENT_CONFIG.updateInterval);
+      return () => {
+        if (ambientIntervalRef.current) {
+          clearInterval(ambientIntervalRef.current);
+          ambientIntervalRef.current = null;
+        }
+      };
+    }
+  }, [isPlaying, extractVideoColors]);
+
+  // Enter Picture-in-Picture
+  const enterPiP = useCallback(async () => {
+    const video = getVideoElement();
+    if (!video || isInPiP) return;
+    try {
+      if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
+        await video.requestPictureInPicture();
+        setIsInPiP(true);
+      }
+    } catch {}
+  }, [getVideoElement, isInPiP]);
+
+  // Exit Picture-in-Picture
+  const exitPiP = useCallback(async () => {
+    if (!isInPiP) return;
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+        setIsInPiP(false);
+      }
+    } catch {}
+  }, [isInPiP]);
+
+  // IntersectionObserver for auto-play and PiP
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const ratio = entry.intersectionRatio;
+          const video = getVideoElement();
+
+          // Auto-play when >50% visible
+          if (ratio > 0.5 && !hasAutoPlayed.current && video) {
+            if (video.paused) {
+              video.volume = AUTO_PLAY_VOLUME;
+              video.muted = false;
+              video.play().then(() => {
+                hasAutoPlayed.current = true;
+                setIsPlaying(true);
+              }).catch(() => {
+                video.muted = true;
+                setIsMuted(true);
+                video.play().then(() => {
+                  hasAutoPlayed.current = true;
+                  setIsPlaying(true);
+                }).catch(() => {});
+              });
+            }
+          }
+
+          // PiP when <30% visible
+          if (ratio < 0.3 && isPlaying && !isInPiP) enterPiP();
+          if (ratio > 0.5 && isInPiP) exitPiP();
+        });
+      },
+      { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] }
+    );
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [isPlaying, isInPiP, getVideoElement, enterPiP, exitPiP]);
+
+  // Reset hasAutoPlayed when video changes
+  useEffect(() => {
+    hasAutoPlayed.current = false;
+    videoRef.current = null;
+  }, [currentIndex]);
+
+  // Toggle mute
+  const toggleMute = useCallback(() => {
+    const video = getVideoElement();
+    if (video) {
+      video.muted = !video.muted;
+      setIsMuted(video.muted);
+      if (!video.muted) video.volume = AUTO_PLAY_VOLUME;
+    }
+  }, [getVideoElement]);
 
   const goToPrevious = useCallback(() => {
     setCurrentIndex((prev) => (prev === 0 ? videos.length - 1 : prev - 1));
@@ -333,10 +536,29 @@ export function VideoCarousel() {
         transition: translateX === 0 ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
       }}
     >
+      {/* AMBIENT MODE: Glow layer behind video */}
+      {isPlaying && (
+        <div
+          className="absolute inset-0 -z-10 pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(ellipse 120% 100% at 50% 0%, ${ambientColors.secondary} 0%, transparent 60%),
+              radial-gradient(ellipse 100% 120% at 0% 50%, ${ambientColors.dominant} 0%, transparent 55%),
+              radial-gradient(ellipse 100% 120% at 100% 50%, ${ambientColors.accent} 0%, transparent 55%),
+              radial-gradient(ellipse 120% 100% at 50% 100%, ${ambientColors.dominant} 0%, transparent 60%)
+            `,
+            filter: `blur(${AMBIENT_CONFIG.blur}px)`,
+            opacity: AMBIENT_CONFIG.opacity,
+            transform: `scale(${AMBIENT_CONFIG.scale})`,
+            transition: 'background 0.3s ease-out, opacity 0.5s ease-out',
+          }}
+        />
+      )}
+
       {/* Glass crystal container */}
       <div
         ref={containerRef}
-        className="glass-crystal rounded-2xl overflow-hidden"
+        className="glass-crystal rounded-2xl overflow-hidden relative z-10"
         style={{ animation: 'float 6s ease-in-out infinite' }}
       >
         {/* Video header */}
@@ -399,7 +621,7 @@ export function VideoCarousel() {
           </div>
         </div>
 
-        {/* Navigation arrows */}
+        {/* Navigation arrows + Volume control */}
         <div className="flex items-center justify-between p-3 border-t border-white/10">
           <button
             onClick={goToPrevious}
@@ -409,23 +631,38 @@ export function VideoCarousel() {
             <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-white" />
           </button>
 
-          {/* Dots indicator */}
-          <div className="flex items-center gap-2">
-            {videos.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setCurrentIndex(index);
-                  setIsPlaying(false);
-                }}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentIndex
-                    ? 'bg-blue-500 w-4'
-                    : 'bg-gray-400 dark:bg-gray-600 hover:bg-gray-500'
-                }`}
-                aria-label={`Go to video ${index + 1}`}
-              />
-            ))}
+          {/* Dots indicator + Volume */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {videos.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setCurrentIndex(index);
+                    setIsPlaying(false);
+                  }}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentIndex
+                      ? 'bg-blue-500 w-4'
+                      : 'bg-gray-400 dark:bg-gray-600 hover:bg-gray-500'
+                  }`}
+                  aria-label={`Go to video ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Volume toggle */}
+            <button
+              onClick={toggleMute}
+              className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
+              aria-label={isMuted ? 'Unmute' : 'Mute'}
+            >
+              {isMuted ? (
+                <VolumeX className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              ) : (
+                <Volume2 className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+              )}
+            </button>
           </div>
 
           <button
