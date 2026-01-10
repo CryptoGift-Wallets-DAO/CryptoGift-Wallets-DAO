@@ -255,7 +255,7 @@ export default function ProfilePage() {
           />
         </div>
 
-        <div className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
+        <div className="container mx-auto px-4 pt-20 pb-8 max-w-6xl relative z-10">
           {/* Header with Gradient Text */}
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">

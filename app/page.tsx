@@ -115,8 +115,8 @@ export default function LandingPage() {
 
       <Navbar />
 
-      {/* HERO SECTION - Closer to navbar */}
-      <section className="relative pt-8 pb-12 px-4">
+      {/* HERO SECTION - Proper navbar spacing */}
+      <section className="relative pt-20 pb-12 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             {/* Left: Text Content */}

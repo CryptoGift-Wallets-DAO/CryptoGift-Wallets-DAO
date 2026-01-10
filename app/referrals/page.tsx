@@ -129,7 +129,7 @@ export default function ReferralsPage() {
 
         {/* Header */}
         <div className="relative z-10 border-b border-gray-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
-          <div className="container mx-auto px-4 py-6">
+          <div className="container mx-auto px-4 pt-20 pb-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
