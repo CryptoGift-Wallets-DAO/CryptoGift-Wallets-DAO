@@ -623,7 +623,7 @@ export function EmbeddedVideoDevice({
                         left: 0,
                         '--media-object-fit': 'cover',
                         '--media-object-position': 'center',
-                      } as React.CSSProperties}
+                      } as any}
                       metadata={{
                         video_title: title || 'CryptoGift Video',
                         video_series: 'CryptoGift Educational'
