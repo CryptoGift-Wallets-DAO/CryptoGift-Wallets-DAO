@@ -1,14 +1,14 @@
 'use client';
 
 /**
- * EMBEDDED VIDEO DEVICE - Premium 3D Video Player
+ * EMBEDDED VIDEO DEVICE - Premium Video Player with Ambient Mode
  *
  * Features:
- * - 3D depth effect - video appears to come out of the screen
+ * - AMBIENT MODE: YouTube-style glow effect that extracts colors from video
  * - Auto-play when >50% visible with 15% volume
  * - Picture-in-Picture when <30% visible while playing
  * - Exit PiP when >50% visible again
- * - Glassmorphism badges below video
+ * - Sophisticated floating effect with dynamic shadows
  * - Smooth animations and premium aesthetics
  *
  * Made by mbxarts.com The Moon in a Box property
@@ -47,30 +47,38 @@ interface EmbeddedVideoDeviceProps {
   locale?: 'en' | 'es';
 }
 
+// Ambient Mode settings
+const AMBIENT_CONFIG = {
+  blur: 80,           // Blur radius for ambient glow
+  opacity: 0.55,      // Opacity of the glow
+  brightness: 1.15,   // Brightness multiplier
+  saturate: 1.3,      // Saturation boost
+  scale: 1.15,        // Scale of glow behind video
+  updateInterval: 100 // How often to sample colors (ms)
+};
 
-// CSS Keyframes for premium 3D animations
+// Auto-play volume (0.0 to 1.0)
+const AUTO_PLAY_VOLUME = 0.15;
+
+// CSS Keyframes for premium animations
 const animationStyles = `
-  @keyframes video3DFloat {
+  @keyframes ambientPulse {
     0%, 100% {
-      transform: perspective(1000px) rotateX(2deg) translateY(0px) translateZ(0px);
+      opacity: 0.5;
+      transform: scale(1.12);
     }
     50% {
-      transform: perspective(1000px) rotateX(1deg) translateY(-8px) translateZ(10px);
+      opacity: 0.65;
+      transform: scale(1.18);
     }
   }
 
-  @keyframes videoGlow {
+  @keyframes videoFloat {
     0%, 100% {
-      box-shadow:
-        0 25px 50px -12px rgba(0, 0, 0, 0.35),
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        0 0 60px -15px rgba(139, 92, 246, 0.3);
+      transform: translateY(0px);
     }
     50% {
-      box-shadow:
-        0 30px 60px -15px rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(255, 255, 255, 0.15),
-        0 0 80px -10px rgba(139, 92, 246, 0.4);
+      transform: translateY(-6px);
     }
   }
 
@@ -84,14 +92,11 @@ const animationStyles = `
     50%, 90% { transform: rotate(90deg); }
   }
 
-  @keyframes badgeFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-4px); }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 `;
-
-// Initial low volume for auto-play (0.0 to 1.0)
-const AUTO_PLAY_VOLUME = 0.15;
 
 export function EmbeddedVideoDevice({
   muxPlaybackId,
@@ -103,18 +108,29 @@ export function EmbeddedVideoDevice({
   locale
 }: EmbeddedVideoDeviceProps) {
   const t = useTranslations('video');
+
+  // State
   const [showVideo, setShowVideo] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(AUTO_PLAY_VOLUME);
   const [isInPiP, setIsInPiP] = useState(false);
-  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const [currentLocale, setCurrentLocale] = useState<'es' | 'en'>(locale || 'es');
+
+  // Ambient Mode state
+  const [ambientColors, setAmbientColors] = useState({
+    dominant: 'rgba(139, 92, 246, 0.4)',
+    secondary: 'rgba(6, 182, 212, 0.3)',
+    accent: 'rgba(168, 85, 247, 0.35)'
+  });
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const muxPlayerRef = useRef<any>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const ambientIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasAutoPlayed = useRef(false);
 
   // Detect locale from cookie
@@ -131,27 +147,146 @@ export function EmbeddedVideoDevice({
     }
   }, [locale]);
 
-  // Get video element from MuxPlayer
+  // Create canvas for color extraction
+  useEffect(() => {
+    if (typeof document !== 'undefined' && !canvasRef.current) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 16;  // Small for performance
+      canvas.height = 9;  // 16:9 ratio
+      canvasRef.current = canvas;
+    }
+  }, []);
+
+  // Get video element from MuxPlayer with retry logic
   const getVideoElement = useCallback((): HTMLVideoElement | null => {
     if (videoRef.current) return videoRef.current;
 
     if (muxPlayerRef.current) {
-      // MuxPlayer stores the video element internally
       const muxElement = muxPlayerRef.current;
+
+      // Method 1: Direct media.nativeEl access
       if (muxElement?.media?.nativeEl) {
         videoRef.current = muxElement.media.nativeEl;
         return videoRef.current;
       }
-      // Fallback: try to find video element in shadow DOM or children
-      const videoEl = muxElement?.querySelector?.('video') ||
-                      muxElement?.shadowRoot?.querySelector?.('video');
-      if (videoEl) {
-        videoRef.current = videoEl;
-        return videoRef.current;
+
+      // Method 2: Query from shadowRoot
+      if (muxElement?.shadowRoot) {
+        const videoEl = muxElement.shadowRoot.querySelector('video');
+        if (videoEl) {
+          videoRef.current = videoEl;
+          return videoRef.current;
+        }
+      }
+
+      // Method 3: Query directly
+      if (typeof muxElement.querySelector === 'function') {
+        const videoEl = muxElement.querySelector('video');
+        if (videoEl) {
+          videoRef.current = videoEl;
+          return videoRef.current;
+        }
+      }
+
+      // Method 4: Search in DOM subtree
+      if (containerRef.current) {
+        const videoEl = containerRef.current.querySelector('video');
+        if (videoEl) {
+          videoRef.current = videoEl;
+          return videoRef.current;
+        }
       }
     }
     return null;
   }, []);
+
+  // Extract colors from video frame for Ambient Mode
+  const extractVideoColors = useCallback(() => {
+    const video = getVideoElement();
+    const canvas = canvasRef.current;
+
+    if (!video || !canvas || video.paused || video.ended) return;
+
+    try {
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return;
+
+      // Draw video frame to small canvas
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Sample colors from different regions
+      const topLeft = ctx.getImageData(0, 0, 4, 4).data;
+      const topRight = ctx.getImageData(canvas.width - 4, 0, 4, 4).data;
+      const bottomCenter = ctx.getImageData(canvas.width / 2 - 2, canvas.height - 4, 4, 4).data;
+      const center = ctx.getImageData(canvas.width / 2 - 2, canvas.height / 2 - 2, 4, 4).data;
+
+      // Calculate average colors
+      const avgColor = (data: Uint8ClampedArray) => {
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i];
+          g += data[i + 1];
+          b += data[i + 2];
+          count++;
+        }
+        return {
+          r: Math.round(r / count),
+          g: Math.round(g / count),
+          b: Math.round(b / count)
+        };
+      };
+
+      const dominant = avgColor(center);
+      const secondary = avgColor(topLeft);
+      const accent = avgColor(bottomCenter);
+
+      // Apply brightness and saturation adjustments
+      const adjust = (color: { r: number; g: number; b: number }) => {
+        const brightness = AMBIENT_CONFIG.brightness;
+        const saturate = AMBIENT_CONFIG.saturate;
+
+        let r = Math.min(255, color.r * brightness);
+        let g = Math.min(255, color.g * brightness);
+        let b = Math.min(255, color.b * brightness);
+
+        // Simple saturation boost
+        const gray = (r + g + b) / 3;
+        r = Math.min(255, r + (r - gray) * (saturate - 1));
+        g = Math.min(255, g + (g - gray) * (saturate - 1));
+        b = Math.min(255, b + (b - gray) * (saturate - 1));
+
+        return { r: Math.round(r), g: Math.round(g), b: Math.round(b) };
+      };
+
+      const d = adjust(dominant);
+      const s = adjust(secondary);
+      const a = adjust(accent);
+
+      setAmbientColors({
+        dominant: `rgba(${d.r}, ${d.g}, ${d.b}, 0.5)`,
+        secondary: `rgba(${s.r}, ${s.g}, ${s.b}, 0.4)`,
+        accent: `rgba(${a.r}, ${a.g}, ${a.b}, 0.45)`
+      });
+    } catch (err) {
+      // CORS or other error - use fallback colors
+      console.log('[Ambient] Color extraction unavailable, using fallback');
+    }
+  }, [getVideoElement]);
+
+  // Start/stop ambient color extraction
+  useEffect(() => {
+    if (isPlaying && showVideo) {
+      // Start extracting colors
+      ambientIntervalRef.current = setInterval(extractVideoColors, AMBIENT_CONFIG.updateInterval);
+
+      return () => {
+        if (ambientIntervalRef.current) {
+          clearInterval(ambientIntervalRef.current);
+          ambientIntervalRef.current = null;
+        }
+      };
+    }
+  }, [isPlaying, showVideo, extractVideoColors]);
 
   // Enter Picture-in-Picture mode
   const enterPiP = useCallback(async () => {
@@ -162,10 +297,10 @@ export function EmbeddedVideoDevice({
       if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
         await video.requestPictureInPicture();
         setIsInPiP(true);
-        console.log('[EmbeddedVideoDevice] Entered PiP mode');
+        console.log('[Video] Entered PiP mode');
       }
     } catch (err) {
-      console.log('[EmbeddedVideoDevice] PiP not available:', err);
+      console.log('[Video] PiP not available:', err);
     }
   }, [getVideoElement, isInPiP]);
 
@@ -177,29 +312,29 @@ export function EmbeddedVideoDevice({
       if (document.pictureInPictureElement) {
         await document.exitPictureInPicture();
         setIsInPiP(false);
-        console.log('[EmbeddedVideoDevice] Exited PiP mode');
+        console.log('[Video] Exited PiP mode');
       }
     } catch (err) {
-      console.log('[EmbeddedVideoDevice] Error exiting PiP:', err);
+      console.log('[Video] Error exiting PiP:', err);
     }
   }, [isInPiP]);
 
-  // Handle PiP events
+  // Handle PiP events from video element
   useEffect(() => {
+    const video = getVideoElement();
+    if (!video) return;
+
     const handlePiPEnter = () => setIsInPiP(true);
     const handlePiPLeave = () => setIsInPiP(false);
 
-    const video = getVideoElement();
-    if (video) {
-      video.addEventListener('enterpictureinpicture', handlePiPEnter);
-      video.addEventListener('leavepictureinpicture', handlePiPLeave);
+    video.addEventListener('enterpictureinpicture', handlePiPEnter);
+    video.addEventListener('leavepictureinpicture', handlePiPLeave);
 
-      return () => {
-        video.removeEventListener('enterpictureinpicture', handlePiPEnter);
-        video.removeEventListener('leavepictureinpicture', handlePiPLeave);
-      };
-    }
-  }, [getVideoElement, showVideo]);
+    return () => {
+      video.removeEventListener('enterpictureinpicture', handlePiPEnter);
+      video.removeEventListener('leavepictureinpicture', handlePiPLeave);
+    };
+  }, [getVideoElement, isVideoReady]);
 
   // IntersectionObserver for auto-play and PiP
   useEffect(() => {
@@ -212,7 +347,7 @@ export function EmbeddedVideoDevice({
           const video = getVideoElement();
 
           // Auto-play when >50% visible
-          if (visibilityRatio > 0.5 && !hasAutoPlayed.current && video) {
+          if (visibilityRatio > 0.5 && !hasAutoPlayed.current && video && isVideoReady) {
             if (video.paused) {
               video.volume = AUTO_PLAY_VOLUME;
               video.muted = false;
@@ -220,21 +355,20 @@ export function EmbeddedVideoDevice({
                 hasAutoPlayed.current = true;
                 setIsPlaying(true);
                 setVolume(AUTO_PLAY_VOLUME);
-                console.log('[EmbeddedVideoDevice] Auto-playing with volume:', AUTO_PLAY_VOLUME);
+                console.log('[Video] Auto-playing with volume:', AUTO_PLAY_VOLUME);
               }).catch(err => {
-                // Auto-play blocked by browser, try muted as fallback
-                console.log('[EmbeddedVideoDevice] Auto-play blocked, trying muted:', err);
+                console.log('[Video] Auto-play blocked, trying muted:', err);
                 video.muted = true;
                 setIsMuted(true);
                 video.play().then(() => {
                   hasAutoPlayed.current = true;
                   setIsPlaying(true);
-                }).catch(e => console.log('[EmbeddedVideoDevice] Muted auto-play also blocked:', e));
+                }).catch(e => console.log('[Video] Muted auto-play also blocked:', e));
               });
             }
           }
 
-          // Enter PiP when <30% visible and video is playing (no user interaction required)
+          // Enter PiP when <30% visible and video is playing
           if (visibilityRatio < 0.3 && isPlaying && !isInPiP) {
             enterPiP();
           }
@@ -252,30 +386,59 @@ export function EmbeddedVideoDevice({
     );
 
     observer.observe(containerRef.current);
-
     return () => observer.disconnect();
-  }, [showVideo, isPlaying, isInPiP, getVideoElement, enterPiP, exitPiP]);
+  }, [showVideo, isPlaying, isInPiP, isVideoReady, getVideoElement, enterPiP, exitPiP]);
 
+  // Handle play click - Show video and wait for it to be ready
   const handlePlayClick = useCallback(() => {
+    console.log('[Video] Play clicked');
     setShowVideo(true);
-    setHasUserInteracted(true);
+  }, []);
 
-    // Small delay to ensure MuxPlayer is mounted
-    setTimeout(() => {
-      const video = getVideoElement();
-      if (video) {
-        video.volume = AUTO_PLAY_VOLUME;
-        video.muted = false;
-        video.play().then(() => {
-          setIsPlaying(true);
-          hasAutoPlayed.current = true;
-        }).catch(console.error);
-      }
-    }, 500);
+  // Play video when ready
+  const playVideo = useCallback(() => {
+    const video = getVideoElement();
+    if (!video) {
+      console.log('[Video] Video element not found, retrying...');
+      setTimeout(playVideo, 200);
+      return;
+    }
+
+    console.log('[Video] Playing video...');
+    video.volume = AUTO_PLAY_VOLUME;
+    video.muted = false;
+
+    video.play().then(() => {
+      setIsPlaying(true);
+      hasAutoPlayed.current = true;
+      console.log('[Video] Playing successfully');
+    }).catch(err => {
+      console.log('[Video] Play failed, trying muted:', err);
+      video.muted = true;
+      setIsMuted(true);
+      video.play().then(() => {
+        setIsPlaying(true);
+        hasAutoPlayed.current = true;
+      }).catch(e => console.log('[Video] Muted play also failed:', e));
+    });
   }, [getVideoElement]);
 
+  // Handle MuxPlayer loaded event
+  const handleVideoLoaded = useCallback(() => {
+    console.log('[Video] MuxPlayer loaded');
+    setIsVideoReady(true);
+
+    // Clear cached video ref to force re-query
+    videoRef.current = null;
+
+    // Small delay then play
+    setTimeout(() => {
+      playVideo();
+    }, 300);
+  }, [playVideo]);
+
   const handleVideoEnd = useCallback(() => {
-    console.log('[EmbeddedVideoDevice] Video completed');
+    console.log('[Video] Video completed');
     localStorage.setItem(`video_seen:${lessonId}`, 'completed');
     setIsPlaying(false);
     exitPiP();
@@ -302,43 +465,75 @@ export function EmbeddedVideoDevice({
     }
   };
 
+  // Dynamic ambient gradient based on extracted colors
+  const ambientGradient = `
+    radial-gradient(ellipse 120% 100% at 50% 50%, ${ambientColors.dominant} 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 20% 30%, ${ambientColors.secondary} 0%, transparent 45%),
+    radial-gradient(ellipse 80% 60% at 80% 70%, ${ambientColors.accent} 0%, transparent 45%)
+  `;
+
   return (
     <>
       <style jsx global>{animationStyles}</style>
 
-      {/* Main container */}
+      {/* Main container with Ambient Mode */}
       <div ref={containerRef} className={`relative ${className}`}>
-        {/* 3D Video Container - Appears to come out of the screen */}
+
+        {/* AMBIENT GLOW LAYER - Behind the video */}
+        {showVideo && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{
+              opacity: isPlaying ? 1 : 0.5,
+              scale: AMBIENT_CONFIG.scale
+            }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="absolute inset-0 -z-10 pointer-events-none mx-auto max-w-2xl"
+            style={{
+              background: ambientGradient,
+              filter: `blur(${AMBIENT_CONFIG.blur}px)`,
+              opacity: AMBIENT_CONFIG.opacity,
+              transform: `scale(${AMBIENT_CONFIG.scale})`,
+              borderRadius: '60px',
+              animation: isPlaying ? 'ambientPulse 4s ease-in-out infinite' : 'none',
+            }}
+          />
+        )}
+
+        {/* Video Container */}
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
           className="relative mx-auto max-w-2xl"
-          style={{
-            perspective: '1000px',
-            transformStyle: 'preserve-3d',
-          }}
         >
-          {/* Video Frame - 3D depth effect with premium shadow */}
+          {/* Video Frame with sophisticated shadow */}
           <div
             className="relative rounded-3xl overflow-hidden"
             style={{
-              transform: 'perspective(1000px) rotateX(2deg)',
-              transformOrigin: 'center bottom',
-              boxShadow: `
-                0 25px 50px -12px rgba(0, 0, 0, 0.4),
-                0 0 0 1px rgba(255, 255, 255, 0.05),
-                0 0 60px -15px rgba(139, 92, 246, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1)
-              `,
-              animation: showVideo ? 'none' : 'video3DFloat 6s ease-in-out infinite, videoGlow 4s ease-in-out infinite',
+              boxShadow: showVideo && isPlaying
+                ? `
+                    0 30px 60px -15px rgba(0, 0, 0, 0.5),
+                    0 0 0 1px rgba(255, 255, 255, 0.08),
+                    0 0 100px -20px ${ambientColors.dominant},
+                    0 0 60px -10px ${ambientColors.secondary},
+                    inset 0 1px 0 rgba(255, 255, 255, 0.15)
+                  `
+                : `
+                    0 25px 50px -12px rgba(0, 0, 0, 0.4),
+                    0 0 0 1px rgba(255, 255, 255, 0.05),
+                    0 0 60px -15px rgba(139, 92, 246, 0.25),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1)
+                  `,
+              animation: !showVideo ? 'videoFloat 6s ease-in-out infinite' : 'none',
+              transition: 'box-shadow 0.5s ease-out',
             }}
           >
             {/* Aspect ratio container */}
             <div className="relative aspect-video bg-black">
-              {/* Video or Play Overlay */}
               <AnimatePresence mode="wait">
                 {!showVideo ? (
+                  /* Play Overlay */
                   <motion.div
                     key="poster"
                     initial={{ opacity: 0 }}
@@ -395,6 +590,7 @@ export function EmbeddedVideoDevice({
                     </div>
                   </motion.div>
                 ) : (
+                  /* Video Player */
                   <motion.div
                     key="video"
                     initial={{ opacity: 0 }}
@@ -408,16 +604,26 @@ export function EmbeddedVideoDevice({
                       autoPlay={false}
                       muted={isMuted}
                       playsInline
+                      onLoadedData={handleVideoLoaded}
+                      onCanPlay={handleVideoLoaded}
                       onEnded={handleVideoEnd}
-                      onPlay={() => setIsPlaying(true)}
-                      onPause={() => setIsPlaying(false)}
+                      onPlay={() => {
+                        setIsPlaying(true);
+                        console.log('[Video] onPlay event');
+                      }}
+                      onPause={() => {
+                        setIsPlaying(false);
+                        console.log('[Video] onPause event');
+                      }}
                       style={{
                         width: '100%',
                         height: '100%',
                         position: 'absolute',
                         top: 0,
-                        left: 0
-                      }}
+                        left: 0,
+                        '--media-object-fit': 'cover',
+                        '--media-object-position': 'center',
+                      } as React.CSSProperties}
                       metadata={{
                         video_title: title || 'CryptoGift Video',
                         video_series: 'CryptoGift Educational'
@@ -427,10 +633,22 @@ export function EmbeddedVideoDevice({
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Shimmer effect on frame edge when playing */}
+            {showVideo && isPlaying && (
+              <div
+                className="absolute inset-0 pointer-events-none rounded-3xl"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 3s linear infinite',
+                }}
+              />
+            )}
           </div>
 
-          {/* Volume control - Always visible when video is playing */}
-          {showVideo && isPlaying && (
+          {/* Volume control - Always visible when video is showing */}
+          {showVideo && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -440,10 +658,9 @@ export function EmbeddedVideoDevice({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setHasUserInteracted(true);
                   toggleMute();
                 }}
-                className="p-2.5 rounded-full glass-crystal text-white hover:scale-110 transition-all shadow-lg"
+                className="p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 hover:scale-110 transition-all shadow-lg border border-white/10"
                 title={isMuted ? 'Activar sonido' : 'Silenciar'}
               >
                 {isMuted ? (
@@ -469,7 +686,6 @@ export function EmbeddedVideoDevice({
           <span>{getText('rotateHintShort', 'Gira tu dispositivo para mejor experiencia', 'Rotate your device for better experience')}</span>
           <Maximize2 className="w-3 h-3 text-cyan-400" />
         </motion.div>
-
 
         {/* Description Below */}
         {description && (
