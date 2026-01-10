@@ -1052,18 +1052,25 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
 
   // 🔙 BACK BUTTON: Navigate to previous block
   // V2: When at VIDEO2_START_INDEX, go back to previous PAGE (not previous block)
+  // V2 NEVER allows going to blocks 0 or 1 (video1 and checkpoint are obsolete)
   const handlePreviousBlock = useCallback(() => {
-    // If at first V2 block, go back to previous page instead of previous block
+    // If at first V2 block or below, go back to previous page instead of previous block
     if (currentBlock <= VIDEO2_START_INDEX) {
       console.log('🔙 At first V2 block - navigating back to previous page');
-      // Use browser history to go back to the presentation/invite page
+      // Prefer onBackToWelcome callback over browser history
+      if (onBackToWelcome) {
+        onBackToWelcome();
+        return;
+      }
+      // Fallback: Use browser history to go back to the presentation/invite page
       if (typeof window !== 'undefined') {
         window.history.back();
       }
       return;
     }
 
-    const previousBlockIndex = currentBlock - 1;
+    // 🔒 V2 SAFETY: Never go below VIDEO2_START_INDEX
+    const previousBlockIndex = Math.max(currentBlock - 1, VIDEO2_START_INDEX);
 
     console.log('🔙 BACK NAVIGATION:', {
       currentBlock,
@@ -1102,7 +1109,7 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
     setSelectedAnswer(null);
     setShowQuestionFeedback(false);
     setCanProceed(educationalMode);
-  }, [currentBlock, educationalMode, onEducationStateChange]);
+  }, [currentBlock, educationalMode, onEducationStateChange, onBackToWelcome]);
 
   // 🔙 Handler to go back to intro video from OpeningBlock (block 0)
   const handleBackToVideo = useCallback(() => {
@@ -1373,10 +1380,20 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
       );
     }
     
-    const block = SALES_BLOCKS[currentBlock];
-    
+    // 🔒 V2 SAFETY: NEVER render blocks before VIDEO2_START_INDEX (video1 and checkpoint are obsolete)
+    // This is a safeguard in case currentBlock somehow becomes 0 or 1
+    const safeBlockIndex = Math.max(currentBlock, VIDEO2_START_INDEX);
+    if (safeBlockIndex !== currentBlock) {
+      console.warn('⚠️ [V2 SAFETY] currentBlock was', currentBlock, '- auto-correcting to', safeBlockIndex);
+      // Auto-correct the state
+      setCurrentBlock(safeBlockIndex);
+      return <div className="py-12 text-center">Cargando...</div>;
+    }
+
+    const block = SALES_BLOCKS[safeBlockIndex];
+
     console.log('🎬 RENDERING BLOCK:', {
-      currentBlock,
+      currentBlock: safeBlockIndex,
       blockId: block.id,
       blockType: block.type,
       educationalMode,

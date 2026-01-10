@@ -1,14 +1,15 @@
 'use client';
 
 /**
- * EMBEDDED VIDEO DEVICE - Clean Video Player with Auto-Play & PiP
+ * EMBEDDED VIDEO DEVICE - Premium 3D Video Player
  *
  * Features:
- * - Auto-play when >50% visible with low volume
- * - Picture-in-Picture when scrolled out of view
- * - Rounded corners, ultra-thin border
- * - Floating badge words below the video
- * - Device rotation hint
+ * - 3D depth effect - video appears to come out of the screen
+ * - Auto-play when >50% visible with 15% volume
+ * - Picture-in-Picture when <30% visible while playing
+ * - Exit PiP when >50% visible again
+ * - Glassmorphism badges below video
+ * - Smooth animations and premium aesthetics
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -26,7 +27,7 @@ const MuxPlayer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="relative aspect-video w-full flex items-center justify-center bg-gradient-to-br from-slate-900 to-black rounded-2xl">
+      <div className="relative aspect-video w-full flex items-center justify-center bg-gradient-to-br from-slate-900 to-black rounded-3xl">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
           <p className="text-white/70 text-sm">Cargando...</p>
@@ -46,141 +47,57 @@ interface EmbeddedVideoDeviceProps {
   locale?: 'en' | 'es';
 }
 
-// Artistic floating badges - Scattered design with unique positioning
-// Inspired by premium landing pages with floating elements
-const FLOATING_BADGES_ES = [
-  {
-    text: 'Sin gas',
-    color: 'from-amber-400 to-orange-500',
-    position: { top: '5%', left: '8%' },
-    delay: 0,
-    size: 'sm'
-  },
-  {
-    text: 'Sin complicaciones',
-    color: 'from-cyan-400 to-blue-500',
-    position: { top: '15%', right: '5%' },
-    delay: 0.2,
-    size: 'md'
-  },
-  {
-    text: 'Sin miedo',
-    color: 'from-pink-400 to-rose-500',
-    position: { top: '35%', left: '3%' },
-    delay: 0.4,
-    size: 'sm'
-  },
-  {
-    text: '100% tuyo',
-    color: 'from-emerald-400 to-green-500',
-    position: { top: '55%', left: '5%' },
-    delay: 0.6,
-    size: 'md'
-  },
-  {
-    text: 'Web3 simple',
-    color: 'from-violet-400 to-purple-500',
-    position: { bottom: '25%', right: '3%' },
-    delay: 0.8,
-    size: 'sm'
-  },
-  {
-    text: 'UX intuitiva',
-    color: 'from-fuchsia-400 to-pink-500',
-    position: { bottom: '8%', right: '8%' },
-    delay: 1.0,
-    size: 'sm'
-  },
-];
+// Glass badges below the video - Left and Right columns
+// These use the premium glass-crystal effect from globals.css
+const GLASS_BADGES_ES = {
+  left: [
+    { text: 'Sin gas', icon: '⚡', delay: 0 },
+    { text: 'Sin miedo', icon: '💪', delay: 0.2 },
+    { text: '100% tuyo', icon: '🔐', delay: 0.4 },
+  ],
+  right: [
+    { text: 'Sin complicaciones', icon: '✨', delay: 0.1 },
+    { text: 'Web3 simple', icon: '🌐', delay: 0.3 },
+    { text: 'UX intuitiva', icon: '🎯', delay: 0.5 },
+  ]
+};
 
-const FLOATING_BADGES_EN = [
-  {
-    text: 'No gas',
-    color: 'from-amber-400 to-orange-500',
-    position: { top: '5%', left: '8%' },
-    delay: 0,
-    size: 'sm'
-  },
-  {
-    text: 'No complications',
-    color: 'from-cyan-400 to-blue-500',
-    position: { top: '15%', right: '5%' },
-    delay: 0.2,
-    size: 'md'
-  },
-  {
-    text: 'No fear',
-    color: 'from-pink-400 to-rose-500',
-    position: { top: '35%', left: '3%' },
-    delay: 0.4,
-    size: 'sm'
-  },
-  {
-    text: '100% yours',
-    color: 'from-emerald-400 to-green-500',
-    position: { top: '55%', left: '5%' },
-    delay: 0.6,
-    size: 'md'
-  },
-  {
-    text: 'Web3 simple',
-    color: 'from-violet-400 to-purple-500',
-    position: { bottom: '25%', right: '3%' },
-    delay: 0.8,
-    size: 'sm'
-  },
-  {
-    text: 'Intuitive UX',
-    color: 'from-fuchsia-400 to-pink-500',
-    position: { bottom: '8%', right: '8%' },
-    delay: 1.0,
-    size: 'sm'
-  },
-];
+const GLASS_BADGES_EN = {
+  left: [
+    { text: 'No gas', icon: '⚡', delay: 0 },
+    { text: 'No fear', icon: '💪', delay: 0.2 },
+    { text: '100% yours', icon: '🔐', delay: 0.4 },
+  ],
+  right: [
+    { text: 'No complications', icon: '✨', delay: 0.1 },
+    { text: 'Web3 simple', icon: '🌐', delay: 0.3 },
+    { text: 'Intuitive UX', icon: '🎯', delay: 0.5 },
+  ]
+};
 
-// CSS Keyframes for animations - Premium artistic design
+// CSS Keyframes for premium 3D animations
 const animationStyles = `
-  @keyframes videoFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-6px); }
-  }
-
-  @keyframes floatingBadge {
+  @keyframes video3DFloat {
     0%, 100% {
-      transform: translateY(0px) translateX(0px) rotate(0deg);
-      opacity: 0.95;
-    }
-    25% {
-      transform: translateY(-8px) translateX(3px) rotate(1deg);
-      opacity: 1;
+      transform: perspective(1000px) rotateX(2deg) translateY(0px) translateZ(0px);
     }
     50% {
-      transform: translateY(-4px) translateX(-2px) rotate(-1deg);
-      opacity: 0.9;
-    }
-    75% {
-      transform: translateY(-10px) translateX(1px) rotate(0.5deg);
-      opacity: 1;
+      transform: perspective(1000px) rotateX(1deg) translateY(-8px) translateZ(10px);
     }
   }
 
-  @keyframes floatingBadgeSlow {
+  @keyframes videoGlow {
     0%, 100% {
-      transform: translateY(0px) translateX(0px);
-      opacity: 0.9;
+      box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.35),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 0 60px -15px rgba(139, 92, 246, 0.3);
     }
     50% {
-      transform: translateY(-12px) translateX(-4px);
-      opacity: 1;
-    }
-  }
-
-  @keyframes subtleGlow {
-    0%, 100% {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-    50% {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      box-shadow:
+        0 30px 60px -15px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.15),
+        0 0 80px -10px rgba(139, 92, 246, 0.4);
     }
   }
 
@@ -194,20 +111,9 @@ const animationStyles = `
     50%, 90% { transform: rotate(90deg); }
   }
 
-  @keyframes pipSlideIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px) scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+  @keyframes badgeFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
   }
 `;
 
@@ -252,7 +158,7 @@ export function EmbeddedVideoDevice({
     }
   }, [locale]);
 
-  const floatingBadges = currentLocale === 'en' ? FLOATING_BADGES_EN : FLOATING_BADGES_ES;
+  const glassBadges = currentLocale === 'en' ? GLASS_BADGES_EN : GLASS_BADGES_ES;
 
   // Get video element from MuxPlayer
   const getVideoElement = useCallback((): HTMLVideoElement | null => {
@@ -332,11 +238,11 @@ export function EmbeddedVideoDevice({
       (entries) => {
         entries.forEach((entry) => {
           const visibilityRatio = entry.intersectionRatio;
+          const video = getVideoElement();
 
           // Auto-play when >50% visible
-          if (visibilityRatio > 0.5 && !hasAutoPlayed.current) {
-            const video = getVideoElement();
-            if (video && video.paused) {
+          if (visibilityRatio > 0.5 && !hasAutoPlayed.current && video) {
+            if (video.paused) {
               video.volume = AUTO_PLAY_VOLUME;
               video.muted = false;
               video.play().then(() => {
@@ -345,20 +251,20 @@ export function EmbeddedVideoDevice({
                 setVolume(AUTO_PLAY_VOLUME);
                 console.log('[EmbeddedVideoDevice] Auto-playing with volume:', AUTO_PLAY_VOLUME);
               }).catch(err => {
-                // Auto-play blocked, try muted
+                // Auto-play blocked by browser, try muted as fallback
                 console.log('[EmbeddedVideoDevice] Auto-play blocked, trying muted:', err);
                 video.muted = true;
                 setIsMuted(true);
                 video.play().then(() => {
                   hasAutoPlayed.current = true;
                   setIsPlaying(true);
-                });
+                }).catch(e => console.log('[EmbeddedVideoDevice] Muted auto-play also blocked:', e));
               });
             }
           }
 
-          // Enter PiP when <30% visible and video is playing
-          if (visibilityRatio < 0.3 && isPlaying && !isInPiP && hasUserInteracted) {
+          // Enter PiP when <30% visible and video is playing (no user interaction required)
+          if (visibilityRatio < 0.3 && isPlaying && !isInPiP) {
             enterPiP();
           }
 
@@ -377,7 +283,7 @@ export function EmbeddedVideoDevice({
     observer.observe(containerRef.current);
 
     return () => observer.disconnect();
-  }, [showVideo, isPlaying, isInPiP, hasUserInteracted, getVideoElement, enterPiP, exitPiP]);
+  }, [showVideo, isPlaying, isInPiP, getVideoElement, enterPiP, exitPiP]);
 
   const handlePlayClick = useCallback(() => {
     setShowVideo(true);
@@ -429,22 +335,32 @@ export function EmbeddedVideoDevice({
     <>
       <style jsx global>{animationStyles}</style>
 
-      {/* Main container with relative positioning for floating badges */}
-      <div ref={containerRef} className={`relative ${className}`} style={{ minHeight: '400px' }}>
-        {/* Clean Video Container */}
+      {/* Main container */}
+      <div ref={containerRef} className={`relative ${className}`}>
+        {/* 3D Video Container - Appears to come out of the screen */}
         <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.98 }}
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
           className="relative mx-auto max-w-2xl"
-          style={{ animation: showVideo ? 'none' : 'videoFloat 5s ease-in-out infinite' }}
+          style={{
+            perspective: '1000px',
+            transformStyle: 'preserve-3d',
+          }}
         >
-          {/* Video Frame - Ultra-minimal border, rounded corners, premium look */}
+          {/* Video Frame - 3D depth effect with premium shadow */}
           <div
             className="relative rounded-3xl overflow-hidden"
             style={{
-              border: '0.5px solid rgba(0, 0, 0, 0.2)',
-              animation: 'subtleGlow 4s ease-in-out infinite'
+              transform: 'perspective(1000px) rotateX(2deg)',
+              transformOrigin: 'center bottom',
+              boxShadow: `
+                0 25px 50px -12px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 0 60px -15px rgba(139, 92, 246, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1)
+              `,
+              animation: showVideo ? 'none' : 'video3DFloat 6s ease-in-out infinite, videoGlow 4s ease-in-out infinite',
             }}
           >
             {/* Aspect ratio container */}
@@ -542,11 +458,12 @@ export function EmbeddedVideoDevice({
             </div>
           </div>
 
-          {/* Volume indicator when auto-playing */}
-          {showVideo && isPlaying && !hasUserInteracted && (
+          {/* Volume control - Always visible when video is playing */}
+          {showVideo && isPlaying && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
               className="absolute top-3 right-3 z-30"
             >
               <button
@@ -555,7 +472,7 @@ export function EmbeddedVideoDevice({
                   setHasUserInteracted(true);
                   toggleMute();
                 }}
-                className="p-2 rounded-full bg-black/60 backdrop-blur-sm text-white hover:bg-black/80 transition-colors"
+                className="p-2.5 rounded-full glass-crystal text-white hover:scale-110 transition-all shadow-lg"
                 title={isMuted ? 'Activar sonido' : 'Silenciar'}
               >
                 {isMuted ? (
@@ -573,7 +490,7 @@ export function EmbeddedVideoDevice({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="flex items-center justify-center gap-2 mt-3 text-xs text-gray-500 dark:text-gray-400"
+          className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-500 dark:text-gray-400"
         >
           <motion.div style={{ animation: 'rotateHint 3s ease-in-out infinite' }}>
             <Smartphone className="w-4 h-4 text-purple-400" />
@@ -582,49 +499,61 @@ export function EmbeddedVideoDevice({
           <Maximize2 className="w-3 h-3 text-cyan-400" />
         </motion.div>
 
-        {/* Artistic Floating Badges - Scattered around the component */}
-        <div className="absolute inset-0 pointer-events-none overflow-visible" style={{ zIndex: 10 }}>
-          {floatingBadges.map((badge, index) => {
-            const positionStyle: React.CSSProperties = {
-              position: 'absolute',
-              ...badge.position
-            };
-            const animationDuration = 4 + index * 0.5;
-            const isSlowAnimation = index % 2 === 0;
+        {/* Glass Badges - Below video, scattered left and right */}
+        <div className="mt-6 px-2">
+          <div className="flex justify-between items-start max-w-2xl mx-auto">
+            {/* Left column badges */}
+            <div className="flex flex-col gap-2">
+              {glassBadges.left.map((badge, index) => (
+                <motion.div
+                  key={badge.text}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    delay: 0.8 + badge.delay,
+                    duration: 0.5,
+                    type: 'spring',
+                    stiffness: 120
+                  }}
+                  className="glass-crystal px-3 py-2 rounded-xl flex items-center gap-2 hover:scale-105 transition-transform cursor-default"
+                  style={{
+                    animation: `badgeFloat ${3 + index * 0.5}s ease-in-out ${badge.delay}s infinite`,
+                  }}
+                >
+                  <span className="text-base">{badge.icon}</span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
+                    {badge.text}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
 
-            return (
-              <motion.div
-                key={badge.text}
-                initial={{ opacity: 0, scale: 0.5, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{
-                  delay: 0.6 + badge.delay,
-                  duration: 0.6,
-                  type: 'spring',
-                  stiffness: 100
-                }}
-                style={{
-                  ...positionStyle,
-                  animation: `${isSlowAnimation ? 'floatingBadgeSlow' : 'floatingBadge'} ${animationDuration}s ease-in-out ${badge.delay}s infinite`
-                }}
-                className={`
-                  px-3 py-1.5
-                  ${badge.size === 'md' ? 'px-4 py-2' : 'px-3 py-1.5'}
-                  rounded-full
-                  bg-gradient-to-r ${badge.color}
-                  text-white
-                  ${badge.size === 'md' ? 'text-sm' : 'text-xs'}
-                  font-semibold
-                  shadow-lg
-                  backdrop-blur-sm
-                  border border-white/20
-                  whitespace-nowrap
-                `}
-              >
-                {badge.text}
-              </motion.div>
-            );
-          })}
+            {/* Right column badges */}
+            <div className="flex flex-col gap-2 items-end">
+              {glassBadges.right.map((badge, index) => (
+                <motion.div
+                  key={badge.text}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    delay: 0.8 + badge.delay,
+                    duration: 0.5,
+                    type: 'spring',
+                    stiffness: 120
+                  }}
+                  className="glass-crystal px-3 py-2 rounded-xl flex items-center gap-2 hover:scale-105 transition-transform cursor-default"
+                  style={{
+                    animation: `badgeFloat ${3.5 + index * 0.5}s ease-in-out ${badge.delay}s infinite`,
+                  }}
+                >
+                  <span className="text-base">{badge.icon}</span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
+                    {badge.text}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Description Below */}

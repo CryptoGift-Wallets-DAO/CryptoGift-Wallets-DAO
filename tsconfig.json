@@ -24,7 +24,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "typeRoots": ["./node_modules/@types"],
-    "types": [],
+    "types": ["node", "react", "react-dom"],
     
     /* Path Mappings */
     "baseUrl": ".",
