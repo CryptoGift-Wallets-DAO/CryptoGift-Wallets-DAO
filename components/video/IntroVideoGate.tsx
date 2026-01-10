@@ -297,9 +297,7 @@ export default function IntroVideoGate({
     onFinish();
   }, [storageKey, onFinish]);
 
-  if (!show) return null;
-
-  // Handle click to play/pause
+  // Handle click to play/pause - MUST be before early return (React hooks rules)
   const handleVideoClick = useCallback(() => {
     const video = getVideoElement();
     if (video) {
@@ -318,7 +316,7 @@ export default function IntroVideoGate({
     }
   }, [getVideoElement]);
 
-  // Handle double-click for fullscreen
+  // Handle double-click for fullscreen - MUST be before early return (React hooks rules)
   const handleDoubleClick = useCallback(() => {
     const player = containerRef.current?.querySelector('mux-player') as HTMLElement | null;
     if (player) {
@@ -329,6 +327,8 @@ export default function IntroVideoGate({
       }
     }
   }, []);
+
+  if (!show) return null;
 
   return (
     <AnimatePresence mode="wait">
