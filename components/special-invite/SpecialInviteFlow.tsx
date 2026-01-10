@@ -1170,9 +1170,16 @@ export function SpecialInviteFlow({
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-cyan-50 dark:from-slate-900 dark:via-purple-950 dark:to-cyan-950">
+      {/* Background effects */}
+      <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse" />
+        <div className="absolute top-40 right-20 w-72 h-72 bg-cyan-400 dark:bg-cyan-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse" />
+        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-400 dark:bg-pink-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse" />
+      </div>
+
       <HeaderBar />
-      <div className={`pt-16 grid grid-cols-1 md:grid-cols-2 gap-8 ${className}`}>
+      <div className={`relative z-10 container mx-auto px-4 pt-20 pb-8 grid grid-cols-1 md:grid-cols-2 gap-8 ${className}`}>
         {/* Left Panel - Image Card */}
         <div>
           <InviteImageCard
@@ -1311,6 +1318,6 @@ export function SpecialInviteFlow({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

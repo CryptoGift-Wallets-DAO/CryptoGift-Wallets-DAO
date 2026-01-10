@@ -200,7 +200,7 @@ export default function DocsPage() {
           <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 pt-20 pb-8">
+        <div className="relative z-10 container mx-auto px-4 py-8">
           {/* Header */}
           <header className="mb-8">
             <div className="flex items-center space-x-3 mb-4">

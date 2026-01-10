@@ -1315,7 +1315,7 @@ export default function FundingPage() {
         <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-green-400 dark:bg-green-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse"></div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 pt-20 pb-8">
+      <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Page Title */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">

@@ -89,7 +89,7 @@ export default function CryptoGiftDAODashboard() {
           <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-400 dark:bg-pink-600 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl animate-pulse delay-2000"></div>
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-6">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Main Stats Grid */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
             <StatCard
