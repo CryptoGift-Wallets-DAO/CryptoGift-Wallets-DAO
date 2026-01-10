@@ -1016,64 +1016,80 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
   }, [currentBlock, educationalMode, getNextBlock, onEducationStateChange]);
 
   // 🔙 BACK BUTTON: Navigate to previous block
+  // V2: When at VIDEO2_START_INDEX, go back to previous PAGE (not previous block)
+  // V2 NEVER allows going to blocks 0 or 1 (video1 and checkpoint are obsolete)
   const handlePreviousBlock = useCallback(() => {
-    if (currentBlock > 0) {
-      const prevBlockIndex = currentBlock - 1;
+    // If at first V2 block or below, go back to previous page instead of previous block
+    if (currentBlock <= VIDEO2_START_INDEX) {
+      console.log('🔙 At first V2 block - navigating back to previous page');
+      // Prefer onBackToWelcome callback over browser history
+      if (onBackToWelcome) {
+        onBackToWelcome();
+        return;
+      }
+      // Fallback: Use browser history to go back to the presentation/invite page
+      if (typeof window !== 'undefined') {
+        window.history.back();
+      }
+      return;
+    }
 
-      console.log('🔙 BLOCK NAVIGATION (Back):', {
-        currentBlock,
-        currentBlockId: SALES_BLOCKS[currentBlock].id,
-        prevBlockIndex,
-        prevBlockId: SALES_BLOCKS[prevBlockIndex].id,
+    // 🔒 V2 SAFETY: Never go below VIDEO2_START_INDEX
+    const previousBlockIndex = Math.max(currentBlock - 1, VIDEO2_START_INDEX);
+
+    console.log('🔙 BLOCK NAVIGATION (Back):', {
+      currentBlock,
+      currentBlockId: SALES_BLOCKS[currentBlock].id,
+      previousBlockIndex,
+      previousBlockId: SALES_BLOCKS[previousBlockIndex].id,
+    });
+
+    setCurrentBlock(previousBlockIndex);
+
+    // 🔒 PERSISTENCE: Save the new block index (going back)
+    if (onEducationStateChange) {
+      onEducationStateChange({
+        blockIndex: previousBlockIndex,
+        blockId: SALES_BLOCKS[previousBlockIndex].id,
+        introVideoCompleted: true,
       });
+      console.log('[SalesMasterclassV2EN] 🔒 Saved (back): blockIndex =', previousBlockIndex);
+    }
 
-      setCurrentBlock(prevBlockIndex);
+    // Force scroll to top when changing blocks
+    setTimeout(() => {
+      const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
 
-      // 🔒 PERSISTENCE: Save the new block index (going back)
-      if (onEducationStateChange) {
-        onEducationStateChange({
-          blockIndex: prevBlockIndex,
-          blockId: SALES_BLOCKS[prevBlockIndex].id,
-          introVideoCompleted: true,
-        });
-        console.log('[SalesMasterclass] 🔒 Saved (back): blockIndex =', prevBlockIndex);
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+
+      const lessonContainer = document.getElementById('lesson-content-scroll-container');
+      if (lessonContainer) {
+        lessonContainer.scrollTop = 0;
       }
 
-      // Force scroll to top when changing blocks
+      const mainContainer = document.querySelector('.educational-mode-wrapper');
+      if (mainContainer) {
+        mainContainer.scrollTop = 0;
+      }
+
       setTimeout(() => {
-        const originalScrollBehavior = document.documentElement.style.scrollBehavior;
-        document.documentElement.style.scrollBehavior = 'auto';
+        document.documentElement.style.scrollBehavior = originalScrollBehavior;
+      }, 50);
+    }, 100);
 
-        window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
+    // Set appropriate duration for the previous block
+    const blockDuration = educationalMode
+      ? Math.min(SALES_BLOCKS[previousBlockIndex].duration, 15)
+      : SALES_BLOCKS[previousBlockIndex].duration;
 
-        const lessonContainer = document.getElementById('lesson-content-scroll-container');
-        if (lessonContainer) {
-          lessonContainer.scrollTop = 0;
-        }
-
-        const mainContainer = document.querySelector('.educational-mode-wrapper');
-        if (mainContainer) {
-          mainContainer.scrollTop = 0;
-        }
-
-        setTimeout(() => {
-          document.documentElement.style.scrollBehavior = originalScrollBehavior;
-        }, 50);
-      }, 100);
-
-      // Set appropriate duration for the previous block
-      const blockDuration = educationalMode
-        ? Math.min(SALES_BLOCKS[prevBlockIndex].duration, 15)
-        : SALES_BLOCKS[prevBlockIndex].duration;
-
-      setTimeLeft(blockDuration);
-      setSelectedAnswer(null);
-      setShowQuestionFeedback(false);
-      setCanProceed(educationalMode);
-    }
-  }, [currentBlock, educationalMode, onEducationStateChange]);
+    setTimeLeft(blockDuration);
+    setSelectedAnswer(null);
+    setShowQuestionFeedback(false);
+    setCanProceed(educationalMode);
+  }, [currentBlock, educationalMode, onEducationStateChange, onBackToWelcome]);
 
   // 🔙 Handler to go back to intro video from OpeningBlock (block 0)
   const handleBackToVideo = useCallback(() => {
@@ -1343,11 +1359,21 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
         </div>
       );
     }
-    
-    const block = SALES_BLOCKS[currentBlock];
-    
+
+    // 🔒 V2 SAFETY: NEVER render blocks before VIDEO2_START_INDEX (video1 and checkpoint are obsolete)
+    // This is a safeguard in case currentBlock somehow becomes 0 or 1
+    const safeBlockIndex = Math.max(currentBlock, VIDEO2_START_INDEX);
+    if (safeBlockIndex !== currentBlock) {
+      console.warn('⚠️ [V2 SAFETY] currentBlock was', currentBlock, '- auto-correcting to', safeBlockIndex);
+      // Auto-correct the state
+      setCurrentBlock(safeBlockIndex);
+      return <div className="py-12 text-center">Loading...</div>;
+    }
+
+    const block = SALES_BLOCKS[safeBlockIndex];
+
     console.log('🎬 RENDERING BLOCK:', {
-      currentBlock,
+      currentBlock: safeBlockIndex,
       blockId: block.id,
       blockType: block.type,
       educationalMode,
@@ -1363,7 +1389,7 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           selectedAnswer={selectedAnswer}
           showFeedback={showQuestionFeedback}
           onNext={handleNextBlock}
-          onPrevious={currentBlock === 0 ? handleBackToVideo : handlePreviousBlock}
+          onPrevious={safeBlockIndex === VIDEO2_START_INDEX ? (onBackToWelcome || handlePreviousBlock) : handlePreviousBlock}
           canProceed={canProceed}
           canGoBack={true}
           timeLeft={timeLeft}
