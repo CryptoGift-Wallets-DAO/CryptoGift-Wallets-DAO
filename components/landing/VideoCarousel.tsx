@@ -448,7 +448,7 @@ export function VideoCarousel() {
       </div>
 
       <div className="absolute top-20 -right-24 md:-right-32 lg:-right-40 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.5s ease-in-out infinite 0.2s' }}>
-        <span className="font-medium text-green-600 dark:text-green-400">Human</span>
+        <span className="font-medium text-rose-600 dark:text-rose-400">Human</span>
       </div>
 
       <div className="absolute top-36 -right-32 md:-right-44 lg:-right-56 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
@@ -478,7 +478,7 @@ export function VideoCarousel() {
       </div>
 
       <div className="absolute top-24 -left-28 md:-left-36 lg:-left-44 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 5.2s ease-in-out infinite 1.2s' }}>
-        <span className="font-medium text-rose-600 dark:text-rose-400">No fear</span>
+        <span className="font-medium text-green-600 dark:text-green-400">No fear</span>
       </div>
 
       <div className="absolute top-40 -left-36 md:-left-48 lg:-left-60 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4.8s ease-in-out infinite 0.6s' }}>
