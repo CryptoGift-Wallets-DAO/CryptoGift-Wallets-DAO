@@ -17,7 +17,7 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { SkipForward, ArrowLeft, Volume2, VolumeX } from 'lucide-react';
+import { SkipForward, ArrowLeft, Volume2, VolumeX, Play, Maximize2 } from 'lucide-react';
 
 // Ambient Mode configuration
 const AMBIENT_CONFIG = {
@@ -299,11 +299,42 @@ export default function IntroVideoGate({
 
   if (!show) return null;
 
+  // Handle click to play/pause
+  const handleVideoClick = useCallback(() => {
+    const video = getVideoElement();
+    if (video) {
+      if (video.paused) {
+        video.volume = AUTO_PLAY_VOLUME;
+        video.muted = false;
+        video.play().then(() => setIsPlaying(true)).catch(() => {
+          video.muted = true;
+          setIsMuted(true);
+          video.play().then(() => setIsPlaying(true)).catch(() => {});
+        });
+      } else {
+        video.pause();
+        setIsPlaying(false);
+      }
+    }
+  }, [getVideoElement]);
+
+  // Handle double-click for fullscreen
+  const handleDoubleClick = useCallback(() => {
+    const player = containerRef.current?.querySelector('mux-player') as HTMLElement | null;
+    if (player) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        player.requestFullscreen?.();
+      }
+    }
+  }, []);
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
         ref={containerRef}
-        className="relative w-full max-w-6xl mx-auto"
+        className="relative w-full max-w-4xl mx-auto"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
@@ -328,124 +359,123 @@ export default function IntroVideoGate({
           />
         )}
 
-        {/* Glass container with premium aesthetic */}
-        <div className="relative aspect-video w-full z-10
-          bg-gradient-to-br from-gray-900/95 to-black/95
-          backdrop-blur-xl backdrop-saturate-150
-          rounded-3xl overflow-hidden
-          border border-white/10 dark:border-gray-800/50
-          shadow-2xl shadow-purple-500/20">
-
-          {/* Mux Player with NATIVE CONTROLS ONLY */}
-          <MuxPlayer
-            playbackId={muxPlaybackId}
-            streamType="on-demand"
-            autoPlay={false}
-            muted={false}
-            playsInline
-            poster={poster}
-            onEnded={handleFinish}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            style={{
-              width: "100%",
-              height: "100%",
-              position: "absolute",
-              top: 0,
-              left: 0
-            }}
-            metadata={{
-              video_title: title,
-              video_series: "CryptoGift Educational"
-            }}
-          >
-            {captionsVtt && (
-              <track
-                kind="subtitles"
-                srcLang="es"
-                src={captionsVtt}
-                default
-                label="Español"
-              />
-            )}
-          </MuxPlayer>
-
-        </div>
-
-        {/* Title, description and skip button - OUTSIDE video player for clean viewing */}
-        <div className="mt-6 space-y-4">
-          {/* Title and description card */}
-          <div className="bg-white/10 dark:bg-black/30
-            backdrop-blur-xl backdrop-saturate-150
-            rounded-2xl px-6 py-4
-            border border-white/20 dark:border-gray-700/50
-            shadow-xl">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              {title}
-            </h3>
-            {description && (
-              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
-                {description}
-              </p>
-            )}
+        {/* Glass crystal container - like VideoCarousel */}
+        <div className="glass-crystal rounded-2xl overflow-hidden relative z-10">
+          {/* Title header ABOVE video - small floating glass panel */}
+          <div className="p-3 border-b border-white/10">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate flex items-center gap-2">
+                  <span>🎬</span>
+                  <span>{title}</span>
+                </h3>
+                {description && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {description}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Navigation buttons */}
-          <div className="flex justify-center items-center gap-4">
-            {/* Back button */}
-            {onBack && (
-              <button
-                onClick={onBack}
-                className="px-6 py-4 rounded-xl
-                  bg-white/10 dark:bg-black/30
-                  hover:bg-white/20 dark:hover:bg-black/40
-                  text-gray-700 dark:text-gray-300 font-bold text-lg
-                  backdrop-blur-xl border border-gray-300/30 dark:border-gray-700/30
-                  transition-all hover:scale-105
-                  shadow-lg
-                  flex items-center gap-3"
-                aria-label="Volver"
-              >
-                <ArrowLeft className="w-6 h-6" />
-                <span>Volver</span>
-              </button>
+          {/* Video player area - clean poster with NO overlay text */}
+          <div
+            className="relative aspect-video bg-black cursor-pointer"
+            onClick={handleVideoClick}
+            onDoubleClick={handleDoubleClick}
+          >
+            {/* Mux Player with HIDDEN CONTROLS for clean look */}
+            <MuxPlayer
+              playbackId={muxPlaybackId}
+              streamType="on-demand"
+              autoPlay={false}
+              muted={false}
+              playsInline
+              poster={poster}
+              onEnded={handleFinish}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              style={{
+                width: '100%',
+                height: '100%',
+                '--controls': 'none',
+              } as any}
+              className="w-full h-full"
+              metadata={{
+                video_title: title,
+                video_series: "CryptoGift Educational"
+              }}
+            >
+              {captionsVtt && (
+                <track
+                  kind="subtitles"
+                  srcLang="es"
+                  src={captionsVtt}
+                  default
+                  label="Español"
+                />
+              )}
+            </MuxPlayer>
+
+            {/* Play overlay - shows when paused (like VideoCarousel) */}
+            {!isPlaying && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+                <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
+                  <Play className="w-8 h-8 text-white fill-white" />
+                </div>
+              </div>
             )}
 
-            {/* Volume toggle */}
+            {/* Fullscreen hint */}
+            <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+              <div className="px-2 py-1 rounded bg-black/50 text-white text-xs flex items-center gap-1">
+                <Maximize2 className="w-3 h-3" />
+                <span>Double-click</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation controls BELOW video */}
+          <div className="flex items-center justify-between p-3 border-t border-white/10">
+            {/* Back button */}
+            {onBack ? (
+              <button
+                onClick={onBack}
+                className="p-2 rounded-full glass-crystal hover:scale-110 transition-transform flex items-center gap-2"
+                aria-label="Volver"
+              >
+                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-white" />
+              </button>
+            ) : (
+              <div className="w-9" /> /* Spacer */
+            )}
+
+            {/* Center: Volume toggle */}
             <button
               onClick={toggleMute}
-              className="p-3 rounded-xl
-                bg-white/10 dark:bg-black/30
-                hover:bg-white/20 dark:hover:bg-black/40
-                backdrop-blur-xl border border-gray-300/30 dark:border-gray-700/30
-                transition-all hover:scale-105
-                shadow-lg"
+              className="p-2 rounded-full hover:bg-white/10 transition-colors"
               aria-label={isMuted ? 'Unmute' : 'Mute'}
             >
               {isMuted ? (
-                <VolumeX className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                <VolumeX className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               ) : (
-                <Volume2 className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                <Volume2 className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               )}
             </button>
 
             {/* Skip intro button */}
-            {showSkipButton && (
+            {showSkipButton ? (
               <button
                 onClick={handleSkip}
-                className="px-8 py-4 rounded-xl
-                  bg-gradient-to-r from-purple-500 to-pink-500
-                  hover:from-purple-600 hover:to-pink-600
-                  text-white font-bold text-lg
-                  backdrop-blur-xl border border-purple-400/30
-                  transition-all hover:scale-105
-                  shadow-lg shadow-purple-500/30
-                  flex items-center gap-3"
+                className="p-2 rounded-full glass-crystal hover:scale-110 transition-transform
+                  bg-gradient-to-r from-purple-500/20 to-pink-500/20
+                  flex items-center gap-2"
                 aria-label="Saltar introducción"
               >
-                <SkipForward className="w-6 h-6" />
-                <span>Saltar intro</span>
+                <SkipForward className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </button>
+            ) : (
+              <div className="w-9" /> /* Spacer */
             )}
           </div>
         </div>
