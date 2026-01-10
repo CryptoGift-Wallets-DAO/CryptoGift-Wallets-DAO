@@ -47,33 +47,6 @@ interface EmbeddedVideoDeviceProps {
   locale?: 'en' | 'es';
 }
 
-// Glass badges below the video - Left and Right columns
-// These use the premium glass-crystal effect from globals.css
-const GLASS_BADGES_ES = {
-  left: [
-    { text: 'Sin gas', icon: '⚡', delay: 0 },
-    { text: 'Sin miedo', icon: '💪', delay: 0.2 },
-    { text: '100% tuyo', icon: '🔐', delay: 0.4 },
-  ],
-  right: [
-    { text: 'Sin complicaciones', icon: '✨', delay: 0.1 },
-    { text: 'Web3 simple', icon: '🌐', delay: 0.3 },
-    { text: 'UX intuitiva', icon: '🎯', delay: 0.5 },
-  ]
-};
-
-const GLASS_BADGES_EN = {
-  left: [
-    { text: 'No gas', icon: '⚡', delay: 0 },
-    { text: 'No fear', icon: '💪', delay: 0.2 },
-    { text: '100% yours', icon: '🔐', delay: 0.4 },
-  ],
-  right: [
-    { text: 'No complications', icon: '✨', delay: 0.1 },
-    { text: 'Web3 simple', icon: '🌐', delay: 0.3 },
-    { text: 'Intuitive UX', icon: '🎯', delay: 0.5 },
-  ]
-};
 
 // CSS Keyframes for premium 3D animations
 const animationStyles = `
@@ -157,8 +130,6 @@ export function EmbeddedVideoDevice({
       }
     }
   }, [locale]);
-
-  const glassBadges = currentLocale === 'en' ? GLASS_BADGES_EN : GLASS_BADGES_ES;
 
   // Get video element from MuxPlayer
   const getVideoElement = useCallback((): HTMLVideoElement | null => {
@@ -499,62 +470,6 @@ export function EmbeddedVideoDevice({
           <Maximize2 className="w-3 h-3 text-cyan-400" />
         </motion.div>
 
-        {/* Glass Badges - Below video, scattered left and right */}
-        <div className="mt-6 px-2">
-          <div className="flex justify-between items-start max-w-2xl mx-auto">
-            {/* Left column badges */}
-            <div className="flex flex-col gap-2">
-              {glassBadges.left.map((badge, index) => (
-                <motion.div
-                  key={badge.text}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{
-                    delay: 0.8 + badge.delay,
-                    duration: 0.5,
-                    type: 'spring',
-                    stiffness: 120
-                  }}
-                  className="glass-crystal px-3 py-2 rounded-xl flex items-center gap-2 hover:scale-105 transition-transform cursor-default"
-                  style={{
-                    animation: `badgeFloat ${3 + index * 0.5}s ease-in-out ${badge.delay}s infinite`,
-                  }}
-                >
-                  <span className="text-base">{badge.icon}</span>
-                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
-                    {badge.text}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Right column badges */}
-            <div className="flex flex-col gap-2 items-end">
-              {glassBadges.right.map((badge, index) => (
-                <motion.div
-                  key={badge.text}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{
-                    delay: 0.8 + badge.delay,
-                    duration: 0.5,
-                    type: 'spring',
-                    stiffness: 120
-                  }}
-                  className="glass-crystal px-3 py-2 rounded-xl flex items-center gap-2 hover:scale-105 transition-transform cursor-default"
-                  style={{
-                    animation: `badgeFloat ${3.5 + index * 0.5}s ease-in-out ${badge.delay}s infinite`,
-                  }}
-                >
-                  <span className="text-base">{badge.icon}</span>
-                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
-                    {badge.text}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* Description Below */}
         {description && (
