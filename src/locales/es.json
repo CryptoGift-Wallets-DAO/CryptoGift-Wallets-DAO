@@ -5,7 +5,22 @@
     "rotateHintShort": "Gira tu dispositivo para mejor experiencia",
     "expandHint": "Doble clic para pantalla completa",
     "expandHintShort": "Doble clic para ampliar el video",
-    "tapToPlay": "Toca para reproducir"
+    "tapToPlay": "Toca para reproducir",
+    "salesMasterclass": {
+      "discoverPill": "Descubre CryptoGift",
+      "theGift": {
+        "title": "El Regalo",
+        "description": "El primer paso hacia la confianza real.\n\n¿Cuántas veces quisiste compartir el futuro de Web3 con alguien que amas?"
+      },
+      "theSolution": {
+        "title": "La Solución",
+        "description": "La tecnología detrás de la magia.\n\n5 contratos verificados. 717+ transacciones on-chain. 85.7% claim rate."
+      },
+      "theOpportunity": {
+        "title": "La Oportunidad",
+        "description": "Tu invitación al futuro.\n\nEstamos temprano. La infraestructura está lista. La comunidad se está formando."
+      }
+    }
   },
   "landing": {
     "hero": {

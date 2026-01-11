@@ -331,56 +331,31 @@ export function NFTImageModal({
                     </svg>
                   </button>
 
-                  {/* Content Layout - ADAPTIVE */}
-                  <div className={`flex min-h-[300px] max-h-[90vh] ${
-                    imageAspectRatio !== null && imageAspectRatio > 1.0
-                      ? 'flex-col'
-                      : 'flex-col lg:flex-row'
-                  }`}>
-                    {/* Image Section */}
-                    <div className="flex items-center justify-center px-4 py-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900"
-                         style={{
-                           ...(imageAspectRatio !== null && imageAspectRatio > 1.0
-                             ? { width: '100%', height: '60vh' }
-                             : {
-                                 width: imageAspectRatio !== null ? `${imageAspectRatio * 90}vh` : 'auto',
-                                 maxWidth: '65vw',
-                                 flexShrink: 0
-                               }
-                           )
-                         }}>
-                      <div className="relative max-w-full max-h-full flex items-center justify-center">
-                        <div style={{
-                          ...(imageAspectRatio !== null && imageAspectRatio > 1.0
-                            ? { height: '58vh', width: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }
-                            : { height: '90vh', width: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }
-                          )
-                        }}>
-                          <Image
-                            src={image}
-                            alt={name}
-                            width={600}
-                            height={600}
-                            className="object-contain rounded-lg shadow-lg max-w-full max-h-full"
-                            priority={true}
-                            style={{
-                              objectFit: 'contain',
-                              maxWidth: '100%',
-                              maxHeight: '100%',
-                              width: 'auto',
-                              height: 'auto'
-                            }}
-                          />
-                        </div>
+                  {/* Content Layout - Simple and Clean */}
+                  <div className="flex flex-col lg:flex-row max-h-[85vh]">
+                    {/* Image Section - Full width, proper aspect ratio */}
+                    <div className="flex-1 flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 min-h-[300px]">
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        <Image
+                          src={image}
+                          alt={name}
+                          width={1200}
+                          height={800}
+                          className="rounded-lg shadow-lg"
+                          priority={true}
+                          style={{
+                            objectFit: 'contain',
+                            maxWidth: '100%',
+                            maxHeight: '75vh',
+                            width: 'auto',
+                            height: 'auto'
+                          }}
+                        />
                       </div>
                     </div>
 
                     {/* Metadata Section */}
-                    <div className={`p-6 border-slate-200 dark:border-slate-700 ${
-                      imageAspectRatio !== null && imageAspectRatio > 1.0
-                        ? 'w-full border-t shadow-lg bg-slate-50 dark:bg-slate-800'
-                        : 'lg:w-80 flex-shrink-0 border-t lg:border-t-0 lg:border-l shadow-xl bg-white dark:bg-slate-900'
-                    }`}>
+                    <div className="lg:w-80 flex-shrink-0 p-6 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-y-auto">
                       <div className="space-y-4">
                         {/* Title & IDs */}
                         <div>
@@ -441,16 +416,6 @@ export function NFTImageModal({
                           <div className="space-y-1 text-[10px] text-slate-600 dark:text-slate-400">
                             <div>Tipo: Invitacion Especial DAO</div>
                             <div>Network: Base Mainnet</div>
-                            {imageAspectRatio && (
-                              <div className="flex items-center gap-1">
-                                <span>Ratio: {imageAspectRatio.toFixed(2)}:1</span>
-                                {isWideImage && (
-                                  <span className="text-blue-500 font-medium">
-                                    {imageAspectRatio >= 1.9 ? 'Ultra-wide' : 'Wide'}
-                                  </span>
-                                )}
-                              </div>
-                            )}
                           </div>
                         </div>
                       </div>

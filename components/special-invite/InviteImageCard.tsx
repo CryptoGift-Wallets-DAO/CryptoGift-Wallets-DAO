@@ -51,6 +51,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
   onVideoComplete
 }) => {
   const t = useTranslations('inviteCard');
+  const tVideo = useTranslations('video');
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -184,23 +185,6 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
 
       {/* Content */}
       <div className="p-6 space-y-4">
-        {/* Title */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {name}
-          </h3>
-          {inviteCode && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 font-mono">
-              {t('code')}: {inviteCode}
-            </p>
-          )}
-          {referrerCode && (
-            <p className="text-xs text-purple-600 dark:text-purple-400 font-medium mt-1">
-              {t('referredBy')}: {referrerCode}
-            </p>
-          )}
-        </div>
-
         {/* Custom Message from Referrer - Auto-translated based on locale */}
         {(displayMessage || isTranslating) && (
           <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-700">
@@ -224,46 +208,29 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
         {/* ========================================================== */}
         {showIntroVideo && status === 'active' && (
           <div className="mt-6">
-            {/* Floating Pills - EXACT COPY from Home Page Design */}
-            <div className="flex items-center justify-center gap-2 mb-4 relative z-10">
-              {/* Pill 1: Discover CryptoGift - EXACT home style */}
-              <motion.div
-                initial={{ opacity: 0, y: -5 }}
-                animate={{
-                  opacity: 1,
-                  y: [0, -2, 0]
-                }}
-                transition={{
-                  opacity: { duration: 0.3, ease: 'easeOut' },
-                  y: { duration: 4, ease: 'easeInOut', repeat: Infinity }
-                }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/50 dark:bg-white/10 backdrop-blur-sm rounded-full border border-gray-200 dark:border-white/20"
+            {/* Floating Pills - EXACT glass-crystal style from Home VideoCarousel */}
+            <div className="flex items-center justify-center gap-3 mb-4 relative z-10">
+              {/* Pill 1: Discover CryptoGift - glass-crystal with amber text like "No complications" */}
+              <div
+                className="p-2 rounded-lg text-xs glass-crystal"
+                style={{ animation: 'float 4s ease-in-out infinite' }}
               >
-                <span className="text-xs font-medium text-gray-700 dark:text-white">Discover CryptoGift</span>
-              </motion.div>
+                <span className="font-medium text-amber-600 dark:text-amber-400">{tVideo('salesMasterclass.discoverPill')}</span>
+              </div>
 
-              {/* Pill 2: El Regalo - EXACT home style */}
-              <motion.div
-                initial={{ opacity: 0, y: -5 }}
-                animate={{
-                  opacity: 1,
-                  y: [0, -2, 0]
-                }}
-                transition={{
-                  opacity: { duration: 0.3, ease: 'easeOut', delay: 0.1 },
-                  y: { duration: 4.2, ease: 'easeInOut', repeat: Infinity, delay: 0.2 }
-                }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/50 dark:bg-white/10 backdrop-blur-sm rounded-full border border-gray-200 dark:border-white/20"
+              {/* Pill 2: El Regalo / The Gift - glass-crystal with emerald text like "No gas" */}
+              <div
+                className="p-2 rounded-lg text-xs glass-crystal"
+                style={{ animation: 'float 4.2s ease-in-out infinite 0.3s' }}
               >
-                <span className="text-xs font-medium text-gray-700 dark:text-white">El Regalo</span>
-              </motion.div>
+                <span className="font-medium text-emerald-600 dark:text-emerald-400">{tVideo('salesMasterclass.theGift.title')}</span>
+              </div>
             </div>
 
-            {/* Embedded Video Device - Sin title para evitar duplicado */}
+            {/* Embedded Video Device - Sin description */}
             <EmbeddedVideoDevice
               muxPlaybackId={VIDEO_CONFIG.salesMasterclassV2_TheGift.muxPlaybackId}
               lessonId={VIDEO_CONFIG.salesMasterclassV2_TheGift.lessonId}
-              description={VIDEO_CONFIG.salesMasterclassV2_TheGift.description}
               onVideoComplete={onVideoComplete}
               className="mb-4"
             />
