@@ -254,6 +254,49 @@ export function EmbeddedVideoDevice({
     }
   }, []);
 
+  // Get video element from MuxPlayer - MUST be declared before attemptAutoPlay
+  const getVideoElement = useCallback((): HTMLVideoElement | null => {
+    if (videoRef.current) return videoRef.current;
+
+    if (muxPlayerRef.current) {
+      const muxElement = muxPlayerRef.current;
+
+      // Method 1: Direct media.nativeEl access
+      if (muxElement?.media?.nativeEl) {
+        videoRef.current = muxElement.media.nativeEl;
+        return videoRef.current;
+      }
+
+      // Method 2: Query from shadowRoot
+      if (muxElement?.shadowRoot) {
+        const videoEl = muxElement.shadowRoot.querySelector('video');
+        if (videoEl) {
+          videoRef.current = videoEl;
+          return videoRef.current;
+        }
+      }
+
+      // Method 3: Query directly
+      if (typeof muxElement.querySelector === 'function') {
+        const videoEl = muxElement.querySelector('video');
+        if (videoEl) {
+          videoRef.current = videoEl;
+          return videoRef.current;
+        }
+      }
+
+      // Method 4: Search in DOM subtree
+      if (containerRef.current) {
+        const videoEl = containerRef.current.querySelector('video');
+        if (videoEl) {
+          videoRef.current = videoEl;
+          return videoRef.current;
+        }
+      }
+    }
+    return null;
+  }, []);
+
   // Calculate visibility ratio manually (for initial check)
   const getVisibilityRatio = useCallback((): number => {
     if (!containerRef.current) return 0;
@@ -300,49 +343,6 @@ export function EmbeddedVideoDevice({
       });
     });
   }, [getVideoElement]);
-
-  // Get video element from MuxPlayer
-  const getVideoElement = useCallback((): HTMLVideoElement | null => {
-    if (videoRef.current) return videoRef.current;
-
-    if (muxPlayerRef.current) {
-      const muxElement = muxPlayerRef.current;
-
-      // Method 1: Direct media.nativeEl access
-      if (muxElement?.media?.nativeEl) {
-        videoRef.current = muxElement.media.nativeEl;
-        return videoRef.current;
-      }
-
-      // Method 2: Query from shadowRoot
-      if (muxElement?.shadowRoot) {
-        const videoEl = muxElement.shadowRoot.querySelector('video');
-        if (videoEl) {
-          videoRef.current = videoEl;
-          return videoRef.current;
-        }
-      }
-
-      // Method 3: Query directly
-      if (typeof muxElement.querySelector === 'function') {
-        const videoEl = muxElement.querySelector('video');
-        if (videoEl) {
-          videoRef.current = videoEl;
-          return videoRef.current;
-        }
-      }
-
-      // Method 4: Search in DOM subtree
-      if (containerRef.current) {
-        const videoEl = containerRef.current.querySelector('video');
-        if (videoEl) {
-          videoRef.current = videoEl;
-          return videoRef.current;
-        }
-      }
-    }
-    return null;
-  }, []);
 
   // Extract colors from video frame for Ambient Mode
   const extractVideoColors = useCallback(() => {
