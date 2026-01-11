@@ -254,46 +254,138 @@ export function EmbeddedVideoDevice({
     }
   }, []);
 
-  // Get video element from MuxPlayer - MUST be declared before attemptAutoPlay
-  const getVideoElement = useCallback((): HTMLVideoElement | null => {
-    if (videoRef.current) return videoRef.current;
+  // PROACTIVE VIDEO DETECTION: Watch for video element to be added to DOM
+  // MuxPlayer dynamically injects <video> after loading, so we need to watch for it
+  useEffect(() => {
+    if (!containerRef.current) return;
 
+    // If we already have a video ref, no need to watch
+    if (videoRef.current && document.body.contains(videoRef.current)) return;
+
+    console.log('[SmartDetection] Setting up MutationObserver to detect video element...');
+
+    const observer = new MutationObserver((mutations) => {
+      // Check if a video element was added
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node instanceof HTMLVideoElement) {
+            console.log('[SmartDetection] 🎬 MutationObserver: Video element detected!');
+            videoRef.current = node;
+            return;
+          }
+          if (node instanceof Element) {
+            const video = node.querySelector('video');
+            if (video) {
+              console.log('[SmartDetection] 🎬 MutationObserver: Video found in added element!');
+              videoRef.current = video;
+              return;
+            }
+          }
+        }
+      }
+    });
+
+    observer.observe(containerRef.current, {
+      childList: true,
+      subtree: true,
+    });
+
+    // Also check shadow DOM of mux-player if it exists
+    const checkMuxShadow = () => {
+      if (muxPlayerRef.current?.shadowRoot) {
+        const shadowObserver = new MutationObserver(() => {
+          const video = muxPlayerRef.current?.shadowRoot?.querySelector('video');
+          if (video && !videoRef.current) {
+            console.log('[SmartDetection] 🎬 ShadowRoot: Video element detected!');
+            videoRef.current = video;
+          }
+        });
+        shadowObserver.observe(muxPlayerRef.current.shadowRoot, {
+          childList: true,
+          subtree: true,
+        });
+        return () => shadowObserver.disconnect();
+      }
+    };
+
+    // Delayed check for shadow DOM (MuxPlayer may not be ready immediately)
+    const shadowTimeout = setTimeout(checkMuxShadow, 500);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(shadowTimeout);
+    };
+  }, []);
+
+  // Get video element from MuxPlayer - MUST be declared before attemptAutoPlay
+  // MuxPlayer is a Web Component with Shadow DOM, so we need multiple strategies
+  const getVideoElement = useCallback((): HTMLVideoElement | null => {
+    // Return cached ref if valid
+    if (videoRef.current && document.body.contains(videoRef.current)) {
+      return videoRef.current;
+    }
+
+    // Reset cache
+    videoRef.current = null;
+
+    // Strategy 1: Search in container DOM (most reliable for MuxPlayer)
+    if (containerRef.current) {
+      const videoEl = containerRef.current.querySelector('video');
+      if (videoEl) {
+        console.log('[SmartDetection] Found video via container querySelector');
+        videoRef.current = videoEl;
+        return videoRef.current;
+      }
+    }
+
+    // Strategy 2: Search in muxPlayer's shadow DOM
     if (muxPlayerRef.current) {
       const muxElement = muxPlayerRef.current;
 
-      // Method 1: Direct media.nativeEl access
-      if (muxElement?.media?.nativeEl) {
-        videoRef.current = muxElement.media.nativeEl;
-        return videoRef.current;
-      }
-
-      // Method 2: Query from shadowRoot
+      // Try shadowRoot first (MuxPlayer uses Shadow DOM)
       if (muxElement?.shadowRoot) {
         const videoEl = muxElement.shadowRoot.querySelector('video');
         if (videoEl) {
+          console.log('[SmartDetection] Found video via shadowRoot');
           videoRef.current = videoEl;
           return videoRef.current;
         }
       }
 
-      // Method 3: Query directly
-      if (typeof muxElement.querySelector === 'function') {
-        const videoEl = muxElement.querySelector('video');
+      // Try media-controller pattern
+      const mediaController = muxElement?.shadowRoot?.querySelector('media-controller');
+      if (mediaController?.shadowRoot) {
+        const videoEl = mediaController.shadowRoot.querySelector('video');
         if (videoEl) {
+          console.log('[SmartDetection] Found video via media-controller');
           videoRef.current = videoEl;
           return videoRef.current;
         }
       }
 
-      // Method 4: Search in DOM subtree
-      if (containerRef.current) {
-        const videoEl = containerRef.current.querySelector('video');
-        if (videoEl) {
-          videoRef.current = videoEl;
+      // Try direct media property
+      if (muxElement?.media?.nativeEl) {
+        console.log('[SmartDetection] Found video via media.nativeEl');
+        videoRef.current = muxElement.media.nativeEl;
+        return videoRef.current;
+      }
+    }
+
+    // Strategy 3: Global document search as last resort
+    const allVideos = document.querySelectorAll('video');
+    if (allVideos.length > 0) {
+      // Find video that's inside our container
+      for (const video of allVideos) {
+        if (containerRef.current?.contains(video) ||
+            video.closest('[data-mux-player]')) {
+          console.log('[SmartDetection] Found video via document search');
+          videoRef.current = video;
           return videoRef.current;
         }
       }
     }
+
+    console.log('[SmartDetection] ❌ No video element found after all strategies');
     return null;
   }, []);
 
@@ -316,30 +408,48 @@ export function EmbeddedVideoDevice({
 
   // Attempt auto-play with fallback to muted
   const attemptAutoPlay = useCallback(() => {
+    if (hasAutoPlayed.current) {
+      console.log('[SmartDetection] Already auto-played, skipping');
+      return;
+    }
+
     const video = getVideoElement();
-    if (!video || hasAutoPlayed.current) return;
+    if (!video) {
+      console.log('[SmartDetection] ❌ No video element for auto-play');
+      return;
+    }
 
-    console.log('[SmartDetection] Attempting auto-play...');
+    console.log('[SmartDetection] Attempting auto-play on video element:', video.tagName);
+    console.log('[SmartDetection] Video readyState:', video.readyState);
+    console.log('[SmartDetection] Video src:', video.src ? 'has src' : 'no src');
 
-    video.volume = AUTO_PLAY_VOLUME;
-    video.muted = false;
+    // Set volume first
+    try {
+      video.volume = AUTO_PLAY_VOLUME;
+      video.muted = false;
+    } catch (e) {
+      console.log('[SmartDetection] Error setting volume:', e);
+    }
 
     video.play().then(() => {
-      console.log('[SmartDetection] ✅ Auto-play SUCCESS with audio');
+      console.log('[SmartDetection] ✅ Auto-play SUCCESS with audio at 15% volume');
       hasAutoPlayed.current = true;
       setIsPlaying(true);
+      setIsMuted(false);
       setVolume(AUTO_PLAY_VOLUME);
     }).catch((err) => {
-      console.log('[SmartDetection] ⚠️ Auto-play with audio blocked, trying muted...', err);
-      // Fallback: try muted
+      console.log('[SmartDetection] ⚠️ Auto-play with audio blocked:', err.name, err.message);
+      // Fallback: try muted (browsers often require muted for auto-play)
       video.muted = true;
-      setIsMuted(true);
+
       video.play().then(() => {
-        console.log('[SmartDetection] ✅ Auto-play SUCCESS (muted)');
+        console.log('[SmartDetection] ✅ Auto-play SUCCESS (muted fallback)');
         hasAutoPlayed.current = true;
         setIsPlaying(true);
+        setIsMuted(true);
       }).catch((err2) => {
-        console.log('[SmartDetection] ❌ Auto-play completely blocked', err2);
+        console.log('[SmartDetection] ❌ Auto-play completely blocked:', err2.name, err2.message);
+        // Show play button to user - auto-play not allowed
       });
     });
   }, [getVideoElement]);
@@ -511,24 +621,54 @@ export function EmbeddedVideoDevice({
 
   // Handle click to play/pause
   const handleVideoClick = useCallback(() => {
+    console.log('[SmartDetection] Click detected, searching for video...');
+
     const video = getVideoElement();
-    if (!video) return;
+    if (!video) {
+      console.log('[SmartDetection] ❌ Click: No video element found');
+      // Try one more time with a small delay
+      setTimeout(() => {
+        const retryVideo = getVideoElement();
+        if (retryVideo) {
+          console.log('[SmartDetection] ✅ Found video on retry');
+          if (retryVideo.paused) {
+            retryVideo.volume = AUTO_PLAY_VOLUME;
+            retryVideo.muted = false;
+            retryVideo.play().catch(() => {
+              retryVideo.muted = true;
+              retryVideo.play().catch(() => {});
+            });
+            setIsPlaying(true);
+          }
+        }
+      }, 100);
+      return;
+    }
+
+    console.log('[SmartDetection] Click: Video found, paused:', video.paused);
 
     if (video.paused) {
       video.volume = AUTO_PLAY_VOLUME;
       video.muted = false;
       video.play().then(() => {
+        console.log('[SmartDetection] ✅ Manual play SUCCESS');
         setIsPlaying(true);
+        setIsMuted(false);
         hasAutoPlayed.current = true;
-      }).catch(() => {
+      }).catch((err) => {
+        console.log('[SmartDetection] Manual play blocked, trying muted:', err.message);
         video.muted = true;
         setIsMuted(true);
         video.play().then(() => {
+          console.log('[SmartDetection] ✅ Manual play SUCCESS (muted)');
           setIsPlaying(true);
           hasAutoPlayed.current = true;
-        }).catch(() => {});
+        }).catch((err2) => {
+          console.log('[SmartDetection] ❌ Manual play completely blocked:', err2.message);
+        });
       });
     } else {
+      console.log('[SmartDetection] Pausing video');
       video.pause();
       setIsPlaying(false);
     }
@@ -536,9 +676,13 @@ export function EmbeddedVideoDevice({
 
   // Handle MuxPlayer loaded event
   const handleVideoLoaded = useCallback(() => {
-    console.log('[SmartDetection] Video loaded and ready');
-    setIsVideoReady(true);
-    videoRef.current = null; // Clear cached ref to force re-query
+    console.log('[SmartDetection] MuxPlayer fired loaded event');
+    // Don't set ready immediately - give MuxPlayer time to fully render
+    // MuxPlayer needs extra time to inject video element into DOM
+    setTimeout(() => {
+      console.log('[SmartDetection] Setting video ready after delay');
+      setIsVideoReady(true);
+    }, 300);
   }, []);
 
   // CRITICAL: When video becomes ready, check visibility and auto-play
@@ -548,25 +692,46 @@ export function EmbeddedVideoDevice({
   useEffect(() => {
     if (!isVideoReady || hasAutoPlayed.current) return;
 
-    console.log('[SmartDetection] Video ready, checking initial visibility...');
+    console.log('[SmartDetection] Video ready, starting auto-play sequence...');
 
-    // Small delay to ensure DOM is settled
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    // Retry function - MuxPlayer may need multiple attempts to find video element
     const checkAndPlay = () => {
+      attempts++;
+      console.log(`[SmartDetection] Auto-play attempt ${attempts}/${maxAttempts}`);
+
+      const video = getVideoElement();
+
+      if (!video) {
+        if (attempts < maxAttempts) {
+          console.log('[SmartDetection] Video element not ready, retrying in 200ms...');
+          setTimeout(checkAndPlay, 200);
+          return;
+        } else {
+          console.log('[SmartDetection] ❌ Failed to find video element after max attempts');
+          return;
+        }
+      }
+
+      console.log('[SmartDetection] ✅ Video element found!');
+
       const visibility = getVisibilityRatio();
-      console.log(`[SmartDetection] Initial visibility: ${(visibility * 100).toFixed(0)}%`);
+      console.log(`[SmartDetection] Current visibility: ${(visibility * 100).toFixed(0)}%`);
 
       if (visibility > 0.5) {
-        console.log('[SmartDetection] Video >50% visible on load, triggering auto-play');
+        console.log('[SmartDetection] Video >50% visible, triggering auto-play');
         attemptAutoPlay();
       } else {
         console.log('[SmartDetection] Video not visible enough yet, waiting for scroll');
       }
     };
 
-    // Wait a bit for MuxPlayer to fully initialize
+    // Start checking after initial delay for MuxPlayer to fully render
     const timeoutId = setTimeout(checkAndPlay, 500);
     return () => clearTimeout(timeoutId);
-  }, [isVideoReady, getVisibilityRatio, attemptAutoPlay]);
+  }, [isVideoReady, getVisibilityRatio, attemptAutoPlay, getVideoElement]);
 
   const handleVideoEnd = useCallback(() => {
     localStorage.setItem(`video_seen:${lessonId}`, 'completed');
