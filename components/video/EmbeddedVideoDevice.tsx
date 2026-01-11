@@ -569,178 +569,47 @@ export function EmbeddedVideoDevice({
           }}
         />
 
-        {/* === GRAVITATIONAL DISTORTION LAYERS === */}
-        {/* These create the space-bending shadow effect around the video panel */}
+        {/* === GRAVITATIONAL DISTORTION - Space Pressure Effect === */}
+        {/* Shadow starts DARK at video edge and fades outward with ondulation */}
         <div className="relative mx-auto max-w-2xl">
 
-          {/* Layer 5: Outermost Space Warp - slowest, most subtle */}
-          <div
-            className="absolute inset-0 rounded-[40px] pointer-events-none"
-            style={{
-              background: `
-                radial-gradient(ellipse 100% 100% at 50% 50%,
-                  transparent 60%,
-                  rgba(0, 0, 0, 0.05) 70%,
-                  rgba(0, 0, 0, 0.1) 80%,
-                  rgba(0, 0, 0, 0.15) 90%,
-                  rgba(0, 0, 0, 0.2) 100%
-                )
-              `,
-              transform: 'scale(1.35)',
-              animation: 'spaceWarp 12s ease-in-out infinite',
-              filter: 'blur(30px)',
-            }}
-          />
-
-          {/* Layer 4: Tertiary Ripple - outer wave */}
-          <div
-            className="absolute inset-0 rounded-[36px] pointer-events-none"
-            style={{
-              background: `
-                radial-gradient(ellipse 100% 100% at 50% 50%,
-                  transparent 55%,
-                  rgba(0, 0, 0, 0.08) 65%,
-                  rgba(0, 0, 0, 0.15) 75%,
-                  rgba(0, 0, 0, 0.22) 85%,
-                  rgba(0, 0, 0, 0.28) 100%
-                )
-              `,
-              transform: 'scale(1.25)',
-              animation: 'gravitationalRipple3 8s ease-in-out infinite',
-              filter: 'blur(20px)',
-            }}
-          />
-
-          {/* Layer 3: Secondary Ripple - middle wave with texture */}
-          <div
-            className="absolute inset-0 rounded-[32px] pointer-events-none"
-            style={{
-              background: `
-                radial-gradient(ellipse 100% 100% at 50% 50%,
-                  transparent 50%,
-                  rgba(0, 0, 0, 0.12) 60%,
-                  rgba(0, 0, 0, 0.25) 70%,
-                  rgba(0, 0, 0, 0.35) 80%,
-                  rgba(0, 0, 0, 0.45) 90%,
-                  rgba(0, 0, 0, 0.5) 100%
-                )
-              `,
-              transform: 'scale(1.15)',
-              animation: 'gravitationalRipple2 6s ease-in-out infinite',
-              filter: 'blur(12px)',
-            }}
-          />
-
-          {/* Layer 2: Primary Ripple - inner wave, darker */}
-          <div
-            className="absolute inset-0 rounded-[28px] pointer-events-none"
-            style={{
-              background: `
-                radial-gradient(ellipse 100% 100% at 50% 50%,
-                  transparent 45%,
-                  rgba(0, 0, 0, 0.2) 55%,
-                  rgba(0, 0, 0, 0.4) 65%,
-                  rgba(0, 0, 0, 0.55) 75%,
-                  rgba(0, 0, 0, 0.7) 85%,
-                  rgba(0, 0, 0, 0.8) 100%
-                )
-              `,
-              transform: 'scale(1.08)',
-              animation: 'gravitationalRipple1 4s ease-in-out infinite',
-              filter: 'blur(6px)',
-            }}
-          />
-
-          {/* Layer 1: Event Horizon - the darkest core shadow */}
-          <div
-            className="absolute inset-0 rounded-3xl pointer-events-none"
-            style={{
-              boxShadow: `
-                0 0 40px 10px rgba(0, 0, 0, 0.9),
-                0 0 80px 20px rgba(0, 0, 0, 0.7),
-                0 0 120px 30px rgba(0, 0, 0, 0.5),
-                0 0 160px 40px rgba(0, 0, 0, 0.3),
-                inset 0 0 100px 30px rgba(0, 0, 0, 0.4)
-              `,
-              animation: 'eventHorizon 5s ease-in-out infinite',
-            }}
-          />
-
-          {/* Chromatic Edge Effect - subtle color distortion at edges */}
-          <div
-            className="absolute inset-0 rounded-3xl pointer-events-none overflow-hidden"
-            style={{
-              background: `
-                linear-gradient(135deg,
-                  rgba(139, 92, 246, 0.03) 0%,
-                  transparent 20%,
-                  transparent 80%,
-                  rgba(6, 182, 212, 0.03) 100%
-                )
-              `,
-              transform: 'scale(1.02)',
-              animation: 'chromaticShift 3s ease-in-out infinite',
-            }}
-          />
-
-          {/* Nebula Layer - mystical cosmic texture */}
-          <div
-            className="absolute inset-0 rounded-[34px] pointer-events-none"
-            style={{
-              background: `
-                radial-gradient(circle at 30% 40%,
-                  rgba(139, 92, 246, 0.06) 0%,
-                  transparent 40%
-                ),
-                radial-gradient(circle at 70% 60%,
-                  rgba(6, 182, 212, 0.05) 0%,
-                  transparent 35%
-                ),
-                radial-gradient(circle at 50% 80%,
-                  rgba(236, 72, 153, 0.04) 0%,
-                  transparent 30%
-                )
-              `,
-              transform: 'scale(1.2)',
-              animation: 'nebulaBreath 15s ease-in-out infinite',
-              filter: 'blur(25px)',
-              mixBlendMode: 'overlay',
-            }}
-          />
-
-          {/* Dark Matter Shimmer - adds depth perception */}
-          <div
-            className="absolute inset-0 rounded-[38px] pointer-events-none"
-            style={{
-              background: `
-                linear-gradient(90deg,
-                  transparent 0%,
-                  rgba(0, 0, 0, 0.02) 25%,
-                  rgba(0, 0, 0, 0.05) 50%,
-                  rgba(0, 0, 0, 0.02) 75%,
-                  transparent 100%
-                )
-              `,
-              backgroundSize: '200% 100%',
-              transform: 'scale(1.3)',
-              animation: 'darkMatterShimmer 8s ease-in-out infinite',
-            }}
-          />
-
-          {/* Gravity Well Core - deepest shadow pressure */}
-          <div
-            className="absolute inset-0 rounded-3xl pointer-events-none"
-            style={{
-              animation: 'gravityWellPulse 7s ease-in-out infinite',
-            }}
-          />
-
-        {/* Video Container */}
+        {/* Video Container with Floating Animation */}
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          animate={{
+            opacity: 1,
+            y: [0, -8, 0],
+            scale: 1
+          }}
+          transition={{
+            opacity: { duration: 0.6, ease: 'easeOut' },
+            y: { duration: 6, ease: 'easeInOut', repeat: Infinity },
+            scale: { duration: 0.6, ease: 'easeOut' }
+          }}
           className="relative"
+          style={{
+            /* GRAVITATIONAL SHADOW: Dark at edge, fading outward with ondulation */
+            boxShadow: `
+              /* Core shadow - almost black at the edge */
+              0 0 0 2px rgba(0, 0, 0, 0.85),
+
+              /* First ondulation - darkest */
+              0 4px 20px -2px rgba(0, 0, 0, 0.9),
+              0 8px 30px -4px rgba(0, 0, 0, 0.8),
+
+              /* Second ondulation - medium dark */
+              0 15px 45px -8px rgba(0, 0, 0, 0.7),
+              0 25px 60px -12px rgba(0, 0, 0, 0.55),
+
+              /* Third ondulation - fading */
+              0 40px 80px -20px rgba(0, 0, 0, 0.4),
+              0 60px 100px -30px rgba(0, 0, 0, 0.25),
+
+              /* Outer dissipation - subtle */
+              0 80px 120px -40px rgba(0, 0, 0, 0.15),
+              0 100px 150px -50px rgba(0, 0, 0, 0.08)
+            `,
+          }}
         >
           {/* Video Frame */}
           <div

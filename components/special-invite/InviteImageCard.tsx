@@ -99,7 +99,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden ${className}`}>
+    <div className={`bg-white/70 dark:bg-slate-800/60 backdrop-blur-md rounded-xl shadow-xl overflow-hidden border border-white/20 dark:border-slate-600/30 ${className}`}>
       {/* YUGI-OH FUTURISTIC CARD HEADER */}
       <div className="relative overflow-hidden">
         {displayImage ? (

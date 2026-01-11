@@ -1254,7 +1254,7 @@ export function SpecialInviteFlow({
           </div>
         ) : (
           /* Default Help Section for other steps */
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+          <div className="bg-white/70 dark:bg-slate-800/60 backdrop-blur-md rounded-lg shadow-lg p-6 border border-white/20 dark:border-slate-600/30">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               🎟️ {t('helpSection.title')}
             </h3>
@@ -1293,7 +1293,7 @@ export function SpecialInviteFlow({
 
       {/* Right Panel - Flow Content */}
       <div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 relative">
+        <div className="bg-white/70 dark:bg-slate-800/60 backdrop-blur-md rounded-xl shadow-xl p-6 relative border border-white/20 dark:border-slate-600/30">
           {renderStepContent()}
         </div>
 
