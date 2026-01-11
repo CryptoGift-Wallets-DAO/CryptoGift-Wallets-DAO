@@ -19,6 +19,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { Play, Volume2, VolumeX } from 'lucide-react';
+import { VideoExperienceHint } from '@/components/ui/RotatePhoneHint';
 
 // Lazy load Mux Player for optimization
 const MuxPlayer = dynamic(
@@ -253,6 +254,53 @@ export function EmbeddedVideoDevice({
     }
   }, []);
 
+  // Calculate visibility ratio manually (for initial check)
+  const getVisibilityRatio = useCallback((): number => {
+    if (!containerRef.current) return 0;
+    const rect = containerRef.current.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+
+    // Completely off screen
+    if (rect.bottom < 0 || rect.top > windowHeight) return 0;
+
+    // Calculate visible portion
+    const visibleTop = Math.max(0, rect.top);
+    const visibleBottom = Math.min(windowHeight, rect.bottom);
+    const visibleHeight = visibleBottom - visibleTop;
+
+    return visibleHeight / rect.height;
+  }, []);
+
+  // Attempt auto-play with fallback to muted
+  const attemptAutoPlay = useCallback(() => {
+    const video = getVideoElement();
+    if (!video || hasAutoPlayed.current) return;
+
+    console.log('[SmartDetection] Attempting auto-play...');
+
+    video.volume = AUTO_PLAY_VOLUME;
+    video.muted = false;
+
+    video.play().then(() => {
+      console.log('[SmartDetection] ✅ Auto-play SUCCESS with audio');
+      hasAutoPlayed.current = true;
+      setIsPlaying(true);
+      setVolume(AUTO_PLAY_VOLUME);
+    }).catch((err) => {
+      console.log('[SmartDetection] ⚠️ Auto-play with audio blocked, trying muted...', err);
+      // Fallback: try muted
+      video.muted = true;
+      setIsMuted(true);
+      video.play().then(() => {
+        console.log('[SmartDetection] ✅ Auto-play SUCCESS (muted)');
+        hasAutoPlayed.current = true;
+        setIsPlaying(true);
+      }).catch((err2) => {
+        console.log('[SmartDetection] ❌ Auto-play completely blocked', err2);
+      });
+    });
+  }, [getVideoElement]);
+
   // Get video element from MuxPlayer
   const getVideoElement = useCallback((): HTMLVideoElement | null => {
     if (videoRef.current) return videoRef.current;
@@ -430,36 +478,23 @@ export function EmbeddedVideoDevice({
       (entries) => {
         entries.forEach((entry) => {
           const visibilityRatio = entry.intersectionRatio;
-          const video = getVideoElement();
 
           // Auto-play when >50% visible (NO CLICK REQUIRED)
-          if (visibilityRatio > 0.5 && !hasAutoPlayed.current && video && isVideoReady) {
-            if (video.paused) {
-              video.volume = AUTO_PLAY_VOLUME;
-              video.muted = false;
-              video.play().then(() => {
-                hasAutoPlayed.current = true;
-                setIsPlaying(true);
-                setVolume(AUTO_PLAY_VOLUME);
-              }).catch(() => {
-                // Auto-play blocked, try muted
-                video.muted = true;
-                setIsMuted(true);
-                video.play().then(() => {
-                  hasAutoPlayed.current = true;
-                  setIsPlaying(true);
-                }).catch(() => {});
-              });
-            }
+          // This handles the case where user scrolls down to reveal video
+          if (visibilityRatio > 0.5 && !hasAutoPlayed.current && isVideoReady) {
+            console.log(`[SmartDetection] Observer: ${(visibilityRatio * 100).toFixed(0)}% visible, triggering auto-play`);
+            attemptAutoPlay();
           }
 
           // Enter PiP when <30% visible and video is playing
           if (visibilityRatio < 0.3 && isPlaying && !isInPiP) {
+            console.log('[SmartDetection] Video <30% visible, entering PiP mode');
             enterPiP();
           }
 
           // Exit PiP when >50% visible again
           if (visibilityRatio > 0.5 && isInPiP) {
+            console.log('[SmartDetection] Video >50% visible again, exiting PiP mode');
             exitPiP();
           }
         });
@@ -472,7 +507,7 @@ export function EmbeddedVideoDevice({
 
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [isPlaying, isInPiP, isVideoReady, getVideoElement, enterPiP, exitPiP]);
+  }, [isPlaying, isInPiP, isVideoReady, attemptAutoPlay, enterPiP, exitPiP]);
 
   // Handle click to play/pause
   const handleVideoClick = useCallback(() => {
@@ -501,9 +536,37 @@ export function EmbeddedVideoDevice({
 
   // Handle MuxPlayer loaded event
   const handleVideoLoaded = useCallback(() => {
+    console.log('[SmartDetection] Video loaded and ready');
     setIsVideoReady(true);
     videoRef.current = null; // Clear cached ref to force re-query
   }, []);
+
+  // CRITICAL: When video becomes ready, check visibility and auto-play
+  // This is needed because IntersectionObserver only fires on CHANGES,
+  // not on initial state. If video loads while already visible, we need
+  // to manually trigger auto-play.
+  useEffect(() => {
+    if (!isVideoReady || hasAutoPlayed.current) return;
+
+    console.log('[SmartDetection] Video ready, checking initial visibility...');
+
+    // Small delay to ensure DOM is settled
+    const checkAndPlay = () => {
+      const visibility = getVisibilityRatio();
+      console.log(`[SmartDetection] Initial visibility: ${(visibility * 100).toFixed(0)}%`);
+
+      if (visibility > 0.5) {
+        console.log('[SmartDetection] Video >50% visible on load, triggering auto-play');
+        attemptAutoPlay();
+      } else {
+        console.log('[SmartDetection] Video not visible enough yet, waiting for scroll');
+      }
+    };
+
+    // Wait a bit for MuxPlayer to fully initialize
+    const timeoutId = setTimeout(checkAndPlay, 500);
+    return () => clearTimeout(timeoutId);
+  }, [isVideoReady, getVisibilityRatio, attemptAutoPlay]);
 
   const handleVideoEnd = useCallback(() => {
     localStorage.setItem(`video_seen:${lessonId}`, 'completed');
@@ -711,30 +774,21 @@ export function EmbeddedVideoDevice({
         </div>
         {/* End of GRAVITATIONAL DISTORTION LAYERS container */}
 
-        {/* 2× Double-click hint - Minimal, no classic emoji */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="flex items-center justify-center gap-1.5 mt-3 relative z-10"
-        >
-          <span className="text-white/40 text-xs font-medium">2×</span>
-          <svg className="w-3.5 h-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-          </svg>
-          <span className="text-white/40 text-xs hidden sm:inline">Double-click to expand</span>
-          <span className="text-white/40 text-xs sm:hidden">Doble-tap para expandir</span>
-        </motion.div>
+        {/* Video Experience Hint - EXACT same component as Home VideoCarousel */}
+        {/* Shows animated mouse + 2× for Desktop, Rotate phone for Mobile */}
+        <div className="mt-3 relative z-10">
+          <VideoExperienceHint />
+        </div>
 
-        {/* Description Below - Original style with subtle text-shadow only */}
+        {/* Description Below - Normal text with subtle shadow only, no glow */}
         {description && (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-center text-sm text-cyan-300/90 mt-4 max-w-md mx-auto relative z-10 whitespace-pre-line"
+            className="text-center text-sm text-cyan-300/80 mt-3 max-w-md mx-auto relative z-10"
             style={{
-              textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+              textShadow: '0 1px 3px rgba(0,0,0,0.5)',
             }}
           >
             {description}
