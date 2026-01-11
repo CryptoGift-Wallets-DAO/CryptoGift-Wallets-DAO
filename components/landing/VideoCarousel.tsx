@@ -536,7 +536,22 @@ export function VideoCarousel() {
         transition: translateX === 0 ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
       }}
     >
-      {/* AMBIENT MODE: Glow layer behind video */}
+      {/* PERMANENT GRADIENT SHADOW - Beautiful aura effect behind video panel */}
+      <div
+        className="absolute -inset-8 -z-20 pointer-events-none"
+        style={{
+          background: `
+            radial-gradient(ellipse 80% 60% at 50% 40%, rgba(139, 92, 246, 0.25) 0%, transparent 70%),
+            radial-gradient(ellipse 60% 80% at 30% 60%, rgba(59, 130, 246, 0.20) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 80% at 70% 60%, rgba(6, 182, 212, 0.18) 0%, transparent 60%)
+          `,
+          filter: 'blur(40px)',
+          opacity: 0.8,
+          animation: 'pulse 8s ease-in-out infinite',
+        }}
+      />
+
+      {/* AMBIENT MODE: Dynamic glow layer that reacts to video colors */}
       {isPlaying && (
         <div
           className="absolute inset-0 -z-10 pointer-events-none"
