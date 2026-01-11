@@ -569,8 +569,8 @@ export function EmbeddedVideoDevice({
           }}
         />
 
-        {/* === GRAVITATIONAL DISTORTION - Space Pressure Effect === */}
-        {/* Shadow starts DARK at video edge and fades outward with ondulation */}
+        {/* === GRAVITATIONAL DISTORTION - Symmetric Radial Shadow === */}
+        {/* Shadow emanates uniformly from video edges in all directions */}
         <div className="relative mx-auto max-w-2xl">
 
         {/* Video Container with Floating Animation */}
@@ -586,50 +586,39 @@ export function EmbeddedVideoDevice({
             y: { duration: 6, ease: 'easeInOut', repeat: Infinity },
             scale: { duration: 0.6, ease: 'easeOut' }
           }}
-          className="relative"
+          className="relative rounded-3xl"
           style={{
-            /* GRAVITATIONAL SHADOW: Dark at edge, fading outward with ondulation */
+            /* SYMMETRIC GRAVITATIONAL SHADOW: Radiates equally in all directions */
             boxShadow: `
-              /* Core shadow - almost black at the edge */
-              0 0 0 2px rgba(0, 0, 0, 0.85),
+              /* First wave - darkest, closest to edge */
+              0 0 15px 0 rgba(0, 0, 0, 0.85),
 
-              /* First ondulation - darkest */
-              0 4px 20px -2px rgba(0, 0, 0, 0.9),
-              0 8px 30px -4px rgba(0, 0, 0, 0.8),
+              /* Second wave - dark */
+              0 0 35px 5px rgba(0, 0, 0, 0.65),
 
-              /* Second ondulation - medium dark */
-              0 15px 45px -8px rgba(0, 0, 0, 0.7),
-              0 25px 60px -12px rgba(0, 0, 0, 0.55),
+              /* Third wave - medium */
+              0 0 60px 10px rgba(0, 0, 0, 0.45),
 
-              /* Third ondulation - fading */
-              0 40px 80px -20px rgba(0, 0, 0, 0.4),
-              0 60px 100px -30px rgba(0, 0, 0, 0.25),
+              /* Fourth wave - fading */
+              0 0 90px 20px rgba(0, 0, 0, 0.28),
 
-              /* Outer dissipation - subtle */
-              0 80px 120px -40px rgba(0, 0, 0, 0.15),
-              0 100px 150px -50px rgba(0, 0, 0, 0.08)
+              /* Fifth wave - subtle */
+              0 0 120px 35px rgba(0, 0, 0, 0.15),
+
+              /* Outer dissipation - very subtle */
+              0 0 160px 50px rgba(0, 0, 0, 0.08)
             `,
           }}
         >
-          {/* Video Frame */}
+          {/* Video Frame - Clean edges, no extra shadows */}
           <div
             className="relative rounded-3xl overflow-hidden cursor-pointer"
             onClick={handleVideoClick}
             style={{
+              /* Only subtle ambient glow when playing - no hard edges */
               boxShadow: isPlaying
-                ? `
-                    0 30px 60px -15px rgba(0, 0, 0, 0.5),
-                    0 0 0 1px rgba(255, 255, 255, 0.08),
-                    0 0 100px -20px ${ambientColors.dominant},
-                    0 0 60px -10px ${ambientColors.secondary},
-                    inset 0 1px 0 rgba(255, 255, 255, 0.15)
-                  `
-                : `
-                    0 25px 50px -12px rgba(0, 0, 0, 0.4),
-                    0 0 0 1px rgba(255, 255, 255, 0.05),
-                    0 0 60px -15px rgba(139, 92, 246, 0.25),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.1)
-                  `,
+                ? `0 0 80px -15px ${ambientColors.dominant}, 0 0 50px -10px ${ambientColors.secondary}`
+                : 'none',
               transition: 'box-shadow 0.5s ease-out',
             }}
           >
@@ -722,13 +711,31 @@ export function EmbeddedVideoDevice({
         </div>
         {/* End of GRAVITATIONAL DISTORTION LAYERS container */}
 
-        {/* Description Below */}
+        {/* 2× Double-click hint - Minimal, no classic emoji */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="flex items-center justify-center gap-1.5 mt-3 relative z-10"
+        >
+          <span className="text-white/40 text-xs font-medium">2×</span>
+          <svg className="w-3.5 h-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+          <span className="text-white/40 text-xs hidden sm:inline">Double-click to expand</span>
+          <span className="text-white/40 text-xs sm:hidden">Doble-tap para expandir</span>
+        </motion.div>
+
+        {/* Description Below - Original style with subtle text-shadow only */}
         {description && (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-center text-sm text-gray-600 dark:text-gray-400 mt-4 max-w-md mx-auto"
+            className="text-center text-sm text-cyan-300/90 mt-4 max-w-md mx-auto relative z-10 whitespace-pre-line"
+            style={{
+              textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+            }}
           >
             {description}
           </motion.p>

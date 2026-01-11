@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { NFTImageModal } from './NFTImageModal';
 import { useAutoTranslate } from '@/hooks/useAutoTranslate';
@@ -223,21 +224,45 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
         {/* ========================================================== */}
         {showIntroVideo && status === 'active' && (
           <div className="mt-6">
-            {/* Section Header */}
-            <div className="text-center mb-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-cyan-100 dark:from-purple-900/30 dark:to-cyan-900/30 rounded-full border border-purple-200 dark:border-purple-700">
-                <span className="text-lg">🎬</span>
-                <span className="text-sm font-semibold bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
-                  {t('introVideo.badge', { defaultValue: 'Descubre CryptoGift' })}
-                </span>
-              </div>
+            {/* Floating Pills - EXACT COPY from Home Page Design */}
+            <div className="flex items-center justify-center gap-2 mb-4 relative z-10">
+              {/* Pill 1: Discover CryptoGift - EXACT home style */}
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{
+                  opacity: 1,
+                  y: [0, -2, 0]
+                }}
+                transition={{
+                  opacity: { duration: 0.3, ease: 'easeOut' },
+                  y: { duration: 4, ease: 'easeInOut', repeat: Infinity }
+                }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/50 dark:bg-white/10 backdrop-blur-sm rounded-full border border-gray-200 dark:border-white/20"
+              >
+                <span className="text-xs font-medium text-gray-700 dark:text-white">Discover CryptoGift</span>
+              </motion.div>
+
+              {/* Pill 2: El Regalo - EXACT home style */}
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{
+                  opacity: 1,
+                  y: [0, -2, 0]
+                }}
+                transition={{
+                  opacity: { duration: 0.3, ease: 'easeOut', delay: 0.1 },
+                  y: { duration: 4.2, ease: 'easeInOut', repeat: Infinity, delay: 0.2 }
+                }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/50 dark:bg-white/10 backdrop-blur-sm rounded-full border border-gray-200 dark:border-white/20"
+              >
+                <span className="text-xs font-medium text-gray-700 dark:text-white">El Regalo</span>
+              </motion.div>
             </div>
 
-            {/* Embedded Video Device */}
+            {/* Embedded Video Device - Sin title para evitar duplicado */}
             <EmbeddedVideoDevice
               muxPlaybackId={VIDEO_CONFIG.salesMasterclassV2_TheGift.muxPlaybackId}
               lessonId={VIDEO_CONFIG.salesMasterclassV2_TheGift.lessonId}
-              title={VIDEO_CONFIG.salesMasterclassV2_TheGift.title}
               description={VIDEO_CONFIG.salesMasterclassV2_TheGift.description}
               onVideoComplete={onVideoComplete}
               className="mb-4"
