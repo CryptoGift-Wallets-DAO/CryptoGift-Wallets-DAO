@@ -647,11 +647,11 @@ export function EmbeddedVideoDevice({
           }}
           className="relative rounded-3xl overflow-hidden"
           style={{
-            /* Concentrated box-shadow - half distance for tighter effect */
+            /* Symmetric box-shadow - equal in ALL directions (no vertical offset) */
             boxShadow: `
-              0 4px 15px rgba(0, 0, 0, 0.4),
-              0 8px 25px rgba(0, 0, 0, 0.3),
-              0 15px 40px rgba(0, 0, 0, 0.2)
+              0 0 15px rgba(0, 0, 0, 0.4),
+              0 0 25px rgba(0, 0, 0, 0.3),
+              0 0 40px rgba(0, 0, 0, 0.2)
             `,
             /* Hardware acceleration to prevent mobile repaint glitches */
             transform: 'translateZ(0)',
