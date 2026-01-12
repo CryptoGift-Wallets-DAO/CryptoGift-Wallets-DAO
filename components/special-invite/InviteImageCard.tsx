@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { NFTImageModal } from './NFTImageModal';
 import { useAutoTranslate } from '@/hooks/useAutoTranslate';
 import { EmbeddedVideoDevice } from '@/components/video/EmbeddedVideoDevice';
-import { VIDEO_CONFIG } from '@/config/videoConfig';
+import { VIDEO_CONFIG as VIDEO_CONFIG_ES } from '@/config/videoConfig';
+import { VIDEO_CONFIG as VIDEO_CONFIG_EN } from '@/config/videoConfigEN';
 
 interface InviteImageCardProps {
   image: string;
@@ -52,8 +53,14 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
 }) => {
   const t = useTranslations('inviteCard');
   const tVideo = useTranslations('video');
+  const locale = useLocale();
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  // Select video config based on current locale (ES = Spanish, EN = English)
+  const VIDEO_CONFIG = useMemo(() => {
+    return locale === 'es' ? VIDEO_CONFIG_ES : VIDEO_CONFIG_EN;
+  }, [locale]);
 
   // Auto-translate message based on current locale (uses Lingva API)
   const { translatedText: displayMessage, isTranslating } = useAutoTranslate(customMessage);
