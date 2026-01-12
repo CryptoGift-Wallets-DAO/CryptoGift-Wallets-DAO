@@ -374,16 +374,9 @@ export function EmbeddedVideoDevice({
     <>
       <style jsx global>{animationStyles}</style>
 
-      {/* MAIN CONTAINER - Contains both placeholder and video */}
-      {/* CRITICAL: minHeight prevents container collapse when video goes fixed */}
-      <div
-        ref={placeholderRef}
-        className={`relative ${className}`}
-        style={{
-          minHeight: originalHeight > 0 ? `${originalHeight}px` : 'auto',
-        }}
-      >
-        {/* Placeholder visual - Shows when video is in sticky mode */}
+      {/* ANCHOR - This div is ALWAYS in the document flow for IntersectionObserver */}
+      <div ref={placeholderRef} className={className}>
+        {/* PLACEHOLDER - Only shows when video is floating (maintains layout space) */}
         {isSticky && originalHeight > 0 && (
           <div
             className="rounded-3xl border border-white/5 flex items-center justify-center overflow-hidden"
@@ -408,21 +401,19 @@ export function EmbeddedVideoDevice({
 
         {/*
           VIDEO PANEL - SINGLE INSTANCE, NEVER REMOUNTS
-          When sticky: position fixed below navbar
-          When normal: position relative in document flow
-
-          CRITICAL: Using absolute positioning when NOT sticky to stay
-          within the minHeight container, preventing visual jumps
+          - NOT sticky: position RELATIVE = in normal document flow
+          - Sticky: position FIXED = floating below navbar
         */}
         <div
           ref={videoContainerRef}
-          style={{
-            position: isSticky ? 'fixed' : 'absolute',
-            top: isSticky ? `${NAVBAR_HEIGHT}px` : 0,
-            left: 0,
-            right: 0,
-            zIndex: isSticky ? 9999 : 1,
-            padding: isSticky ? '0 1rem' : 0,
+          style={isSticky ? {
+            position: 'fixed',
+            top: `${NAVBAR_HEIGHT}px`,
+            left: '1rem',
+            right: '1rem',
+            zIndex: 9999,
+          } : {
+            position: 'relative',
           }}
         >
           <motion.div
