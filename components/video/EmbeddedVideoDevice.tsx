@@ -231,6 +231,8 @@ export function EmbeddedVideoDevice({
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [showUnmuteHint, setShowUnmuteHint] = useState(false);
   const [isFirefox, setIsFirefox] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showClickToPlay, setShowClickToPlay] = useState(false); // PC: Show click to play overlay
 
   // Ambient Mode state
   const [ambientColors, setAmbientColors] = useState({
@@ -247,14 +249,33 @@ export function EmbeddedVideoDevice({
   // CRITICAL: Unique DOM ID for MuxPlayer - dynamic() doesn't forward refs!
   const muxPlayerId = `mux-player-${lessonId}`;
 
-  // Detect Firefox browser (doesn't support standard PiP API)
+  // Detect Firefox browser and Mobile device
   useEffect(() => {
-    if (typeof navigator !== 'undefined') {
+    if (typeof navigator !== 'undefined' && typeof window !== 'undefined') {
+      // Firefox detection
       const isFF = navigator.userAgent.toLowerCase().includes('firefox');
       setIsFirefox(isFF);
       if (isFF) {
         console.log('[SmartDetection] Firefox detected - standard PiP API not supported');
-        console.log('[SmartDetection] Users can use Firefox native PiP (right-click video or use toolbar icon)');
+      }
+
+      // Mobile detection (touch device + small screen)
+      const checkMobile = () => {
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const isSmallScreen = window.innerWidth < 768;
+        const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        return (isTouchDevice && isSmallScreen) || mobileUA;
+      };
+
+      const mobile = checkMobile();
+      setIsMobile(mobile);
+      console.log('[SmartDetection] Device type:', mobile ? 'MOBILE' : 'PC');
+
+      // PC: Show "Click to Play" overlay (video starts paused)
+      // Mobile: Auto-play works with audio
+      if (!mobile) {
+        setShowClickToPlay(true);
+        console.log('[SmartDetection] PC mode: Video will start PAUSED, click to play with audio');
       }
     }
   }, []);
@@ -677,6 +698,11 @@ export function EmbeddedVideoDevice({
 
     console.log('[SmartDetection] ✅ Click: MuxPlayer found via DOM ID');
 
+    // Hide "Click to Play" overlay on PC
+    if (showClickToPlay) {
+      setShowClickToPlay(false);
+    }
+
     // Check if paused using MuxPlayer API
     const isPaused = player.paused;
     console.log('[SmartDetection] Click: MuxPlayer paused:', isPaused);
@@ -687,11 +713,12 @@ export function EmbeddedVideoDevice({
       player.muted = false;
       setVolume(AUTO_PLAY_VOLUME);
       setIsMuted(false);
+      setAudioUnlocked(true); // Mark audio as unlocked
 
       const playPromise = player.play();
       if (playPromise && typeof playPromise.then === 'function') {
         playPromise.then(() => {
-          console.log('[SmartDetection] ✅ Manual play SUCCESS');
+          console.log('[SmartDetection] ✅ Manual play SUCCESS with audio');
           setIsPlaying(true);
           setIsMuted(false);
           hasAutoPlayed.current = true;
@@ -717,6 +744,72 @@ export function EmbeddedVideoDevice({
       player.pause();
       setIsPlaying(false);
     }
+  }, [getMuxPlayer, showClickToPlay]);
+
+  // FULLSCREEN - Double-click to enter/exit fullscreen
+  const handleDoubleClick = useCallback(() => {
+    console.log('[SmartDetection] Double-click detected, toggling fullscreen');
+
+    const player = getMuxPlayer();
+    if (!player) return;
+
+    // Try to get the video element or the player container
+    const getVideoElement = (): HTMLVideoElement | null => {
+      // Method 1: Try Shadow DOM
+      if (player.shadowRoot) {
+        const video = player.shadowRoot.querySelector('video');
+        if (video) return video;
+
+        // Try media-controller
+        const mediaController = player.shadowRoot.querySelector('media-controller');
+        if (mediaController) {
+          if (mediaController.shadowRoot) {
+            const v = mediaController.shadowRoot.querySelector('video');
+            if (v) return v;
+          }
+          const v = mediaController.querySelector('video');
+          if (v && v instanceof HTMLVideoElement) return v;
+        }
+      }
+
+      // Method 2: player.media
+      if (player.media) {
+        const mediaEl = player.media.nativeEl || player.media;
+        if (mediaEl && mediaEl.tagName === 'VIDEO') {
+          return mediaEl as HTMLVideoElement;
+        }
+      }
+
+      return null;
+    };
+
+    const video = getVideoElement();
+
+    // Toggle fullscreen
+    if (document.fullscreenElement) {
+      // Exit fullscreen
+      document.exitFullscreen().catch((e) => {
+        console.log('[SmartDetection] Exit fullscreen error:', e);
+      });
+    } else {
+      // Enter fullscreen - try video first, then player container
+      const elementToFullscreen = video || player;
+
+      if (elementToFullscreen.requestFullscreen) {
+        elementToFullscreen.requestFullscreen().catch((e: Error) => {
+          console.log('[SmartDetection] Fullscreen error:', e.message);
+          // Fallback: try player container
+          if (video && player.requestFullscreen) {
+            player.requestFullscreen().catch((e2: Error) => {
+              console.log('[SmartDetection] Player fullscreen error:', e2.message);
+            });
+          }
+        });
+      } else if ((elementToFullscreen as any).webkitRequestFullscreen) {
+        // Safari support
+        (elementToFullscreen as any).webkitRequestFullscreen();
+      }
+    }
   }, [getMuxPlayer]);
 
   // Handle MuxPlayer loaded event
@@ -731,13 +824,19 @@ export function EmbeddedVideoDevice({
   }, []);
 
   // CRITICAL: When video becomes ready, check visibility and auto-play
-  // This is needed because IntersectionObserver only fires on CHANGES,
-  // not on initial state. If video loads while already visible, we need
-  // to manually trigger auto-play.
+  // PC: Video stays PAUSED, user must click to play (with audio)
+  // Mobile: Auto-play with audio works normally
   useEffect(() => {
     if (!isVideoReady || hasAutoPlayed.current) return;
 
-    console.log('[SmartDetection] Video ready, starting auto-play sequence...');
+    // PC MODE: Don't auto-play, wait for user click
+    if (!isMobile) {
+      console.log('[SmartDetection] PC MODE: Video ready but staying PAUSED. User must click to play.');
+      return;
+    }
+
+    // MOBILE MODE: Auto-play with audio
+    console.log('[SmartDetection] MOBILE MODE: Video ready, starting auto-play sequence...');
 
     let retryCount = 0;
     const maxRetries = 10;
@@ -773,7 +872,7 @@ export function EmbeddedVideoDevice({
     // Start checking after delay for MuxPlayer to fully initialize in DOM
     const timeoutId = setTimeout(checkAndPlay, 600);
     return () => clearTimeout(timeoutId);
-  }, [isVideoReady, getVisibilityRatio, attemptAutoPlay, getMuxPlayer]);
+  }, [isVideoReady, isMobile, getVisibilityRatio, attemptAutoPlay, getMuxPlayer]);
 
   const handleVideoEnd = useCallback(() => {
     localStorage.setItem(`video_seen:${lessonId}`, 'completed');
@@ -873,9 +972,11 @@ export function EmbeddedVideoDevice({
           }}
         >
           {/* Video Frame - Clean edges with border-radius on ALL layers */}
+          {/* Double-click for FULLSCREEN (PC + Mobile) */}
           <div
             className="relative rounded-3xl overflow-hidden cursor-pointer"
             onClick={handleVideoClick}
+            onDoubleClick={handleDoubleClick}
             style={{
               /* Ensure this layer also has hardware acceleration */
               transform: 'translateZ(0)',
@@ -924,43 +1025,71 @@ export function EmbeddedVideoDevice({
               />
               </div>
 
-              {/* Simple Play Overlay - Only when paused and ready */}
+              {/* Play Overlay - PC shows "Click to Play", Mobile shows simple play button */}
               {/* CRITICAL: Must have rounded-3xl to prevent ghost corners */}
               {!isPlaying && isVideoReady && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none rounded-3xl"
+                  className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none rounded-3xl"
                 >
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
-                  >
-                    <Play className="w-8 h-8 text-white ml-1" fill="white" />
-                  </motion.div>
+                  {/* PC MODE: Large "Click to Play" with text */}
+                  {showClickToPlay && !isMobile ? (
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="flex flex-col items-center gap-4 px-8 py-6 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20"
+                    >
+                      <motion.div
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
+                      >
+                        <Play className="w-10 h-10 text-white ml-1" fill="white" />
+                      </motion.div>
+                      <span className="text-white text-lg font-semibold">
+                        Click to Play
+                      </span>
+                      <span className="text-white/50 text-xs">
+                        Double-click for fullscreen
+                      </span>
+                    </motion.div>
+                  ) : (
+                    /* MOBILE MODE: Simple play button */
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
+                    >
+                      <Play className="w-8 h-8 text-white ml-1" fill="white" />
+                    </motion.div>
+                  )}
                 </motion.div>
               )}
 
               {/* AUDIO UNLOCK HINT - Shows when video plays muted due to browser policy */}
-              {/* Clicking anywhere on the page will unlock audio */}
+              {/* BIGGER + CENTERED - Clicking anywhere on the page will unlock audio */}
               {showUnmuteHint && isPlaying && isMuted && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none"
                 >
-                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 shadow-xl">
+                  <div className="flex flex-col items-center gap-3 px-8 py-5 rounded-2xl bg-black/80 backdrop-blur-lg border border-white/30 shadow-2xl max-w-[90%]">
                     <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
+                      animate={{ scale: [1, 1.3, 1] }}
+                      transition={{ duration: 1.2, repeat: Infinity }}
+                      className="p-3 rounded-full bg-amber-500/20"
                     >
-                      <VolumeX className="w-4 h-4 text-amber-400" />
+                      <VolumeX className="w-10 h-10 text-amber-400" />
                     </motion.div>
-                    <span className="text-white text-sm font-medium whitespace-nowrap">
+                    <span className="text-white text-lg font-semibold text-center">
                       Click anywhere to enable audio
+                    </span>
+                    <span className="text-white/60 text-sm text-center">
+                      Your browser requires user interaction
                     </span>
                   </div>
                 </motion.div>
