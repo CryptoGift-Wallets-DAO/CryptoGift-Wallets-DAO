@@ -238,156 +238,9 @@ export function EmbeddedVideoDevice({
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const muxPlayerRef = useRef<any>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ambientIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasAutoPlayed = useRef(false);
-
-  // Create canvas for color extraction
-  useEffect(() => {
-    if (typeof document !== 'undefined' && !canvasRef.current) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 16;
-      canvas.height = 9;
-      canvasRef.current = canvas;
-    }
-  }, []);
-
-  // PROACTIVE VIDEO DETECTION: Watch for video element to be added to DOM
-  // MuxPlayer dynamically injects <video> after loading, so we need to watch for it
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    // If we already have a video ref, no need to watch
-    if (videoRef.current && document.body.contains(videoRef.current)) return;
-
-    console.log('[SmartDetection] Setting up MutationObserver to detect video element...');
-
-    const observer = new MutationObserver((mutations) => {
-      // Check if a video element was added
-      for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) {
-          if (node instanceof HTMLVideoElement) {
-            console.log('[SmartDetection] 🎬 MutationObserver: Video element detected!');
-            videoRef.current = node;
-            return;
-          }
-          if (node instanceof Element) {
-            const video = node.querySelector('video');
-            if (video) {
-              console.log('[SmartDetection] 🎬 MutationObserver: Video found in added element!');
-              videoRef.current = video;
-              return;
-            }
-          }
-        }
-      }
-    });
-
-    observer.observe(containerRef.current, {
-      childList: true,
-      subtree: true,
-    });
-
-    // Also check shadow DOM of mux-player if it exists
-    const checkMuxShadow = () => {
-      if (muxPlayerRef.current?.shadowRoot) {
-        const shadowObserver = new MutationObserver(() => {
-          const video = muxPlayerRef.current?.shadowRoot?.querySelector('video');
-          if (video && !videoRef.current) {
-            console.log('[SmartDetection] 🎬 ShadowRoot: Video element detected!');
-            videoRef.current = video;
-          }
-        });
-        shadowObserver.observe(muxPlayerRef.current.shadowRoot, {
-          childList: true,
-          subtree: true,
-        });
-        return () => shadowObserver.disconnect();
-      }
-    };
-
-    // Delayed check for shadow DOM (MuxPlayer may not be ready immediately)
-    const shadowTimeout = setTimeout(checkMuxShadow, 500);
-
-    return () => {
-      observer.disconnect();
-      clearTimeout(shadowTimeout);
-    };
-  }, []);
-
-  // Get video element from MuxPlayer - MUST be declared before attemptAutoPlay
-  // MuxPlayer is a Web Component with Shadow DOM, so we need multiple strategies
-  const getVideoElement = useCallback((): HTMLVideoElement | null => {
-    // Return cached ref if valid
-    if (videoRef.current && document.body.contains(videoRef.current)) {
-      return videoRef.current;
-    }
-
-    // Reset cache
-    videoRef.current = null;
-
-    // Strategy 1: Search in container DOM (most reliable for MuxPlayer)
-    if (containerRef.current) {
-      const videoEl = containerRef.current.querySelector('video');
-      if (videoEl) {
-        console.log('[SmartDetection] Found video via container querySelector');
-        videoRef.current = videoEl;
-        return videoRef.current;
-      }
-    }
-
-    // Strategy 2: Search in muxPlayer's shadow DOM
-    if (muxPlayerRef.current) {
-      const muxElement = muxPlayerRef.current;
-
-      // Try shadowRoot first (MuxPlayer uses Shadow DOM)
-      if (muxElement?.shadowRoot) {
-        const videoEl = muxElement.shadowRoot.querySelector('video');
-        if (videoEl) {
-          console.log('[SmartDetection] Found video via shadowRoot');
-          videoRef.current = videoEl;
-          return videoRef.current;
-        }
-      }
-
-      // Try media-controller pattern
-      const mediaController = muxElement?.shadowRoot?.querySelector('media-controller');
-      if (mediaController?.shadowRoot) {
-        const videoEl = mediaController.shadowRoot.querySelector('video');
-        if (videoEl) {
-          console.log('[SmartDetection] Found video via media-controller');
-          videoRef.current = videoEl;
-          return videoRef.current;
-        }
-      }
-
-      // Try direct media property
-      if (muxElement?.media?.nativeEl) {
-        console.log('[SmartDetection] Found video via media.nativeEl');
-        videoRef.current = muxElement.media.nativeEl;
-        return videoRef.current;
-      }
-    }
-
-    // Strategy 3: Global document search as last resort
-    const allVideos = document.querySelectorAll('video');
-    if (allVideos.length > 0) {
-      // Find video that's inside our container
-      for (const video of allVideos) {
-        if (containerRef.current?.contains(video) ||
-            video.closest('[data-mux-player]')) {
-          console.log('[SmartDetection] Found video via document search');
-          videoRef.current = video;
-          return videoRef.current;
-        }
-      }
-    }
-
-    console.log('[SmartDetection] ❌ No video element found after all strategies');
-    return null;
-  }, []);
 
   // Calculate visibility ratio manually (for initial check)
   const getVisibilityRatio = useCallback((): number => {
@@ -407,118 +260,88 @@ export function EmbeddedVideoDevice({
   }, []);
 
   // Attempt auto-play with fallback to muted
+  // USES MuxPlayer API directly - no need to find video element in Shadow DOM
   const attemptAutoPlay = useCallback(() => {
     if (hasAutoPlayed.current) {
       console.log('[SmartDetection] Already auto-played, skipping');
       return;
     }
 
-    const video = getVideoElement();
-    if (!video) {
-      console.log('[SmartDetection] ❌ No video element for auto-play');
+    const player = muxPlayerRef.current;
+    if (!player) {
+      console.log('[SmartDetection] ❌ MuxPlayer ref not ready');
       return;
     }
 
-    console.log('[SmartDetection] Attempting auto-play on video element:', video.tagName);
-    console.log('[SmartDetection] Video readyState:', video.readyState);
-    console.log('[SmartDetection] Video src:', video.src ? 'has src' : 'no src');
+    console.log('[SmartDetection] Attempting auto-play via MuxPlayer API...');
 
-    // Set volume first
+    // Set volume first using MuxPlayer API
     try {
-      video.volume = AUTO_PLAY_VOLUME;
-      video.muted = false;
+      player.volume = AUTO_PLAY_VOLUME;
+      player.muted = false;
+      setVolume(AUTO_PLAY_VOLUME);
+      setIsMuted(false);
     } catch (e) {
       console.log('[SmartDetection] Error setting volume:', e);
     }
 
-    video.play().then(() => {
-      console.log('[SmartDetection] ✅ Auto-play SUCCESS with audio at 15% volume');
-      hasAutoPlayed.current = true;
-      setIsPlaying(true);
-      setIsMuted(false);
-      setVolume(AUTO_PLAY_VOLUME);
-    }).catch((err) => {
-      console.log('[SmartDetection] ⚠️ Auto-play with audio blocked:', err.name, err.message);
-      // Fallback: try muted (browsers often require muted for auto-play)
-      video.muted = true;
+    // MuxPlayer exposes play() method directly
+    const playPromise = player.play();
 
-      video.play().then(() => {
-        console.log('[SmartDetection] ✅ Auto-play SUCCESS (muted fallback)');
+    if (playPromise && typeof playPromise.then === 'function') {
+      playPromise.then(() => {
+        console.log('[SmartDetection] ✅ Auto-play SUCCESS with audio at 15% volume');
         hasAutoPlayed.current = true;
         setIsPlaying(true);
+        setIsMuted(false);
+        setVolume(AUTO_PLAY_VOLUME);
+      }).catch((err: Error) => {
+        console.log('[SmartDetection] ⚠️ Auto-play with audio blocked:', err.name, err.message);
+        // Fallback: try muted (browsers often require muted for auto-play)
+        player.muted = true;
         setIsMuted(true);
-      }).catch((err2) => {
-        console.log('[SmartDetection] ❌ Auto-play completely blocked:', err2.name, err2.message);
-        // Show play button to user - auto-play not allowed
+
+        const mutedPlayPromise = player.play();
+        if (mutedPlayPromise && typeof mutedPlayPromise.then === 'function') {
+          mutedPlayPromise.then(() => {
+            console.log('[SmartDetection] ✅ Auto-play SUCCESS (muted fallback)');
+            hasAutoPlayed.current = true;
+            setIsPlaying(true);
+            setIsMuted(true);
+          }).catch((err2: Error) => {
+            console.log('[SmartDetection] ❌ Auto-play completely blocked:', err2.name, err2.message);
+          });
+        }
       });
-    });
-  }, [getVideoElement]);
+    }
+  }, []);
 
   // Extract colors from video frame for Ambient Mode
+  // NOTE: MuxPlayer uses closed Shadow DOM, so we use animated fallback colors
+  // The colors cycle smoothly to create a dynamic ambient effect
   const extractVideoColors = useCallback(() => {
-    const video = getVideoElement();
-    const canvas = canvasRef.current;
+    if (!isPlaying) return;
 
-    if (!video || !canvas || video.paused || video.ended) return;
+    // Create subtle color animation based on time
+    const time = Date.now() / 5000; // Slow cycle
+    const r1 = Math.round(139 + Math.sin(time) * 30);
+    const g1 = Math.round(92 + Math.sin(time + 1) * 30);
+    const b1 = Math.round(246 + Math.sin(time + 2) * 9);
 
-    try {
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
-      if (!ctx) return;
+    const r2 = Math.round(6 + Math.sin(time + 2) * 6);
+    const g2 = Math.round(182 + Math.sin(time) * 30);
+    const b2 = Math.round(212 + Math.sin(time + 1) * 30);
 
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const r3 = Math.round(168 + Math.sin(time + 1) * 30);
+    const g3 = Math.round(85 + Math.sin(time + 2) * 30);
+    const b3 = Math.round(247 + Math.sin(time) * 8);
 
-      const topLeft = ctx.getImageData(0, 0, 4, 4).data;
-      const bottomCenter = ctx.getImageData(canvas.width / 2 - 2, canvas.height - 4, 4, 4).data;
-      const center = ctx.getImageData(canvas.width / 2 - 2, canvas.height / 2 - 2, 4, 4).data;
-
-      const avgColor = (data: Uint8ClampedArray) => {
-        let r = 0, g = 0, b = 0, count = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          r += data[i];
-          g += data[i + 1];
-          b += data[i + 2];
-          count++;
-        }
-        return {
-          r: Math.round(r / count),
-          g: Math.round(g / count),
-          b: Math.round(b / count)
-        };
-      };
-
-      const dominant = avgColor(center);
-      const secondary = avgColor(topLeft);
-      const accent = avgColor(bottomCenter);
-
-      const adjust = (color: { r: number; g: number; b: number }) => {
-        const brightness = AMBIENT_CONFIG.brightness;
-        const saturate = AMBIENT_CONFIG.saturate;
-
-        let r = Math.min(255, color.r * brightness);
-        let g = Math.min(255, color.g * brightness);
-        let b = Math.min(255, color.b * brightness);
-
-        const gray = (r + g + b) / 3;
-        r = Math.min(255, r + (r - gray) * (saturate - 1));
-        g = Math.min(255, g + (g - gray) * (saturate - 1));
-        b = Math.min(255, b + (b - gray) * (saturate - 1));
-
-        return { r: Math.round(r), g: Math.round(g), b: Math.round(b) };
-      };
-
-      const d = adjust(dominant);
-      const s = adjust(secondary);
-      const a = adjust(accent);
-
-      setAmbientColors({
-        dominant: `rgba(${d.r}, ${d.g}, ${d.b}, 0.5)`,
-        secondary: `rgba(${s.r}, ${s.g}, ${s.b}, 0.4)`,
-        accent: `rgba(${a.r}, ${a.g}, ${a.b}, 0.45)`
-      });
-    } catch {
-      // CORS or other error - use fallback colors
-    }
-  }, [getVideoElement]);
+    setAmbientColors({
+      dominant: `rgba(${r1}, ${g1}, ${b1}, 0.5)`,
+      secondary: `rgba(${r2}, ${g2}, ${b2}, 0.4)`,
+      accent: `rgba(${r3}, ${g3}, ${b3}, 0.45)`
+    });
+  }, [isPlaying]);
 
   // Start/stop ambient color extraction
   useEffect(() => {
@@ -535,19 +358,28 @@ export function EmbeddedVideoDevice({
   }, [isPlaying, extractVideoColors]);
 
   // Enter Picture-in-Picture mode
+  // MuxPlayer exposes the media element via .media property
   const enterPiP = useCallback(async () => {
-    const video = getVideoElement();
-    if (!video || isInPiP) return;
+    const player = muxPlayerRef.current;
+    if (!player || isInPiP) return;
 
     try {
+      // MuxPlayer exposes underlying video via .media
+      const video = player.media?.nativeEl || player.media;
+      if (!video || typeof video.requestPictureInPicture !== 'function') {
+        console.log('[SmartDetection] PiP not available - no video element');
+        return;
+      }
+
       if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
         await video.requestPictureInPicture();
         setIsInPiP(true);
+        console.log('[SmartDetection] ✅ Entered PiP mode');
       }
-    } catch {
-      // PiP not available
+    } catch (e) {
+      console.log('[SmartDetection] PiP not available:', e);
     }
-  }, [getVideoElement, isInPiP]);
+  }, [isInPiP]);
 
   // Exit Picture-in-Picture mode
   const exitPiP = useCallback(async () => {
@@ -565,11 +397,21 @@ export function EmbeddedVideoDevice({
 
   // Handle PiP events from video element
   useEffect(() => {
-    const video = getVideoElement();
+    const player = muxPlayerRef.current;
+    if (!player || !isVideoReady) return;
+
+    // Try to get the underlying video element for PiP events
+    const video = player.media?.nativeEl || player.media;
     if (!video) return;
 
-    const handlePiPEnter = () => setIsInPiP(true);
-    const handlePiPLeave = () => setIsInPiP(false);
+    const handlePiPEnter = () => {
+      setIsInPiP(true);
+      console.log('[SmartDetection] PiP event: entered');
+    };
+    const handlePiPLeave = () => {
+      setIsInPiP(false);
+      console.log('[SmartDetection] PiP event: left');
+    };
 
     video.addEventListener('enterpictureinpicture', handlePiPEnter);
     video.addEventListener('leavepictureinpicture', handlePiPLeave);
@@ -578,7 +420,7 @@ export function EmbeddedVideoDevice({
       video.removeEventListener('enterpictureinpicture', handlePiPEnter);
       video.removeEventListener('leavepictureinpicture', handlePiPLeave);
     };
-  }, [getVideoElement, isVideoReady]);
+  }, [isVideoReady]);
 
   // IntersectionObserver for auto-play and PiP - ALWAYS ACTIVE
   useEffect(() => {
@@ -620,59 +462,57 @@ export function EmbeddedVideoDevice({
   }, [isPlaying, isInPiP, isVideoReady, attemptAutoPlay, enterPiP, exitPiP]);
 
   // Handle click to play/pause
+  // USES MuxPlayer API directly
   const handleVideoClick = useCallback(() => {
-    console.log('[SmartDetection] Click detected, searching for video...');
+    console.log('[SmartDetection] Click detected');
 
-    const video = getVideoElement();
-    if (!video) {
-      console.log('[SmartDetection] ❌ Click: No video element found');
-      // Try one more time with a small delay
-      setTimeout(() => {
-        const retryVideo = getVideoElement();
-        if (retryVideo) {
-          console.log('[SmartDetection] ✅ Found video on retry');
-          if (retryVideo.paused) {
-            retryVideo.volume = AUTO_PLAY_VOLUME;
-            retryVideo.muted = false;
-            retryVideo.play().catch(() => {
-              retryVideo.muted = true;
-              retryVideo.play().catch(() => {});
-            });
-            setIsPlaying(true);
-          }
-        }
-      }, 100);
+    const player = muxPlayerRef.current;
+    if (!player) {
+      console.log('[SmartDetection] ❌ Click: MuxPlayer ref not ready');
       return;
     }
 
-    console.log('[SmartDetection] Click: Video found, paused:', video.paused);
+    // Check if paused using MuxPlayer API
+    const isPaused = player.paused;
+    console.log('[SmartDetection] Click: MuxPlayer paused:', isPaused);
 
-    if (video.paused) {
-      video.volume = AUTO_PLAY_VOLUME;
-      video.muted = false;
-      video.play().then(() => {
-        console.log('[SmartDetection] ✅ Manual play SUCCESS');
-        setIsPlaying(true);
-        setIsMuted(false);
-        hasAutoPlayed.current = true;
-      }).catch((err) => {
-        console.log('[SmartDetection] Manual play blocked, trying muted:', err.message);
-        video.muted = true;
-        setIsMuted(true);
-        video.play().then(() => {
-          console.log('[SmartDetection] ✅ Manual play SUCCESS (muted)');
+    if (isPaused) {
+      // Set volume and unmute
+      player.volume = AUTO_PLAY_VOLUME;
+      player.muted = false;
+      setVolume(AUTO_PLAY_VOLUME);
+      setIsMuted(false);
+
+      const playPromise = player.play();
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise.then(() => {
+          console.log('[SmartDetection] ✅ Manual play SUCCESS');
           setIsPlaying(true);
+          setIsMuted(false);
           hasAutoPlayed.current = true;
-        }).catch((err2) => {
-          console.log('[SmartDetection] ❌ Manual play completely blocked:', err2.message);
+        }).catch((err: Error) => {
+          console.log('[SmartDetection] Manual play blocked, trying muted:', err.message);
+          player.muted = true;
+          setIsMuted(true);
+
+          const mutedPlayPromise = player.play();
+          if (mutedPlayPromise && typeof mutedPlayPromise.then === 'function') {
+            mutedPlayPromise.then(() => {
+              console.log('[SmartDetection] ✅ Manual play SUCCESS (muted)');
+              setIsPlaying(true);
+              hasAutoPlayed.current = true;
+            }).catch((err2: Error) => {
+              console.log('[SmartDetection] ❌ Manual play completely blocked:', err2.message);
+            });
+          }
         });
-      });
+      }
     } else {
       console.log('[SmartDetection] Pausing video');
-      video.pause();
+      player.pause();
       setIsPlaying(false);
     }
-  }, [getVideoElement]);
+  }, []);
 
   // Handle MuxPlayer loaded event
   const handleVideoLoaded = useCallback(() => {
@@ -694,28 +534,17 @@ export function EmbeddedVideoDevice({
 
     console.log('[SmartDetection] Video ready, starting auto-play sequence...');
 
-    let attempts = 0;
-    const maxAttempts = 10;
-
-    // Retry function - MuxPlayer may need multiple attempts to find video element
+    // Check visibility and attempt auto-play
     const checkAndPlay = () => {
-      attempts++;
-      console.log(`[SmartDetection] Auto-play attempt ${attempts}/${maxAttempts}`);
+      const player = muxPlayerRef.current;
 
-      const video = getVideoElement();
-
-      if (!video) {
-        if (attempts < maxAttempts) {
-          console.log('[SmartDetection] Video element not ready, retrying in 200ms...');
-          setTimeout(checkAndPlay, 200);
-          return;
-        } else {
-          console.log('[SmartDetection] ❌ Failed to find video element after max attempts');
-          return;
-        }
+      if (!player) {
+        console.log('[SmartDetection] MuxPlayer not ready yet, retrying...');
+        setTimeout(checkAndPlay, 200);
+        return;
       }
 
-      console.log('[SmartDetection] ✅ Video element found!');
+      console.log('[SmartDetection] ✅ MuxPlayer ready!');
 
       const visibility = getVisibilityRatio();
       console.log(`[SmartDetection] Current visibility: ${(visibility * 100).toFixed(0)}%`);
@@ -728,10 +557,10 @@ export function EmbeddedVideoDevice({
       }
     };
 
-    // Start checking after initial delay for MuxPlayer to fully render
+    // Start checking after delay for MuxPlayer to fully initialize
     const timeoutId = setTimeout(checkAndPlay, 500);
     return () => clearTimeout(timeoutId);
-  }, [isVideoReady, getVisibilityRatio, attemptAutoPlay, getVideoElement]);
+  }, [isVideoReady, getVisibilityRatio, attemptAutoPlay]);
 
   const handleVideoEnd = useCallback(() => {
     localStorage.setItem(`video_seen:${lessonId}`, 'completed');
@@ -740,16 +569,19 @@ export function EmbeddedVideoDevice({
     onVideoComplete?.();
   }, [lessonId, onVideoComplete, exitPiP]);
 
+  // Toggle mute using MuxPlayer API
   const toggleMute = useCallback(() => {
-    const video = getVideoElement();
-    if (video) {
-      video.muted = !video.muted;
-      setIsMuted(video.muted);
-      if (!video.muted) {
-        video.volume = volume;
+    const player = muxPlayerRef.current;
+    if (player) {
+      const newMuted = !player.muted;
+      player.muted = newMuted;
+      setIsMuted(newMuted);
+      if (!newMuted) {
+        player.volume = volume;
       }
+      console.log('[SmartDetection] Mute toggled:', newMuted ? 'muted' : 'unmuted');
     }
-  }, [getVideoElement, volume]);
+  }, [volume]);
 
   // Dynamic ambient gradient
   const ambientGradient = `
