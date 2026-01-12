@@ -244,10 +244,14 @@ export function EmbeddedVideoDevice({
   // CRITICAL: Unique DOM ID for MuxPlayer - dynamic() doesn't forward refs!
   const muxPlayerId = `mux-player-${lessonId}`;
 
-  // Get MuxPlayer via DOM ID (React ref doesn't work with dynamic imports)
+  // Get MuxPlayer via DOM - find mux-player element inside wrapper div
+  // (React ref doesn't work with dynamic imports)
   const getMuxPlayer = useCallback((): any => {
     if (typeof document === 'undefined') return null;
-    return document.getElementById(muxPlayerId);
+    const wrapper = document.getElementById(muxPlayerId);
+    if (!wrapper) return null;
+    // MuxPlayer renders as <mux-player> web component
+    return wrapper.querySelector('mux-player');
   }, [muxPlayerId]);
 
   // Calculate visibility ratio manually (for initial check)
@@ -698,9 +702,9 @@ export function EmbeddedVideoDevice({
               }}
             >
               {/* MuxPlayer - ALWAYS RENDERED, NO OVERLAY */}
-              {/* CRITICAL: Use DOM ID instead of ref - dynamic() doesn't forward refs! */}
+              {/* CRITICAL: Wrapper div with ID - dynamic() doesn't forward refs to MuxPlayer! */}
+              <div id={muxPlayerId} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
               <MuxPlayer
-                id={muxPlayerId}
                 playbackId={muxPlaybackId}
                 streamType="on-demand"
                 autoPlay={false}
@@ -729,6 +733,7 @@ export function EmbeddedVideoDevice({
                   video_series: 'CryptoGift Educational'
                 }}
               />
+              </div>
 
               {/* Simple Play Overlay - Only when paused and ready */}
               {/* CRITICAL: Must have rounded-3xl to prevent ghost corners */}
