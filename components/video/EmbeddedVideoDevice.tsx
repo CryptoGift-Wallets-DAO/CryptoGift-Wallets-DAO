@@ -15,7 +15,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { Play, Volume2, VolumeX, X, ArrowUp, Minimize2 } from 'lucide-react';
+import { Play, Volume2, VolumeX, X, ArrowUp } from 'lucide-react';
 import { VideoExperienceHint } from '@/components/ui/RotatePhoneHint';
 
 // Lazy load Mux Player for optimization
@@ -407,7 +407,7 @@ export function EmbeddedVideoDevice({
         {/* MAIN VIDEO CONTAINER - Either in place or sticky at top */}
         <div
           ref={containerRef}
-          className={`${isSticky ? 'fixed top-0 left-0 right-0 z-[9999]' : 'relative'}`}
+          className={`${isSticky ? 'fixed top-[72px] left-0 right-0 z-[9999]' : 'relative'}`}
           style={isSticky ? {
             padding: '8px 16px',
             background: 'linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.9) 100%)',
@@ -624,47 +624,40 @@ export function EmbeddedVideoDevice({
       </div>
 
       {/* === MOBILE STICKY BANNER === */}
-      {/* Elegant banner that appears when video is playing on mobile */}
+      {/* Glassmorphism banner below navbar - appears when video is playing on mobile */}
       <AnimatePresence>
         {showMobileBanner && isMobile && isPlaying && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50"
+            className="fixed top-[72px] left-4 right-4 z-[9998]"
           >
             <button
               onClick={handleMobileBannerClick}
-              className="group flex items-center gap-3 px-5 py-3 rounded-full
-                         bg-gradient-to-r from-purple-600/95 via-violet-600/95 to-indigo-600/95
-                         backdrop-blur-xl border border-white/20
-                         shadow-[0_8px_32px_rgba(139,92,246,0.5)]
-                         hover:shadow-[0_12px_40px_rgba(139,92,246,0.6)]
-                         active:scale-95
-                         transition-all duration-300"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full
+                         bg-black/30 backdrop-blur-md border border-white/10
+                         shadow-lg
+                         active:scale-[0.98]
+                         transition-all duration-200"
             >
               <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
+                animate={{ y: [0, -2, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
-                className="p-1.5 rounded-full bg-white/20"
               >
-                <Minimize2 className="w-5 h-5 text-white" />
+                <ArrowUp className="w-4 h-4 text-white/70" />
               </motion.div>
 
-              <div className="flex flex-col items-start">
-                <span className="text-white font-semibold text-sm">Keep watching</span>
-                <span className="text-white/70 text-xs">Tap for sticky player</span>
-              </div>
+              <span className="text-white/90 text-sm font-medium">
+                Tap to pin video
+              </span>
 
               <motion.div
-                animate={{ x: [0, 4, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="text-white/60"
+                animate={{ y: [0, -2, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                </svg>
+                <ArrowUp className="w-4 h-4 text-white/70" />
               </motion.div>
             </button>
           </motion.div>
