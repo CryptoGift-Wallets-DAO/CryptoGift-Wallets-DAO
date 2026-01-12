@@ -385,6 +385,7 @@ export default function IntroVideoGate({
             onDoubleClick={handleDoubleClick}
           >
             {/* Mux Player with HIDDEN CONTROLS for clean look */}
+            {/* CRITICAL: position absolute fills the aspect-video container correctly */}
             <MuxPlayer
               playbackId={muxPlaybackId}
               streamType="on-demand"
@@ -398,6 +399,9 @@ export default function IntroVideoGate({
               style={{
                 width: '100%',
                 height: '100%',
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 '--controls': 'none',
               } as any}
               className="w-full h-full"

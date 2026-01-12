@@ -18,7 +18,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { Play, Volume2, VolumeX, Minimize2 } from 'lucide-react';
+import { Play, Volume2, VolumeX, Minimize2, X, Maximize2 } from 'lucide-react';
 import { VideoExperienceHint } from '@/components/ui/RotatePhoneHint';
 
 // Lazy load Mux Player for optimization
@@ -565,93 +565,28 @@ export function EmbeddedVideoDevice({
     return null;
   }, [getMuxPlayer]);
 
-  // Enter Picture-in-Picture mode
-  // MuxPlayer uses Shadow DOM - we try multiple methods to find the video element
-  // NOTE: Firefox DOES support PiP, but document.pictureInPictureEnabled is undefined
-  // We check for requestPictureInPicture directly on the video element instead
-  const enterPiP = useCallback(async () => {
-    // Prevent spam attempts
+  // ============================================================================
+  // CSS MINI PLAYER - Universal PiP alternative (works on ALL browsers)
+  // ============================================================================
+  // Native PiP API doesn't work with MuxPlayer (video element doesn't expose it)
+  // Instead, we use CSS position:fixed to create a floating mini player
+  // ============================================================================
+
+  // Enter CSS Mini Player mode (NOT native PiP)
+  const enterPiP = useCallback(() => {
     if (pipAttempted.current || isInPiP) return;
 
-    const player = getMuxPlayer();
-    if (!player) return;
-
-    // Mark that we've attempted PiP (will be reset when video becomes visible again)
     pipAttempted.current = true;
-
-    try {
-      const video = getVideoElement();
-
-      if (!video) {
-        console.log('[SmartDetection] PiP: No video element found');
-        return;
-      }
-
-      // Check if video element supports PiP (works on Firefox, Chrome, Edge, Safari)
-      if (typeof video.requestPictureInPicture !== 'function') {
-        console.log('[SmartDetection] PiP: requestPictureInPicture not available on this video element');
-        console.log('[SmartDetection] Tip: Try right-click → "Watch in Picture-in-Picture"');
-        return;
-      }
-
-      // Check if already in PiP (document.pictureInPictureElement may not exist in all browsers)
-      if (typeof document.pictureInPictureElement !== 'undefined' && document.pictureInPictureElement) {
-        console.log('[SmartDetection] PiP: Already in PiP mode');
-        return;
-      }
-
-      console.log('[SmartDetection] Attempting PiP...');
-      await video.requestPictureInPicture();
-      setIsInPiP(true);
-      console.log('[SmartDetection] ✅ Entered PiP mode');
-    } catch (e: any) {
-      console.log('[SmartDetection] PiP error:', e.name, e.message);
-      // Some browsers require user gesture - inform user
-      if (e.name === 'NotAllowedError') {
-        console.log('[SmartDetection] PiP requires user gesture. Try clicking the video first.');
-      }
-    }
-  }, [isInPiP, getMuxPlayer, getVideoElement]);
-
-  // Exit Picture-in-Picture mode
-  const exitPiP = useCallback(async () => {
-    if (!isInPiP) return;
-
-    try {
-      if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture();
-        setIsInPiP(false);
-      }
-    } catch {
-      // Error exiting PiP
-    }
+    setIsInPiP(true);
+    console.log('[SmartDetection] ✅ Entered CSS Mini Player mode (universal fallback)');
   }, [isInPiP]);
 
-  // Handle PiP events from video element
-  useEffect(() => {
-    if (!isVideoReady) return;
-
-    // Get the underlying video element using our multi-method approach
-    const video = getVideoElement();
-    if (!video) return;
-
-    const handlePiPEnter = () => {
-      setIsInPiP(true);
-      console.log('[SmartDetection] PiP event: entered');
-    };
-    const handlePiPLeave = () => {
-      setIsInPiP(false);
-      console.log('[SmartDetection] PiP event: left');
-    };
-
-    video.addEventListener('enterpictureinpicture', handlePiPEnter);
-    video.addEventListener('leavepictureinpicture', handlePiPLeave);
-
-    return () => {
-      video.removeEventListener('enterpictureinpicture', handlePiPEnter);
-      video.removeEventListener('leavepictureinpicture', handlePiPLeave);
-    };
-  }, [isVideoReady, getVideoElement]);
+  // Exit CSS Mini Player mode
+  const exitPiP = useCallback(() => {
+    if (!isInPiP) return;
+    setIsInPiP(false);
+    console.log('[SmartDetection] Exited CSS Mini Player mode');
+  }, [isInPiP]);
 
   // IntersectionObserver for auto-play and PiP - ALWAYS ACTIVE
   useEffect(() => {
@@ -964,11 +899,22 @@ export function EmbeddedVideoDevice({
     <>
       <style jsx global>{animationStyles}</style>
 
-      {/* Main container with Ambient Mode */}
-      <div ref={containerRef} className={`relative ${className}`}>
+      {/* Main container with Ambient Mode - CSS Mini Player when isInPiP */}
+      <div
+        ref={containerRef}
+        className={`relative ${className} ${
+          isInPiP
+            ? 'fixed bottom-4 right-4 w-80 md:w-96 z-[9999] shadow-2xl rounded-2xl'
+            : ''
+        }`}
+        style={isInPiP ? {
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          maxWidth: '400px',
+        } : undefined}
+      >
 
-        {/* Title Panel - Above video (glass effect) */}
-        {title && (
+        {/* Title Panel - Above video (glass effect) - Hidden in mini player */}
+        {title && !isInPiP && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -981,22 +927,25 @@ export function EmbeddedVideoDevice({
         )}
 
         {/* AMBIENT GLOW LAYER - Behind the video (concentrated, half size) */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{
-            opacity: isPlaying ? 1 : 0.4,
-            scale: 1.05
-          }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="absolute inset-4 -z-10 pointer-events-none mx-auto max-w-2xl"
-          style={{
-            background: ambientGradient,
-            filter: 'blur(50px)',
-            opacity: 0.4,
-            borderRadius: '40px',
-            animation: isPlaying ? 'ambientPulse 4s ease-in-out infinite' : 'none',
-          }}
-        />
+        {/* Hidden in mini player mode for performance */}
+        {!isInPiP && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{
+              opacity: isPlaying ? 1 : 0.4,
+              scale: 1.05
+            }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="absolute inset-4 -z-10 pointer-events-none mx-auto max-w-2xl"
+            style={{
+              background: ambientGradient,
+              filter: 'blur(50px)',
+              opacity: 0.4,
+              borderRadius: '40px',
+              animation: isPlaying ? 'ambientPulse 4s ease-in-out infinite' : 'none',
+            }}
+          />
+        )}
 
         {/* === GRAVITATIONAL DISTORTION - Symmetric Radial Shadow === */}
         {/* Shadow emanates uniformly from video edges in all directions */}
@@ -1163,20 +1112,53 @@ export function EmbeddedVideoDevice({
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute top-3 right-3 z-30"
+            className="absolute top-3 right-3 z-30 flex gap-2"
           >
+            {/* Mini Player Controls - Only show when in PiP mode */}
+            {isInPiP && (
+              <>
+                {/* Expand button - Exit mini player */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    exitPiP();
+                    // Scroll to video
+                    containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                  className="p-2 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 hover:scale-110 transition-all shadow-lg border border-white/10"
+                  title="Expand video"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </button>
+                {/* Close button - Close mini player and pause */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const player = getMuxPlayer();
+                    if (player) player.pause();
+                    setIsPlaying(false);
+                    exitPiP();
+                  }}
+                  className="p-2 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-red-600/70 hover:scale-110 transition-all shadow-lg border border-white/10"
+                  title="Close mini player"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </>
+            )}
+            {/* Mute/Unmute button */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 toggleMute();
               }}
-              className="p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 hover:scale-110 transition-all shadow-lg border border-white/10"
+              className={`p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 hover:scale-110 transition-all shadow-lg border border-white/10 ${isInPiP ? 'p-2' : 'p-2.5'}`}
               title={isMuted ? 'Unmute' : 'Mute'}
             >
               {isMuted ? (
-                <VolumeX className="w-5 h-5" />
+                <VolumeX className={isInPiP ? 'w-4 h-4' : 'w-5 h-5'} />
               ) : (
-                <Volume2 className="w-5 h-5" />
+                <Volume2 className={isInPiP ? 'w-4 h-4' : 'w-5 h-5'} />
               )}
             </button>
           </motion.div>
@@ -1187,12 +1169,16 @@ export function EmbeddedVideoDevice({
 
         {/* Video Experience Hint - EXACT same component as Home VideoCarousel */}
         {/* Shows animated mouse + 2× for Desktop, Rotate phone for Mobile */}
-        <div className="mt-3 relative z-10">
-          <VideoExperienceHint />
-        </div>
+        {/* Hidden in mini player mode */}
+        {!isInPiP && (
+          <div className="mt-3 relative z-10">
+            <VideoExperienceHint />
+          </div>
+        )}
 
         {/* Description Below - Normal text with subtle shadow only, no glow */}
-        {description && (
+        {/* Hidden in mini player mode */}
+        {description && !isInPiP && (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
