@@ -371,17 +371,65 @@ export function EmbeddedVideoDevice({
     }
   }, [isPlaying, extractVideoColors]);
 
+  // Get underlying video element from MuxPlayer
+  // MuxPlayer uses Shadow DOM, so we need to try multiple access methods
+  const getVideoElement = useCallback((): HTMLVideoElement | null => {
+    const player = getMuxPlayer();
+    if (!player) return null;
+
+    // Method 1: MuxPlayer's media property (most reliable)
+    if (player.media) {
+      const mediaEl = player.media.nativeEl || player.media;
+      if (mediaEl instanceof HTMLVideoElement) {
+        console.log('[SmartDetection] Found video via player.media');
+        return mediaEl;
+      }
+    }
+
+    // Method 2: Access via Shadow DOM (if accessible)
+    if (player.shadowRoot) {
+      // Try direct video query
+      let video = player.shadowRoot.querySelector('video');
+      if (video) {
+        console.log('[SmartDetection] Found video via shadowRoot.querySelector');
+        return video as HTMLVideoElement;
+      }
+
+      // Try via media-theme container (MuxPlayer internal structure)
+      const mediaTheme = player.shadowRoot.querySelector('media-theme');
+      if (mediaTheme && mediaTheme.shadowRoot) {
+        video = mediaTheme.shadowRoot.querySelector('video');
+        if (video) {
+          console.log('[SmartDetection] Found video via media-theme shadowRoot');
+          return video as HTMLVideoElement;
+        }
+      }
+    }
+
+    // Method 3: Fallback - direct querySelector (unlikely but try)
+    const directVideo = player.querySelector('video');
+    if (directVideo) {
+      console.log('[SmartDetection] Found video via direct querySelector');
+      return directVideo as HTMLVideoElement;
+    }
+
+    console.log('[SmartDetection] Could not find video element');
+    console.log('[SmartDetection] player.media:', player.media);
+    console.log('[SmartDetection] player.shadowRoot:', player.shadowRoot ? 'accessible' : 'null/closed');
+    return null;
+  }, [getMuxPlayer]);
+
   // Enter Picture-in-Picture mode
-  // MuxPlayer exposes the media element via .media property
+  // MuxPlayer uses Shadow DOM - we try multiple methods to find the video element
   const enterPiP = useCallback(async () => {
     const player = getMuxPlayer();
     if (!player || isInPiP) return;
 
     try {
-      // MuxPlayer exposes underlying video via .media
-      const video = player.media?.nativeEl || player.media;
+      const video = getVideoElement();
+
       if (!video || typeof video.requestPictureInPicture !== 'function') {
-        console.log('[SmartDetection] PiP not available - no video element');
+        console.log('[SmartDetection] PiP not available - no video element or API not supported');
         return;
       }
 
@@ -391,9 +439,9 @@ export function EmbeddedVideoDevice({
         console.log('[SmartDetection] ✅ Entered PiP mode');
       }
     } catch (e) {
-      console.log('[SmartDetection] PiP not available:', e);
+      console.log('[SmartDetection] PiP error:', e);
     }
-  }, [isInPiP, getMuxPlayer]);
+  }, [isInPiP, getMuxPlayer, getVideoElement]);
 
   // Exit Picture-in-Picture mode
   const exitPiP = useCallback(async () => {
@@ -411,11 +459,10 @@ export function EmbeddedVideoDevice({
 
   // Handle PiP events from video element
   useEffect(() => {
-    const player = getMuxPlayer();
-    if (!player || !isVideoReady) return;
+    if (!isVideoReady) return;
 
-    // Try to get the underlying video element for PiP events
-    const video = player.media?.nativeEl || player.media;
+    // Get the underlying video element using our multi-method approach
+    const video = getVideoElement();
     if (!video) return;
 
     const handlePiPEnter = () => {
@@ -434,7 +481,7 @@ export function EmbeddedVideoDevice({
       video.removeEventListener('enterpictureinpicture', handlePiPEnter);
       video.removeEventListener('leavepictureinpicture', handlePiPLeave);
     };
-  }, [isVideoReady, getMuxPlayer]);
+  }, [isVideoReady, getVideoElement]);
 
   // IntersectionObserver for auto-play and PiP - ALWAYS ACTIVE
   useEffect(() => {
