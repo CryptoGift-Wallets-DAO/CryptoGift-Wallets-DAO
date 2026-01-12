@@ -409,17 +409,21 @@ export function EmbeddedVideoDevice({
   // =============================================================================
 
   // Compute video container styles - ALWAYS fixed to escape backdrop-filter
+  // Use placeholder width for sticky to maintain consistent size
+  const stickyWidth = placeholderRect?.width || 400;
+  const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 500;
+
   const videoStyles: React.CSSProperties = isSticky
     ? {
-        // STICKY: Fixed below navbar
+        // STICKY: Fixed below navbar - same width as original
         position: 'fixed',
         top: NAVBAR_HEIGHT,
-        left: 16,
-        right: 16,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: Math.min(stickyWidth, windowWidth - 32),
         zIndex: 9999,
-        maxWidth: 672,
-        marginLeft: 'auto',
-        marginRight: 'auto',
+        // Floating animation - no quotes for CSS value
+        animation: 'floatVideo 4s ease-in-out infinite',
       }
     : placeholderRect
     ? {
@@ -442,19 +446,29 @@ export function EmbeddedVideoDevice({
 
   // The video element - extracted for portal usage
   const videoElement = (
-    <div ref={videoContainerRef} style={videoStyles}>
+    <div
+      ref={videoContainerRef}
+      style={{
+        ...videoStyles,
+        // Ensure no background bleeds through corners
+        borderRadius: '1.5rem',
+        overflow: 'hidden',
+      }}
+    >
       <div
         className="relative w-full h-full overflow-hidden rounded-3xl cursor-pointer"
         style={{
           boxShadow: '0 0 15px rgba(0,0,0,0.4), 0 0 25px rgba(0,0,0,0.3)',
           ...(isSticky ? { aspectRatio: '16/9' } : {}),
+          borderRadius: '1.5rem',
+          overflow: 'hidden',
         }}
         onClick={handleVideoClick}
         onDoubleClick={handleDoubleClick}
       >
-        {/* Video with 16:9 aspect ratio */}
-        <div className="relative w-full h-full bg-black">
-          <div id={muxPlayerId} className="absolute inset-0">
+        {/* Video with 16:9 aspect ratio - NO background color to avoid corner artifacts */}
+        <div className="relative w-full h-full" style={{ borderRadius: '1.5rem', overflow: 'hidden' }}>
+          <div id={muxPlayerId} className="absolute inset-0" style={{ borderRadius: '1.5rem', overflow: 'hidden' }}>
             <MuxPlayer
               playbackId={muxPlaybackId}
               streamType="on-demand"
