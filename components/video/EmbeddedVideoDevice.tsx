@@ -368,221 +368,137 @@ export function EmbeddedVideoDevice({
   `;
 
   // =============================================================================
-  // RENDER - SINGLE MUXPLAYER INSTANCE (CSS positioning, NO remount)
+  // RENDER - CLEAN STRUCTURE
   // =============================================================================
+
+  // Compute video container styles
+  const videoStyles: React.CSSProperties = isSticky
+    ? {
+        position: 'fixed',
+        top: NAVBAR_HEIGHT,
+        left: 16,
+        right: 16,
+        zIndex: 9999,
+        maxWidth: 672, // 42rem
+        marginLeft: 'auto',
+        marginRight: 'auto',
+      }
+    : {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      };
+
   return (
     <>
       <style jsx global>{animationStyles}</style>
 
-      {/* ANCHOR - This div is ALWAYS in the document flow for IntersectionObserver */}
-      <div ref={placeholderRef} className={className}>
-        {/* PLACEHOLDER - Only shows when video is floating (maintains layout space) */}
-        {isSticky && originalHeight > 0 && (
+      {/* SPACE HOLDER - Always reserves space with 16:9 ratio */}
+      <div
+        ref={placeholderRef}
+        className={`relative w-full max-w-2xl mx-auto ${className}`}
+        style={{ paddingBottom: '56.25%', height: 0 }}
+      >
+        {/* Placeholder visual when video is floating */}
+        {isSticky && (
           <div
-            className="rounded-3xl border border-white/5 flex items-center justify-center overflow-hidden"
-            style={{
-              height: `${originalHeight}px`,
-              background: 'linear-gradient(135deg, rgba(15,15,25,0.3) 0%, rgba(5,5,15,0.3) 100%)',
-            }}
+            className="absolute inset-0 rounded-3xl border border-white/5 flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, rgba(15,15,25,0.3) 0%, rgba(5,5,15,0.3) 100%)' }}
           >
             <div className="text-center opacity-40">
-              <motion.div
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <svg className="w-8 h-8 text-white/30 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                </svg>
-              </motion.div>
+              <svg className="w-8 h-8 text-white/30 mx-auto mb-2 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              </svg>
               <p className="text-white/30 text-sm">Video playing above</p>
             </div>
           </div>
         )}
 
-        {/*
-          VIDEO PANEL - SINGLE INSTANCE, NEVER REMOUNTS
-          - NOT sticky: position RELATIVE = in normal document flow
-          - Sticky: position FIXED = floating below navbar
-        */}
-        <div
-          ref={videoContainerRef}
-          style={isSticky ? {
-            position: 'fixed',
-            top: `${NAVBAR_HEIGHT}px`,
-            left: '1rem',
-            right: '1rem',
-            zIndex: 9999,
-          } : {
-            position: 'relative',
-          }}
-        >
-          <motion.div
-            initial={false}
-            animate={{ opacity: 1 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        {/* VIDEO CONTAINER - Single instance, changes position via CSS */}
+        <div ref={videoContainerRef} style={videoStyles}>
+          <div
+            className="relative w-full h-full overflow-hidden rounded-3xl cursor-pointer"
+            style={{
+              boxShadow: '0 0 15px rgba(0,0,0,0.4), 0 0 25px rgba(0,0,0,0.3)',
+              ...(isSticky ? { aspectRatio: '16/9' } : {}),
+            }}
+            onClick={handleVideoClick}
+            onDoubleClick={handleDoubleClick}
           >
-          <div className="relative">
-            {/* Title Panel */}
-            {title && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4 text-center"
-              >
-                <div className="inline-block px-4 py-2 rounded-full bg-black/30 backdrop-blur-md border border-white/10">
-                  <span className="text-white/90 text-sm font-medium">{title}</span>
-                </div>
-              </motion.div>
-            )}
-
-            {/* AMBIENT GLOW */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: isPlaying ? 1 : 0.4, scale: 1.05 }}
-              transition={{ duration: 0.8 }}
-              className="absolute inset-4 -z-10 pointer-events-none mx-auto max-w-2xl"
-              style={{
-                background: ambientGradient,
-                filter: 'blur(50px)',
-                opacity: 0.4,
-                borderRadius: '40px',
-                animation: isPlaying ? 'ambientPulse 4s ease-in-out infinite' : 'none',
-              }}
-            />
-
-            {/* Video Container */}
-            <div className="relative mx-auto max-w-2xl">
-              <div
-                className="relative overflow-hidden rounded-3xl"
-                style={{
-                  boxShadow: '0 0 15px rgba(0,0,0,0.4), 0 0 25px rgba(0,0,0,0.3), 0 0 40px rgba(0,0,0,0.2)',
-                  animation: isPlaying && !isSticky ? 'floatVideo 6s ease-in-out infinite' : 'none',
-                }}
-              >
-                {/* Video Frame */}
-                <div
-                  className="relative cursor-pointer rounded-3xl overflow-hidden"
-                  onClick={handleVideoClick}
-                  onDoubleClick={handleDoubleClick}
-                >
-                  <div className="relative aspect-video bg-black overflow-hidden">
-                    {/* MuxPlayer - SINGLE INSTANCE, NEVER UNMOUNTS */}
-                    <div id={muxPlayerId} className="absolute inset-0">
-                      <MuxPlayer
-                        playbackId={muxPlaybackId}
-                        streamType="on-demand"
-                        autoPlay={false}
-                        muted={isMuted}
-                        playsInline
-                        onLoadedData={handleVideoLoaded}
-                        onCanPlay={handleVideoLoaded}
-                        onEnded={handleVideoEnd}
-                        onPlay={() => setIsPlaying(true)}
-                        onPause={() => setIsPlaying(false)}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          borderRadius: '1.5rem',
-                          overflow: 'hidden',
-                          '--controls': 'none',
-                          '--media-object-fit': 'cover',
-                          '--media-object-position': 'center',
-                        } as any}
-                        metadata={{
-                          video_title: title || 'CryptoGift Video',
-                          video_series: 'CryptoGift Educational'
-                        }}
-                      />
-                    </div>
-
-                    {/* Play Overlay - When paused */}
-                    {!isPlaying && isVideoReady && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
-                      >
-                        <motion.div
-                          animate={{ scale: [1, 1.1, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                          className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/20"
-                        >
-                          <Play className="w-8 h-8 md:w-10 md:h-10 text-white ml-1" fill="white" />
-                        </motion.div>
-                        <motion.div
-                          initial={{ y: 10, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          transition={{ delay: 0.2 }}
-                          className="mt-4 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/20"
-                        >
-                          <span className="text-white text-sm font-medium">
-                            {isMobile ? 'Tap to play' : 'Click to play'}
-                          </span>
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </div>
-
-                  {/* Shimmer effect */}
-                  {isPlaying && (
-                    <div
-                      className="absolute inset-0 pointer-events-none rounded-3xl"
-                      style={{
-                        background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%)',
-                        backgroundSize: '200% 100%',
-                        animation: 'shimmer 3s linear infinite',
-                      }}
-                    />
-                  )}
-                </div>
-
-                {/* Volume control */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="absolute top-3 right-3 z-30"
-                >
-                  <button
-                    onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-                    className="p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 hover:scale-110 transition-all shadow-lg border border-white/10"
-                    title={isMuted ? 'Unmute' : 'Mute'}
-                  >
-                    {isMuted ? (
-                      <VolumeX className="w-5 h-5" />
-                    ) : (
-                      <Volume2 className="w-5 h-5" />
-                    )}
-                  </button>
-                </motion.div>
+            {/* Video with 16:9 aspect ratio */}
+            <div className="relative w-full h-full bg-black">
+              <div id={muxPlayerId} className="absolute inset-0">
+                <MuxPlayer
+                  playbackId={muxPlaybackId}
+                  streamType="on-demand"
+                  autoPlay={false}
+                  muted={isMuted}
+                  playsInline
+                  onLoadedData={handleVideoLoaded}
+                  onCanPlay={handleVideoLoaded}
+                  onEnded={handleVideoEnd}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    borderRadius: '1.5rem',
+                    '--controls': 'none',
+                    '--media-object-fit': 'cover',
+                    '--media-object-position': 'center',
+                  } as React.CSSProperties}
+                  metadata={{
+                    video_title: title || 'CryptoGift Video',
+                    video_series: 'CryptoGift Educational'
+                  }}
+                />
               </div>
+
+              {/* Play overlay when paused */}
+              {!isPlaying && isVideoReady && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/20 animate-pulse">
+                    <Play className="w-8 h-8 md:w-10 md:h-10 text-white ml-1" fill="white" />
+                  </div>
+                  <div className="mt-4 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/20">
+                    <span className="text-white text-sm font-medium">
+                      {isMobile ? 'Tap to play' : 'Click to play'}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Video Experience Hint - Only show when not sticky */}
-            {!isSticky && (
-              <div className="mt-3 relative z-10">
-                <VideoExperienceHint />
-              </div>
-            )}
-
-            {/* Description - Only show when not sticky */}
-            {!isSticky && description && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="text-center text-sm text-cyan-300/80 mt-3 max-w-md mx-auto relative z-10"
-                style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}
-              >
-                {description}
-              </motion.p>
-            )}
+            {/* Volume control button */}
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+              className="absolute top-3 right-3 z-30 p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
+              title={isMuted ? 'Unmute' : 'Mute'}
+            >
+              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            </button>
           </div>
-        </motion.div>
         </div>
       </div>
+
+      {/* Elements outside the space holder (not affected by sticky) */}
+      {!isSticky && (
+        <div className="max-w-2xl mx-auto">
+          <div className="mt-3">
+            <VideoExperienceHint />
+          </div>
+          {description && (
+            <p className="text-center text-sm text-cyan-300/80 mt-3 max-w-md mx-auto" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
+              {description}
+            </p>
+          )}
+        </div>
+      )}
     </>
   );
 }
