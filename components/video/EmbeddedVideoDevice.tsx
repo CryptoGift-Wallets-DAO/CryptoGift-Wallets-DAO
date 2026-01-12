@@ -228,6 +228,9 @@ export function EmbeddedVideoDevice({
   const [volume, setVolume] = useState(AUTO_PLAY_VOLUME);
   const [isInPiP, setIsInPiP] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
+  const [showUnmuteHint, setShowUnmuteHint] = useState(false);
+  const [isFirefox, setIsFirefox] = useState(false);
 
   // Ambient Mode state
   const [ambientColors, setAmbientColors] = useState({
@@ -244,6 +247,18 @@ export function EmbeddedVideoDevice({
   // CRITICAL: Unique DOM ID for MuxPlayer - dynamic() doesn't forward refs!
   const muxPlayerId = `mux-player-${lessonId}`;
 
+  // Detect Firefox browser (doesn't support standard PiP API)
+  useEffect(() => {
+    if (typeof navigator !== 'undefined') {
+      const isFF = navigator.userAgent.toLowerCase().includes('firefox');
+      setIsFirefox(isFF);
+      if (isFF) {
+        console.log('[SmartDetection] Firefox detected - standard PiP API not supported');
+        console.log('[SmartDetection] Users can use Firefox native PiP (right-click video or use toolbar icon)');
+      }
+    }
+  }, []);
+
   // Get MuxPlayer via DOM - find mux-player element inside wrapper div
   // (React ref doesn't work with dynamic imports)
   const getMuxPlayer = useCallback((): any => {
@@ -253,6 +268,64 @@ export function EmbeddedVideoDevice({
     // MuxPlayer renders as <mux-player> web component
     return wrapper.querySelector('mux-player');
   }, [muxPlayerId]);
+
+  // AUDIO UNLOCK SYSTEM - Unlocks audio on first user interaction
+  // Browsers block unmuted autoplay until user interacts with the page
+  // This effect adds a one-time listener that tries to unmute after any click/touch
+  useEffect(() => {
+    if (audioUnlocked) return; // Already unlocked
+
+    const unlockAudio = () => {
+      console.log('[AudioUnlock] User interaction detected, attempting to unlock audio...');
+      setAudioUnlocked(true);
+
+      // If video is playing muted, try to unmute it now
+      const player = getMuxPlayer();
+      if (player && isPlaying && isMuted) {
+        try {
+          player.muted = false;
+          player.volume = AUTO_PLAY_VOLUME;
+          setIsMuted(false);
+          setShowUnmuteHint(false);
+          console.log('[AudioUnlock] ✅ Audio unlocked and video unmuted!');
+        } catch (e) {
+          console.log('[AudioUnlock] Could not unmute:', e);
+        }
+      }
+
+      // Remove listeners after first interaction
+      document.removeEventListener('click', unlockAudio);
+      document.removeEventListener('touchstart', unlockAudio);
+      document.removeEventListener('keydown', unlockAudio);
+    };
+
+    // Add listeners for any user interaction
+    document.addEventListener('click', unlockAudio, { once: true, passive: true });
+    document.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+    document.addEventListener('keydown', unlockAudio, { once: true, passive: true });
+
+    return () => {
+      document.removeEventListener('click', unlockAudio);
+      document.removeEventListener('touchstart', unlockAudio);
+      document.removeEventListener('keydown', unlockAudio);
+    };
+  }, [audioUnlocked, isPlaying, isMuted, getMuxPlayer]);
+
+  // Show unmute hint when video is playing muted
+  useEffect(() => {
+    if (isPlaying && isMuted && !audioUnlocked) {
+      // Show hint after a short delay (give browser time to potentially allow audio)
+      const timer = setTimeout(() => {
+        if (isMuted) {
+          setShowUnmuteHint(true);
+          console.log('[AudioUnlock] Showing unmute hint - click anywhere to enable audio');
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowUnmuteHint(false);
+    }
+  }, [isPlaying, isMuted, audioUnlocked]);
 
   // Calculate visibility ratio manually (for initial check)
   const getVisibilityRatio = useCallback((): number => {
@@ -455,6 +528,8 @@ export function EmbeddedVideoDevice({
 
   // Enter Picture-in-Picture mode
   // MuxPlayer uses Shadow DOM - we try multiple methods to find the video element
+  // NOTE: Firefox does NOT support the standard PiP API (document.pictureInPictureEnabled)
+  // Firefox users must use the native PiP button (right-click video or toolbar icon)
   const enterPiP = useCallback(async () => {
     // Prevent spam attempts
     if (pipAttempted.current || isInPiP) return;
@@ -465,9 +540,17 @@ export function EmbeddedVideoDevice({
     // Mark that we've attempted PiP (will be reset when video becomes visible again)
     pipAttempted.current = true;
 
-    // Check browser support first
-    if (!document.pictureInPictureEnabled) {
-      console.log('[SmartDetection] PiP not supported by browser');
+    // Firefox doesn't support standard PiP API - skip silently
+    // Users can use Firefox's native PiP (right-click → Watch in Picture-in-Picture)
+    if (isFirefox) {
+      console.log('[SmartDetection] Firefox: Standard PiP API not supported');
+      console.log('[SmartDetection] Firefox users: Right-click video → "Watch in Picture-in-Picture"');
+      return;
+    }
+
+    // Check browser support first (Chrome, Edge, Safari)
+    if (typeof document.pictureInPictureEnabled === 'undefined' || !document.pictureInPictureEnabled) {
+      console.log('[SmartDetection] PiP not supported by this browser');
       return;
     }
 
@@ -495,7 +578,7 @@ export function EmbeddedVideoDevice({
     } catch (e: any) {
       console.log('[SmartDetection] PiP error:', e.name, e.message);
     }
-  }, [isInPiP, getMuxPlayer, getVideoElement]);
+  }, [isInPiP, isFirefox, getMuxPlayer, getVideoElement]);
 
   // Exit Picture-in-Picture mode
   const exitPiP = useCallback(async () => {
@@ -857,6 +940,29 @@ export function EmbeddedVideoDevice({
                   >
                     <Play className="w-8 h-8 text-white ml-1" fill="white" />
                   </motion.div>
+                </motion.div>
+              )}
+
+              {/* AUDIO UNLOCK HINT - Shows when video plays muted due to browser policy */}
+              {/* Clicking anywhere on the page will unlock audio */}
+              {showUnmuteHint && isPlaying && isMuted && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
+                >
+                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 shadow-xl">
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <VolumeX className="w-4 h-4 text-amber-400" />
+                    </motion.div>
+                    <span className="text-white text-sm font-medium whitespace-nowrap">
+                      Click anywhere to enable audio
+                    </span>
+                  </div>
                 </motion.div>
               )}
             </div>
