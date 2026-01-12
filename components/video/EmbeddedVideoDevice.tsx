@@ -778,21 +778,20 @@ export function EmbeddedVideoDevice({
           </motion.div>
         )}
 
-        {/* AMBIENT GLOW LAYER - Behind the video */}
+        {/* AMBIENT GLOW LAYER - Behind the video (concentrated, half size) */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{
-            opacity: isPlaying ? 1 : 0.5,
-            scale: AMBIENT_CONFIG.scale
+            opacity: isPlaying ? 1 : 0.4,
+            scale: 1.05
           }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="absolute inset-0 -z-10 pointer-events-none mx-auto max-w-2xl"
+          className="absolute inset-4 -z-10 pointer-events-none mx-auto max-w-2xl"
           style={{
             background: ambientGradient,
-            filter: `blur(${AMBIENT_CONFIG.blur}px)`,
-            opacity: AMBIENT_CONFIG.opacity,
-            transform: `scale(${AMBIENT_CONFIG.scale})`,
-            borderRadius: '60px',
+            filter: 'blur(50px)',
+            opacity: 0.4,
+            borderRadius: '40px',
             animation: isPlaying ? 'ambientPulse 4s ease-in-out infinite' : 'none',
           }}
         />
@@ -816,25 +815,16 @@ export function EmbeddedVideoDevice({
           }}
           className="relative rounded-3xl"
           style={{
-            /* SYMMETRIC GRAVITATIONAL SHADOW: Radiates equally in all directions */
+            /* CONCENTRATED SHADOW - Half distance, fully diffused edges */
             boxShadow: `
-              /* First wave - darkest, closest to edge */
-              0 0 15px 0 rgba(0, 0, 0, 0.85),
+              /* Core shadow - tight around video */
+              0 0 20px 0 rgba(0, 0, 0, 0.7),
 
-              /* Second wave - dark */
-              0 0 35px 5px rgba(0, 0, 0, 0.65),
+              /* Inner glow - soft */
+              0 0 40px 0 rgba(0, 0, 0, 0.4),
 
-              /* Third wave - medium */
-              0 0 60px 10px rgba(0, 0, 0, 0.45),
-
-              /* Fourth wave - fading */
-              0 0 90px 20px rgba(0, 0, 0, 0.28),
-
-              /* Fifth wave - subtle */
-              0 0 120px 35px rgba(0, 0, 0, 0.15),
-
-              /* Outer dissipation - very subtle */
-              0 0 160px 50px rgba(0, 0, 0, 0.08)
+              /* Outer diffusion - very blurred, no hard edges */
+              0 0 60px 0 rgba(0, 0, 0, 0.2)
             `,
           }}
         >
