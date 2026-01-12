@@ -815,22 +815,38 @@ export function EmbeddedVideoDevice({
           }}
           className="relative rounded-3xl overflow-hidden"
           style={{
-            /* DROP-SHADOW respects border-radius perfectly - no hard corners */
-            filter: `
-              drop-shadow(0 0 8px rgba(0, 0, 0, 0.5))
-              drop-shadow(0 0 20px rgba(0, 0, 0, 0.3))
-              drop-shadow(0 0 40px rgba(0, 0, 0, 0.15))
+            /* Concentrated box-shadow - half distance for tighter effect */
+            boxShadow: `
+              0 4px 15px rgba(0, 0, 0, 0.4),
+              0 8px 25px rgba(0, 0, 0, 0.3),
+              0 15px 40px rgba(0, 0, 0, 0.2)
             `,
+            /* Hardware acceleration to prevent mobile repaint glitches */
+            transform: 'translateZ(0)',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
           }}
         >
-          {/* Video Frame - Clean edges */}
+          {/* Video Frame - Clean edges with border-radius on ALL layers */}
           <div
             className="relative rounded-3xl overflow-hidden cursor-pointer"
             onClick={handleVideoClick}
+            style={{
+              /* Ensure this layer also has hardware acceleration */
+              transform: 'translateZ(0)',
+            }}
           >
-            {/* Aspect ratio container */}
-            <div className="relative aspect-video bg-black">
+            {/* Aspect ratio container - CRITICAL: Must have border-radius to prevent ghost corners */}
+            <div
+              className="relative aspect-video bg-black rounded-3xl overflow-hidden"
+              style={{
+                /* Hardware acceleration prevents repaint glitches on mobile scroll/touch */
+                transform: 'translateZ(0)',
+                backfaceVisibility: 'hidden',
+              }}
+            >
               {/* MuxPlayer - ALWAYS RENDERED, NO OVERLAY */}
+              {/* CRITICAL: MuxPlayer is a Web Component with Shadow DOM - must have explicit border-radius */}
               <MuxPlayer
                 ref={muxPlayerRef}
                 playbackId={muxPlaybackId}
@@ -849,6 +865,9 @@ export function EmbeddedVideoDevice({
                   position: 'absolute',
                   top: 0,
                   left: 0,
+                  /* CRITICAL: border-radius on MuxPlayer itself to prevent ghost corners */
+                  borderRadius: '1.5rem',
+                  overflow: 'hidden',
                   '--controls': 'none',
                   '--media-object-fit': 'cover',
                   '--media-object-position': 'center',
@@ -860,12 +879,13 @@ export function EmbeddedVideoDevice({
               />
 
               {/* Simple Play Overlay - Only when paused and ready */}
+              {/* CRITICAL: Must have rounded-3xl to prevent ghost corners */}
               {!isPlaying && isVideoReady && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none"
+                  className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none rounded-3xl"
                 >
                   <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
