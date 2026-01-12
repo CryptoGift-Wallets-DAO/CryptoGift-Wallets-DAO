@@ -238,9 +238,17 @@ export function EmbeddedVideoDevice({
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
-  const muxPlayerRef = useRef<any>(null);
   const ambientIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasAutoPlayed = useRef(false);
+
+  // CRITICAL: Unique DOM ID for MuxPlayer - dynamic() doesn't forward refs!
+  const muxPlayerId = `mux-player-${lessonId}`;
+
+  // Get MuxPlayer via DOM ID (React ref doesn't work with dynamic imports)
+  const getMuxPlayer = useCallback((): any => {
+    if (typeof document === 'undefined') return null;
+    return document.getElementById(muxPlayerId);
+  }, [muxPlayerId]);
 
   // Calculate visibility ratio manually (for initial check)
   const getVisibilityRatio = useCallback((): number => {
@@ -260,18 +268,20 @@ export function EmbeddedVideoDevice({
   }, []);
 
   // Attempt auto-play with fallback to muted
-  // USES MuxPlayer API directly - no need to find video element in Shadow DOM
+  // USES MuxPlayer API via DOM ID - dynamic() doesn't forward refs!
   const attemptAutoPlay = useCallback(() => {
     if (hasAutoPlayed.current) {
       console.log('[SmartDetection] Already auto-played, skipping');
       return;
     }
 
-    const player = muxPlayerRef.current;
+    const player = getMuxPlayer();
     if (!player) {
-      console.log('[SmartDetection] ❌ MuxPlayer ref not ready');
+      console.log('[SmartDetection] ❌ MuxPlayer not found in DOM');
       return;
     }
+
+    console.log('[SmartDetection] ✅ MuxPlayer found via DOM ID!');
 
     console.log('[SmartDetection] Attempting auto-play via MuxPlayer API...');
 
@@ -314,7 +324,7 @@ export function EmbeddedVideoDevice({
         }
       });
     }
-  }, []);
+  }, [getMuxPlayer]);
 
   // Extract colors from video frame for Ambient Mode
   // NOTE: MuxPlayer uses closed Shadow DOM, so we use animated fallback colors
@@ -360,7 +370,7 @@ export function EmbeddedVideoDevice({
   // Enter Picture-in-Picture mode
   // MuxPlayer exposes the media element via .media property
   const enterPiP = useCallback(async () => {
-    const player = muxPlayerRef.current;
+    const player = getMuxPlayer();
     if (!player || isInPiP) return;
 
     try {
@@ -379,7 +389,7 @@ export function EmbeddedVideoDevice({
     } catch (e) {
       console.log('[SmartDetection] PiP not available:', e);
     }
-  }, [isInPiP]);
+  }, [isInPiP, getMuxPlayer]);
 
   // Exit Picture-in-Picture mode
   const exitPiP = useCallback(async () => {
@@ -397,7 +407,7 @@ export function EmbeddedVideoDevice({
 
   // Handle PiP events from video element
   useEffect(() => {
-    const player = muxPlayerRef.current;
+    const player = getMuxPlayer();
     if (!player || !isVideoReady) return;
 
     // Try to get the underlying video element for PiP events
@@ -420,7 +430,7 @@ export function EmbeddedVideoDevice({
       video.removeEventListener('enterpictureinpicture', handlePiPEnter);
       video.removeEventListener('leavepictureinpicture', handlePiPLeave);
     };
-  }, [isVideoReady]);
+  }, [isVideoReady, getMuxPlayer]);
 
   // IntersectionObserver for auto-play and PiP - ALWAYS ACTIVE
   useEffect(() => {
@@ -462,15 +472,17 @@ export function EmbeddedVideoDevice({
   }, [isPlaying, isInPiP, isVideoReady, attemptAutoPlay, enterPiP, exitPiP]);
 
   // Handle click to play/pause
-  // USES MuxPlayer API directly
+  // USES MuxPlayer API via DOM ID
   const handleVideoClick = useCallback(() => {
     console.log('[SmartDetection] Click detected');
 
-    const player = muxPlayerRef.current;
+    const player = getMuxPlayer();
     if (!player) {
-      console.log('[SmartDetection] ❌ Click: MuxPlayer ref not ready');
+      console.log('[SmartDetection] ❌ Click: MuxPlayer not found in DOM');
       return;
     }
+
+    console.log('[SmartDetection] ✅ Click: MuxPlayer found via DOM ID');
 
     // Check if paused using MuxPlayer API
     const isPaused = player.paused;
@@ -512,7 +524,7 @@ export function EmbeddedVideoDevice({
       player.pause();
       setIsPlaying(false);
     }
-  }, []);
+  }, [getMuxPlayer]);
 
   // Handle MuxPlayer loaded event
   const handleVideoLoaded = useCallback(() => {
@@ -534,17 +546,25 @@ export function EmbeddedVideoDevice({
 
     console.log('[SmartDetection] Video ready, starting auto-play sequence...');
 
+    let retryCount = 0;
+    const maxRetries = 10;
+
     // Check visibility and attempt auto-play
     const checkAndPlay = () => {
-      const player = muxPlayerRef.current;
+      const player = getMuxPlayer();
 
       if (!player) {
-        console.log('[SmartDetection] MuxPlayer not ready yet, retrying...');
-        setTimeout(checkAndPlay, 200);
+        retryCount++;
+        if (retryCount < maxRetries) {
+          console.log(`[SmartDetection] MuxPlayer not in DOM yet, retry ${retryCount}/${maxRetries}...`);
+          setTimeout(checkAndPlay, 300);
+        } else {
+          console.log('[SmartDetection] ❌ MuxPlayer never appeared in DOM after max retries');
+        }
         return;
       }
 
-      console.log('[SmartDetection] ✅ MuxPlayer ready!');
+      console.log('[SmartDetection] ✅ MuxPlayer found in DOM via getElementById!');
 
       const visibility = getVisibilityRatio();
       console.log(`[SmartDetection] Current visibility: ${(visibility * 100).toFixed(0)}%`);
@@ -557,10 +577,10 @@ export function EmbeddedVideoDevice({
       }
     };
 
-    // Start checking after delay for MuxPlayer to fully initialize
-    const timeoutId = setTimeout(checkAndPlay, 500);
+    // Start checking after delay for MuxPlayer to fully initialize in DOM
+    const timeoutId = setTimeout(checkAndPlay, 600);
     return () => clearTimeout(timeoutId);
-  }, [isVideoReady, getVisibilityRatio, attemptAutoPlay]);
+  }, [isVideoReady, getVisibilityRatio, attemptAutoPlay, getMuxPlayer]);
 
   const handleVideoEnd = useCallback(() => {
     localStorage.setItem(`video_seen:${lessonId}`, 'completed');
@@ -569,9 +589,9 @@ export function EmbeddedVideoDevice({
     onVideoComplete?.();
   }, [lessonId, onVideoComplete, exitPiP]);
 
-  // Toggle mute using MuxPlayer API
+  // Toggle mute using MuxPlayer API via DOM ID
   const toggleMute = useCallback(() => {
-    const player = muxPlayerRef.current;
+    const player = getMuxPlayer();
     if (player) {
       const newMuted = !player.muted;
       player.muted = newMuted;
@@ -581,7 +601,7 @@ export function EmbeddedVideoDevice({
       }
       console.log('[SmartDetection] Mute toggled:', newMuted ? 'muted' : 'unmuted');
     }
-  }, [volume]);
+  }, [volume, getMuxPlayer]);
 
   // Dynamic ambient gradient
   const ambientGradient = `
@@ -678,9 +698,9 @@ export function EmbeddedVideoDevice({
               }}
             >
               {/* MuxPlayer - ALWAYS RENDERED, NO OVERLAY */}
-              {/* CRITICAL: MuxPlayer is a Web Component with Shadow DOM - must have explicit border-radius */}
+              {/* CRITICAL: Use DOM ID instead of ref - dynamic() doesn't forward refs! */}
               <MuxPlayer
-                ref={muxPlayerRef}
+                id={muxPlayerId}
                 playbackId={muxPlaybackId}
                 streamType="on-demand"
                 autoPlay={false}
