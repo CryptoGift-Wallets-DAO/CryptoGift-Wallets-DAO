@@ -588,49 +588,59 @@ export function EmbeddedVideoDevice({
     console.log('[SmartDetection] Exited CSS Mini Player mode');
   }, [isInPiP]);
 
-  // IntersectionObserver for auto-play and PiP - ALWAYS ACTIVE
+  // Placeholder ref - this is what we observe, NOT the floating video
+  const placeholderRef = useRef<HTMLDivElement>(null);
+
+  // IntersectionObserver for auto-play and PiP trigger
+  // IMPORTANT: We observe the PLACEHOLDER, not the video container
+  // The video floats away but the placeholder stays in place
   useEffect(() => {
-    if (!containerRef.current) return;
+    // Use placeholder if in PiP mode, otherwise use container
+    const elementToObserve = isInPiP ? placeholderRef.current : containerRef.current;
+    if (!elementToObserve) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const visibilityRatio = entry.intersectionRatio;
 
+          // WHEN IN PIP MODE: Only track placeholder visibility for potential auto-close
+          // But we DON'T auto-close - user must use mini player controls
+          if (isInPiP) {
+            // Just log, don't auto-exit (that caused the infinite loop!)
+            // User must click Expand or Close buttons
+            if (visibilityRatio > 0.7) {
+              console.log('[SmartDetection] Placeholder >70% visible - user can click Expand to return');
+            }
+            return; // Don't process anything else when in PiP mode
+          }
+
+          // === NORMAL MODE (not in PiP) ===
+
           // Auto-play when >50% visible - MOBILE ONLY (PC stays paused until click)
-          // This handles the case where user scrolls down to reveal video
           if (visibilityRatio > 0.5 && !hasAutoPlayed.current && isVideoReady && isMobile) {
             console.log(`[SmartDetection] MOBILE Observer: ${(visibilityRatio * 100).toFixed(0)}% visible, triggering auto-play`);
             attemptAutoPlay();
           }
 
-          // PC: Enter PiP when <30% visible and video is playing
-          // Mobile: Show PiP banner when <50% visible
-          if (isMobile && isPlaying && !isInPiP) {
-            if (visibilityRatio < 0.5) {
-              // Detect which edge the video is hiding behind
-              const rect = entry.boundingClientRect;
-              const windowHeight = window.innerHeight;
-              const isHidingTop = rect.top < 0;
-              const isHidingBottom = rect.bottom > windowHeight;
+          // Mobile: Show PiP banner when <50% visible and playing
+          if (isMobile && isPlaying && visibilityRatio < 0.5) {
+            const rect = entry.boundingClientRect;
+            const windowHeight = window.innerHeight;
+            const isHidingTop = rect.top < 0;
 
-              setBannerPosition(isHidingTop ? 'top' : 'bottom');
-              setShowPiPBanner(true);
-              console.log('[SmartDetection] MOBILE: Video <50% visible, showing PiP banner at', isHidingTop ? 'TOP' : 'BOTTOM');
-            }
-          } else if (!isMobile && visibilityRatio < 0.3 && isPlaying && !isInPiP) {
-            // PC: Auto PiP at <30%
-            console.log('[SmartDetection] PC: Video <30% visible, entering PiP mode');
+            setBannerPosition(isHidingTop ? 'top' : 'bottom');
+            setShowPiPBanner(true);
+            console.log('[SmartDetection] MOBILE: Video <50% visible, showing PiP banner at', isHidingTop ? 'TOP' : 'BOTTOM');
+          }
+
+          // PC: Auto-enter PiP at <30% visible and playing
+          if (!isMobile && visibilityRatio < 0.3 && isPlaying) {
+            console.log('[SmartDetection] PC: Video <30% visible, entering mini player mode');
             enterPiP();
           }
 
-          // Exit PiP when >50% visible again
-          if (visibilityRatio > 0.5 && isInPiP) {
-            console.log('[SmartDetection] Video >50% visible again, exiting PiP mode');
-            exitPiP();
-          }
-
-          // Hide PiP banner when >50% visible again
+          // Hide PiP banner when >50% visible again (mobile)
           if (visibilityRatio > 0.5) {
             setShowPiPBanner(false);
             pipAttempted.current = false;
@@ -643,9 +653,9 @@ export function EmbeddedVideoDevice({
       }
     );
 
-    observer.observe(containerRef.current);
+    observer.observe(elementToObserve);
     return () => observer.disconnect();
-  }, [isPlaying, isInPiP, isVideoReady, isMobile, attemptAutoPlay, enterPiP, exitPiP]);
+  }, [isPlaying, isInPiP, isVideoReady, isMobile, attemptAutoPlay, enterPiP]);
 
   // Handle click to play/pause
   // PC MODE: Click = Play + Unmute + PiP (triple action)
@@ -899,17 +909,44 @@ export function EmbeddedVideoDevice({
     <>
       <style jsx global>{animationStyles}</style>
 
+      {/* === PLACEHOLDER === */}
+      {/* When video is in mini player mode, this placeholder reserves the space */}
+      {/* The IntersectionObserver watches THIS element to know when user scrolls back */}
+      {isInPiP && (
+        <div
+          ref={placeholderRef}
+          className={`relative ${className}`}
+        >
+          {/* Placeholder content - shows a subtle indicator */}
+          <div className="relative aspect-video bg-gradient-to-br from-slate-900/50 to-black/50 rounded-3xl border border-white/10 flex items-center justify-center">
+            <div className="text-center">
+              <Minimize2 className="w-8 h-8 text-white/30 mx-auto mb-2" />
+              <p className="text-white/40 text-sm">Video playing in mini player</p>
+              <button
+                onClick={() => {
+                  exitPiP();
+                  placeholderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+                className="mt-3 px-4 py-2 rounded-full bg-purple-600/80 hover:bg-purple-500 text-white text-sm font-medium transition-all"
+              >
+                Return video here
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main container with Ambient Mode - CSS Mini Player when isInPiP */}
       <div
-        ref={containerRef}
+        ref={!isInPiP ? containerRef : undefined}
         className={`relative ${className} ${
           isInPiP
-            ? 'fixed bottom-4 right-4 w-80 md:w-96 z-[9999] shadow-2xl rounded-2xl'
+            ? 'fixed bottom-4 right-4 w-72 md:w-80 z-[9999] shadow-2xl rounded-2xl'
             : ''
         }`}
         style={isInPiP ? {
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          maxWidth: '400px',
+          maxWidth: '320px',
         } : undefined}
       >
 
@@ -1117,13 +1154,15 @@ export function EmbeddedVideoDevice({
             {/* Mini Player Controls - Only show when in PiP mode */}
             {isInPiP && (
               <>
-                {/* Expand button - Exit mini player */}
+                {/* Expand button - Exit mini player and scroll to placeholder */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     exitPiP();
-                    // Scroll to video
-                    containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Scroll to placeholder (where video will return)
+                    setTimeout(() => {
+                      placeholderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 50);
                   }}
                   className="p-2 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 hover:scale-110 transition-all shadow-lg border border-white/10"
                   title="Expand video"
