@@ -257,21 +257,46 @@ export function EmbeddedVideoDevice({
       // Firefox detection
       const isFF = navigator.userAgent.toLowerCase().includes('firefox');
       setIsFirefox(isFF);
-      if (isFF) {
-        console.log('[SmartDetection] Firefox detected - standard PiP API not supported');
-      }
 
-      // Mobile detection (touch device + small screen)
+      // Mobile detection - comprehensive check including DevTools responsive mode
       const checkMobile = () => {
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         const isSmallScreen = window.innerWidth < 768;
         const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        return (isTouchDevice && isSmallScreen) || mobileUA;
+
+        // DevTools responsive mode detection: small screen OR mobile UA
+        // This catches when developer is testing mobile view in browser
+        const isMobileView = isSmallScreen || mobileUA;
+
+        // For actual mobile devices, both touch AND (small screen OR mobile UA) are true
+        // For DevTools: usually just small screen is true
+        const result = (isTouchDevice && isMobileView) || mobileUA || isSmallScreen;
+
+        console.log('[SmartDetection] Mobile check:', {
+          isTouchDevice,
+          isSmallScreen,
+          mobileUA,
+          screenWidth: window.innerWidth,
+          result
+        });
+
+        return result;
       };
 
       const mobile = checkMobile();
       setIsMobile(mobile);
       console.log('[SmartDetection] Device type:', mobile ? 'MOBILE' : 'PC');
+
+      // Listen for window resize (DevTools responsive mode changes)
+      const handleResize = () => {
+        const newMobile = checkMobile();
+        if (newMobile !== mobile) {
+          setIsMobile(newMobile);
+          console.log('[SmartDetection] Device type changed to:', newMobile ? 'MOBILE' : 'PC');
+        }
+      };
+
+      window.addEventListener('resize', handleResize);
 
       // PC: Show "Click to Play" overlay (video starts paused)
       // Mobile: Auto-play works with audio
@@ -279,6 +304,10 @@ export function EmbeddedVideoDevice({
         setShowClickToPlay(true);
         console.log('[SmartDetection] PC mode: Video will start PAUSED, click to play with audio');
       }
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
     }
   }, []);
 
@@ -471,88 +500,75 @@ export function EmbeddedVideoDevice({
   const pipAttempted = useRef(false);
 
   // Get underlying video element from MuxPlayer
-  // MuxPlayer uses Shadow DOM, so we need to try multiple access methods
+  // MuxPlayer uses Shadow DOM - we search recursively through all shadow roots
   const getVideoElement = useCallback((): HTMLVideoElement | null => {
     const player = getMuxPlayer();
     if (!player) return null;
 
-    // Method 1: Try Shadow DOM first (most reliable for actual video element)
-    if (player.shadowRoot) {
-      // Try direct video query in shadowRoot
-      let video = player.shadowRoot.querySelector('video');
+    // Recursive function to search for video in shadow DOMs
+    const findVideoRecursive = (root: Element | ShadowRoot | Document): HTMLVideoElement | null => {
+      // Direct search in this root
+      const video = root.querySelector('video');
       if (video && video instanceof HTMLVideoElement) {
-        console.log('[SmartDetection] Found video via shadowRoot.querySelector');
         return video;
       }
 
-      // Try via media-controller (MuxPlayer v2+ structure)
-      const mediaController = player.shadowRoot.querySelector('media-controller');
-      if (mediaController) {
-        // media-controller might have its own shadowRoot
-        if (mediaController.shadowRoot) {
-          video = mediaController.shadowRoot.querySelector('video');
-          if (video && video instanceof HTMLVideoElement) {
-            console.log('[SmartDetection] Found video via media-controller shadowRoot');
-            return video;
-          }
-        }
-        // Or video might be slotted/direct child
-        video = mediaController.querySelector('video');
-        if (video && video instanceof HTMLVideoElement) {
-          console.log('[SmartDetection] Found video via media-controller querySelector');
-          return video;
+      // Search in all elements that might have shadowRoot
+      const elements = root.querySelectorAll('*');
+      for (const el of elements) {
+        if (el.shadowRoot) {
+          const found = findVideoRecursive(el.shadowRoot);
+          if (found) return found;
         }
       }
 
-      // Try via media-theme container (older MuxPlayer structure)
-      const mediaTheme = player.shadowRoot.querySelector('media-theme');
-      if (mediaTheme) {
-        if (mediaTheme.shadowRoot) {
-          video = mediaTheme.shadowRoot.querySelector('video');
-          if (video && video instanceof HTMLVideoElement) {
-            console.log('[SmartDetection] Found video via media-theme shadowRoot');
-            return video;
-          }
-        }
-        video = mediaTheme.querySelector('video');
-        if (video && video instanceof HTMLVideoElement) {
-          console.log('[SmartDetection] Found video via media-theme querySelector');
-          return video;
-        }
+      return null;
+    };
+
+    // Method 1: Search recursively in player's shadowRoot
+    if (player.shadowRoot) {
+      const video = findVideoRecursive(player.shadowRoot);
+      if (video) {
+        console.log('[SmartDetection] Found video via recursive shadowRoot search');
+        console.log('[SmartDetection] Video has PiP:', typeof video.requestPictureInPicture);
+        return video;
       }
     }
 
-    // Method 2: MuxPlayer's media property
+    // Method 2: MuxPlayer's media property (don't filter by PiP - just return the video)
     if (player.media) {
       const mediaEl = player.media.nativeEl || player.media;
-      // Check if it's a real HTMLVideoElement with PiP support
-      if (mediaEl && mediaEl.tagName === 'VIDEO' && typeof mediaEl.requestPictureInPicture === 'function') {
-        console.log('[SmartDetection] Found video via player.media (with PiP support)');
+      if (mediaEl && mediaEl.tagName === 'VIDEO') {
+        console.log('[SmartDetection] Found video via player.media');
+        console.log('[SmartDetection] Video has PiP:', typeof mediaEl.requestPictureInPicture);
         return mediaEl as HTMLVideoElement;
       }
-      console.log('[SmartDetection] player.media exists but no PiP:', {
-        tagName: mediaEl?.tagName,
-        hasPiP: typeof mediaEl?.requestPictureInPicture
-      });
     }
 
-    // Method 3: Fallback - direct querySelector (unlikely but try)
+    // Method 3: Direct querySelector on player
     const directVideo = player.querySelector('video');
     if (directVideo && directVideo instanceof HTMLVideoElement) {
       console.log('[SmartDetection] Found video via direct querySelector');
       return directVideo;
     }
 
-    console.log('[SmartDetection] Could not find video element with PiP support');
-    console.log('[SmartDetection] shadowRoot:', player.shadowRoot ? 'accessible' : 'closed/null');
-    console.log('[SmartDetection] PiP enabled in browser:', document.pictureInPictureEnabled);
+    // Method 4: Search entire document as fallback
+    const allVideos = document.querySelectorAll('video');
+    for (const v of allVideos) {
+      if (v instanceof HTMLVideoElement && !v.paused) {
+        console.log('[SmartDetection] Found playing video in document');
+        return v;
+      }
+    }
+
+    console.log('[SmartDetection] Could not find video element');
     return null;
   }, [getMuxPlayer]);
 
   // Enter Picture-in-Picture mode
   // MuxPlayer uses Shadow DOM - we try multiple methods to find the video element
-  // NOTE: Firefox does NOT support the standard PiP API (document.pictureInPictureEnabled)
-  // Firefox users must use the native PiP button (right-click video or toolbar icon)
+  // NOTE: Firefox DOES support PiP, but document.pictureInPictureEnabled is undefined
+  // We check for requestPictureInPicture directly on the video element instead
   const enterPiP = useCallback(async () => {
     // Prevent spam attempts
     if (pipAttempted.current || isInPiP) return;
@@ -563,20 +579,6 @@ export function EmbeddedVideoDevice({
     // Mark that we've attempted PiP (will be reset when video becomes visible again)
     pipAttempted.current = true;
 
-    // Firefox doesn't support standard PiP API - skip silently
-    // Users can use Firefox's native PiP (right-click → Watch in Picture-in-Picture)
-    if (isFirefox) {
-      console.log('[SmartDetection] Firefox: Standard PiP API not supported');
-      console.log('[SmartDetection] Firefox users: Right-click video → "Watch in Picture-in-Picture"');
-      return;
-    }
-
-    // Check browser support first (Chrome, Edge, Safari)
-    if (typeof document.pictureInPictureEnabled === 'undefined' || !document.pictureInPictureEnabled) {
-      console.log('[SmartDetection] PiP not supported by this browser');
-      return;
-    }
-
     try {
       const video = getVideoElement();
 
@@ -585,23 +587,31 @@ export function EmbeddedVideoDevice({
         return;
       }
 
+      // Check if video element supports PiP (works on Firefox, Chrome, Edge, Safari)
       if (typeof video.requestPictureInPicture !== 'function') {
-        console.log('[SmartDetection] PiP: requestPictureInPicture not available on video');
+        console.log('[SmartDetection] PiP: requestPictureInPicture not available on this video element');
+        console.log('[SmartDetection] Tip: Try right-click → "Watch in Picture-in-Picture"');
         return;
       }
 
-      if (document.pictureInPictureElement) {
+      // Check if already in PiP (document.pictureInPictureElement may not exist in all browsers)
+      if (typeof document.pictureInPictureElement !== 'undefined' && document.pictureInPictureElement) {
         console.log('[SmartDetection] PiP: Already in PiP mode');
         return;
       }
 
+      console.log('[SmartDetection] Attempting PiP...');
       await video.requestPictureInPicture();
       setIsInPiP(true);
       console.log('[SmartDetection] ✅ Entered PiP mode');
     } catch (e: any) {
       console.log('[SmartDetection] PiP error:', e.name, e.message);
+      // Some browsers require user gesture - inform user
+      if (e.name === 'NotAllowedError') {
+        console.log('[SmartDetection] PiP requires user gesture. Try clicking the video first.');
+      }
     }
-  }, [isInPiP, isFirefox, getMuxPlayer, getVideoElement]);
+  }, [isInPiP, getMuxPlayer, getVideoElement]);
 
   // Exit Picture-in-Picture mode
   const exitPiP = useCallback(async () => {
@@ -781,70 +791,77 @@ export function EmbeddedVideoDevice({
   }, [getMuxPlayer, showClickToPlay, isMobile, enterPiP]);
 
   // FULLSCREEN - Double-click to enter/exit fullscreen
+  // Supports: Chrome, Firefox, Safari, iOS Safari, Android
   const handleDoubleClick = useCallback(() => {
     console.log('[SmartDetection] Double-click detected, toggling fullscreen');
 
     const player = getMuxPlayer();
-    if (!player) return;
+    if (!player) {
+      console.log('[SmartDetection] Fullscreen: No player found');
+      return;
+    }
 
-    // Try to get the video element or the player container
-    const getVideoElement = (): HTMLVideoElement | null => {
-      // Method 1: Try Shadow DOM
-      if (player.shadowRoot) {
-        const video = player.shadowRoot.querySelector('video');
-        if (video) return video;
-
-        // Try media-controller
-        const mediaController = player.shadowRoot.querySelector('media-controller');
-        if (mediaController) {
-          if (mediaController.shadowRoot) {
-            const v = mediaController.shadowRoot.querySelector('video');
-            if (v) return v;
-          }
-          const v = mediaController.querySelector('video');
-          if (v && v instanceof HTMLVideoElement) return v;
-        }
-      }
-
-      // Method 2: player.media
-      if (player.media) {
-        const mediaEl = player.media.nativeEl || player.media;
-        if (mediaEl && mediaEl.tagName === 'VIDEO') {
-          return mediaEl as HTMLVideoElement;
-        }
-      }
-
-      return null;
-    };
-
+    // Use global getVideoElement function (recursive search)
     const video = getVideoElement();
+    console.log('[SmartDetection] Fullscreen: Video found:', !!video);
 
-    // Toggle fullscreen
-    if (document.fullscreenElement) {
-      // Exit fullscreen
-      document.exitFullscreen().catch((e) => {
-        console.log('[SmartDetection] Exit fullscreen error:', e);
-      });
-    } else {
-      // Enter fullscreen - try video first, then player container
-      const elementToFullscreen = video || player;
+    // Check if currently in fullscreen (various browser prefixes)
+    const isCurrentlyFullscreen = !!(
+      document.fullscreenElement ||
+      (document as any).webkitFullscreenElement ||
+      (document as any).mozFullScreenElement ||
+      (document as any).msFullscreenElement
+    );
 
-      if (elementToFullscreen.requestFullscreen) {
-        elementToFullscreen.requestFullscreen().catch((e: Error) => {
-          console.log('[SmartDetection] Fullscreen error:', e.message);
-          // Fallback: try player container
-          if (video && player.requestFullscreen) {
-            player.requestFullscreen().catch((e2: Error) => {
-              console.log('[SmartDetection] Player fullscreen error:', e2.message);
-            });
-          }
+    if (isCurrentlyFullscreen) {
+      // Exit fullscreen - try all methods
+      console.log('[SmartDetection] Exiting fullscreen');
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((e) => {
+          console.log('[SmartDetection] Exit fullscreen error:', e);
         });
-      } else if ((elementToFullscreen as any).webkitRequestFullscreen) {
-        // Safari support
-        (elementToFullscreen as any).webkitRequestFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).mozCancelFullScreen) {
+        (document as any).mozCancelFullScreen();
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+      }
+    } else {
+      // Enter fullscreen - try multiple methods for cross-browser support
+      console.log('[SmartDetection] Entering fullscreen');
+
+      // iOS Safari: Use webkitEnterFullscreen on the video element directly
+      if (video && (video as any).webkitEnterFullscreen) {
+        console.log('[SmartDetection] Using iOS webkitEnterFullscreen');
+        try {
+          (video as any).webkitEnterFullscreen();
+          return;
+        } catch (e) {
+          console.log('[SmartDetection] iOS fullscreen error:', e);
+        }
+      }
+
+      // Standard fullscreen API - try container first (includes controls), then video
+      const elementToFullscreen = containerRef.current || player || video;
+
+      if (elementToFullscreen) {
+        if (elementToFullscreen.requestFullscreen) {
+          elementToFullscreen.requestFullscreen().catch((e: Error) => {
+            console.log('[SmartDetection] Fullscreen error:', e.message);
+          });
+        } else if ((elementToFullscreen as any).webkitRequestFullscreen) {
+          (elementToFullscreen as any).webkitRequestFullscreen();
+        } else if ((elementToFullscreen as any).mozRequestFullScreen) {
+          (elementToFullscreen as any).mozRequestFullScreen();
+        } else if ((elementToFullscreen as any).msRequestFullscreen) {
+          (elementToFullscreen as any).msRequestFullscreen();
+        } else {
+          console.log('[SmartDetection] No fullscreen API available');
+        }
       }
     }
-  }, [getMuxPlayer]);
+  }, [getMuxPlayer, getVideoElement]);
 
   // MOBILE PiP Banner - Click to enter PiP mode
   const handlePiPBannerClick = useCallback(() => {
