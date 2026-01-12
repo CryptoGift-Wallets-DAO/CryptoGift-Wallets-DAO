@@ -57,8 +57,8 @@ const AMBIENT_CONFIG = {
   updateInterval: 100
 };
 
-// Auto-play volume (0.0 to 1.0)
-const AUTO_PLAY_VOLUME = 0.15;
+// Auto-play volume (0.0 to 1.0) - 30% as requested
+const AUTO_PLAY_VOLUME = 0.30;
 
 // CSS Keyframes for premium animations - GRAVITATIONAL DISTORTION EFFECT
 const animationStyles = `
@@ -652,10 +652,10 @@ export function EmbeddedVideoDevice({
         entries.forEach((entry) => {
           const visibilityRatio = entry.intersectionRatio;
 
-          // Auto-play when >50% visible (NO CLICK REQUIRED)
+          // Auto-play when >50% visible - MOBILE ONLY (PC stays paused until click)
           // This handles the case where user scrolls down to reveal video
-          if (visibilityRatio > 0.5 && !hasAutoPlayed.current && isVideoReady) {
-            console.log(`[SmartDetection] Observer: ${(visibilityRatio * 100).toFixed(0)}% visible, triggering auto-play`);
+          if (visibilityRatio > 0.5 && !hasAutoPlayed.current && isVideoReady && isMobile) {
+            console.log(`[SmartDetection] MOBILE Observer: ${(visibilityRatio * 100).toFixed(0)}% visible, triggering auto-play`);
             attemptAutoPlay();
           }
 
@@ -1066,71 +1066,63 @@ export function EmbeddedVideoDevice({
               />
               </div>
 
-              {/* Play Overlay - PC shows "Click to Play", Mobile shows simple play button */}
-              {/* CRITICAL: Must have rounded-3xl to prevent ghost corners */}
+              {/* Play Overlay - Elegant small banner at BOTTOM CENTER (like captura 004012.png) */}
+              {/* Shows when video is paused and ready - BOTH PC and Mobile */}
               {!isPlaying && isVideoReady && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none rounded-3xl"
+                  className="absolute inset-0 flex flex-col items-center justify-end pb-4 pointer-events-none rounded-3xl"
                 >
-                  {/* PC MODE: Large "Click to Play" with text */}
-                  {showClickToPlay && !isMobile ? (
+                  {/* Center play button */}
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
                     <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="flex flex-col items-center gap-4 px-8 py-6 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20"
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/20"
                     >
-                      <motion.div
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
-                      >
-                        <Play className="w-10 h-10 text-white ml-1" fill="white" />
-                      </motion.div>
-                      <span className="text-white text-lg font-semibold">
-                        Click to Play
-                      </span>
-                      <span className="text-white/50 text-xs">
-                        Double-click for fullscreen
-                      </span>
+                      <Play className="w-8 h-8 md:w-10 md:h-10 text-white ml-1" fill="white" />
                     </motion.div>
-                  ) : (
-                    /* MOBILE MODE: Simple play button */
-                    <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
-                    >
-                      <Play className="w-8 h-8 text-white ml-1" fill="white" />
-                    </motion.div>
-                  )}
+                  </motion.div>
+
+                  {/* Elegant bottom banner - small, clean, non-intrusive */}
+                  <motion.div
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/20 shadow-lg"
+                  >
+                    <VolumeX className="w-4 h-4 text-amber-400" />
+                    <span className="text-white text-sm font-medium">
+                      Click anywhere to play
+                    </span>
+                  </motion.div>
                 </motion.div>
               )}
 
-              {/* AUDIO UNLOCK HINT - Shows when video plays muted due to browser policy */}
-              {/* BIGGER + CENTERED - Clicking anywhere on the page will unlock audio */}
+              {/* AUDIO UNLOCK HINT - Small elegant banner when video plays muted */}
+              {/* Same style as play banner - bottom center, non-intrusive */}
               {showUnmuteHint && isPlaying && isMuted && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none"
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 10, opacity: 0 }}
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
                 >
-                  <div className="flex flex-col items-center gap-3 px-8 py-5 rounded-2xl bg-black/80 backdrop-blur-lg border border-white/30 shadow-2xl max-w-[90%]">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/20 shadow-lg">
                     <motion.div
-                      animate={{ scale: [1, 1.3, 1] }}
+                      animate={{ scale: [1, 1.2, 1] }}
                       transition={{ duration: 1.2, repeat: Infinity }}
-                      className="p-3 rounded-full bg-amber-500/20"
                     >
-                      <VolumeX className="w-10 h-10 text-amber-400" />
+                      <VolumeX className="w-4 h-4 text-amber-400" />
                     </motion.div>
-                    <span className="text-white text-lg font-semibold text-center">
+                    <span className="text-white text-sm font-medium">
                       Click anywhere to enable audio
-                    </span>
-                    <span className="text-white/60 text-sm text-center">
-                      Your browser requires user interaction
                     </span>
                   </div>
                 </motion.div>
