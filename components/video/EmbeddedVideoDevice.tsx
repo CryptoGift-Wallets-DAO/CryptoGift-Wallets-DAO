@@ -371,75 +371,129 @@ export function EmbeddedVideoDevice({
     }
   }, [isPlaying, extractVideoColors]);
 
+  // Track if we've already tried PiP (to prevent spam)
+  const pipAttempted = useRef(false);
+
   // Get underlying video element from MuxPlayer
   // MuxPlayer uses Shadow DOM, so we need to try multiple access methods
   const getVideoElement = useCallback((): HTMLVideoElement | null => {
     const player = getMuxPlayer();
     if (!player) return null;
 
-    // Method 1: MuxPlayer's media property (most reliable)
-    if (player.media) {
-      const mediaEl = player.media.nativeEl || player.media;
-      if (mediaEl instanceof HTMLVideoElement) {
-        console.log('[SmartDetection] Found video via player.media');
-        return mediaEl;
-      }
-    }
-
-    // Method 2: Access via Shadow DOM (if accessible)
+    // Method 1: Try Shadow DOM first (most reliable for actual video element)
     if (player.shadowRoot) {
-      // Try direct video query
+      // Try direct video query in shadowRoot
       let video = player.shadowRoot.querySelector('video');
-      if (video) {
+      if (video && video instanceof HTMLVideoElement) {
         console.log('[SmartDetection] Found video via shadowRoot.querySelector');
-        return video as HTMLVideoElement;
+        return video;
       }
 
-      // Try via media-theme container (MuxPlayer internal structure)
+      // Try via media-controller (MuxPlayer v2+ structure)
+      const mediaController = player.shadowRoot.querySelector('media-controller');
+      if (mediaController) {
+        // media-controller might have its own shadowRoot
+        if (mediaController.shadowRoot) {
+          video = mediaController.shadowRoot.querySelector('video');
+          if (video && video instanceof HTMLVideoElement) {
+            console.log('[SmartDetection] Found video via media-controller shadowRoot');
+            return video;
+          }
+        }
+        // Or video might be slotted/direct child
+        video = mediaController.querySelector('video');
+        if (video && video instanceof HTMLVideoElement) {
+          console.log('[SmartDetection] Found video via media-controller querySelector');
+          return video;
+        }
+      }
+
+      // Try via media-theme container (older MuxPlayer structure)
       const mediaTheme = player.shadowRoot.querySelector('media-theme');
-      if (mediaTheme && mediaTheme.shadowRoot) {
-        video = mediaTheme.shadowRoot.querySelector('video');
-        if (video) {
-          console.log('[SmartDetection] Found video via media-theme shadowRoot');
-          return video as HTMLVideoElement;
+      if (mediaTheme) {
+        if (mediaTheme.shadowRoot) {
+          video = mediaTheme.shadowRoot.querySelector('video');
+          if (video && video instanceof HTMLVideoElement) {
+            console.log('[SmartDetection] Found video via media-theme shadowRoot');
+            return video;
+          }
+        }
+        video = mediaTheme.querySelector('video');
+        if (video && video instanceof HTMLVideoElement) {
+          console.log('[SmartDetection] Found video via media-theme querySelector');
+          return video;
         }
       }
     }
 
-    // Method 3: Fallback - direct querySelector (unlikely but try)
-    const directVideo = player.querySelector('video');
-    if (directVideo) {
-      console.log('[SmartDetection] Found video via direct querySelector');
-      return directVideo as HTMLVideoElement;
+    // Method 2: MuxPlayer's media property
+    if (player.media) {
+      const mediaEl = player.media.nativeEl || player.media;
+      // Check if it's a real HTMLVideoElement with PiP support
+      if (mediaEl && mediaEl.tagName === 'VIDEO' && typeof mediaEl.requestPictureInPicture === 'function') {
+        console.log('[SmartDetection] Found video via player.media (with PiP support)');
+        return mediaEl as HTMLVideoElement;
+      }
+      console.log('[SmartDetection] player.media exists but no PiP:', {
+        tagName: mediaEl?.tagName,
+        hasPiP: typeof mediaEl?.requestPictureInPicture
+      });
     }
 
-    console.log('[SmartDetection] Could not find video element');
-    console.log('[SmartDetection] player.media:', player.media);
-    console.log('[SmartDetection] player.shadowRoot:', player.shadowRoot ? 'accessible' : 'null/closed');
+    // Method 3: Fallback - direct querySelector (unlikely but try)
+    const directVideo = player.querySelector('video');
+    if (directVideo && directVideo instanceof HTMLVideoElement) {
+      console.log('[SmartDetection] Found video via direct querySelector');
+      return directVideo;
+    }
+
+    console.log('[SmartDetection] Could not find video element with PiP support');
+    console.log('[SmartDetection] shadowRoot:', player.shadowRoot ? 'accessible' : 'closed/null');
+    console.log('[SmartDetection] PiP enabled in browser:', document.pictureInPictureEnabled);
     return null;
   }, [getMuxPlayer]);
 
   // Enter Picture-in-Picture mode
   // MuxPlayer uses Shadow DOM - we try multiple methods to find the video element
   const enterPiP = useCallback(async () => {
+    // Prevent spam attempts
+    if (pipAttempted.current || isInPiP) return;
+
     const player = getMuxPlayer();
-    if (!player || isInPiP) return;
+    if (!player) return;
+
+    // Mark that we've attempted PiP (will be reset when video becomes visible again)
+    pipAttempted.current = true;
+
+    // Check browser support first
+    if (!document.pictureInPictureEnabled) {
+      console.log('[SmartDetection] PiP not supported by browser');
+      return;
+    }
 
     try {
       const video = getVideoElement();
 
-      if (!video || typeof video.requestPictureInPicture !== 'function') {
-        console.log('[SmartDetection] PiP not available - no video element or API not supported');
+      if (!video) {
+        console.log('[SmartDetection] PiP: No video element found');
         return;
       }
 
-      if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
-        await video.requestPictureInPicture();
-        setIsInPiP(true);
-        console.log('[SmartDetection] ✅ Entered PiP mode');
+      if (typeof video.requestPictureInPicture !== 'function') {
+        console.log('[SmartDetection] PiP: requestPictureInPicture not available on video');
+        return;
       }
-    } catch (e) {
-      console.log('[SmartDetection] PiP error:', e);
+
+      if (document.pictureInPictureElement) {
+        console.log('[SmartDetection] PiP: Already in PiP mode');
+        return;
+      }
+
+      await video.requestPictureInPicture();
+      setIsInPiP(true);
+      console.log('[SmartDetection] ✅ Entered PiP mode');
+    } catch (e: any) {
+      console.log('[SmartDetection] PiP error:', e.name, e.message);
     }
   }, [isInPiP, getMuxPlayer, getVideoElement]);
 
@@ -509,6 +563,11 @@ export function EmbeddedVideoDevice({
           if (visibilityRatio > 0.5 && isInPiP) {
             console.log('[SmartDetection] Video >50% visible again, exiting PiP mode');
             exitPiP();
+          }
+
+          // Reset PiP attempt flag when video is visible (so we can try again next time)
+          if (visibilityRatio > 0.5) {
+            pipAttempted.current = false;
           }
         });
       },
