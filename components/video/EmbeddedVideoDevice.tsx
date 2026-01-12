@@ -18,7 +18,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { Play, Volume2, VolumeX } from 'lucide-react';
+import { Play, Volume2, VolumeX, Minimize2 } from 'lucide-react';
 import { VideoExperienceHint } from '@/components/ui/RotatePhoneHint';
 
 // Lazy load Mux Player for optimization
@@ -233,6 +233,8 @@ export function EmbeddedVideoDevice({
   const [isFirefox, setIsFirefox] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showClickToPlay, setShowClickToPlay] = useState(false); // PC: Show click to play overlay
+  const [showPiPBanner, setShowPiPBanner] = useState(false); // Mobile: Show PiP invitation banner
+  const [bannerPosition, setBannerPosition] = useState<'top' | 'bottom'>('bottom'); // Where video is hiding
 
   // Ambient Mode state
   const [ambientColors, setAmbientColors] = useState({
@@ -657,9 +659,23 @@ export function EmbeddedVideoDevice({
             attemptAutoPlay();
           }
 
-          // Enter PiP when <30% visible and video is playing
-          if (visibilityRatio < 0.3 && isPlaying && !isInPiP) {
-            console.log('[SmartDetection] Video <30% visible, entering PiP mode');
+          // PC: Enter PiP when <30% visible and video is playing
+          // Mobile: Show PiP banner when <50% visible
+          if (isMobile && isPlaying && !isInPiP) {
+            if (visibilityRatio < 0.5) {
+              // Detect which edge the video is hiding behind
+              const rect = entry.boundingClientRect;
+              const windowHeight = window.innerHeight;
+              const isHidingTop = rect.top < 0;
+              const isHidingBottom = rect.bottom > windowHeight;
+
+              setBannerPosition(isHidingTop ? 'top' : 'bottom');
+              setShowPiPBanner(true);
+              console.log('[SmartDetection] MOBILE: Video <50% visible, showing PiP banner at', isHidingTop ? 'TOP' : 'BOTTOM');
+            }
+          } else if (!isMobile && visibilityRatio < 0.3 && isPlaying && !isInPiP) {
+            // PC: Auto PiP at <30%
+            console.log('[SmartDetection] PC: Video <30% visible, entering PiP mode');
             enterPiP();
           }
 
@@ -669,8 +685,9 @@ export function EmbeddedVideoDevice({
             exitPiP();
           }
 
-          // Reset PiP attempt flag when video is visible (so we can try again next time)
+          // Hide PiP banner when >50% visible again
           if (visibilityRatio > 0.5) {
+            setShowPiPBanner(false);
             pipAttempted.current = false;
           }
         });
@@ -683,10 +700,11 @@ export function EmbeddedVideoDevice({
 
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [isPlaying, isInPiP, isVideoReady, attemptAutoPlay, enterPiP, exitPiP]);
+  }, [isPlaying, isInPiP, isVideoReady, isMobile, attemptAutoPlay, enterPiP, exitPiP]);
 
   // Handle click to play/pause
-  // USES MuxPlayer API via DOM ID
+  // PC MODE: Click = Play + Unmute + PiP (triple action)
+  // MOBILE MODE: Click = Play + Unmute (PiP via banner)
   const handleVideoClick = useCallback(() => {
     console.log('[SmartDetection] Click detected');
 
@@ -722,6 +740,15 @@ export function EmbeddedVideoDevice({
           setIsPlaying(true);
           setIsMuted(false);
           hasAutoPlayed.current = true;
+
+          // PC MODE: Also enter PiP immediately after play (triple action)
+          if (!isMobile) {
+            console.log('[SmartDetection] PC MODE: Entering PiP after play (triple action)');
+            // Small delay to ensure video is playing before PiP
+            setTimeout(() => {
+              enterPiP();
+            }, 300);
+          }
         }).catch((err: Error) => {
           console.log('[SmartDetection] Manual play blocked, trying muted:', err.message);
           player.muted = true;
@@ -733,6 +760,13 @@ export function EmbeddedVideoDevice({
               console.log('[SmartDetection] ✅ Manual play SUCCESS (muted)');
               setIsPlaying(true);
               hasAutoPlayed.current = true;
+
+              // PC MODE: Also enter PiP (muted version)
+              if (!isMobile) {
+                setTimeout(() => {
+                  enterPiP();
+                }, 300);
+              }
             }).catch((err2: Error) => {
               console.log('[SmartDetection] ❌ Manual play completely blocked:', err2.message);
             });
@@ -744,7 +778,7 @@ export function EmbeddedVideoDevice({
       player.pause();
       setIsPlaying(false);
     }
-  }, [getMuxPlayer, showClickToPlay]);
+  }, [getMuxPlayer, showClickToPlay, isMobile, enterPiP]);
 
   // FULLSCREEN - Double-click to enter/exit fullscreen
   const handleDoubleClick = useCallback(() => {
@@ -811,6 +845,13 @@ export function EmbeddedVideoDevice({
       }
     }
   }, [getMuxPlayer]);
+
+  // MOBILE PiP Banner - Click to enter PiP mode
+  const handlePiPBannerClick = useCallback(() => {
+    console.log('[SmartDetection] MOBILE: PiP banner clicked, entering mini player mode');
+    setShowPiPBanner(false);
+    enterPiP();
+  }, [enterPiP]);
 
   // Handle MuxPlayer loaded event
   const handleVideoLoaded = useCallback(() => {
@@ -1156,6 +1197,88 @@ export function EmbeddedVideoDevice({
           </motion.p>
         )}
       </div>
+
+      {/* === MOBILE PiP BANNER === */}
+      {/* Elegant banner that appears when video is >50% hidden on mobile */}
+      {/* Positioned at the edge where video is disappearing */}
+      {showPiPBanner && isMobile && (
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: bannerPosition === 'top' ? -20 : 20,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+          exit={{
+            opacity: 0,
+            y: bannerPosition === 'top' ? -20 : 20,
+          }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          className={`fixed left-1/2 -translate-x-1/2 z-50 ${
+            bannerPosition === 'top' ? 'top-4' : 'bottom-20'
+          }`}
+          style={{ maxWidth: 'calc(100vw - 2rem)' }}
+        >
+          <button
+            onClick={handlePiPBannerClick}
+            className="group flex items-center gap-3 px-5 py-3 rounded-full
+                       bg-gradient-to-r from-purple-600/90 via-violet-600/90 to-indigo-600/90
+                       backdrop-blur-xl border border-white/20
+                       shadow-[0_8px_32px_rgba(139,92,246,0.4),0_0_0_1px_rgba(255,255,255,0.1)_inset]
+                       hover:shadow-[0_12px_40px_rgba(139,92,246,0.5),0_0_0_1px_rgba(255,255,255,0.15)_inset]
+                       hover:scale-105 active:scale-95
+                       transition-all duration-300 ease-out"
+          >
+            {/* Animated play/minimize icon */}
+            <motion.div
+              animate={{
+                scale: [1, 1.15, 1],
+                rotate: [0, 5, -5, 0],
+              }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-white/20 rounded-full blur-md" />
+              <div className="relative p-1.5 rounded-full bg-white/20">
+                <Minimize2 className="w-5 h-5 text-white" />
+              </div>
+            </motion.div>
+
+            {/* Text with gradient shine effect */}
+            <div className="flex flex-col items-start">
+              <span className="text-white font-semibold text-sm leading-tight">
+                Continue watching
+              </span>
+              <span className="text-white/70 text-xs leading-tight">
+                Tap for mini player
+              </span>
+            </div>
+
+            {/* Subtle arrow indicator */}
+            <motion.div
+              animate={{ x: [0, 4, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+              className="text-white/60 group-hover:text-white transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </motion.div>
+
+            {/* Pulse ring effect */}
+            <motion.div
+              className="absolute inset-0 rounded-full border border-purple-400/50"
+              animate={{
+                scale: [1, 1.1, 1],
+                opacity: [0.5, 0, 0.5],
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          </button>
+        </motion.div>
+      )}
     </>
   );
 }
