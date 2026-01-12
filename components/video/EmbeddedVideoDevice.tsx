@@ -813,32 +813,20 @@ export function EmbeddedVideoDevice({
             y: { duration: 6, ease: 'easeInOut', repeat: Infinity },
             scale: { duration: 0.6, ease: 'easeOut' }
           }}
-          className="relative rounded-3xl"
+          className="relative rounded-3xl overflow-hidden"
           style={{
-            /* CONCENTRATED SHADOW - Half distance, fully diffused edges */
-            boxShadow: `
-              /* Core shadow - tight around video */
-              0 0 20px 0 rgba(0, 0, 0, 0.7),
-
-              /* Inner glow - soft */
-              0 0 40px 0 rgba(0, 0, 0, 0.4),
-
-              /* Outer diffusion - very blurred, no hard edges */
-              0 0 60px 0 rgba(0, 0, 0, 0.2)
+            /* DROP-SHADOW respects border-radius perfectly - no hard corners */
+            filter: `
+              drop-shadow(0 0 8px rgba(0, 0, 0, 0.5))
+              drop-shadow(0 0 20px rgba(0, 0, 0, 0.3))
+              drop-shadow(0 0 40px rgba(0, 0, 0, 0.15))
             `,
           }}
         >
-          {/* Video Frame - Clean edges, no extra shadows */}
+          {/* Video Frame - Clean edges */}
           <div
             className="relative rounded-3xl overflow-hidden cursor-pointer"
             onClick={handleVideoClick}
-            style={{
-              /* Only subtle ambient glow when playing - no hard edges */
-              boxShadow: isPlaying
-                ? `0 0 80px -15px ${ambientColors.dominant}, 0 0 50px -10px ${ambientColors.secondary}`
-                : 'none',
-              transition: 'box-shadow 0.5s ease-out',
-            }}
           >
             {/* Aspect ratio container */}
             <div className="relative aspect-video bg-black">
