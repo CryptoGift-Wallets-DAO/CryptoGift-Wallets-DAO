@@ -10,11 +10,15 @@
  * - PC: Click to start playing
  * - Mobile: Auto-play when visible
  *
+ * IMPORTANT: Uses React Portal for sticky mode to escape backdrop-filter containers
+ * that break position:fixed behavior.
+ *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
  */
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { Play, Volume2, VolumeX } from 'lucide-react';
@@ -108,6 +112,10 @@ export function EmbeddedVideoDevice({
   const hasAutoPlayed = useRef(false);
   const stickyLocked = useRef(false);
 
+  // Portal state - for escaping backdrop-filter containers
+  const [portalReady, setPortalReady] = useState(false);
+  const [placeholderRect, setPlaceholderRect] = useState<DOMRect | null>(null);
+
   // CRITICAL: Unique DOM ID for MuxPlayer
   const muxPlayerId = `mux-player-${lessonId}`;
 
@@ -127,6 +135,35 @@ export function EmbeddedVideoDevice({
       return () => window.removeEventListener('resize', handleResize);
     }
   }, []);
+
+  // Portal ready check (client-side only)
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
+  // Update placeholder rect for positioning when NOT sticky
+  useEffect(() => {
+    if (!placeholderRef.current) return;
+
+    const updateRect = () => {
+      if (placeholderRef.current && !isSticky) {
+        setPlaceholderRect(placeholderRef.current.getBoundingClientRect());
+      }
+    };
+
+    // Initial update
+    updateRect();
+
+    // Update on scroll and resize when not sticky
+    if (!isSticky) {
+      window.addEventListener('scroll', updateRect, { passive: true });
+      window.addEventListener('resize', updateRect, { passive: true });
+      return () => {
+        window.removeEventListener('scroll', updateRect);
+        window.removeEventListener('resize', updateRect);
+      };
+    }
+  }, [isSticky]);
 
   // Capture original height when video is ready
   useEffect(() => {
@@ -368,28 +405,111 @@ export function EmbeddedVideoDevice({
   `;
 
   // =============================================================================
-  // RENDER - CLEAN STRUCTURE
+  // RENDER - WITH PORTAL TO ESCAPE BACKDROP-FILTER
   // =============================================================================
 
-  // Compute video container styles
+  // Compute video container styles - ALWAYS fixed to escape backdrop-filter
   const videoStyles: React.CSSProperties = isSticky
     ? {
+        // STICKY: Fixed below navbar
         position: 'fixed',
         top: NAVBAR_HEIGHT,
         left: 16,
         right: 16,
         zIndex: 9999,
-        maxWidth: 672, // 42rem
+        maxWidth: 672,
         marginLeft: 'auto',
         marginRight: 'auto',
       }
+    : placeholderRect
+    ? {
+        // NORMAL: Fixed at placeholder position (simulates being in place)
+        position: 'fixed',
+        top: placeholderRect.top,
+        left: placeholderRect.left,
+        width: placeholderRect.width,
+        height: placeholderRect.height,
+        zIndex: 50,
+      }
     : {
+        // FALLBACK before rect is calculated
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
       };
+
+  // The video element - extracted for portal usage
+  const videoElement = (
+    <div ref={videoContainerRef} style={videoStyles}>
+      <div
+        className="relative w-full h-full overflow-hidden rounded-3xl cursor-pointer"
+        style={{
+          boxShadow: '0 0 15px rgba(0,0,0,0.4), 0 0 25px rgba(0,0,0,0.3)',
+          ...(isSticky ? { aspectRatio: '16/9' } : {}),
+        }}
+        onClick={handleVideoClick}
+        onDoubleClick={handleDoubleClick}
+      >
+        {/* Video with 16:9 aspect ratio */}
+        <div className="relative w-full h-full bg-black">
+          <div id={muxPlayerId} className="absolute inset-0">
+            <MuxPlayer
+              playbackId={muxPlaybackId}
+              streamType="on-demand"
+              autoPlay={false}
+              muted={isMuted}
+              playsInline
+              onLoadedData={handleVideoLoaded}
+              onCanPlay={handleVideoLoaded}
+              onEnded={handleVideoEnd}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              style={{
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                borderRadius: '1.5rem',
+                '--controls': 'none',
+                '--media-object-fit': 'cover',
+                '--media-object-position': 'center',
+              } as any}
+              metadata={{
+                video_title: title || 'CryptoGift Video',
+                video_series: 'CryptoGift Educational'
+              }}
+            />
+          </div>
+
+          {/* Play overlay when paused */}
+          {!isPlaying && isVideoReady && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/20 animate-pulse">
+                <Play className="w-8 h-8 md:w-10 md:h-10 text-white ml-1" fill="white" />
+              </div>
+              <div className="mt-4 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/20">
+                <span className="text-white text-sm font-medium">
+                  {isMobile ? 'Tap to play' : 'Click to play'}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Volume control button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+          className="absolute top-3 right-3 z-30 p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
+          title={isMuted ? 'Unmute' : 'Mute'}
+        >
+          {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -416,74 +536,11 @@ export function EmbeddedVideoDevice({
           </div>
         )}
 
-        {/* VIDEO CONTAINER - Single instance, changes position via CSS */}
-        <div ref={videoContainerRef} style={videoStyles}>
-          <div
-            className="relative w-full h-full overflow-hidden rounded-3xl cursor-pointer"
-            style={{
-              boxShadow: '0 0 15px rgba(0,0,0,0.4), 0 0 25px rgba(0,0,0,0.3)',
-              ...(isSticky ? { aspectRatio: '16/9' } : {}),
-            }}
-            onClick={handleVideoClick}
-            onDoubleClick={handleDoubleClick}
-          >
-            {/* Video with 16:9 aspect ratio */}
-            <div className="relative w-full h-full bg-black">
-              <div id={muxPlayerId} className="absolute inset-0">
-                <MuxPlayer
-                  playbackId={muxPlaybackId}
-                  streamType="on-demand"
-                  autoPlay={false}
-                  muted={isMuted}
-                  playsInline
-                  onLoadedData={handleVideoLoaded}
-                  onCanPlay={handleVideoLoaded}
-                  onEnded={handleVideoEnd}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    borderRadius: '1.5rem',
-                    '--controls': 'none',
-                    '--media-object-fit': 'cover',
-                    '--media-object-position': 'center',
-                  } as any}
-                  metadata={{
-                    video_title: title || 'CryptoGift Video',
-                    video_series: 'CryptoGift Educational'
-                  }}
-                />
-              </div>
-
-              {/* Play overlay when paused */}
-              {!isPlaying && isVideoReady && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/20 animate-pulse">
-                    <Play className="w-8 h-8 md:w-10 md:h-10 text-white ml-1" fill="white" />
-                  </div>
-                  <div className="mt-4 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/20">
-                    <span className="text-white text-sm font-medium">
-                      {isMobile ? 'Tap to play' : 'Click to play'}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Volume control button */}
-            <button
-              onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-              className="absolute top-3 right-3 z-30 p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
-              title={isMuted ? 'Unmute' : 'Mute'}
-            >
-              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
+        {/* VIDEO via PORTAL to body - escapes backdrop-filter containers */}
+        {portalReady && typeof document !== 'undefined'
+          ? createPortal(videoElement, document.body)
+          : videoElement
+        }
       </div>
 
       {/* Elements outside the space holder (not affected by sticky) */}
