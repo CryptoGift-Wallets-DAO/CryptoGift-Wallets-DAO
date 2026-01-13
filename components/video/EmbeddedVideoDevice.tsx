@@ -71,8 +71,8 @@ const animationStyles = `
     100% { background-position: 200% 0; }
   }
   @keyframes floatVideo {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
+    0%, 100% { margin-top: 0px; }
+    50% { margin-top: -8px; }
   }
 `;
 
@@ -413,17 +413,21 @@ export function EmbeddedVideoDevice({
   const stickyWidth = placeholderRect?.width || 400;
   const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 500;
 
+  // Calculate sticky width for centering
+  const computedStickyWidth = Math.min(stickyWidth, windowWidth - 32);
+
   const videoStyles: React.CSSProperties = isSticky
     ? {
-        // STICKY: Fixed below navbar - same width as original
+        // STICKY: Fixed below navbar - centered with calc to avoid transform conflict
         position: 'fixed',
         top: NAVBAR_HEIGHT,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: Math.min(stickyWidth, windowWidth - 32),
+        left: `calc(50% - ${computedStickyWidth / 2}px)`,
+        width: computedStickyWidth,
         zIndex: 9999,
-        // Floating animation - no quotes for CSS value
+        // Floating animation uses margin-top, not transform (to preserve centering)
         animation: 'floatVideo 4s ease-in-out infinite',
+        // Shadow for sticky mode - prominent and visible
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 16px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)',
       }
     : placeholderRect
     ? {
@@ -434,6 +438,8 @@ export function EmbeddedVideoDevice({
         width: placeholderRect.width,
         height: placeholderRect.height,
         zIndex: 50,
+        // Shadow for normal mode - subtle but visible
+        boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
       }
     : {
         // FALLBACK before rect is calculated
@@ -442,6 +448,8 @@ export function EmbeddedVideoDevice({
         left: 0,
         right: 0,
         bottom: 0,
+        // Shadow for fallback mode
+        boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
       };
 
   // The video element - extracted for portal usage
