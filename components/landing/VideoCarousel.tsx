@@ -306,6 +306,10 @@ export function VideoCarousel() {
   // CRITICAL: Track actual playing state (React state can lag behind)
   const isActuallyPlayingRef = useRef(false);
 
+  // Touch tracking for video area (to properly capture rubber band gestures)
+  const videoTouchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const videoGestureTypeRef = useRef<'none' | 'horizontal' | 'vertical' | 'tap'>('none');
+
   const [ambientColors, setAmbientColors] = useState({
     dominant: 'rgba(139, 92, 246, 0.35)',
     secondary: 'rgba(6, 182, 212, 0.25)',
@@ -805,6 +809,57 @@ export function VideoCarousel() {
     handleFullscreen();
   }, [handleFullscreen]);
 
+  // =============================================================================
+  // VIDEO TOUCH HANDLERS - Critical for rubber band to work on video area
+  // MuxPlayer shadow DOM intercepts touch events, so we must handle them explicitly
+  // =============================================================================
+  const handleVideoTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    videoTouchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+    videoGestureTypeRef.current = 'none';
+  }, []);
+
+  const handleVideoTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!videoTouchStartRef.current) return;
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - videoTouchStartRef.current.x;
+    const deltaY = touch.clientY - videoTouchStartRef.current.y;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+
+    // Determine gesture type once we have enough movement
+    if (videoGestureTypeRef.current === 'none' && (absX > 10 || absY > 10)) {
+      videoGestureTypeRef.current = absX > absY ? 'horizontal' : 'vertical';
+    }
+
+    // For horizontal gestures, we need to prevent MuxPlayer from handling it
+    // and let the document-level rubber band listener do its work
+    if (videoGestureTypeRef.current === 'horizontal') {
+      // Don't stop propagation - let document listener handle the rubber band
+      // But prevent default to avoid any MuxPlayer gesture handling
+      e.preventDefault();
+    }
+    // For vertical gestures (scrolling), let it propagate normally
+  }, []);
+
+  const handleVideoTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!videoTouchStartRef.current) return;
+
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - videoTouchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - videoTouchStartRef.current.y);
+    const duration = Date.now() - videoTouchStartRef.current.time;
+
+    // If it was a tap (short duration, minimal movement), toggle play/pause
+    if (duration < 300 && deltaX < 10 && deltaY < 10) {
+      togglePlayPause();
+    }
+
+    videoTouchStartRef.current = null;
+    videoGestureTypeRef.current = 'none';
+  }, [togglePlayPause]);
+
   // Calculate sticky width
   const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 500;
   const stickyWidth = Math.min(400, windowWidth - 32);
@@ -843,12 +898,23 @@ export function VideoCarousel() {
         </div>
       )}
 
-      {/* Video player area - Click directly here like EmbeddedVideoDevice pattern */}
+      {/* Video player area - Touch handlers capture gestures before MuxPlayer shadow DOM */}
       <div
         className={`relative cursor-pointer overflow-hidden ${inSticky ? 'aspect-video' : 'aspect-video bg-black'}`}
-        onClick={togglePlayPause}
+        style={{ touchAction: 'pan-y pinch-zoom' }}
+        onClick={!isMobile ? togglePlayPause : undefined}
         onDoubleClick={handleDoubleClick}
+        onTouchStart={handleVideoTouchStart}
+        onTouchMove={handleVideoTouchMove}
+        onTouchEnd={handleVideoTouchEnd}
       >
+        {/* Transition overlay - reduces flasheo during sticky mode changes */}
+        {isTransitioning && (
+          <div className="absolute inset-0 z-20 bg-black/80 flex items-center justify-center pointer-events-none">
+            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          </div>
+        )}
+
         {/* CRITICAL: Wrapper with ID for getMuxPlayer() to find it */}
         <div id={muxPlayerId} className="absolute inset-0 pointer-events-none">
           <MuxPlayer
