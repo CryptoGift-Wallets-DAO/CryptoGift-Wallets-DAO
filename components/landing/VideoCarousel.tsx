@@ -681,17 +681,29 @@ export function VideoCarousel() {
     setIsPlaying(false);
   }, [videos.length]);
 
+  // TAP TO UNMUTE: If video is playing but muted, tap unmutes it
+  // Otherwise normal play/pause toggle
   const togglePlayPause = useCallback(() => {
-    const container = isSticky
-      ? document.getElementById('sticky-video-portal')
-      : containerRef.current;
-    const player = container?.querySelector('mux-player') as HTMLVideoElement | null;
-    if (player) {
-      if (isPlaying) player.pause();
-      else player.play();
-      setIsPlaying(!isPlaying);
+    const video = getVideoElement();
+    if (!video) return;
+
+    // If playing but muted → unmute (tap to play with volume)
+    if (isPlaying && isMuted) {
+      video.muted = false;
+      video.volume = AUTO_PLAY_VOLUME;
+      setIsMuted(false);
+      return;
     }
-  }, [isPlaying, isSticky]);
+
+    // Normal play/pause toggle
+    if (isPlaying) {
+      video.pause();
+    } else {
+      video.volume = AUTO_PLAY_VOLUME;
+      video.play().catch(() => {});
+    }
+    setIsPlaying(!isPlaying);
+  }, [isPlaying, isMuted, getVideoElement]);
 
   const handleDoubleClick = useCallback(() => {
     handleFullscreen();
@@ -781,6 +793,18 @@ export function VideoCarousel() {
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
             <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
               <Play className="w-8 h-8 text-white fill-white" />
+            </div>
+          </div>
+        )}
+
+        {/* TAP FOR VOLUME indicator - shows when playing muted */}
+        {isPlaying && isMuted && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="px-4 py-2 rounded-full bg-black/60 backdrop-blur-sm animate-pulse">
+              <div className="flex items-center gap-2 text-white text-sm font-medium">
+                <Volume2 className="w-5 h-5" />
+                <span>Tap for volume</span>
+              </div>
             </div>
           </div>
         )}
