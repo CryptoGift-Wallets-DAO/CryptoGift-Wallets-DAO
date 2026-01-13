@@ -779,12 +779,14 @@ export function VideoCarousel() {
         </div>
       )}
 
-      {/* Video player area */}
+      {/* Video player area - Click directly here like EmbeddedVideoDevice pattern */}
       <div
         className={`relative cursor-pointer overflow-hidden ${inSticky ? 'aspect-video' : 'aspect-video bg-black'}`}
+        onClick={togglePlayPause}
+        onDoubleClick={handleDoubleClick}
       >
         {/* CRITICAL: Wrapper with ID for getMuxPlayer() to find it */}
-        <div id={muxPlayerId} className="absolute inset-0">
+        <div id={muxPlayerId} className="absolute inset-0 pointer-events-none">
           <MuxPlayer
             key={`${currentVideo.id}-${inSticky ? 'sticky' : 'normal'}`}
             playbackId={currentVideo.muxPlaybackId}
@@ -827,31 +829,11 @@ export function VideoCarousel() {
           />
         </div>
 
-        {/* TOUCH OVERLAY: Captures clicks/taps for play/pause without blocking rubber band */}
-        <div
-          className="absolute inset-0 z-10"
-          onClick={togglePlayPause}
-          onDoubleClick={handleDoubleClick}
-          style={{ touchAction: 'pan-y' }}
-        />
-
-        {/* Play/Pause overlay */}
+        {/* Play button overlay - only when NOT playing (PC mode) */}
         {!isPlaying && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none z-10">
             <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
               <Play className="w-8 h-8 text-white fill-white" />
-            </div>
-          </div>
-        )}
-
-        {/* TAP FOR VOLUME indicator - shows when playing muted */}
-        {isPlaying && isMuted && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="px-4 py-2 rounded-full bg-black/60 backdrop-blur-sm animate-pulse">
-              <div className="flex items-center gap-2 text-white text-sm font-medium">
-                <Volume2 className="w-5 h-5" />
-                <span>Tap for volume</span>
-              </div>
             </div>
           </div>
         )}
