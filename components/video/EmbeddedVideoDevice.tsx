@@ -21,7 +21,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { Play, Volume2, VolumeX } from 'lucide-react';
+import { Play, Volume2, VolumeX, Minimize2, Maximize2 } from 'lucide-react';
 import { VideoExperienceHint } from '@/components/ui/RotatePhoneHint';
 
 // Lazy load Mux Player for optimization
@@ -115,6 +115,10 @@ export function EmbeddedVideoDevice({
   // Portal state - for escaping backdrop-filter containers
   const [portalReady, setPortalReady] = useState(false);
   const [placeholderRect, setPlaceholderRect] = useState<DOMRect | null>(null);
+
+  // Swipe gesture state for mobile minimize
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const lastTapRef = useRef<number>(0);
 
   // CRITICAL: Unique DOM ID for MuxPlayer
   const muxPlayerId = `mux-player-${lessonId}`;
@@ -397,6 +401,80 @@ export function EmbeddedVideoDevice({
     }
   }, [volume, getMuxPlayer]);
 
+  // =============================================================================
+  // MINIMIZE & FULLSCREEN CONTROLS
+  // =============================================================================
+
+  // Minimize: Return to original position WITHOUT pausing
+  const handleMinimize = useCallback(() => {
+    if (!isSticky) return;
+    console.log('[Video] Minimizing - returning to original position');
+    stickyLocked.current = true;
+    setIsSticky(false);
+    setTimeout(() => { stickyLocked.current = false; }, 600);
+    // Scroll to make placeholder visible
+    placeholderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [isSticky]);
+
+  // Fullscreen toggle
+  const handleFullscreen = useCallback(() => {
+    const player = getMuxPlayer();
+    if (!player) return;
+
+    const isFullscreen = !!(document.fullscreenElement || (document as any).webkitFullscreenElement);
+
+    if (isFullscreen) {
+      document.exitFullscreen?.() || (document as any).webkitExitFullscreen?.();
+    } else {
+      const el = videoContainerRef.current || player;
+      el?.requestFullscreen?.() || (el as any)?.webkitRequestFullscreen?.();
+    }
+  }, [getMuxPlayer]);
+
+  // =============================================================================
+  // MOBILE TOUCH GESTURES: Swipe to minimize + Double tap for fullscreen
+  // =============================================================================
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!isMobile || !isSticky) return;
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  }, [isMobile, isSticky]);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!isMobile) return;
+
+    const touch = e.changedTouches[0];
+    const now = Date.now();
+
+    // Double tap detection for fullscreen (300ms threshold)
+    if (now - lastTapRef.current < 300) {
+      handleFullscreen();
+      lastTapRef.current = 0;
+      return;
+    }
+    lastTapRef.current = now;
+
+    // Swipe detection for minimize (only when sticky)
+    if (isSticky && touchStartRef.current) {
+      const deltaX = touch.clientX - touchStartRef.current.x;
+      const deltaY = touch.clientY - touchStartRef.current.y;
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
+
+      // Swipe up or sideways (threshold: 50px) to minimize
+      if (absY > 50 && deltaY < 0) {
+        // Swipe UP - minimize
+        handleMinimize();
+      } else if (absX > 80) {
+        // Swipe LEFT or RIGHT - minimize
+        handleMinimize();
+      }
+    }
+
+    touchStartRef.current = null;
+  }, [isMobile, isSticky, handleFullscreen, handleMinimize]);
+
   // Ambient gradient
   const ambientGradient = `
     radial-gradient(ellipse 120% 100% at 50% 50%, ${ambientColors.dominant} 0%, transparent 50%),
@@ -462,6 +540,8 @@ export function EmbeddedVideoDevice({
         borderRadius: '1.5rem',
         overflow: 'hidden',
       }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <div
         className="relative w-full h-full overflow-hidden rounded-3xl cursor-pointer"
@@ -521,14 +601,37 @@ export function EmbeddedVideoDevice({
           )}
         </div>
 
-        {/* Volume control button */}
-        <button
-          onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-          className="absolute top-3 right-3 z-30 p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
-          title={isMuted ? 'Unmute' : 'Mute'}
-        >
-          {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-        </button>
+        {/* MINIMIZE button - only visible when sticky (top-left, discrete) */}
+        {isSticky && (
+          <button
+            onClick={(e) => { e.stopPropagation(); handleMinimize(); }}
+            className="absolute top-3 left-3 z-30 p-2 rounded-full bg-black/40 backdrop-blur-sm text-white/70 hover:bg-black/60 hover:text-white transition-all shadow-lg border border-white/10"
+            title="Return to original position"
+          >
+            <Minimize2 className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Control buttons container - top-right */}
+        <div className="absolute top-3 right-3 z-30 flex items-center gap-2">
+          {/* Fullscreen button */}
+          <button
+            onClick={(e) => { e.stopPropagation(); handleFullscreen(); }}
+            className="p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
+            title="Fullscreen"
+          >
+            <Maximize2 className="w-5 h-5" />
+          </button>
+
+          {/* Volume control button */}
+          <button
+            onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+            className="p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
+            title={isMuted ? 'Unmute' : 'Mute'}
+          >
+            {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
     </div>
   );
