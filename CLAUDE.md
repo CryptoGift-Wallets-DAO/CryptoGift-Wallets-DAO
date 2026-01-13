@@ -2,12 +2,12 @@
 
 ## 🎯 INFORMACIÓN CRÍTICA DEL PROYECTO
 
-### ESTADO ACTUAL (26 DIC 2025) - RBAC PROGRAMÁTICO + DASHBOARD PANELS ✅
-- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **GOVERNANCE COMPLETO** + **RBAC ENTERPRISE** ✅
-- **Fase actual**: Sistema DAO con permisos programáticos desde Gnosis Safe on-chain
-- **Último Commit**: `69e8c5e` feat(dashboard): implement programmatic RBAC permission system
-- **Critical Update**: Dashboard RBAC lee wallets admin de Aragon Gnosis Safe contracts (NO hardcodeado)
-- **Nuevo**: Sistema de permisos con jerarquía visitor → holder → voter → proposer → admin → superadmin
+### ESTADO ACTUAL (12 ENE 2026) - VIDEO PLAYER CONTROLS + RBAC ✅
+- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **GOVERNANCE COMPLETO** + **RBAC ENTERPRISE** + **VIDEO UX** ✅
+- **Fase actual**: Sistema DAO con permisos programáticos + Video Player con controles avanzados
+- **Último Commit**: `9f2281b` feat(video): add visual swipe animation feedback for mobile dismiss
+- **Critical Update**: Video sticky con controles minimize/fullscreen + swipe gestures con animación visual
+- **Nuevo**: Animaciones de dismiss direccionales (up/left/right) + fix vibración en touch
 
 ### 🎮 DISCORD SERVER CONFIGURADO (9 DIC 2025) ✅
 ```
@@ -80,6 +80,47 @@ COMPONENTES GATE:
 ├── <AdminGate> - Solo Safe signers
 ├── <SuperAdminGate> - Solo Safe Owner signers
 └── Todos soportan: children, fallback, showFallback
+```
+
+### 🎬 VIDEO PLAYER CONTROLS (12 ENE 2026) ✅
+```
+COMPONENTE: components/video/EmbeddedVideoDevice.tsx
+
+CONTROLES PC:
+├── Botón Minimize (top-left) - Solo visible en modo sticky
+├── Botón Fullscreen (top-right) - Junto a volumen
+└── Double-click para fullscreen
+
+CONTROLES MOBILE:
+├── Swipe UP → Video desliza hacia arriba y desaparece
+├── Swipe LEFT → Video desliza hacia izquierda
+├── Swipe RIGHT → Video desliza hacia derecha
+├── Double Tap → Toggle fullscreen
+└── Tap → Play/Pause
+
+ANIMACIONES CSS:
+├── dismissUp - translateY(-150px) + scale(0.8) + fade
+├── dismissLeft - translateX(-120%) + scale(0.9) + fade
+├── dismissRight - translateX(120%) + scale(0.9) + fade
+└── floatVideo - Flotación sutil (pausada durante touch)
+
+COMPATIBILIDAD FULLSCREEN:
+├── iOS Safari: webkitEnterFullscreen
+├── iOS newer: webkitRequestFullscreen
+├── Standard: requestFullscreen
+└── Fallback: container.requestFullscreen
+
+ESTADOS:
+├── dismissDirection: 'none' | 'up' | 'left' | 'right'
+├── isTouching: boolean (pausa floatVideo)
+├── isSticky: boolean (activa controles)
+└── stickyLocked: ref (previene re-sticky)
+
+COMPORTAMIENTO:
+├── Minimize NO hace scroll - usuario queda donde está
+├── Lock 1.5s después de minimize para prevenir re-sticky
+├── Animación 300ms antes de ocultar video
+└── Float animation pausada durante touch (evita vibración)
 ```
 
 ### 💰 FUNDING & GRANTS SYSTEM (12 DIC 2025) ✅
@@ -326,7 +367,12 @@ const tCommon = useTranslations('common');   // Para textos comunes
 // components/ui/LanguageToggle.tsx - Toggle EN|ES
 ```
 
-### 🎯 COMMITS RECIENTES (26 DIC 2025) - RBAC PROGRAMÁTICO
+### 🎯 COMMITS RECIENTES (12 ENE 2026) - VIDEO PLAYER CONTROLS
+- `9f2281b` - feat(video): add visual swipe animation feedback for mobile dismiss
+- `04e55b5` - fix: minimize stays in place + mobile fullscreen compatibility
+- `510a827` - feat: add minimize/fullscreen controls + mobile swipe gestures
+
+### 🎯 COMMITS ANTERIORES (26 DIC 2025) - RBAC PROGRAMÁTICO
 - `69e8c5e` - feat(dashboard): implement programmatic RBAC permission system
 
 ### 🎯 COMMITS ANTERIORES i18n (26 NOV 2025)
