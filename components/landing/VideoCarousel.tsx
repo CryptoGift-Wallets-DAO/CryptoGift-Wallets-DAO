@@ -10,16 +10,18 @@
  * - i18n support (ES/EN videos)
  * - AMBIENT MODE: YouTube-style glow effect from video colors
  * - Auto-play when >50% visible with 15% volume
- * - Picture-in-Picture when <30% visible
+ * - STICKY MODE: Floats below navbar when scrolled out of view (replaces PiP)
+ * - Swipe gestures for mobile dismiss with directional animations
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
-import { ChevronLeft, ChevronRight, Play, Maximize2, Volume2, VolumeX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Maximize2, Volume2, VolumeX, Minimize2 } from 'lucide-react';
 import { VideoExperienceHint } from '@/components/ui/RotatePhoneHint';
 
 // Ambient Mode configuration
@@ -33,6 +35,31 @@ const AMBIENT_CONFIG = {
 };
 
 const AUTO_PLAY_VOLUME = 0.15;
+
+// Sticky mode configuration
+const STICKY_THRESHOLD = 0.50; // Go sticky when <50% visible
+const RETURN_THRESHOLD = 0.70; // Return when >70% visible
+const NAVBAR_HEIGHT = 72;
+
+// CSS Keyframes for sticky mode animations
+const stickyAnimationStyles = `
+  @keyframes dismissUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-150px) scale(0.8); }
+  }
+  @keyframes dismissLeft {
+    0% { opacity: 1; transform: translateX(0) scale(1); }
+    100% { opacity: 0; transform: translateX(-120%) scale(0.9); }
+  }
+  @keyframes dismissRight {
+    0% { opacity: 1; transform: translateX(0) scale(1); }
+    100% { opacity: 0; transform: translateX(120%) scale(0.9); }
+  }
+  @keyframes floatVideoSticky {
+    0%, 100% { margin-top: 0px; }
+    50% { margin-top: -8px; }
+  }
+`;
 
 /**
  * Custom hook to handle horizontal scroll behavior
@@ -301,12 +328,32 @@ export function VideoCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [isInPiP, setIsInPiP] = useState(false);
+
+  // STICKY MODE: Video floats to fixed position when scrolled >50% out of view
+  const [isSticky, setIsSticky] = useState(false);
+
+  // Dismiss animation state - tracks swipe direction for visual feedback
+  const [dismissDirection, setDismissDirection] = useState<'none' | 'up' | 'left' | 'right'>('none');
+
+  // Touch active state - pauses float animation during touch to prevent vibration
+  const [isTouching, setIsTouching] = useState(false);
+
+  // Portal state - for escaping backdrop-filter containers
+  const [portalReady, setPortalReady] = useState(false);
+
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ambientIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasAutoPlayed = useRef(false);
+
+  // Sticky mode refs
+  const stickyLocked = useRef(false);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const lastTapRef = useRef<number>(0);
 
   // Ambient Mode state
   const [ambientColors, setAmbientColors] = useState({
@@ -319,6 +366,28 @@ export function VideoCarousel() {
   const translateX = useHorizontalOverscroll();
 
   const currentVideo = videos[currentIndex];
+
+  // Portal ready check (client-side only)
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
+  // Detect Mobile device
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const checkMobile = () => {
+        const isSmallScreen = window.innerWidth < 768;
+        const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        return isSmallScreen || mobileUA;
+      };
+
+      setIsMobile(checkMobile());
+
+      const handleResize = () => setIsMobile(checkMobile());
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
   // Create canvas for color extraction
   useEffect(() => {
@@ -415,32 +484,12 @@ export function VideoCarousel() {
     }
   }, [isPlaying, extractVideoColors]);
 
-  // Enter Picture-in-Picture
-  const enterPiP = useCallback(async () => {
-    const video = getVideoElement();
-    if (!video || isInPiP) return;
-    try {
-      if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
-        await video.requestPictureInPicture();
-        setIsInPiP(true);
-      }
-    } catch {}
-  }, [getVideoElement, isInPiP]);
-
-  // Exit Picture-in-Picture
-  const exitPiP = useCallback(async () => {
-    if (!isInPiP) return;
-    try {
-      if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture();
-        setIsInPiP(false);
-      }
-    } catch {}
-  }, [isInPiP]);
-
-  // IntersectionObserver for auto-play and PiP
+  // =============================================================================
+  // STICKY MODE LOGIC - IntersectionObserver
+  // =============================================================================
   useEffect(() => {
-    if (!containerRef.current) return;
+    const elementToObserve = containerRef.current;
+    if (!elementToObserve) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -467,17 +516,174 @@ export function VideoCarousel() {
             }
           }
 
-          // PiP when <30% visible
-          if (ratio < 0.3 && isPlaying && !isInPiP) enterPiP();
-          if (ratio > 0.5 && isInPiP) exitPiP();
+          // Prevent rapid toggles
+          if (stickyLocked.current) return;
+
+          // GO STICKY: When <50% visible AND video is playing
+          if (!isSticky && isPlaying && ratio < STICKY_THRESHOLD) {
+            console.log('[VideoCarousel] Going STICKY - video >50% hidden');
+            stickyLocked.current = true;
+            setIsSticky(true);
+            setTimeout(() => { stickyLocked.current = false; }, 600);
+          }
+
+          // RETURN TO NORMAL: When >70% visible
+          if (isSticky && ratio > RETURN_THRESHOLD) {
+            console.log('[VideoCarousel] Returning to NORMAL - video >70% visible');
+            stickyLocked.current = true;
+            setIsSticky(false);
+            setTimeout(() => { stickyLocked.current = false; }, 600);
+          }
         });
       },
-      { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] }
+      {
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        rootMargin: '0px'
+      }
     );
 
-    observer.observe(containerRef.current);
+    observer.observe(elementToObserve);
     return () => observer.disconnect();
-  }, [isPlaying, isInPiP, getVideoElement, enterPiP, exitPiP]);
+  }, [isPlaying, isSticky, getVideoElement]);
+
+  // =============================================================================
+  // MINIMIZE & FULLSCREEN CONTROLS
+  // =============================================================================
+
+  // Minimize: Just HIDE the sticky panel - stay where you are
+  const handleMinimize = useCallback(() => {
+    if (!isSticky) return;
+    console.log('[VideoCarousel] Minimizing - hiding sticky panel (no scroll)');
+    stickyLocked.current = true;
+    setIsSticky(false);
+    setTimeout(() => { stickyLocked.current = false; }, 1500);
+  }, [isSticky]);
+
+  // Fullscreen toggle - with mobile-specific APIs
+  const handleFullscreen = useCallback(() => {
+    const player = containerRef.current?.querySelector('mux-player') as HTMLVideoElement | null;
+    if (!player) return;
+
+    const isFullscreen = !!(
+      document.fullscreenElement ||
+      (document as any).webkitFullscreenElement ||
+      (document as any).mozFullScreenElement ||
+      (document as any).msFullscreenElement
+    );
+
+    if (isFullscreen) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).mozCancelFullScreen) {
+        (document as any).mozCancelFullScreen();
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+      }
+    } else {
+      const videoEl = player.querySelector('video') || player;
+
+      if ((videoEl as any).webkitEnterFullscreen) {
+        (videoEl as any).webkitEnterFullscreen();
+        return;
+      }
+      if ((videoEl as any).webkitRequestFullscreen) {
+        (videoEl as any).webkitRequestFullscreen();
+        return;
+      }
+      if (videoEl.requestFullscreen) {
+        videoEl.requestFullscreen();
+        return;
+      }
+      if ((player as any).webkitRequestFullscreen) {
+        (player as any).webkitRequestFullscreen();
+      } else if (player.requestFullscreen) {
+        player.requestFullscreen();
+      }
+    }
+  }, []);
+
+  // =============================================================================
+  // MOBILE TOUCH GESTURES: Swipe to minimize + Double tap for fullscreen
+  // =============================================================================
+
+  const handleStickyTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!isMobile) return;
+    setIsTouching(true);
+    if (!isSticky) return;
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  }, [isMobile, isSticky]);
+
+  const handleStickyTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!isMobile) return;
+    setIsTouching(false);
+
+    const touch = e.changedTouches[0];
+    const now = Date.now();
+
+    // Double tap detection for fullscreen (300ms threshold)
+    if (now - lastTapRef.current < 300) {
+      handleFullscreen();
+      lastTapRef.current = 0;
+      return;
+    }
+    lastTapRef.current = now;
+
+    // Swipe detection for minimize with visual animation (only when sticky)
+    if (isSticky && touchStartRef.current) {
+      const deltaX = touch.clientX - touchStartRef.current.x;
+      const deltaY = touch.clientY - touchStartRef.current.y;
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
+
+      let direction: 'up' | 'left' | 'right' | null = null;
+
+      if (absY > 50 && deltaY < 0 && absY > absX) {
+        direction = 'up';
+      } else if (absX > 80 && deltaX < 0) {
+        direction = 'left';
+      } else if (absX > 80 && deltaX > 0) {
+        direction = 'right';
+      }
+
+      if (direction) {
+        console.log(`[VideoCarousel] Swipe ${direction} detected - animating dismiss`);
+        setDismissDirection(direction);
+        stickyLocked.current = true;
+
+        setTimeout(() => {
+          setIsSticky(false);
+          setDismissDirection('none');
+          setTimeout(() => { stickyLocked.current = false; }, 1500);
+        }, 300);
+      }
+    }
+
+    touchStartRef.current = null;
+  }, [isMobile, isSticky, handleFullscreen]);
+
+  const handleStickyTouchCancel = useCallback(() => {
+    setIsTouching(false);
+    touchStartRef.current = null;
+  }, []);
+
+  // Determine which animation to use for sticky mode
+  const getStickyAnimation = useCallback(() => {
+    if (dismissDirection !== 'none') {
+      const animationMap = {
+        up: 'dismissUp 0.3s ease-out forwards',
+        left: 'dismissLeft 0.3s ease-out forwards',
+        right: 'dismissRight 0.3s ease-out forwards',
+      };
+      return animationMap[dismissDirection];
+    }
+    if (isTouching) {
+      return 'none';
+    }
+    return 'floatVideoSticky 4s ease-in-out infinite';
+  }, [dismissDirection, isTouching]);
 
   // Reset hasAutoPlayed when video changes
   useEffect(() => {
@@ -528,115 +734,123 @@ export function VideoCarousel() {
     }
   }, []);
 
-  return (
+  // =============================================================================
+  // RENDER - INLINE WHEN NORMAL, PORTAL WHEN STICKY
+  // =============================================================================
+
+  // Calculate sticky panel width
+  const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 500;
+  const stickyWidth = Math.min(400, windowWidth - 32);
+
+  // The video panel content (used both inline and in portal)
+  const videoPanel = (
     <div
-      className="relative w-full max-w-md mx-auto"
-      style={{
-        transform: translateX !== 0 ? `translateX(${translateX}px)` : undefined,
-        transition: translateX === 0 ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+      className={`glass-crystal rounded-2xl overflow-hidden relative ${isSticky ? '' : 'z-10'}`}
+      style={isSticky ? {
+        animation: getStickyAnimation(),
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 16px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)',
+      } : {
+        animation: 'float 6s ease-in-out infinite',
       }}
+      onTouchStart={isSticky ? handleStickyTouchStart : undefined}
+      onTouchEnd={isSticky ? handleStickyTouchEnd : undefined}
+      onTouchCancel={isSticky ? handleStickyTouchCancel : undefined}
     >
-      {/* PERMANENT GRADIENT SHADOW - Beautiful aura effect behind video panel */}
-      <div
-        className="absolute -inset-8 -z-20 pointer-events-none"
-        style={{
-          background: `
-            radial-gradient(ellipse 80% 60% at 50% 40%, rgba(139, 92, 246, 0.25) 0%, transparent 70%),
-            radial-gradient(ellipse 60% 80% at 30% 60%, rgba(59, 130, 246, 0.20) 0%, transparent 60%),
-            radial-gradient(ellipse 60% 80% at 70% 60%, rgba(6, 182, 212, 0.18) 0%, transparent 60%)
-          `,
-          filter: 'blur(40px)',
-          opacity: 0.8,
-          animation: 'pulse 8s ease-in-out infinite',
-        }}
-      />
-
-      {/* AMBIENT MODE: Dynamic glow layer that reacts to video colors */}
-      {isPlaying && (
-        <div
-          className="absolute inset-0 -z-10 pointer-events-none"
-          style={{
-            background: `
-              radial-gradient(ellipse 120% 100% at 50% 0%, ${ambientColors.secondary} 0%, transparent 60%),
-              radial-gradient(ellipse 100% 120% at 0% 50%, ${ambientColors.dominant} 0%, transparent 55%),
-              radial-gradient(ellipse 100% 120% at 100% 50%, ${ambientColors.accent} 0%, transparent 55%),
-              radial-gradient(ellipse 120% 100% at 50% 100%, ${ambientColors.dominant} 0%, transparent 60%)
-            `,
-            filter: `blur(${AMBIENT_CONFIG.blur}px)`,
-            opacity: AMBIENT_CONFIG.opacity,
-            transform: `scale(${AMBIENT_CONFIG.scale})`,
-            transition: 'background 0.3s ease-out, opacity 0.5s ease-out',
-          }}
-        />
-      )}
-
-      {/* Glass crystal container */}
-      <div
-        ref={containerRef}
-        className="glass-crystal rounded-2xl overflow-hidden relative z-10"
-        style={{ animation: 'float 6s ease-in-out infinite' }}
-      >
-        {/* Video header */}
-        <div className="p-3 border-b border-white/10">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
-                {currentVideo.title}
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {currentVideo.duration}
-              </p>
-            </div>
-            <div className="flex items-center gap-1 text-xs text-gray-400">
-              <span>{currentIndex + 1}</span>
-              <span>/</span>
-              <span>{videos.length}</span>
-            </div>
+      {/* Video header */}
+      <div className="p-3 border-b border-white/10">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
+              {currentVideo.title}
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {currentVideo.duration}
+            </p>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-gray-400">
+            <span>{currentIndex + 1}</span>
+            <span>/</span>
+            <span>{videos.length}</span>
           </div>
         </div>
+      </div>
 
-        {/* Video player area */}
-        <div
-          className="relative aspect-video bg-black cursor-pointer"
-          onClick={togglePlayPause}
-          onDoubleClick={handleDoubleClick}
-        >
-          <MuxPlayer
-            key={currentVideo.id}
-            playbackId={currentVideo.muxPlaybackId}
-            streamType="on-demand"
-            autoPlay={false}
-            muted={false}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onEnded={() => setIsPlaying(false)}
-            style={{
-              width: '100%',
-              height: '100%',
-              '--controls': 'none',
-            } as any}
-            className="w-full h-full"
-          />
+      {/* Video player area */}
+      <div
+        className="relative aspect-video bg-black cursor-pointer"
+        onClick={togglePlayPause}
+        onDoubleClick={handleDoubleClick}
+      >
+        <MuxPlayer
+          key={currentVideo.id}
+          playbackId={currentVideo.muxPlaybackId}
+          streamType="on-demand"
+          autoPlay={false}
+          muted={false}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onEnded={() => { setIsPlaying(false); setIsSticky(false); }}
+          style={{
+            width: '100%',
+            height: '100%',
+            '--controls': 'none',
+          } as any}
+          className="w-full h-full"
+        />
 
-          {/* Play/Pause overlay (shows when paused) */}
-          {!isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
-              <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
-                <Play className="w-8 h-8 text-white fill-white" />
-              </div>
+        {/* Play/Pause overlay (shows when paused) */}
+        {!isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+            <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
+              <Play className="w-8 h-8 text-white fill-white" />
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Fullscreen hint */}
+        {/* MINIMIZE button - only visible when sticky (top-left, discrete) */}
+        {isSticky && (
+          <button
+            onClick={(e) => { e.stopPropagation(); handleMinimize(); }}
+            className="absolute top-3 left-3 z-30 p-2 rounded-full bg-black/40 backdrop-blur-sm text-white/70 hover:bg-black/60 hover:text-white transition-all shadow-lg border border-white/10"
+            title="Return to original position"
+          >
+            <Minimize2 className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Control buttons - top-right (always visible when sticky) */}
+        {isSticky && (
+          <div className="absolute top-3 right-3 z-30 flex items-center gap-2">
+            <button
+              onClick={(e) => { e.stopPropagation(); handleFullscreen(); }}
+              className="p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
+              title="Fullscreen"
+            >
+              <Maximize2 className="w-5 h-5" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+              className="p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
+              title={isMuted ? 'Unmute' : 'Mute'}
+            >
+              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            </button>
+          </div>
+        )}
+
+        {/* Fullscreen hint - only when NOT sticky */}
+        {!isSticky && (
           <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
             <div className="px-2 py-1 rounded bg-black/50 text-white text-xs flex items-center gap-1">
               <Maximize2 className="w-3 h-3" />
               <span>Double-click</span>
             </div>
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Navigation arrows + Volume control */}
+      {/* Navigation arrows + Volume control - only when NOT sticky */}
+      {!isSticky && (
         <div className="flex items-center justify-between p-3 border-t border-white/10">
           <button
             onClick={goToPrevious}
@@ -688,7 +902,93 @@ export function VideoCarousel() {
             <ChevronRight className="w-5 h-5 text-gray-600 dark:text-white" />
           </button>
         </div>
-      </div>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {/* CSS Keyframes for sticky animations */}
+      <style jsx global>{stickyAnimationStyles}</style>
+
+      <div
+        ref={containerRef}
+        className="relative w-full max-w-md mx-auto"
+        style={{
+          transform: translateX !== 0 ? `translateX(${translateX}px)` : undefined,
+          transition: translateX === 0 ? 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+        }}
+      >
+        {/* PERMANENT GRADIENT SHADOW - Beautiful aura effect behind video panel */}
+        <div
+          className="absolute -inset-8 -z-20 pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(ellipse 80% 60% at 50% 40%, rgba(139, 92, 246, 0.25) 0%, transparent 70%),
+              radial-gradient(ellipse 60% 80% at 30% 60%, rgba(59, 130, 246, 0.20) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 80% at 70% 60%, rgba(6, 182, 212, 0.18) 0%, transparent 60%)
+            `,
+            filter: 'blur(40px)',
+            opacity: 0.8,
+            animation: 'pulse 8s ease-in-out infinite',
+          }}
+        />
+
+        {/* AMBIENT MODE: Dynamic glow layer that reacts to video colors */}
+        {isPlaying && !isSticky && (
+          <div
+            className="absolute inset-0 -z-10 pointer-events-none"
+            style={{
+              background: `
+                radial-gradient(ellipse 120% 100% at 50% 0%, ${ambientColors.secondary} 0%, transparent 60%),
+                radial-gradient(ellipse 100% 120% at 0% 50%, ${ambientColors.dominant} 0%, transparent 55%),
+                radial-gradient(ellipse 100% 120% at 100% 50%, ${ambientColors.accent} 0%, transparent 55%),
+                radial-gradient(ellipse 120% 100% at 50% 100%, ${ambientColors.dominant} 0%, transparent 60%)
+              `,
+              filter: `blur(${AMBIENT_CONFIG.blur}px)`,
+              opacity: AMBIENT_CONFIG.opacity,
+              transform: `scale(${AMBIENT_CONFIG.scale})`,
+              transition: 'background 0.3s ease-out, opacity 0.5s ease-out',
+            }}
+          />
+        )}
+
+        {/* When NOT sticky: Render video panel INLINE (100% static, no scroll-based updates) */}
+        {!isSticky && videoPanel}
+
+        {/* Placeholder when video is sticky - shows where video will return */}
+        {isSticky && (
+          <div
+            className="rounded-2xl border border-white/5 flex items-center justify-center"
+            style={{
+              aspectRatio: '4/3',
+              background: 'linear-gradient(135deg, rgba(15,15,25,0.3) 0%, rgba(5,5,15,0.3) 100%)',
+            }}
+          >
+            <div className="text-center opacity-40">
+              <svg className="w-8 h-8 text-white/30 mx-auto mb-2 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              </svg>
+              <p className="text-white/30 text-sm">Video playing above</p>
+            </div>
+          </div>
+        )}
+
+        {/* When STICKY: Render video panel via PORTAL with fixed position */}
+        {isSticky && portalReady && typeof document !== 'undefined' && createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              top: NAVBAR_HEIGHT,
+              left: `calc(50% - ${stickyWidth / 2}px)`,
+              width: stickyWidth,
+              zIndex: 9999,
+            }}
+          >
+            {videoPanel}
+          </div>,
+          document.body
+        )}
 
       {/* Floating elements - RIGHT SIDE - md: for medium screens to prevent overlap */}
       <div className="absolute -top-6 -right-20 md:-right-28 lg:-right-32 p-2 rounded-lg text-xs glass-crystal" style={{ animation: 'float 4s ease-in-out infinite 0.5s' }}>
