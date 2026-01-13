@@ -272,6 +272,9 @@ export function VideoCarousel() {
   const stickyLocked = useRef(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const lastTapRef = useRef<number>(0);
+  const lastScrollY = useRef(0);
+  const scrollDirection = useRef<'up' | 'down'>('down');
+  const wasPlayingBeforeChange = useRef(false);
 
   const currentVideo = videos[currentIndex];
   const muxPlayerId = `mux-carousel-${currentIndex}`;
@@ -297,6 +300,18 @@ export function VideoCarousel() {
   // Portal ready
   useEffect(() => {
     setPortalReady(true);
+  }, []);
+
+  // Track scroll direction - CRITICAL: Only go sticky on scroll DOWN
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      scrollDirection.current = currentScrollY > lastScrollY.current ? 'down' : 'up';
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Update placeholder rect for positioning (CRITICAL for no-flasheo)
@@ -329,7 +344,7 @@ export function VideoCarousel() {
     return wrapper.querySelector('mux-player');
   }, [muxPlayerId]);
 
-  // Sticky mode logic
+  // Sticky mode logic - ONLY activates on scroll DOWN (not UP)
   useEffect(() => {
     const elementToObserve = placeholderRef.current;
     if (!elementToObserve) return;
@@ -341,14 +356,15 @@ export function VideoCarousel() {
 
           if (stickyLocked.current) return;
 
-          // GO STICKY: When <50% visible AND playing
-          if (!isSticky && isPlaying && ratio < STICKY_THRESHOLD) {
+          // GO STICKY: When <50% visible AND playing AND scrolling DOWN
+          // CRITICAL: Never go sticky on scroll UP (annoying at page top)
+          if (!isSticky && isPlaying && ratio < STICKY_THRESHOLD && scrollDirection.current === 'down') {
             stickyLocked.current = true;
             setIsSticky(true);
             setTimeout(() => { stickyLocked.current = false; }, 600);
           }
 
-          // RETURN: When >70% visible
+          // RETURN: When >70% visible (regardless of scroll direction)
           if (isSticky && ratio > RETURN_THRESHOLD) {
             stickyLocked.current = true;
             setIsSticky(false);
@@ -539,29 +555,57 @@ export function VideoCarousel() {
     return 'floatVideoSticky 4s ease-in-out infinite';
   }, [dismissDirection, isTouching]);
 
-  // Video ended - auto advance
+  // Video ended - auto advance to next (carousel mode)
   const handleVideoEnd = useCallback(() => {
+    // Mark that we should continue playing after video change
+    wasPlayingBeforeChange.current = true;
     const nextIndex = currentIndex === videos.length - 1 ? 0 : currentIndex + 1;
     setCurrentIndex(nextIndex);
     hasAutoPlayed.current = false;
+  }, [currentIndex, videos.length]);
 
-    setTimeout(() => {
-      const player = getMuxPlayer();
+  // Auto-play when video changes and was playing before (carousel continuation)
+  useEffect(() => {
+    if (!wasPlayingBeforeChange.current) return;
+
+    // Wait for new MuxPlayer to mount
+    const timer = setTimeout(() => {
+      const newPlayerId = `mux-carousel-${currentIndex}`;
+      const wrapper = document.getElementById(newPlayerId);
+      if (!wrapper) return;
+
+      const player = wrapper.querySelector('mux-player') as any;
       if (player) {
         player.volume = AUTO_PLAY_VOLUME;
+        player.muted = isMuted;
         player.play()?.then(() => {
           setIsPlaying(true);
           hasAutoPlayed.current = true;
-        }).catch(() => {});
+          wasPlayingBeforeChange.current = false;
+        }).catch(() => {
+          // Try muted autoplay
+          player.muted = true;
+          player.play()?.then(() => {
+            setIsPlaying(true);
+            setIsMuted(true);
+            hasAutoPlayed.current = true;
+            wasPlayingBeforeChange.current = false;
+          }).catch(() => {
+            wasPlayingBeforeChange.current = false;
+          });
+        });
       }
-    }, 300);
-  }, [currentIndex, videos.length, getMuxPlayer]);
+    }, 400); // Wait for MuxPlayer to fully mount
+
+    return () => clearTimeout(timer);
+  }, [currentIndex, isMuted]);
 
   // Calculate dimensions
   const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 500;
   const stickyWidth = Math.min(400, windowWidth - 32);
 
   // Video styles - ALWAYS fixed, position changes based on sticky
+  // CRITICAL: In normal mode, apply same translateX as rubber band container
   const videoStyles: React.CSSProperties = isSticky
     ? {
         position: 'fixed',
@@ -578,13 +622,14 @@ export function VideoCarousel() {
     ? {
         position: 'fixed',
         top: placeholderRect.top,
-        left: placeholderRect.left,
+        left: placeholderRect.left + translateX, // SYNC with rubber band
         width: placeholderRect.width,
         height: placeholderRect.height,
         zIndex: 50,
         boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
         borderRadius: '1rem',
         overflow: 'hidden',
+        transition: translateX === 0 ? 'left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
       }
     : {
         position: 'absolute',
