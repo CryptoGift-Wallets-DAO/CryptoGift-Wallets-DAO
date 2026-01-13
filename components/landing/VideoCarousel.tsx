@@ -18,7 +18,7 @@
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-// NO usamos createPortal - causa remount del video y pierde continuidad
+import { createPortal } from 'react-dom';
 import { useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { ChevronLeft, ChevronRight, Play, Maximize2, Volume2, VolumeX, Minimize2 } from 'lucide-react';
@@ -332,6 +332,9 @@ export function VideoCarousel() {
   // STICKY MODE: Video floats to fixed position when scrolled >50% out of view
   const [isSticky, setIsSticky] = useState(false);
 
+  // Portal ready state - waits for portal to be mounted before restoring video time
+  const [portalReady, setPortalReady] = useState(false);
+
   // Dismiss animation state - tracks swipe direction for visual feedback
   const [dismissDirection, setDismissDirection] = useState<'none' | 'up' | 'left' | 'right'>('none');
 
@@ -351,6 +354,10 @@ export function VideoCarousel() {
   const stickyLocked = useRef(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const lastTapRef = useRef<number>(0);
+
+  // Video continuity refs - preserve playback across portal transitions
+  const savedVideoTime = useRef<number>(0);
+  const wasPlayingBeforeSticky = useRef(false);
 
   // Ambient Mode state
   const [ambientColors, setAmbientColors] = useState({
@@ -391,33 +398,51 @@ export function VideoCarousel() {
     }
   }, []);
 
-  // Get video element from MuxPlayer (always in containerRef - never moves in DOM)
+  // Get video element from MuxPlayer (searches both containerRef AND portal)
   const getVideoElement = useCallback((): HTMLVideoElement | null => {
     // Try cached reference first (but verify it's still connected to DOM)
     if (videoRef.current && videoRef.current.isConnected) {
       return videoRef.current;
     }
 
-    // Video is ALWAYS in containerRef - no portal, no DOM movement
-    const muxPlayer = containerRef.current?.querySelector('mux-player');
-    if (muxPlayer) {
-      const shadowRoot = (muxPlayer as any).shadowRoot;
-      if (shadowRoot) {
-        const video = shadowRoot.querySelector('video');
-        if (video) {
-          videoRef.current = video;
-          return video;
+    // Search function for mux-player video element
+    const findVideoInElement = (root: Element | Document): HTMLVideoElement | null => {
+      const muxPlayer = root.querySelector('mux-player');
+      if (muxPlayer) {
+        const shadowRoot = (muxPlayer as any).shadowRoot;
+        if (shadowRoot) {
+          const video = shadowRoot.querySelector('video');
+          if (video) return video;
         }
+        const video = (muxPlayer as HTMLElement).querySelector('video');
+        if (video) return video;
       }
-      // Try direct video inside mux-player
-      const video = (muxPlayer as HTMLElement).querySelector('video');
+      return null;
+    };
+
+    // First try containerRef (normal mode)
+    if (containerRef.current) {
+      const video = findVideoInElement(containerRef.current);
       if (video) {
         videoRef.current = video;
         return video;
       }
     }
+
+    // Then try portal (sticky mode - video is in document.body)
+    if (isSticky) {
+      const stickyPortal = document.getElementById('sticky-video-portal');
+      if (stickyPortal) {
+        const video = findVideoInElement(stickyPortal);
+        if (video) {
+          videoRef.current = video;
+          return video;
+        }
+      }
+    }
+
     return null;
-  }, []);
+  }, [isSticky]);
 
   // Extract colors from video for Ambient Mode
   const extractVideoColors = useCallback(() => {
@@ -516,18 +541,30 @@ export function VideoCarousel() {
           if (stickyLocked.current) return;
 
           // GO STICKY: When <50% visible AND video is playing
-          // Video continues seamlessly - no remount, just CSS position change
+          // IMPORTANT: Save video time BEFORE portal transition to maintain continuity
           if (!isSticky && isPlaying && ratio < STICKY_THRESHOLD) {
-            console.log('[VideoCarousel] Going STICKY - video >50% hidden (no interruption)');
+            // Save current video state BEFORE mode change
+            if (video) {
+              savedVideoTime.current = video.currentTime;
+              wasPlayingBeforeSticky.current = !video.paused;
+              console.log(`[VideoCarousel] Going STICKY - saving time: ${savedVideoTime.current.toFixed(2)}s, playing: ${wasPlayingBeforeSticky.current}`);
+            }
             stickyLocked.current = true;
+            setPortalReady(false); // Reset portal state
             setIsSticky(true);
             setTimeout(() => { stickyLocked.current = false; }, 600);
           }
 
           // RETURN TO NORMAL: When >70% visible
+          // Also save time for seamless return
           if (isSticky && ratio > RETURN_THRESHOLD) {
-            console.log('[VideoCarousel] Returning to NORMAL - video >70% visible');
+            if (video) {
+              savedVideoTime.current = video.currentTime;
+              wasPlayingBeforeSticky.current = !video.paused;
+              console.log(`[VideoCarousel] Returning to NORMAL - saving time: ${savedVideoTime.current.toFixed(2)}s`);
+            }
             stickyLocked.current = true;
+            setPortalReady(false);
             setIsSticky(false);
             setTimeout(() => { stickyLocked.current = false; }, 600);
           }
@@ -543,8 +580,40 @@ export function VideoCarousel() {
     return () => observer.disconnect();
   }, [isPlaying, isSticky, getVideoElement]);
 
-  // NO AUTO-RESUME NEEDED: Video never unmounts, stays in same DOM location
-  // The video continues playing seamlessly when CSS changes to position:fixed
+  // =============================================================================
+  // VIDEO CONTINUITY: Restore currentTime after portal transition
+  // Portal causes remount, so we save/restore video time for seamless playback
+  // =============================================================================
+  useEffect(() => {
+    if (!portalReady) return;
+    if (savedVideoTime.current === 0 && !wasPlayingBeforeSticky.current) return;
+
+    // Wait a bit for video element to be ready after portal mount
+    const restoreTimer = setTimeout(() => {
+      const video = getVideoElement();
+      if (video) {
+        console.log(`[VideoCarousel] Restoring video time: ${savedVideoTime.current.toFixed(2)}s`);
+        video.currentTime = savedVideoTime.current;
+
+        if (wasPlayingBeforeSticky.current) {
+          video.volume = AUTO_PLAY_VOLUME;
+          video.muted = isMuted;
+          video.play().then(() => {
+            setIsPlaying(true);
+            console.log('[VideoCarousel] Video resumed successfully');
+          }).catch((err) => {
+            console.warn('[VideoCarousel] Resume failed:', err);
+            // Try muted as fallback
+            video.muted = true;
+            setIsMuted(true);
+            video.play().then(() => setIsPlaying(true)).catch(() => {});
+          });
+        }
+      }
+    }, 100); // Small delay for DOM to settle
+
+    return () => clearTimeout(restoreTimer);
+  }, [portalReady, getVideoElement, isMuted]);
 
   // =============================================================================
   // MINIMIZE & FULLSCREEN CONTROLS
@@ -561,7 +630,12 @@ export function VideoCarousel() {
 
   // Fullscreen toggle - with mobile-specific APIs
   const handleFullscreen = useCallback(() => {
-    const player = containerRef.current?.querySelector('mux-player') as HTMLVideoElement | null;
+    // Find player in containerRef OR portal
+    let player = containerRef.current?.querySelector('mux-player') as HTMLVideoElement | null;
+    if (!player && isSticky) {
+      const portal = document.getElementById('sticky-video-portal');
+      player = portal?.querySelector('mux-player') as HTMLVideoElement | null;
+    }
     if (!player) return;
 
     const isFullscreen = !!(
@@ -711,9 +785,22 @@ export function VideoCarousel() {
     setIsPlaying(false);
   }, [videos.length]);
 
+  // Helper to find MuxPlayer in either containerRef or portal
+  const getMuxPlayer = useCallback((): HTMLVideoElement | null => {
+    // Try containerRef first
+    let player = containerRef.current?.querySelector('mux-player') as HTMLVideoElement | null;
+    if (player) return player;
+
+    // Try portal (when sticky)
+    if (isSticky) {
+      const portal = document.getElementById('sticky-video-portal');
+      player = portal?.querySelector('mux-player') as HTMLVideoElement | null;
+    }
+    return player;
+  }, [isSticky]);
+
   const togglePlayPause = useCallback(() => {
-    // Video is ALWAYS in containerRef - never moves in DOM
-    const player = containerRef.current?.querySelector('mux-player') as HTMLVideoElement | null;
+    const player = getMuxPlayer();
     if (player) {
       if (isPlaying) {
         player.pause();
@@ -722,11 +809,10 @@ export function VideoCarousel() {
       }
       setIsPlaying(!isPlaying);
     }
-  }, [isPlaying]);
+  }, [isPlaying, getMuxPlayer]);
 
   const handleDoubleClick = useCallback(() => {
-    // Video is ALWAYS in containerRef - never moves in DOM
-    const player = containerRef.current?.querySelector('mux-player') as HTMLVideoElement | null;
+    const player = getMuxPlayer();
     if (player) {
       if (document.fullscreenElement) {
         document.exitFullscreen();
@@ -734,11 +820,13 @@ export function VideoCarousel() {
         player.requestFullscreen?.();
       }
     }
-  }, []);
+  }, [getMuxPlayer]);
 
   // =============================================================================
-  // RENDER - ONE VIDEO, TWO MODES (CSS only, no DOM movement)
-  // Video NEVER unmounts - seamless playback continuity guaranteed
+  // RENDER - ONE VIDEO, TWO MODES
+  // Normal: Rendered in-place within containerRef
+  // Sticky: Rendered via Portal in document.body (escapes stacking context)
+  // Continuity maintained by saving/restoring currentTime across transitions
   // =============================================================================
 
   // Calculate sticky panel width
@@ -1005,24 +1093,37 @@ export function VideoCarousel() {
         )}
 
         {/*
-          VIDEO PANEL - ALWAYS RENDERED, NEVER UNMOUNTS
-          When sticky: position:fixed floats it to top
-          When normal: position:relative keeps it in flow
-          This ensures seamless playback continuity!
+          VIDEO PANEL - NORMAL MODE
+          Rendered in-place when NOT sticky
         */}
-        <div
-          style={isSticky ? {
-            position: 'fixed',
-            top: NAVBAR_HEIGHT,
-            left: `calc(50% - ${stickyWidth / 2}px)`,
-            width: stickyWidth,
-            zIndex: 9999,
-          } : {
-            position: 'relative',
-          }}
-        >
-          {videoPanel}
-        </div>
+        {!isSticky && videoPanel}
+
+        {/*
+          VIDEO PANEL - STICKY MODE (via Portal)
+          Portal escapes stacking context so position:fixed works correctly
+          We save/restore currentTime to maintain playback continuity
+        */}
+        {isSticky && typeof document !== 'undefined' && createPortal(
+          <div
+            id="sticky-video-portal"
+            ref={(el) => {
+              // Signal that portal is mounted and ready
+              if (el && !portalReady) {
+                setTimeout(() => setPortalReady(true), 50);
+              }
+            }}
+            style={{
+              position: 'fixed',
+              top: NAVBAR_HEIGHT,
+              left: `calc(50% - ${stickyWidth / 2}px)`,
+              width: stickyWidth,
+              zIndex: 9999,
+            }}
+          >
+            {videoPanel}
+          </div>,
+          document.body
+        )}
 
         {/* Placeholder - ONLY when sticky, to maintain layout space */}
         {isSticky && (
