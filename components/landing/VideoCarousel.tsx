@@ -354,6 +354,7 @@ export function VideoCarousel() {
   const stickyLocked = useRef(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const lastTapRef = useRef<number>(0);
+  const wasPlayingBeforeSticky = useRef(false);
 
   // Ambient Mode state
   const [ambientColors, setAmbientColors] = useState({
@@ -399,11 +400,18 @@ export function VideoCarousel() {
     }
   }, []);
 
-  // Get video element from MuxPlayer
+  // Get video element from MuxPlayer (works both inline and in portal)
   const getVideoElement = useCallback((): HTMLVideoElement | null => {
-    if (videoRef.current) return videoRef.current;
-    if (containerRef.current) {
-      const muxPlayer = containerRef.current.querySelector('mux-player');
+    // Try cached reference first (but verify it's still connected to DOM)
+    if (videoRef.current && videoRef.current.isConnected) {
+      return videoRef.current;
+    }
+
+    // Search in containerRef (inline mode) OR document.body (portal/sticky mode)
+    const searchRoots = [containerRef.current, document.body].filter(Boolean);
+
+    for (const root of searchRoots) {
+      const muxPlayer = root?.querySelector('mux-player');
       if (muxPlayer) {
         const shadowRoot = (muxPlayer as any).shadowRoot;
         if (shadowRoot) {
@@ -413,11 +421,12 @@ export function VideoCarousel() {
             return video;
           }
         }
-      }
-      const video = containerRef.current.querySelector('video');
-      if (video) {
-        videoRef.current = video;
-        return video;
+        // Try direct video inside mux-player
+        const video = (muxPlayer as HTMLElement).querySelector('video');
+        if (video) {
+          videoRef.current = video;
+          return video;
+        }
       }
     }
     return null;
@@ -522,6 +531,7 @@ export function VideoCarousel() {
           // GO STICKY: When <50% visible AND video is playing
           if (!isSticky && isPlaying && ratio < STICKY_THRESHOLD) {
             console.log('[VideoCarousel] Going STICKY - video >50% hidden');
+            wasPlayingBeforeSticky.current = true; // Remember we were playing
             stickyLocked.current = true;
             setIsSticky(true);
             setTimeout(() => { stickyLocked.current = false; }, 600);
@@ -545,6 +555,36 @@ export function VideoCarousel() {
     observer.observe(elementToObserve);
     return () => observer.disconnect();
   }, [isPlaying, isSticky, getVideoElement]);
+
+  // =============================================================================
+  // AUTO-RESUME: When entering sticky mode, resume playback after portal renders
+  // =============================================================================
+  useEffect(() => {
+    if (isSticky && wasPlayingBeforeSticky.current) {
+      // Small delay to let portal render, then resume playback
+      const resumeTimer = setTimeout(() => {
+        const video = getVideoElement();
+        if (video && video.paused) {
+          console.log('[VideoCarousel] Auto-resuming playback in sticky mode');
+          video.volume = AUTO_PLAY_VOLUME;
+          video.muted = isMuted;
+          video.play().then(() => {
+            setIsPlaying(true);
+          }).catch(() => {
+            // Try muted if autoplay blocked
+            video.muted = true;
+            setIsMuted(true);
+            video.play().then(() => setIsPlaying(true)).catch(() => {});
+          });
+        }
+      }, 100);
+      return () => clearTimeout(resumeTimer);
+    }
+    // Reset flag when leaving sticky
+    if (!isSticky) {
+      wasPlayingBeforeSticky.current = false;
+    }
+  }, [isSticky, getVideoElement, isMuted]);
 
   // =============================================================================
   // MINIMIZE & FULLSCREEN CONTROLS
@@ -783,9 +823,11 @@ export function VideoCarousel() {
         </div>
       )}
 
-      {/* Video player area */}
+      {/* Video player area - no bg-black in sticky to avoid letterboxing */}
       <div
-        className="relative aspect-video bg-black cursor-pointer"
+        className={`relative cursor-pointer overflow-hidden ${
+          isSticky ? 'aspect-video' : 'aspect-video bg-black'
+        }`}
         onClick={togglePlayPause}
         onDoubleClick={handleDoubleClick}
       >
@@ -820,8 +862,10 @@ export function VideoCarousel() {
             height: '100%',
             '--controls': 'none',
             objectFit: 'cover',
+            '--media-object-fit': 'cover',
+            '--video-object-fit': 'cover',
           } as any}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover [&_video]:object-cover [&_video]:w-full [&_video]:h-full"
         />
 
         {/* Play/Pause overlay (shows when paused) */}
