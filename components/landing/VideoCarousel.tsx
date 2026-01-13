@@ -834,7 +834,7 @@ export function VideoCarousel() {
                 style={{
                   right: word.offset,
                   ...(word.top !== undefined ? { top: word.top } : { bottom: word.bottom }),
-                  animation: `floatWord ${word.duration}s ease-in-out infinite ${word.delay}s`,
+                  animation: `float ${word.duration}s ease-in-out ${word.delay}s infinite`,
                 }}
               >
                 <span className={`font-medium text-${word.color}-600 dark:text-${word.color}-400`}>{word.text}</span>
@@ -847,7 +847,7 @@ export function VideoCarousel() {
                 style={{
                   left: word.offset,
                   ...(word.top !== undefined ? { top: word.top } : { bottom: word.bottom }),
-                  animation: `floatWord ${word.duration}s ease-in-out infinite ${word.delay}s`,
+                  animation: `float ${word.duration}s ease-in-out ${word.delay}s infinite`,
                 }}
               >
                 <span className={`font-medium text-${word.color}-600 dark:text-${word.color}-400`}>{word.text}</span>
