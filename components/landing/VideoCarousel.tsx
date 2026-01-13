@@ -497,8 +497,9 @@ export function VideoCarousel() {
           const ratio = entry.intersectionRatio;
           const video = getVideoElement();
 
-          // Auto-play when >50% visible
-          if (ratio > 0.5 && !hasAutoPlayed.current && video) {
+          // Auto-play when >50% visible - ONLY on desktop (mobile starts paused)
+          const isMobileDevice = window.innerWidth < 768;
+          if (ratio > 0.5 && !hasAutoPlayed.current && video && !isMobileDevice) {
             if (video.paused) {
               video.volume = AUTO_PLAY_VOLUME;
               video.muted = false;
@@ -756,24 +757,26 @@ export function VideoCarousel() {
       onTouchEnd={isSticky ? handleStickyTouchEnd : undefined}
       onTouchCancel={isSticky ? handleStickyTouchCancel : undefined}
     >
-      {/* Video header */}
-      <div className="p-3 border-b border-white/10">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
-              {currentVideo.title}
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {currentVideo.duration}
-            </p>
-          </div>
-          <div className="flex items-center gap-1 text-xs text-gray-400">
-            <span>{currentIndex + 1}</span>
-            <span>/</span>
-            <span>{videos.length}</span>
+      {/* Video header - ONLY when NOT sticky (sticky mode = clean like Sales Masterclass) */}
+      {!isSticky && (
+        <div className="p-3 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                {currentVideo.title}
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {currentVideo.duration}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-400">
+              <span>{currentIndex + 1}</span>
+              <span>/</span>
+              <span>{videos.length}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Video player area */}
       <div
@@ -789,7 +792,24 @@ export function VideoCarousel() {
           muted={false}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
-          onEnded={() => { setIsPlaying(false); setIsSticky(false); }}
+          onEnded={() => {
+            // Auto-continue to next video
+            const nextIndex = currentIndex === videos.length - 1 ? 0 : currentIndex + 1;
+            setCurrentIndex(nextIndex);
+            hasAutoPlayed.current = false;
+            // Auto-play next video after brief delay
+            setTimeout(() => {
+              const video = getVideoElement();
+              if (video) {
+                video.volume = AUTO_PLAY_VOLUME;
+                video.muted = isMuted;
+                video.play().then(() => {
+                  setIsPlaying(true);
+                  hasAutoPlayed.current = true;
+                }).catch(() => {});
+              }
+            }, 300);
+          }}
           style={{
             width: '100%',
             height: '100%',
@@ -846,6 +866,30 @@ export function VideoCarousel() {
               <span>Double-click</span>
             </div>
           </div>
+        )}
+
+        {/* STICKY: Navigation arrows inside video (semi-transparent, bottom corners) */}
+        {isSticky && (
+          <>
+            <button
+              onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
+              className="absolute bottom-3 left-3 z-30 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white/60 hover:bg-black/50 hover:text-white transition-all"
+              aria-label="Previous video"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); goToNext(); }}
+              className="absolute bottom-3 right-3 z-30 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white/60 hover:bg-black/50 hover:text-white transition-all"
+              aria-label="Next video"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            {/* Video counter - bottom center */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 px-2 py-1 rounded-full bg-black/30 backdrop-blur-sm text-white/60 text-xs">
+              {currentIndex + 1} / {videos.length}
+            </div>
+          </>
         )}
       </div>
 
