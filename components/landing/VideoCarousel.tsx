@@ -273,7 +273,7 @@ export function VideoCarousel() {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const lastTapRef = useRef<number>(0);
   const lastScrollY = useRef(0);
-  const scrollDirection = useRef<'up' | 'down'>('down');
+  const scrollDirection = useRef<'up' | 'down'>('up'); // Default to 'up' to prevent sticky on initial load
   const wasPlayingBeforeChange = useRef(false);
 
   const currentVideo = videos[currentIndex];
