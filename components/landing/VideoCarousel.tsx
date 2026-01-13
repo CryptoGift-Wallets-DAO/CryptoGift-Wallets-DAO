@@ -647,6 +647,7 @@ export function VideoCarousel() {
         borderRadius: '1rem',
         overflow: 'hidden',
         transition: translateX === 0 ? 'left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
+        animation: translateX === 0 ? 'float 4s ease-in-out infinite' : 'none',
       }
     : {
         position: 'absolute',
