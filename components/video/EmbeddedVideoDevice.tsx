@@ -74,6 +74,18 @@ const animationStyles = `
     0%, 100% { margin-top: 0px; }
     50% { margin-top: -8px; }
   }
+  @keyframes dismissUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-150px) scale(0.8); }
+  }
+  @keyframes dismissLeft {
+    0% { opacity: 1; transform: translateX(0) scale(1); }
+    100% { opacity: 0; transform: translateX(-120%) scale(0.9); }
+  }
+  @keyframes dismissRight {
+    0% { opacity: 1; transform: translateX(0) scale(1); }
+    100% { opacity: 0; transform: translateX(120%) scale(0.9); }
+  }
 `;
 
 export function EmbeddedVideoDevice({
@@ -94,6 +106,12 @@ export function EmbeddedVideoDevice({
 
   // STICKY MODE: Video floats to fixed position when scrolled >50% out of view
   const [isSticky, setIsSticky] = useState(false);
+
+  // Dismiss animation state - tracks swipe direction for visual feedback
+  const [dismissDirection, setDismissDirection] = useState<'none' | 'up' | 'left' | 'right'>('none');
+
+  // Touch active state - pauses float animation during touch to prevent vibration
+  const [isTouching, setIsTouching] = useState(false);
 
   // Store original dimensions for placeholder
   const [originalHeight, setOriginalHeight] = useState<number>(0);
@@ -481,13 +499,16 @@ export function EmbeddedVideoDevice({
   // =============================================================================
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (!isMobile || !isSticky) return;
+    if (!isMobile) return;
+    setIsTouching(true); // Pause float animation during touch
+    if (!isSticky) return;
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   }, [isMobile, isSticky]);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (!isMobile) return;
+    setIsTouching(false); // Resume float animation
 
     const touch = e.changedTouches[0];
     const now = Date.now();
@@ -500,25 +521,53 @@ export function EmbeddedVideoDevice({
     }
     lastTapRef.current = now;
 
-    // Swipe detection for minimize (only when sticky)
+    // Swipe detection for minimize with visual animation (only when sticky)
     if (isSticky && touchStartRef.current) {
       const deltaX = touch.clientX - touchStartRef.current.x;
       const deltaY = touch.clientY - touchStartRef.current.y;
       const absX = Math.abs(deltaX);
       const absY = Math.abs(deltaY);
 
-      // Swipe up or sideways (threshold: 50px) to minimize
-      if (absY > 50 && deltaY < 0) {
-        // Swipe UP - minimize
-        handleMinimize();
-      } else if (absX > 80) {
-        // Swipe LEFT or RIGHT - minimize
-        handleMinimize();
+      // Determine swipe direction and trigger animation
+      let direction: 'up' | 'left' | 'right' | null = null;
+
+      // Swipe up (threshold: 50px upward)
+      if (absY > 50 && deltaY < 0 && absY > absX) {
+        direction = 'up';
+      }
+      // Swipe left (threshold: 80px)
+      else if (absX > 80 && deltaX < 0) {
+        direction = 'left';
+      }
+      // Swipe right (threshold: 80px)
+      else if (absX > 80 && deltaX > 0) {
+        direction = 'right';
+      }
+
+      // If valid swipe, trigger dismiss animation then hide
+      if (direction) {
+        console.log(`[Video] Swipe ${direction} detected - animating dismiss`);
+        setDismissDirection(direction);
+        stickyLocked.current = true;
+
+        // Wait for animation to complete (300ms) then hide
+        setTimeout(() => {
+          setIsSticky(false);
+          setDismissDirection('none');
+          // Extended lock to prevent immediate re-sticky
+          setTimeout(() => { stickyLocked.current = false; }, 1500);
+        }, 300);
       }
     }
 
     touchStartRef.current = null;
-  }, [isMobile, isSticky, handleFullscreen, handleMinimize]);
+  }, [isMobile, isSticky, handleFullscreen]);
+
+  // Handle touch cancel - reset state
+  const handleTouchCancel = useCallback(() => {
+    setIsTouching(false);
+    touchStartRef.current = null;
+  }, []);
 
   // Ambient gradient
   const ambientGradient = `
@@ -539,6 +588,25 @@ export function EmbeddedVideoDevice({
   // Calculate sticky width for centering
   const computedStickyWidth = Math.min(stickyWidth, windowWidth - 32);
 
+  // Determine which animation to use
+  const getStickyAnimation = () => {
+    // If dismissing, use the dismiss animation
+    if (dismissDirection !== 'none') {
+      const animationMap = {
+        up: 'dismissUp 0.3s ease-out forwards',
+        left: 'dismissLeft 0.3s ease-out forwards',
+        right: 'dismissRight 0.3s ease-out forwards',
+      };
+      return animationMap[dismissDirection];
+    }
+    // If touching, no animation (prevents vibration)
+    if (isTouching) {
+      return 'none';
+    }
+    // Normal floating animation
+    return 'floatVideo 4s ease-in-out infinite';
+  };
+
   const videoStyles: React.CSSProperties = isSticky
     ? {
         // STICKY: Fixed below navbar - centered with calc to avoid transform conflict
@@ -547,8 +615,8 @@ export function EmbeddedVideoDevice({
         left: `calc(50% - ${computedStickyWidth / 2}px)`,
         width: computedStickyWidth,
         zIndex: 9999,
-        // Floating animation uses margin-top, not transform (to preserve centering)
-        animation: 'floatVideo 4s ease-in-out infinite',
+        // Animation: dismiss, none (touching), or float
+        animation: getStickyAnimation(),
         // Shadow for sticky mode - prominent and visible
         boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 16px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)',
       }
@@ -587,6 +655,7 @@ export function EmbeddedVideoDevice({
       }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
     >
       <div
         className="relative w-full h-full overflow-hidden rounded-3xl cursor-pointer"
