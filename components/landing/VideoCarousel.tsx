@@ -3,12 +3,11 @@
 /**
  * VideoCarousel - Glass crystal video carousel for landing page
  *
- * ARCHITECTURE: Video ALWAYS lives in a permanent portal (document.body)
- * This ensures the video NEVER unmounts, providing seamless playback continuity.
- *
- * - Normal mode: Portal positioned over placeholder using getBoundingClientRect()
- * - Sticky mode: Portal fixed to top of viewport (below navbar)
- * - Floating words attached to video in normal mode, hidden in sticky mode
+ * ARCHITECTURE:
+ * - NORMAL MODE: Video in DOM (no portal) - moves perfectly with scroll, no delay
+ * - STICKY MODE: Video in portal with position:fixed - floats below navbar
+ * - Floating words attached to video, move together with rubber band effect
+ * - Transition saves/restores video currentTime for continuity
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -60,7 +59,175 @@ const stickyAnimationStyles = `
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-6px); }
   }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+  }
 `;
+
+/**
+ * Custom hook for horizontal rubber band overscroll effect
+ * - Simulates iOS-like rubber band for BOTH directions
+ * - Works on MOBILE (touch) and PC (mouse drag + trackpad)
+ */
+function useHorizontalOverscroll() {
+  const [translateX, setTranslateX] = useState(0);
+  const startX = useRef(0);
+  const startY = useRef(0);
+  const isHorizontalGesture = useRef<boolean | null>(null);
+  const isDragging = useRef(false);
+
+  // For trackpad: smooth position tracking
+  const targetPosition = useRef(0);
+  const currentPosition = useRef(0);
+  const animationFrame = useRef<number | null>(null);
+  const lastWheelTime = useRef(0);
+  const isWheelActive = useRef(false);
+
+  useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+    const resistance = 0.5;
+    const maxTranslate = 140;
+
+    // Smooth animation loop (PC only)
+    const animate = () => {
+      const now = Date.now();
+      const timeSinceLastWheel = now - lastWheelTime.current;
+
+      // If no wheel input for 100ms, return to center
+      if (timeSinceLastWheel > 100 && isWheelActive.current) {
+        targetPosition.current *= 0.92;
+        if (Math.abs(targetPosition.current) < 0.5) {
+          targetPosition.current = 0;
+          isWheelActive.current = false;
+        }
+      }
+
+      // Smoothly interpolate current toward target
+      const diff = targetPosition.current - currentPosition.current;
+      currentPosition.current += diff * 0.15;
+
+      if (Math.abs(currentPosition.current) > 0.1 || isWheelActive.current) {
+        const translateAmount = Math.min(Math.abs(currentPosition.current), maxTranslate);
+        const direction = currentPosition.current > 0 ? 1 : -1;
+        setTranslateX(translateAmount * direction);
+        animationFrame.current = requestAnimationFrame(animate);
+      } else {
+        currentPosition.current = 0;
+        setTranslateX(0);
+        animationFrame.current = null;
+      }
+    };
+
+    const startAnimation = () => {
+      if (!animationFrame.current) {
+        animationFrame.current = requestAnimationFrame(animate);
+      }
+    };
+
+    // MOBILE: Touch Events
+    const handleTouchStart = (e: TouchEvent) => {
+      startX.current = e.touches[0].clientX;
+      startY.current = e.touches[0].clientY;
+      isHorizontalGesture.current = null;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touchX = e.touches[0].clientX;
+      const touchY = e.touches[0].clientY;
+      const deltaX = startX.current - touchX;
+      const deltaY = startY.current - touchY;
+
+      if (isHorizontalGesture.current === null && (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10)) {
+        isHorizontalGesture.current = Math.abs(deltaX) > Math.abs(deltaY);
+      }
+
+      if (isHorizontalGesture.current === true) {
+        e.preventDefault();
+        const translateAmount = Math.min(Math.abs(deltaX) * resistance, maxTranslate);
+        setTranslateX(deltaX > 0 ? -translateAmount : translateAmount);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      setTranslateX(0);
+      isHorizontalGesture.current = null;
+    };
+
+    // PC: Mouse Drag Events
+    const handleMouseDown = (e: MouseEvent) => {
+      isDragging.current = true;
+      startX.current = e.clientX;
+      startY.current = e.clientY;
+      isHorizontalGesture.current = null;
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      const deltaX = startX.current - e.clientX;
+      const deltaY = startY.current - e.clientY;
+
+      if (isHorizontalGesture.current === null && (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10)) {
+        isHorizontalGesture.current = Math.abs(deltaX) > Math.abs(deltaY);
+      }
+
+      if (isHorizontalGesture.current === true) {
+        e.preventDefault();
+        const translateAmount = Math.min(Math.abs(deltaX) * resistance, maxTranslate);
+        setTranslateX(deltaX > 0 ? -translateAmount : translateAmount);
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (isDragging.current) {
+        setTranslateX(0);
+        isDragging.current = false;
+        isHorizontalGesture.current = null;
+      }
+    };
+
+    // PC: Trackpad/Wheel - Natural Feel
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 1) {
+        e.preventDefault();
+        lastWheelTime.current = Date.now();
+        isWheelActive.current = true;
+        targetPosition.current -= e.deltaX * 0.8;
+        targetPosition.current = Math.max(-maxTranslate, Math.min(maxTranslate, targetPosition.current));
+        startAnimation();
+      }
+    };
+
+    if (isMobile) {
+      document.addEventListener('touchstart', handleTouchStart, { passive: true });
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    } else {
+      document.addEventListener('mousedown', handleMouseDown);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('wheel', handleWheel, { passive: false });
+    }
+
+    return () => {
+      if (isMobile) {
+        document.removeEventListener('touchstart', handleTouchStart);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+      } else {
+        document.removeEventListener('mousedown', handleMouseDown);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('wheel', handleWheel);
+      }
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
+    };
+  }, []);
+
+  return translateX;
+}
 
 // Lazy load MUX Player
 const MuxPlayer = dynamic(
@@ -117,12 +284,12 @@ export function VideoCarousel() {
   const [dismissDirection, setDismissDirection] = useState<'none' | 'up' | 'left' | 'right'>('none');
   const [isTouching, setIsTouching] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [portalMounted, setPortalMounted] = useState(false);
+  const [portalReady, setPortalReady] = useState(false);
 
-  // Position tracking for the portal
-  const [placeholderRect, setPlaceholderRect] = useState<DOMRect | null>(null);
+  // Transition state for smooth crossfade
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const placeholderRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ambientIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -131,17 +298,23 @@ export function VideoCarousel() {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const lastTapRef = useRef<number>(0);
 
+  // Video state preservation for transitions
+  const savedVideoState = useRef<{ currentTime: number; wasPlaying: boolean } | null>(null);
+
   const [ambientColors, setAmbientColors] = useState({
     dominant: 'rgba(139, 92, 246, 0.35)',
     secondary: 'rgba(6, 182, 212, 0.25)',
     accent: 'rgba(168, 85, 247, 0.3)'
   });
 
+  // Rubber band effect - applies to floating words container
+  const translateX = useHorizontalOverscroll();
+
   const currentVideo = videos[currentIndex];
 
-  // Mount portal on client side
+  // Portal ready check
   useEffect(() => {
-    setPortalMounted(true);
+    setPortalReady(true);
   }, []);
 
   // Detect Mobile device
@@ -169,39 +342,30 @@ export function VideoCarousel() {
     }
   }, []);
 
-  // =============================================================================
-  // POSITION TRACKING: Update placeholder position on scroll/resize
-  // This allows the portal to "float" over the placeholder in normal mode
-  // =============================================================================
-  useEffect(() => {
-    const updateRect = () => {
-      if (placeholderRef.current) {
-        setPlaceholderRect(placeholderRef.current.getBoundingClientRect());
-      }
-    };
-
-    updateRect();
-
-    // Update on scroll and resize
-    window.addEventListener('scroll', updateRect, { passive: true });
-    window.addEventListener('resize', updateRect, { passive: true });
-
-    // Also update periodically to catch any layout shifts
-    const interval = setInterval(updateRect, 100);
-
-    return () => {
-      window.removeEventListener('scroll', updateRect);
-      window.removeEventListener('resize', updateRect);
-      clearInterval(interval);
-    };
-  }, []);
-
-  // Get video element from MuxPlayer (always in portal)
+  // Get video element from MuxPlayer (works for both normal and sticky modes)
   const getVideoElement = useCallback((): HTMLVideoElement | null => {
+    // Try cached ref first
     if (videoRef.current && videoRef.current.isConnected) {
       return videoRef.current;
     }
-    const portal = document.getElementById('permanent-video-portal');
+
+    // Search in container (normal mode)
+    if (containerRef.current) {
+      const muxPlayer = containerRef.current.querySelector('mux-player');
+      if (muxPlayer) {
+        const shadowRoot = (muxPlayer as any).shadowRoot;
+        if (shadowRoot) {
+          const video = shadowRoot.querySelector('video');
+          if (video) {
+            videoRef.current = video;
+            return video;
+          }
+        }
+      }
+    }
+
+    // Search in portal (sticky mode)
+    const portal = document.getElementById('sticky-video-portal');
     if (portal) {
       const muxPlayer = portal.querySelector('mux-player');
       if (muxPlayer) {
@@ -213,13 +377,9 @@ export function VideoCarousel() {
             return video;
           }
         }
-        const video = (muxPlayer as HTMLElement).querySelector('video');
-        if (video) {
-          videoRef.current = video;
-          return video;
-        }
       }
     }
+
     return null;
   }, []);
 
@@ -285,11 +445,56 @@ export function VideoCarousel() {
   }, [isPlaying, extractVideoColors]);
 
   // =============================================================================
+  // SAVE VIDEO STATE before transition
+  // =============================================================================
+  const saveVideoState = useCallback(() => {
+    const video = getVideoElement();
+    if (video) {
+      savedVideoState.current = {
+        currentTime: video.currentTime,
+        wasPlaying: !video.paused
+      };
+      console.log('[VideoCarousel] Saved state:', savedVideoState.current);
+    }
+  }, [getVideoElement]);
+
+  // =============================================================================
+  // RESTORE VIDEO STATE after transition
+  // =============================================================================
+  const restoreVideoState = useCallback(() => {
+    if (!savedVideoState.current) return;
+
+    // Wait for new MuxPlayer to mount
+    const attemptRestore = (attempts = 0) => {
+      if (attempts > 20) {
+        console.log('[VideoCarousel] Gave up restoring state');
+        return;
+      }
+
+      const video = getVideoElement();
+      if (video && video.readyState >= 1) {
+        video.currentTime = savedVideoState.current!.currentTime;
+        if (savedVideoState.current!.wasPlaying) {
+          video.volume = AUTO_PLAY_VOLUME;
+          video.muted = isMuted;
+          video.play().catch(() => {});
+        }
+        console.log('[VideoCarousel] Restored state at', savedVideoState.current!.currentTime);
+        savedVideoState.current = null;
+        setIsTransitioning(false);
+      } else {
+        setTimeout(() => attemptRestore(attempts + 1), 50);
+      }
+    };
+
+    setTimeout(() => attemptRestore(), 100);
+  }, [getVideoElement, isMuted]);
+
+  // =============================================================================
   // STICKY MODE LOGIC - IntersectionObserver
-  // Video NEVER unmounts - only CSS position changes!
   // =============================================================================
   useEffect(() => {
-    const elementToObserve = placeholderRef.current;
+    const elementToObserve = containerRef.current;
     if (!elementToObserve) return;
 
     const observer = new IntersectionObserver(
@@ -317,21 +522,27 @@ export function VideoCarousel() {
             }
           }
 
-          if (stickyLocked.current) return;
+          if (stickyLocked.current || isTransitioning) return;
 
-          // GO STICKY: Video just changes CSS - no unmount!
+          // GO STICKY
           if (!isSticky && isPlaying && ratio < STICKY_THRESHOLD) {
-            console.log('[VideoCarousel] Going STICKY (no remount, just CSS)');
+            console.log('[VideoCarousel] Going STICKY');
             stickyLocked.current = true;
+            setIsTransitioning(true);
+            saveVideoState();
             setIsSticky(true);
+            restoreVideoState();
             setTimeout(() => { stickyLocked.current = false; }, 600);
           }
 
           // RETURN TO NORMAL
           if (isSticky && ratio > RETURN_THRESHOLD) {
-            console.log('[VideoCarousel] Returning to NORMAL (no remount, just CSS)');
+            console.log('[VideoCarousel] Returning to NORMAL');
             stickyLocked.current = true;
+            setIsTransitioning(true);
+            saveVideoState();
             setIsSticky(false);
+            restoreVideoState();
             setTimeout(() => { stickyLocked.current = false; }, 600);
           }
         });
@@ -344,20 +555,25 @@ export function VideoCarousel() {
 
     observer.observe(elementToObserve);
     return () => observer.disconnect();
-  }, [isPlaying, isSticky, getVideoElement]);
+  }, [isPlaying, isSticky, isTransitioning, getVideoElement, saveVideoState, restoreVideoState]);
 
   // Minimize handler
   const handleMinimize = useCallback(() => {
     if (!isSticky) return;
     stickyLocked.current = true;
+    setIsTransitioning(true);
+    saveVideoState();
     setIsSticky(false);
+    restoreVideoState();
     setTimeout(() => { stickyLocked.current = false; }, 1500);
-  }, [isSticky]);
+  }, [isSticky, saveVideoState, restoreVideoState]);
 
   // Fullscreen toggle
   const handleFullscreen = useCallback(() => {
-    const portal = document.getElementById('permanent-video-portal');
-    const player = portal?.querySelector('mux-player') as HTMLVideoElement | null;
+    const container = isSticky
+      ? document.getElementById('sticky-video-portal')
+      : containerRef.current;
+    const player = container?.querySelector('mux-player') as HTMLVideoElement | null;
     if (!player) return;
 
     const isFullscreen = !!document.fullscreenElement;
@@ -373,13 +589,12 @@ export function VideoCarousel() {
         player.requestFullscreen();
       }
     }
-  }, []);
+  }, [isSticky]);
 
-  // Mobile touch gestures
+  // Mobile touch gestures for sticky dismiss
   const handleStickyTouchStart = useCallback((e: React.TouchEvent) => {
-    if (!isMobile) return;
+    if (!isMobile || !isSticky) return;
     setIsTouching(true);
-    if (!isSticky) return;
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   }, [isMobile, isSticky]);
@@ -391,6 +606,7 @@ export function VideoCarousel() {
     const touch = e.changedTouches[0];
     const now = Date.now();
 
+    // Double-tap for fullscreen
     if (now - lastTapRef.current < 300) {
       handleFullscreen();
       lastTapRef.current = 0;
@@ -398,6 +614,7 @@ export function VideoCarousel() {
     }
     lastTapRef.current = now;
 
+    // Swipe to dismiss
     if (isSticky && touchStartRef.current) {
       const deltaX = touch.clientX - touchStartRef.current.x;
       const deltaY = touch.clientY - touchStartRef.current.y;
@@ -413,14 +630,17 @@ export function VideoCarousel() {
         setDismissDirection(direction);
         stickyLocked.current = true;
         setTimeout(() => {
+          setIsTransitioning(true);
+          saveVideoState();
           setIsSticky(false);
+          restoreVideoState();
           setDismissDirection('none');
           setTimeout(() => { stickyLocked.current = false; }, 1500);
         }, 300);
       }
     }
     touchStartRef.current = null;
-  }, [isMobile, isSticky, handleFullscreen]);
+  }, [isMobile, isSticky, handleFullscreen, saveVideoState, restoreVideoState]);
 
   const handleStickyTouchCancel = useCallback(() => {
     setIsTouching(false);
@@ -436,7 +656,7 @@ export function VideoCarousel() {
     return 'floatVideoSticky 4s ease-in-out infinite';
   }, [dismissDirection, isTouching]);
 
-  // Reset hasAutoPlayed when video changes
+  // Reset on video change
   useEffect(() => {
     hasAutoPlayed.current = false;
     videoRef.current = null;
@@ -462,54 +682,213 @@ export function VideoCarousel() {
   }, [videos.length]);
 
   const togglePlayPause = useCallback(() => {
-    const portal = document.getElementById('permanent-video-portal');
-    const player = portal?.querySelector('mux-player') as HTMLVideoElement | null;
+    const container = isSticky
+      ? document.getElementById('sticky-video-portal')
+      : containerRef.current;
+    const player = container?.querySelector('mux-player') as HTMLVideoElement | null;
     if (player) {
       if (isPlaying) player.pause();
       else player.play();
       setIsPlaying(!isPlaying);
     }
-  }, [isPlaying]);
+  }, [isPlaying, isSticky]);
 
   const handleDoubleClick = useCallback(() => {
     handleFullscreen();
   }, [handleFullscreen]);
 
-  // =============================================================================
-  // CALCULATE PORTAL POSITION
-  // Normal mode: Over the placeholder
-  // Sticky mode: Fixed at top
-  // =============================================================================
+  // Calculate sticky width
   const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 500;
   const stickyWidth = Math.min(400, windowWidth - 32);
 
-  const getPortalStyle = useCallback((): React.CSSProperties => {
-    if (isSticky) {
-      return {
-        position: 'fixed',
-        top: NAVBAR_HEIGHT,
-        left: `calc(50% - ${stickyWidth / 2}px)`,
-        width: stickyWidth,
-        zIndex: 9999,
-        transition: 'all 0.3s ease-out',
-      };
-    }
+  // =============================================================================
+  // VIDEO PANEL COMPONENT - Used in both normal and sticky modes
+  // =============================================================================
+  const VideoPanel = ({ inSticky = false }: { inSticky?: boolean }) => (
+    <div
+      className="glass-crystal rounded-2xl overflow-hidden relative"
+      style={inSticky ? {
+        animation: getStickyAnimation(),
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 16px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)',
+      } : {
+        animation: 'float 6s ease-in-out infinite',
+      }}
+    >
+      {/* Video header - ONLY when NOT sticky */}
+      {!inSticky && (
+        <div className="p-3 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                {currentVideo.title}
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {currentVideo.duration}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-400">
+              <span>{currentIndex + 1}</span>
+              <span>/</span>
+              <span>{videos.length}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
-    // Normal mode: position over placeholder
-    if (placeholderRect) {
-      return {
-        position: 'fixed',
-        top: placeholderRect.top,
-        left: placeholderRect.left,
-        width: placeholderRect.width,
-        height: placeholderRect.height,
-        zIndex: 50,
-        transition: 'all 0.3s ease-out',
-      };
-    }
+      {/* Video player area */}
+      <div
+        className={`relative cursor-pointer overflow-hidden ${inSticky ? 'aspect-video' : 'aspect-video bg-black'}`}
+        onClick={togglePlayPause}
+        onDoubleClick={handleDoubleClick}
+      >
+        <MuxPlayer
+          key={`${currentVideo.id}-${inSticky ? 'sticky' : 'normal'}`}
+          playbackId={currentVideo.muxPlaybackId}
+          streamType="on-demand"
+          autoPlay={false}
+          muted={false}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onEnded={() => {
+            const nextIndex = currentIndex === videos.length - 1 ? 0 : currentIndex + 1;
+            setCurrentIndex(nextIndex);
+            hasAutoPlayed.current = false;
+            setTimeout(() => {
+              const video = getVideoElement();
+              if (video) {
+                video.volume = AUTO_PLAY_VOLUME;
+                video.muted = isMuted;
+                video.play().then(() => {
+                  setIsPlaying(true);
+                  hasAutoPlayed.current = true;
+                }).catch(() => {});
+              }
+            }, 300);
+          }}
+          style={{
+            width: '100%',
+            height: '100%',
+            '--controls': 'none',
+            objectFit: 'cover',
+            '--media-object-fit': 'cover',
+            '--video-object-fit': 'cover',
+          } as any}
+          className="w-full h-full object-cover [&_video]:object-cover [&_video]:w-full [&_video]:h-full"
+        />
 
-    return { position: 'fixed', top: 0, left: 0, opacity: 0 };
-  }, [isSticky, stickyWidth, placeholderRect]);
+        {/* Play/Pause overlay */}
+        {!isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+            <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
+              <Play className="w-8 h-8 text-white fill-white" />
+            </div>
+          </div>
+        )}
+
+        {/* STICKY: Minimize button */}
+        {inSticky && (
+          <button
+            onClick={(e) => { e.stopPropagation(); handleMinimize(); }}
+            className="absolute top-3 left-3 z-30 p-2 rounded-full bg-black/40 backdrop-blur-sm text-white/70 hover:bg-black/60 hover:text-white transition-all shadow-lg border border-white/10"
+          >
+            <Minimize2 className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* STICKY: Control buttons */}
+        {inSticky && (
+          <div className="absolute top-3 right-3 z-30 flex items-center gap-2">
+            <button
+              onClick={(e) => { e.stopPropagation(); handleFullscreen(); }}
+              className="p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
+            >
+              <Maximize2 className="w-5 h-5" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+              className="p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
+            >
+              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            </button>
+          </div>
+        )}
+
+        {/* NORMAL: Fullscreen hint */}
+        {!inSticky && (
+          <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+            <div className="px-2 py-1 rounded bg-black/50 text-white text-xs flex items-center gap-1">
+              <Maximize2 className="w-3 h-3" />
+              <span>Double-click</span>
+            </div>
+          </div>
+        )}
+
+        {/* STICKY: Navigation arrows inside video */}
+        {inSticky && (
+          <>
+            <button
+              onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
+              className="absolute bottom-3 left-3 z-30 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white/60 hover:bg-black/50 hover:text-white transition-all"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); goToNext(); }}
+              className="absolute bottom-3 right-3 z-30 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white/60 hover:bg-black/50 hover:text-white transition-all"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 px-2 py-1 rounded-full bg-black/30 backdrop-blur-sm text-white/60 text-xs">
+              {currentIndex + 1} / {videos.length}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Navigation arrows + Volume - only when NOT sticky */}
+      {!inSticky && (
+        <div className="flex items-center justify-between p-3 border-t border-white/10">
+          <button
+            onClick={goToPrevious}
+            className="p-2 rounded-full glass-crystal hover:scale-110 transition-transform"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-white" />
+          </button>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {videos.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => { setCurrentIndex(index); setIsPlaying(false); }}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentIndex ? 'bg-blue-500 w-4' : 'bg-gray-400 dark:bg-gray-600 hover:bg-gray-500'
+                  }`}
+                />
+              ))}
+            </div>
+            <button
+              onClick={toggleMute}
+              className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
+            >
+              {isMuted ? (
+                <VolumeX className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              ) : (
+                <Volume2 className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+              )}
+            </button>
+          </div>
+
+          <button
+            onClick={goToNext}
+            className="p-2 rounded-full glass-crystal hover:scale-110 transition-transform"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-600 dark:text-white" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   // =============================================================================
   // RENDER
@@ -518,9 +897,15 @@ export function VideoCarousel() {
     <>
       <style jsx global>{stickyAnimationStyles}</style>
 
-      {/* PLACEHOLDER: Maintains layout space and provides position reference */}
-      <div ref={placeholderRef} className="relative w-full max-w-md mx-auto">
-
+      {/* MAIN CONTAINER with rubber band effect */}
+      <div
+        ref={containerRef}
+        className="relative w-full max-w-md mx-auto"
+        style={{
+          transform: `translateX(${translateX}px)`,
+          transition: translateX === 0 ? 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
+        }}
+      >
         {/* PERMANENT GRADIENT SHADOW */}
         <div
           className="absolute -inset-8 -z-20 pointer-events-none"
@@ -536,7 +921,7 @@ export function VideoCarousel() {
           }}
         />
 
-        {/* AMBIENT MODE: Dynamic glow layer */}
+        {/* AMBIENT MODE: Dynamic glow layer - only when playing and NOT sticky */}
         {isPlaying && !isSticky && (
           <div
             className="absolute inset-0 -z-10 pointer-events-none"
@@ -555,33 +940,7 @@ export function VideoCarousel() {
           />
         )}
 
-        {/* Invisible placeholder for layout - same aspect ratio as video panel */}
-        <div
-          className="w-full rounded-2xl"
-          style={{
-            aspectRatio: '4/3.5', // Approximate aspect ratio of video panel with header/footer
-            visibility: 'hidden',
-          }}
-        />
-
-        {/* Placeholder content when sticky */}
-        {isSticky && (
-          <div
-            className="absolute inset-0 rounded-2xl border border-white/5 flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, rgba(15,15,25,0.3) 0%, rgba(5,5,15,0.3) 100%)',
-            }}
-          >
-            <div className="text-center opacity-40">
-              <svg className="w-8 h-8 text-white/30 mx-auto mb-2 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-              <p className="text-white/30 text-sm">Video playing above</p>
-            </div>
-          </div>
-        )}
-
-        {/* FLOATING WORDS - Only visible when NOT sticky */}
+        {/* FLOATING WORDS - attached to container, move with rubber band */}
         {!isSticky && (
           <>
             {/* Right side words */}
@@ -619,6 +978,31 @@ export function VideoCarousel() {
           </>
         )}
 
+        {/* =============================================================================
+            NORMAL MODE: Video directly in DOM (no portal = no delay)
+            ============================================================================= */}
+        {!isSticky && (
+          <VideoPanel inSticky={false} />
+        )}
+
+        {/* Placeholder when sticky - maintains layout space */}
+        {isSticky && (
+          <div
+            className="rounded-2xl border border-white/5 flex items-center justify-center"
+            style={{
+              aspectRatio: '4/3.5',
+              background: 'linear-gradient(135deg, rgba(15,15,25,0.3) 0%, rgba(5,5,15,0.3) 100%)',
+            }}
+          >
+            <div className="text-center opacity-40">
+              <svg className="w-8 h-8 text-white/30 mx-auto mb-2 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              </svg>
+              <p className="text-white/30 text-sm">Video playing above</p>
+            </div>
+          </div>
+        )}
+
         {/* Video experience hint */}
         <div className="mt-4">
           <VideoExperienceHint />
@@ -626,200 +1010,22 @@ export function VideoCarousel() {
       </div>
 
       {/* =============================================================================
-          PERMANENT PORTAL: Video lives here ALWAYS - never unmounts!
-          Position changes via CSS only
+          STICKY MODE PORTAL: Video floats to top
           ============================================================================= */}
-      {portalMounted && createPortal(
+      {isSticky && portalReady && createPortal(
         <div
-          id="permanent-video-portal"
-          style={getPortalStyle()}
+          id="sticky-video-portal"
+          className="fixed z-[9999]"
+          style={{
+            top: NAVBAR_HEIGHT,
+            left: `calc(50% - ${stickyWidth / 2}px)`,
+            width: stickyWidth,
+          }}
           onTouchStart={handleStickyTouchStart}
           onTouchEnd={handleStickyTouchEnd}
           onTouchCancel={handleStickyTouchCancel}
         >
-          <div
-            className="glass-crystal rounded-2xl overflow-hidden relative"
-            style={isSticky ? {
-              animation: getStickyAnimation(),
-              boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 16px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)',
-            } : {
-              animation: 'float 6s ease-in-out infinite',
-            }}
-          >
-            {/* Video header - ONLY when NOT sticky */}
-            {!isSticky && (
-              <div className="p-3 border-b border-white/10">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
-                      {currentVideo.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {currentVideo.duration}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <span>{currentIndex + 1}</span>
-                    <span>/</span>
-                    <span>{videos.length}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Video player area */}
-            <div
-              className={`relative cursor-pointer overflow-hidden ${isSticky ? 'aspect-video' : 'aspect-video bg-black'}`}
-              onClick={togglePlayPause}
-              onDoubleClick={handleDoubleClick}
-            >
-              <MuxPlayer
-                key={currentVideo.id}
-                playbackId={currentVideo.muxPlaybackId}
-                streamType="on-demand"
-                autoPlay={false}
-                muted={false}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onEnded={() => {
-                  const nextIndex = currentIndex === videos.length - 1 ? 0 : currentIndex + 1;
-                  setCurrentIndex(nextIndex);
-                  hasAutoPlayed.current = false;
-                  setTimeout(() => {
-                    const video = getVideoElement();
-                    if (video) {
-                      video.volume = AUTO_PLAY_VOLUME;
-                      video.muted = isMuted;
-                      video.play().then(() => {
-                        setIsPlaying(true);
-                        hasAutoPlayed.current = true;
-                      }).catch(() => {});
-                    }
-                  }, 300);
-                }}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  '--controls': 'none',
-                  objectFit: 'cover',
-                  '--media-object-fit': 'cover',
-                  '--video-object-fit': 'cover',
-                } as any}
-                className="w-full h-full object-cover [&_video]:object-cover [&_video]:w-full [&_video]:h-full"
-              />
-
-              {/* Play/Pause overlay */}
-              {!isPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
-                  <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
-                    <Play className="w-8 h-8 text-white fill-white" />
-                  </div>
-                </div>
-              )}
-
-              {/* MINIMIZE button - only when sticky */}
-              {isSticky && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleMinimize(); }}
-                  className="absolute top-3 left-3 z-30 p-2 rounded-full bg-black/40 backdrop-blur-sm text-white/70 hover:bg-black/60 hover:text-white transition-all shadow-lg border border-white/10"
-                >
-                  <Minimize2 className="w-4 h-4" />
-                </button>
-              )}
-
-              {/* Control buttons - only when sticky */}
-              {isSticky && (
-                <div className="absolute top-3 right-3 z-30 flex items-center gap-2">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleFullscreen(); }}
-                    className="p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
-                  >
-                    <Maximize2 className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-                    className="p-2.5 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-all shadow-lg border border-white/10"
-                  >
-                    {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                  </button>
-                </div>
-              )}
-
-              {/* Fullscreen hint - only when NOT sticky */}
-              {!isSticky && (
-                <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
-                  <div className="px-2 py-1 rounded bg-black/50 text-white text-xs flex items-center gap-1">
-                    <Maximize2 className="w-3 h-3" />
-                    <span>Double-click</span>
-                  </div>
-                </div>
-              )}
-
-              {/* STICKY: Navigation arrows inside video */}
-              {isSticky && (
-                <>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
-                    className="absolute bottom-3 left-3 z-30 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white/60 hover:bg-black/50 hover:text-white transition-all"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); goToNext(); }}
-                    className="absolute bottom-3 right-3 z-30 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white/60 hover:bg-black/50 hover:text-white transition-all"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 px-2 py-1 rounded-full bg-black/30 backdrop-blur-sm text-white/60 text-xs">
-                    {currentIndex + 1} / {videos.length}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Navigation arrows + Volume - only when NOT sticky */}
-            {!isSticky && (
-              <div className="flex items-center justify-between p-3 border-t border-white/10">
-                <button
-                  onClick={goToPrevious}
-                  className="p-2 rounded-full glass-crystal hover:scale-110 transition-transform"
-                >
-                  <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-white" />
-                </button>
-
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    {videos.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => { setCurrentIndex(index); setIsPlaying(false); }}
-                        className={`w-2 h-2 rounded-full transition-all ${
-                          index === currentIndex ? 'bg-blue-500 w-4' : 'bg-gray-400 dark:bg-gray-600 hover:bg-gray-500'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <button
-                    onClick={toggleMute}
-                    className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
-                  >
-                    {isMuted ? (
-                      <VolumeX className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    ) : (
-                      <Volume2 className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                    )}
-                  </button>
-                </div>
-
-                <button
-                  onClick={goToNext}
-                  className="p-2 rounded-full glass-crystal hover:scale-110 transition-transform"
-                >
-                  <ChevronRight className="w-5 h-5 text-gray-600 dark:text-white" />
-                </button>
-              </div>
-            )}
-          </div>
+          <VideoPanel inSticky={true} />
         </div>,
         document.body
       )}
