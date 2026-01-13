@@ -405,29 +405,74 @@ export function EmbeddedVideoDevice({
   // MINIMIZE & FULLSCREEN CONTROLS
   // =============================================================================
 
-  // Minimize: Return to original position WITHOUT pausing
+  // Minimize: Just HIDE the sticky panel - stay where you are
+  // Video will re-activate when scrolling back up past the placeholder
   const handleMinimize = useCallback(() => {
     if (!isSticky) return;
-    console.log('[Video] Minimizing - returning to original position');
+    console.log('[Video] Minimizing - hiding sticky panel (no scroll)');
     stickyLocked.current = true;
     setIsSticky(false);
-    setTimeout(() => { stickyLocked.current = false; }, 600);
-    // Scroll to make placeholder visible
-    placeholderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Lock for longer to prevent immediate re-sticky when still scrolled down
+    setTimeout(() => { stickyLocked.current = false; }, 1500);
+    // NO scrollIntoView - user stays where they are
   }, [isSticky]);
 
-  // Fullscreen toggle
+  // Fullscreen toggle - with mobile-specific APIs
   const handleFullscreen = useCallback(() => {
     const player = getMuxPlayer();
     if (!player) return;
 
-    const isFullscreen = !!(document.fullscreenElement || (document as any).webkitFullscreenElement);
+    // Check current fullscreen state
+    const isFullscreen = !!(
+      document.fullscreenElement ||
+      (document as any).webkitFullscreenElement ||
+      (document as any).mozFullScreenElement ||
+      (document as any).msFullscreenElement
+    );
 
     if (isFullscreen) {
-      document.exitFullscreen?.() || (document as any).webkitExitFullscreen?.();
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).mozCancelFullScreen) {
+        (document as any).mozCancelFullScreen();
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+      }
     } else {
-      const el = videoContainerRef.current || player;
-      el?.requestFullscreen?.() || (el as any)?.webkitRequestFullscreen?.();
+      // Enter fullscreen - try multiple approaches for mobile compatibility
+      // 1. Try the video element directly (works better on mobile)
+      const videoEl = player.querySelector('video') || player;
+
+      // 2. iOS Safari uses webkitEnterFullscreen on video element
+      if ((videoEl as any).webkitEnterFullscreen) {
+        (videoEl as any).webkitEnterFullscreen();
+        return;
+      }
+
+      // 3. Try webkitRequestFullscreen (iOS Safari newer versions)
+      if ((videoEl as any).webkitRequestFullscreen) {
+        (videoEl as any).webkitRequestFullscreen();
+        return;
+      }
+
+      // 4. Standard requestFullscreen
+      if (videoEl.requestFullscreen) {
+        videoEl.requestFullscreen();
+        return;
+      }
+
+      // 5. Fallback to container
+      const container = videoContainerRef.current;
+      if (container) {
+        if ((container as any).webkitRequestFullscreen) {
+          (container as any).webkitRequestFullscreen();
+        } else if (container.requestFullscreen) {
+          container.requestFullscreen();
+        }
+      }
     }
   }, [getMuxPlayer]);
 
