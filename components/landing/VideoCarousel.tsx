@@ -342,46 +342,49 @@ export function VideoCarousel() {
     }
   }, []);
 
-  // Get video element from MuxPlayer (works for both normal and sticky modes)
-  const getVideoElement = useCallback((): HTMLVideoElement | null => {
-    // Try cached ref first
-    if (videoRef.current && videoRef.current.isConnected) {
-      return videoRef.current;
+  // CRITICAL: Unique DOM ID for MuxPlayer wrapper
+  const muxPlayerId = `mux-carousel-${currentIndex}`;
+
+  // Get MuxPlayer element directly (NOT the internal video) - this is the method that WORKS
+  const getMuxPlayer = useCallback((): any => {
+    if (typeof document === 'undefined') return null;
+
+    // First try the wrapper ID (normal mode)
+    const wrapper = document.getElementById(muxPlayerId);
+    if (wrapper) {
+      const player = wrapper.querySelector('mux-player');
+      if (player) return player;
     }
 
-    // Search in container (normal mode)
-    if (containerRef.current) {
-      const muxPlayer = containerRef.current.querySelector('mux-player');
-      if (muxPlayer) {
-        const shadowRoot = (muxPlayer as any).shadowRoot;
-        if (shadowRoot) {
-          const video = shadowRoot.querySelector('video');
-          if (video) {
-            videoRef.current = video;
-            return video;
-          }
-        }
-      }
-    }
-
-    // Search in portal (sticky mode)
+    // Try portal (sticky mode)
     const portal = document.getElementById('sticky-video-portal');
     if (portal) {
-      const muxPlayer = portal.querySelector('mux-player');
-      if (muxPlayer) {
-        const shadowRoot = (muxPlayer as any).shadowRoot;
-        if (shadowRoot) {
-          const video = shadowRoot.querySelector('video');
-          if (video) {
-            videoRef.current = video;
-            return video;
-          }
-        }
-      }
+      const player = portal.querySelector('mux-player');
+      if (player) return player;
+    }
+
+    // Fallback: search in container
+    if (containerRef.current) {
+      const player = containerRef.current.querySelector('mux-player');
+      if (player) return player;
     }
 
     return null;
-  }, []);
+  }, [muxPlayerId]);
+
+  // Legacy function for ambient mode color extraction (needs actual video element)
+  const getVideoElement = useCallback((): HTMLVideoElement | null => {
+    const player = getMuxPlayer();
+    if (!player) return null;
+
+    // Try to get video from shadow root for color extraction
+    const shadowRoot = (player as any).shadowRoot;
+    if (shadowRoot) {
+      const video = shadowRoot.querySelector('video');
+      if (video) return video;
+    }
+    return null;
+  }, [getMuxPlayer]);
 
   // Extract colors from video for Ambient Mode
   const extractVideoColors = useCallback(() => {
@@ -448,15 +451,15 @@ export function VideoCarousel() {
   // SAVE VIDEO STATE before transition
   // =============================================================================
   const saveVideoState = useCallback(() => {
-    const video = getVideoElement();
-    if (video) {
+    const player = getMuxPlayer();
+    if (player) {
       savedVideoState.current = {
-        currentTime: video.currentTime,
-        wasPlaying: !video.paused
+        currentTime: player.currentTime || 0,
+        wasPlaying: !player.paused
       };
       console.log('[VideoCarousel] Saved state:', savedVideoState.current);
     }
-  }, [getVideoElement]);
+  }, [getMuxPlayer]);
 
   // =============================================================================
   // RESTORE VIDEO STATE after transition
@@ -471,13 +474,13 @@ export function VideoCarousel() {
         return;
       }
 
-      const video = getVideoElement();
-      if (video && video.readyState >= 1) {
-        video.currentTime = savedVideoState.current!.currentTime;
+      const player = getMuxPlayer();
+      if (player) {
+        player.currentTime = savedVideoState.current!.currentTime;
         if (savedVideoState.current!.wasPlaying) {
-          video.volume = AUTO_PLAY_VOLUME;
-          video.muted = isMuted;
-          video.play().catch(() => {});
+          player.volume = AUTO_PLAY_VOLUME;
+          player.muted = isMuted;
+          player.play()?.catch(() => {});
         }
         console.log('[VideoCarousel] Restored state at', savedVideoState.current!.currentTime);
         savedVideoState.current = null;
@@ -488,7 +491,7 @@ export function VideoCarousel() {
     };
 
     setTimeout(() => attemptRestore(), 100);
-  }, [getVideoElement, isMuted]);
+  }, [getMuxPlayer, isMuted]);
 
   // =============================================================================
   // STICKY MODE LOGIC - IntersectionObserver
@@ -501,24 +504,35 @@ export function VideoCarousel() {
       (entries) => {
         entries.forEach((entry) => {
           const ratio = entry.intersectionRatio;
-          const video = getVideoElement();
 
           // Auto-play when >50% visible
-          if (ratio > 0.5 && !hasAutoPlayed.current && video) {
-            if (video.paused) {
-              video.volume = AUTO_PLAY_VOLUME;
-              video.muted = false;
-              video.play().then(() => {
-                hasAutoPlayed.current = true;
-                setIsPlaying(true);
-              }).catch(() => {
-                video.muted = true;
-                setIsMuted(true);
-                video.play().then(() => {
+          if (ratio > 0.5 && !hasAutoPlayed.current) {
+            const player = getMuxPlayer();
+            if (player && player.paused) {
+              // Try to play with audio first
+              player.volume = AUTO_PLAY_VOLUME;
+              player.muted = false;
+              setIsMuted(false);
+
+              const playPromise = player.play();
+              if (playPromise?.then) {
+                playPromise.then(() => {
                   hasAutoPlayed.current = true;
                   setIsPlaying(true);
-                }).catch(() => {});
-              });
+                  console.log('[VideoCarousel] Autoplay with audio SUCCESS');
+                }).catch(() => {
+                  // Fallback: muted play
+                  player.muted = true;
+                  setIsMuted(true);
+                  player.play()?.then(() => {
+                    hasAutoPlayed.current = true;
+                    setIsPlaying(true);
+                    console.log('[VideoCarousel] Autoplay muted SUCCESS');
+                  }).catch(() => {
+                    console.log('[VideoCarousel] Autoplay FAILED');
+                  });
+                });
+              }
             }
           }
 
@@ -663,13 +677,14 @@ export function VideoCarousel() {
   }, [currentIndex]);
 
   const toggleMute = useCallback(() => {
-    const video = getVideoElement();
-    if (video) {
-      video.muted = !video.muted;
-      setIsMuted(video.muted);
-      if (!video.muted) video.volume = AUTO_PLAY_VOLUME;
+    const player = getMuxPlayer();
+    if (player) {
+      const newMuted = !player.muted;
+      player.muted = newMuted;
+      setIsMuted(newMuted);
+      if (!newMuted) player.volume = AUTO_PLAY_VOLUME;
     }
-  }, [getVideoElement]);
+  }, [getMuxPlayer]);
 
   const goToPrevious = useCallback(() => {
     setCurrentIndex((prev) => (prev === 0 ? videos.length - 1 : prev - 1));
@@ -684,26 +699,43 @@ export function VideoCarousel() {
   // TAP TO UNMUTE: If video is playing but muted, tap unmutes it
   // Otherwise normal play/pause toggle
   const togglePlayPause = useCallback(() => {
-    const video = getVideoElement();
-    if (!video) return;
+    const player = getMuxPlayer();
+    if (!player) {
+      console.log('[VideoCarousel] No player found for togglePlayPause');
+      return;
+    }
 
     // If playing but muted → unmute (tap to play with volume)
     if (isPlaying && isMuted) {
-      video.muted = false;
-      video.volume = AUTO_PLAY_VOLUME;
+      player.muted = false;
+      player.volume = AUTO_PLAY_VOLUME;
       setIsMuted(false);
+      console.log('[VideoCarousel] Unmuted via tap');
       return;
     }
 
     // Normal play/pause toggle
     if (isPlaying) {
-      video.pause();
+      player.pause();
+      setIsPlaying(false);
     } else {
-      video.volume = AUTO_PLAY_VOLUME;
-      video.play().catch(() => {});
+      player.volume = AUTO_PLAY_VOLUME;
+      player.muted = false;
+      setIsMuted(false);
+      player.play()?.then(() => {
+        setIsPlaying(true);
+        console.log('[VideoCarousel] Playing via tap');
+      }).catch(() => {
+        // Fallback to muted
+        player.muted = true;
+        setIsMuted(true);
+        player.play()?.then(() => {
+          setIsPlaying(true);
+          console.log('[VideoCarousel] Playing muted via tap');
+        });
+      });
     }
-    setIsPlaying(!isPlaying);
-  }, [isPlaying, isMuted, getVideoElement]);
+  }, [isPlaying, isMuted, getMuxPlayer]);
 
   const handleDoubleClick = useCallback(() => {
     handleFullscreen();
@@ -750,42 +782,57 @@ export function VideoCarousel() {
       {/* Video player area */}
       <div
         className={`relative cursor-pointer overflow-hidden ${inSticky ? 'aspect-video' : 'aspect-video bg-black'}`}
-        onClick={togglePlayPause}
-        onDoubleClick={handleDoubleClick}
       >
-        <MuxPlayer
-          key={`${currentVideo.id}-${inSticky ? 'sticky' : 'normal'}`}
-          playbackId={currentVideo.muxPlaybackId}
-          streamType="on-demand"
-          autoPlay={false}
-          muted={false}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onEnded={() => {
-            const nextIndex = currentIndex === videos.length - 1 ? 0 : currentIndex + 1;
-            setCurrentIndex(nextIndex);
-            hasAutoPlayed.current = false;
-            setTimeout(() => {
-              const video = getVideoElement();
-              if (video) {
-                video.volume = AUTO_PLAY_VOLUME;
-                video.muted = isMuted;
-                video.play().then(() => {
-                  setIsPlaying(true);
-                  hasAutoPlayed.current = true;
-                }).catch(() => {});
-              }
-            }, 300);
-          }}
-          style={{
-            width: '100%',
-            height: '100%',
-            '--controls': 'none',
-            objectFit: 'cover',
-            '--media-object-fit': 'cover',
-            '--video-object-fit': 'cover',
-          } as any}
-          className="w-full h-full object-cover [&_video]:object-cover [&_video]:w-full [&_video]:h-full"
+        {/* CRITICAL: Wrapper with ID for getMuxPlayer() to find it */}
+        <div id={muxPlayerId} className="absolute inset-0">
+          <MuxPlayer
+            key={`${currentVideo.id}-${inSticky ? 'sticky' : 'normal'}`}
+            playbackId={currentVideo.muxPlaybackId}
+            streamType="on-demand"
+            autoPlay={false}
+            muted={isMuted}
+            playsInline
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onEnded={() => {
+              // Auto-advance to next video in carousel
+              const nextIndex = currentIndex === videos.length - 1 ? 0 : currentIndex + 1;
+              setCurrentIndex(nextIndex);
+              hasAutoPlayed.current = false;
+              // Auto-play next video after short delay
+              setTimeout(() => {
+                const player = getMuxPlayer();
+                if (player) {
+                  player.volume = AUTO_PLAY_VOLUME;
+                  player.muted = isMuted;
+                  player.play()?.then(() => {
+                    setIsPlaying(true);
+                    hasAutoPlayed.current = true;
+                    console.log('[VideoCarousel] Auto-playing next video');
+                  }).catch(() => {
+                    console.log('[VideoCarousel] Failed to auto-play next');
+                  });
+                }
+              }, 300);
+            }}
+            style={{
+              width: '100%',
+              height: '100%',
+              '--controls': 'none',
+              objectFit: 'cover',
+              '--media-object-fit': 'cover',
+              '--video-object-fit': 'cover',
+            } as any}
+            className="w-full h-full object-cover [&_video]:object-cover [&_video]:w-full [&_video]:h-full"
+          />
+        </div>
+
+        {/* TOUCH OVERLAY: Captures clicks/taps for play/pause without blocking rubber band */}
+        <div
+          className="absolute inset-0 z-10"
+          onClick={togglePlayPause}
+          onDoubleClick={handleDoubleClick}
+          style={{ touchAction: 'pan-y' }}
         />
 
         {/* Play/Pause overlay */}
