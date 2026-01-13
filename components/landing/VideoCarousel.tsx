@@ -301,6 +301,11 @@ export function VideoCarousel() {
   // Video state preservation for transitions
   const savedVideoState = useRef<{ currentTime: number; wasPlaying: boolean } | null>(null);
 
+  // CRITICAL: Flag to prevent sticky during autoplay process
+  const isAutoplayingRef = useRef(false);
+  // CRITICAL: Track actual playing state (React state can lag behind)
+  const isActuallyPlayingRef = useRef(false);
+
   const [ambientColors, setAmbientColors] = useState({
     dominant: 'rgba(139, 92, 246, 0.35)',
     secondary: 'rgba(6, 182, 212, 0.25)',
@@ -448,53 +453,8 @@ export function VideoCarousel() {
   }, [isPlaying, extractVideoColors]);
 
   // =============================================================================
-  // SAVE VIDEO STATE before transition
-  // =============================================================================
-  const saveVideoState = useCallback(() => {
-    const player = getMuxPlayer();
-    if (player) {
-      savedVideoState.current = {
-        currentTime: player.currentTime || 0,
-        wasPlaying: !player.paused
-      };
-      console.log('[VideoCarousel] Saved state:', savedVideoState.current);
-    }
-  }, [getMuxPlayer]);
-
-  // =============================================================================
-  // RESTORE VIDEO STATE after transition
-  // =============================================================================
-  const restoreVideoState = useCallback(() => {
-    if (!savedVideoState.current) return;
-
-    // Wait for new MuxPlayer to mount
-    const attemptRestore = (attempts = 0) => {
-      if (attempts > 20) {
-        console.log('[VideoCarousel] Gave up restoring state');
-        return;
-      }
-
-      const player = getMuxPlayer();
-      if (player) {
-        player.currentTime = savedVideoState.current!.currentTime;
-        if (savedVideoState.current!.wasPlaying) {
-          player.volume = AUTO_PLAY_VOLUME;
-          player.muted = isMuted;
-          player.play()?.catch(() => {});
-        }
-        console.log('[VideoCarousel] Restored state at', savedVideoState.current!.currentTime);
-        savedVideoState.current = null;
-        setIsTransitioning(false);
-      } else {
-        setTimeout(() => attemptRestore(attempts + 1), 50);
-      }
-    };
-
-    setTimeout(() => attemptRestore(), 100);
-  }, [getMuxPlayer, isMuted]);
-
-  // =============================================================================
   // STICKY MODE LOGIC - IntersectionObserver
+  // CRITICAL: Minimal dependencies to prevent observer recreation issues
   // =============================================================================
   useEffect(() => {
     const elementToObserve = containerRef.current;
@@ -504,60 +464,115 @@ export function VideoCarousel() {
       (entries) => {
         entries.forEach((entry) => {
           const ratio = entry.intersectionRatio;
+          const player = getMuxPlayer();
 
-          // Auto-play when >50% visible
-          if (ratio > 0.5 && !hasAutoPlayed.current) {
-            const player = getMuxPlayer();
+          // =================================================================
+          // AUTO-PLAY LOGIC: When video becomes >50% visible
+          // =================================================================
+          if (ratio > 0.5 && !hasAutoPlayed.current && !isAutoplayingRef.current) {
             if (player && player.paused) {
+              console.log('[VideoCarousel] Starting autoplay attempt...');
+              isAutoplayingRef.current = true;
+
               // Try to play with audio first
               player.volume = AUTO_PLAY_VOLUME;
               player.muted = false;
-              setIsMuted(false);
 
               const playPromise = player.play();
               if (playPromise?.then) {
                 playPromise.then(() => {
-                  hasAutoPlayed.current = true;
-                  setIsPlaying(true);
-                  console.log('[VideoCarousel] Autoplay with audio SUCCESS');
+                  // Wait a bit to ensure player state is stable
+                  setTimeout(() => {
+                    hasAutoPlayed.current = true;
+                    isActuallyPlayingRef.current = true;
+                    isAutoplayingRef.current = false;
+                    setIsPlaying(true);
+                    setIsMuted(false);
+                    console.log('[VideoCarousel] Autoplay with audio SUCCESS');
+                  }, 100);
                 }).catch(() => {
                   // Fallback: muted play
                   player.muted = true;
-                  setIsMuted(true);
                   player.play()?.then(() => {
-                    hasAutoPlayed.current = true;
-                    setIsPlaying(true);
-                    console.log('[VideoCarousel] Autoplay muted SUCCESS');
+                    setTimeout(() => {
+                      hasAutoPlayed.current = true;
+                      isActuallyPlayingRef.current = true;
+                      isAutoplayingRef.current = false;
+                      setIsPlaying(true);
+                      setIsMuted(true);
+                      console.log('[VideoCarousel] Autoplay muted SUCCESS');
+                    }, 100);
                   }).catch(() => {
+                    isAutoplayingRef.current = false;
                     console.log('[VideoCarousel] Autoplay FAILED');
                   });
                 });
+              } else {
+                isAutoplayingRef.current = false;
               }
             }
           }
 
-          if (stickyLocked.current || isTransitioning) return;
+          // =================================================================
+          // STICKY LOGIC: Only after autoplay is complete and video is playing
+          // =================================================================
+          // Block sticky during autoplay process or transitions
+          if (stickyLocked.current || isAutoplayingRef.current) return;
 
-          // GO STICKY
-          if (!isSticky && isPlaying && ratio < STICKY_THRESHOLD) {
-            console.log('[VideoCarousel] Going STICKY');
+          // Check actual player state, not React state (which can lag)
+          const isVideoPlaying = player && !player.paused;
+
+          // GO STICKY: When video scrolls out of view while playing
+          if (!isSticky && isVideoPlaying && ratio < STICKY_THRESHOLD) {
+            console.log('[VideoCarousel] Going STICKY (ratio:', ratio, ')');
             stickyLocked.current = true;
             setIsTransitioning(true);
-            saveVideoState();
+
+            // Save state using actual player values
+            const currentTime = player?.currentTime || 0;
+            savedVideoState.current = { currentTime, wasPlaying: true };
+            console.log('[VideoCarousel] Saved state:', savedVideoState.current);
+
             setIsSticky(true);
-            restoreVideoState();
-            setTimeout(() => { stickyLocked.current = false; }, 600);
+
+            // Restore after mount
+            setTimeout(() => {
+              const newPlayer = getMuxPlayer();
+              if (newPlayer && savedVideoState.current) {
+                newPlayer.currentTime = savedVideoState.current.currentTime;
+                newPlayer.volume = AUTO_PLAY_VOLUME;
+                newPlayer.play()?.catch(() => {});
+                console.log('[VideoCarousel] Restored state');
+              }
+              setIsTransitioning(false);
+              setTimeout(() => { stickyLocked.current = false; }, 300);
+            }, 150);
           }
 
-          // RETURN TO NORMAL
+          // RETURN TO NORMAL: When user scrolls back
           if (isSticky && ratio > RETURN_THRESHOLD) {
             console.log('[VideoCarousel] Returning to NORMAL');
             stickyLocked.current = true;
             setIsTransitioning(true);
-            saveVideoState();
+
+            const currentTime = player?.currentTime || 0;
+            const wasPlaying = player && !player.paused;
+            savedVideoState.current = { currentTime, wasPlaying };
+
             setIsSticky(false);
-            restoreVideoState();
-            setTimeout(() => { stickyLocked.current = false; }, 600);
+
+            setTimeout(() => {
+              const newPlayer = getMuxPlayer();
+              if (newPlayer && savedVideoState.current) {
+                newPlayer.currentTime = savedVideoState.current.currentTime;
+                if (savedVideoState.current.wasPlaying) {
+                  newPlayer.volume = AUTO_PLAY_VOLUME;
+                  newPlayer.play()?.catch(() => {});
+                }
+              }
+              setIsTransitioning(false);
+              setTimeout(() => { stickyLocked.current = false; }, 300);
+            }, 150);
           }
         });
       },
@@ -569,18 +584,37 @@ export function VideoCarousel() {
 
     observer.observe(elementToObserve);
     return () => observer.disconnect();
-  }, [isPlaying, isSticky, isTransitioning, getVideoElement, saveVideoState, restoreVideoState]);
+  }, [isSticky, getMuxPlayer]); // MINIMAL dependencies - no isPlaying to prevent recreation
 
   // Minimize handler
   const handleMinimize = useCallback(() => {
     if (!isSticky) return;
+    const player = getMuxPlayer();
+
     stickyLocked.current = true;
     setIsTransitioning(true);
-    saveVideoState();
+
+    // Save state directly from player
+    const currentTime = player?.currentTime || 0;
+    const wasPlaying = player && !player.paused;
+    savedVideoState.current = { currentTime, wasPlaying };
+
     setIsSticky(false);
-    restoreVideoState();
-    setTimeout(() => { stickyLocked.current = false; }, 1500);
-  }, [isSticky, saveVideoState, restoreVideoState]);
+
+    // Restore after mount
+    setTimeout(() => {
+      const newPlayer = getMuxPlayer();
+      if (newPlayer && savedVideoState.current) {
+        newPlayer.currentTime = savedVideoState.current.currentTime;
+        if (savedVideoState.current.wasPlaying) {
+          newPlayer.volume = AUTO_PLAY_VOLUME;
+          newPlayer.play()?.catch(() => {});
+        }
+      }
+      setIsTransitioning(false);
+      setTimeout(() => { stickyLocked.current = false; }, 300);
+    }, 150);
+  }, [isSticky, getMuxPlayer]);
 
   // Fullscreen toggle
   const handleFullscreen = useCallback(() => {
@@ -641,20 +675,38 @@ export function VideoCarousel() {
       else if (absX > 80 && deltaX > 0) direction = 'right';
 
       if (direction) {
+        const player = getMuxPlayer();
         setDismissDirection(direction);
         stickyLocked.current = true;
+
+        // Save state directly from player
+        const currentTime = player?.currentTime || 0;
+        const wasPlaying = player && !player.paused;
+        savedVideoState.current = { currentTime, wasPlaying };
+
         setTimeout(() => {
           setIsTransitioning(true);
-          saveVideoState();
           setIsSticky(false);
-          restoreVideoState();
           setDismissDirection('none');
-          setTimeout(() => { stickyLocked.current = false; }, 1500);
+
+          // Restore after mount
+          setTimeout(() => {
+            const newPlayer = getMuxPlayer();
+            if (newPlayer && savedVideoState.current) {
+              newPlayer.currentTime = savedVideoState.current.currentTime;
+              if (savedVideoState.current.wasPlaying) {
+                newPlayer.volume = AUTO_PLAY_VOLUME;
+                newPlayer.play()?.catch(() => {});
+              }
+            }
+            setIsTransitioning(false);
+            setTimeout(() => { stickyLocked.current = false; }, 300);
+          }, 150);
         }, 300);
       }
     }
     touchStartRef.current = null;
-  }, [isMobile, isSticky, handleFullscreen, saveVideoState, restoreVideoState]);
+  }, [isMobile, isSticky, handleFullscreen, getMuxPlayer]);
 
   const handleStickyTouchCancel = useCallback(() => {
     setIsTouching(false);
@@ -705,8 +757,14 @@ export function VideoCarousel() {
       return;
     }
 
+    // Check actual player state (not React state which can lag)
+    const actuallyPlaying = !player.paused;
+    const actuallyMuted = player.muted;
+
+    console.log('[VideoCarousel] togglePlayPause - actuallyPlaying:', actuallyPlaying, 'actuallyMuted:', actuallyMuted);
+
     // If playing but muted → unmute (tap to play with volume)
-    if (isPlaying && isMuted) {
+    if (actuallyPlaying && actuallyMuted) {
       player.muted = false;
       player.volume = AUTO_PLAY_VOLUME;
       setIsMuted(false);
@@ -715,27 +773,33 @@ export function VideoCarousel() {
     }
 
     // Normal play/pause toggle
-    if (isPlaying) {
+    if (actuallyPlaying) {
       player.pause();
+      isActuallyPlayingRef.current = false;
       setIsPlaying(false);
+      console.log('[VideoCarousel] Paused via tap');
     } else {
       player.volume = AUTO_PLAY_VOLUME;
       player.muted = false;
-      setIsMuted(false);
       player.play()?.then(() => {
+        isActuallyPlayingRef.current = true;
         setIsPlaying(true);
+        setIsMuted(false);
         console.log('[VideoCarousel] Playing via tap');
       }).catch(() => {
         // Fallback to muted
         player.muted = true;
-        setIsMuted(true);
         player.play()?.then(() => {
+          isActuallyPlayingRef.current = true;
           setIsPlaying(true);
+          setIsMuted(true);
           console.log('[VideoCarousel] Playing muted via tap');
+        }).catch(() => {
+          console.log('[VideoCarousel] Play FAILED via tap');
         });
       });
     }
-  }, [isPlaying, isMuted, getMuxPlayer]);
+  }, [getMuxPlayer]);
 
   const handleDoubleClick = useCallback(() => {
     handleFullscreen();
