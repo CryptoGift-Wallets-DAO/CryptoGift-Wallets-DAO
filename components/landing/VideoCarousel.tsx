@@ -852,14 +852,12 @@ export function VideoCarousel() {
         {/* CRITICAL: Wrapper with ID for getMuxPlayer() to find it */}
         <div id={muxPlayerId} className="absolute inset-0 pointer-events-none">
           <MuxPlayer
-            key={`${currentVideo.id}-${inSticky ? 'sticky' : 'normal'}`}
+            key={currentVideo.id}
             playbackId={currentVideo.muxPlaybackId}
             streamType="on-demand"
             autoPlay={false}
             muted={isMuted}
             playsInline
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
             onEnded={() => {
               // Auto-advance to next video in carousel
               const nextIndex = currentIndex === videos.length - 1 ? 0 : currentIndex + 1;
