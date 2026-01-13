@@ -497,9 +497,8 @@ export function VideoCarousel() {
           const ratio = entry.intersectionRatio;
           const video = getVideoElement();
 
-          // Auto-play when >50% visible - ONLY on desktop (mobile starts paused)
-          const isMobileDevice = window.innerWidth < 768;
-          if (ratio > 0.5 && !hasAutoPlayed.current && video && !isMobileDevice) {
+          // Auto-play when >50% visible - ALL devices (mobile CAN autoplay muted)
+          if (ratio > 0.5 && !hasAutoPlayed.current && video) {
             if (video.paused) {
               video.volume = AUTO_PLAY_VOLUME;
               video.muted = false;
@@ -713,7 +712,10 @@ export function VideoCarousel() {
   }, [videos.length]);
 
   const togglePlayPause = useCallback(() => {
-    const player = containerRef.current?.querySelector('mux-player') as HTMLVideoElement | null;
+    // When sticky, player is in portal (document.body), not in containerRef
+    const player = (isSticky
+      ? document.querySelector('mux-player')
+      : containerRef.current?.querySelector('mux-player')) as HTMLVideoElement | null;
     if (player) {
       if (isPlaying) {
         player.pause();
@@ -722,10 +724,13 @@ export function VideoCarousel() {
       }
       setIsPlaying(!isPlaying);
     }
-  }, [isPlaying]);
+  }, [isPlaying, isSticky]);
 
   const handleDoubleClick = useCallback(() => {
-    const player = containerRef.current?.querySelector('mux-player') as HTMLVideoElement | null;
+    // When sticky, player is in portal (document.body), not in containerRef
+    const player = (isSticky
+      ? document.querySelector('mux-player')
+      : containerRef.current?.querySelector('mux-player')) as HTMLVideoElement | null;
     if (player) {
       if (document.fullscreenElement) {
         document.exitFullscreen();
@@ -733,7 +738,7 @@ export function VideoCarousel() {
         player.requestFullscreen?.();
       }
     }
-  }, []);
+  }, [isSticky]);
 
   // =============================================================================
   // RENDER - INLINE WHEN NORMAL, PORTAL WHEN STICKY
@@ -814,8 +819,9 @@ export function VideoCarousel() {
             width: '100%',
             height: '100%',
             '--controls': 'none',
+            objectFit: 'cover',
           } as any}
-          className="w-full h-full"
+          className="w-full h-full object-cover"
         />
 
         {/* Play/Pause overlay (shows when paused) */}
