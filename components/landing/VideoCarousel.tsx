@@ -1045,6 +1045,7 @@ export function VideoCarousel() {
         <span className="font-medium text-orange-600 dark:text-orange-400">Intuitive UX</span>
       </div>
     </div>
+    </>
   );
 }
 
