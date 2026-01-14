@@ -280,6 +280,7 @@ export function VideoCarousel() {
   const scrollDirection = useRef<'up' | 'down'>('up'); // Default to 'up' to prevent sticky on initial load
   const wasPlayingBeforeChange = useRef(false);
   const initialDocTop = useRef<number>(0); // Absolute position in document (not viewport)
+  const audioUnlocked = useRef(false); // Tracks if user has interacted (enables audio autoplay)
 
   const currentVideo = videos[currentIndex];
   const muxPlayerId = `mux-carousel-${currentIndex}`;
@@ -446,33 +447,97 @@ export function VideoCarousel() {
     return () => observer.disconnect();
   }, [isPlaying, isSticky]);
 
-  // Auto-play when visible - ONLY on mobile (PC requires user click due to browser restrictions)
+  // CRITICAL: Detect ANY user interaction to unlock audio autoplay
+  // Browsers require user gesture before allowing audio playback
+  // Once user clicks/touches/presses key anywhere, we can autoplay with audio
   useEffect(() => {
-    if (!isMobile) return; // PC: Don't autoplay, wait for user click
+    const attemptAutoplayWithAudio = () => {
+      if (hasAutoPlayed.current) return;
+
+      const player = getMuxPlayer();
+      if (!player) return;
+
+      player.volume = AUTO_PLAY_VOLUME;
+      player.muted = false;
+
+      player.play()?.then(() => {
+        hasAutoPlayed.current = true;
+        audioUnlocked.current = true;
+        setIsPlaying(true);
+        setIsMuted(false);
+      }).catch(() => {
+        // If still fails, the gesture wasn't strong enough - will retry on next interaction
+      });
+    };
+
+    const handleUserInteraction = () => {
+      if (audioUnlocked.current) return; // Already unlocked
+
+      audioUnlocked.current = true;
+
+      // Check if video is visible and should autoplay
+      if (placeholderRef.current && !hasAutoPlayed.current) {
+        const rect = placeholderRef.current.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+        if (isVisible) {
+          // Small delay to ensure the gesture is registered
+          setTimeout(attemptAutoplayWithAudio, 50);
+        }
+      }
+    };
+
+    // Listen for ANY user interaction
+    document.addEventListener('click', handleUserInteraction, { passive: true, capture: true });
+    document.addEventListener('touchstart', handleUserInteraction, { passive: true, capture: true });
+    document.addEventListener('keydown', handleUserInteraction, { passive: true, capture: true });
+
+    return () => {
+      document.removeEventListener('click', handleUserInteraction, { capture: true });
+      document.removeEventListener('touchstart', handleUserInteraction, { capture: true });
+      document.removeEventListener('keydown', handleUserInteraction, { capture: true });
+    };
+  }, [getMuxPlayer]);
+
+  // Auto-play when visible - Works for BOTH mobile and PC
+  // Mobile: Tries immediately (usually succeeds)
+  // PC: Waits for audioUnlocked (user interaction) then plays with audio
+  useEffect(() => {
     if (!placeholderRef.current || hasAutoPlayed.current) return;
+
+    const attemptAutoplay = () => {
+      if (hasAutoPlayed.current) return;
+
+      const player = getMuxPlayer();
+      if (!player) return;
+
+      player.volume = AUTO_PLAY_VOLUME;
+      player.muted = false;
+
+      player.play()?.then(() => {
+        hasAutoPlayed.current = true;
+        audioUnlocked.current = true;
+        setIsPlaying(true);
+        setIsMuted(false);
+      }).catch(() => {
+        // On PC without interaction, this will fail - that's expected
+        // The handleUserInteraction will retry when user interacts
+        // On mobile, try muted as last resort
+        if (isMobile) {
+          player.muted = true;
+          player.play()?.then(() => {
+            hasAutoPlayed.current = true;
+            setIsPlaying(true);
+            setIsMuted(true);
+          }).catch(() => {});
+        }
+      });
+    };
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.intersectionRatio > 0.5 && !hasAutoPlayed.current) {
-            const player = getMuxPlayer();
-            if (!player) return;
-
-            player.volume = AUTO_PLAY_VOLUME;
-            player.muted = false;
-
-            player.play()?.then(() => {
-              hasAutoPlayed.current = true;
-              setIsPlaying(true);
-              setIsMuted(false);
-            }).catch(() => {
-              player.muted = true;
-              player.play()?.then(() => {
-                hasAutoPlayed.current = true;
-                setIsPlaying(true);
-                setIsMuted(true);
-              }).catch(() => {});
-            });
+            attemptAutoplay();
           }
         });
       },
@@ -500,6 +565,7 @@ export function VideoCarousel() {
         setIsPlaying(true);
         setIsMuted(false);
         hasAutoPlayed.current = true;
+        audioUnlocked.current = true; // CRITICAL: User clicked = audio unlocked for session
       }).catch(() => {
         player.muted = true;
         player.play()?.then(() => {
