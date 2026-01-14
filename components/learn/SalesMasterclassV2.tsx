@@ -144,9 +144,10 @@ interface StyledIconProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   withGlow?: boolean;
+  asMedal?: boolean;
 }
 
-const StyledIcon: React.FC<StyledIconProps> = ({ icon, size = 'md', className = '', withGlow = false }) => {
+const StyledIcon: React.FC<StyledIconProps> = ({ icon, size = 'md', className = '', withGlow = false, asMedal = false }) => {
   const IconComponent = ICON_MAP[icon];
   const colorClass = ICON_COLORS[icon];
   const sizeClasses = {
@@ -155,6 +156,36 @@ const StyledIcon: React.FC<StyledIconProps> = ({ icon, size = 'md', className = 
     lg: 'w-6 h-6',
     xl: 'w-8 h-8',
   };
+
+  // Medal container sizes (slightly larger than icon)
+  const medalSizeClasses = {
+    sm: 'w-7 h-7',
+    md: 'w-9 h-9',
+    lg: 'w-11 h-11',
+    xl: 'w-14 h-14',
+  };
+
+  if (asMedal) {
+    return (
+      <span
+        className={`
+          inline-flex items-center justify-center rounded-full
+          ${medalSizeClasses[size]}
+          bg-gradient-to-br from-gray-100 via-white to-gray-200
+          dark:from-gray-800 dark:via-gray-900 dark:to-gray-800
+          border-2 border-gray-300/80 dark:border-gray-500/60
+          shadow-[inset_0_2px_8px_rgba(0,0,0,0.15),0_1px_3px_rgba(0,0,0,0.1)]
+          dark:shadow-[inset_0_2px_12px_rgba(255,255,255,0.1),0_1px_3px_rgba(0,0,0,0.3)]
+          ring-1 ring-gray-400/30 dark:ring-gray-400/20
+          ${className}
+        `}
+      >
+        <span className={`${withGlow ? 'drop-shadow-[0_0_6px_currentColor]' : ''}`}>
+          <IconComponent className={`${sizeClasses[size]} ${colorClass}`} />
+        </span>
+      </span>
+    );
+  }
 
   return (
     <span className={`inline-flex items-center justify-center ${withGlow ? 'drop-shadow-[0_0_8px_currentColor]' : ''} ${className}`}>
@@ -3242,7 +3273,7 @@ const CaptureBlock: React.FC<{
 
               {/* Icon & Title Row */}
               <div className="flex items-center gap-3 mb-3">
-                <StyledIcon icon={path.icon as IconKey} size="xl" withGlow />
+                <StyledIcon icon={path.icon as IconKey} size="xl" withGlow asMedal />
                 <h3 className="font-bold text-xl text-gray-900 dark:text-white">{path.nameEs || path.name}</h3>
               </div>
 
