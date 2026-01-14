@@ -710,7 +710,12 @@ export function VideoCarousel() {
         // CRITICAL: Use transform instead of top for GPU-accelerated positioning (no reflow)
         // RAF updates transform directly - smoother than changing top property
         top: 0,
-        left: placeholderRect.left + translateX, // SYNC with rubber band
+        // MOBILE FIX: Calculate left mathematically instead of using getBoundingClientRect
+        // On mobile, max-w-md container is centered, so: left = (windowWidth - width) / 2
+        // This avoids timing issues where CSS layout hasn't fully computed yet
+        left: isMobile
+          ? `calc(50% - ${placeholderRect.width / 2}px + ${translateX}px)`
+          : placeholderRect.left + translateX,
         width: placeholderRect.width,
         height: placeholderRect.height,
         zIndex: 50,
