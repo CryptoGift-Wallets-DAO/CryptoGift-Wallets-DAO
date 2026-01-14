@@ -14,7 +14,6 @@
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { ChevronLeft, ChevronRight, Play, Maximize2, Volume2, VolumeX, Minimize2 } from 'lucide-react';
@@ -258,7 +257,6 @@ export function VideoCarousel() {
   const [isMuted, setIsMuted] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [portalReady, setPortalReady] = useState(false);
   const [placeholderRect, setPlaceholderRect] = useState<DOMRect | null>(null);
 
   // Animation states
@@ -295,11 +293,6 @@ export function VideoCarousel() {
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }
-  }, []);
-
-  // Portal ready
-  useEffect(() => {
-    setPortalReady(true);
   }, []);
 
   // Track scroll direction - CRITICAL: Only go sticky on scroll DOWN
@@ -788,11 +781,13 @@ export function VideoCarousel() {
       <style jsx global>{animationStyles}</style>
 
       {/* Main container with rubber band - affects placeholder + floating words */}
+      {/* CRITICAL: No transform when sticky - allows position:fixed to work inside */}
+      {/* This is safe because floating words are hidden when sticky anyway */}
       <div
         className="relative w-full max-w-md mx-auto"
         style={{
-          transform: `translateX(${translateX}px)`,
-          transition: translateX === 0 ? 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
+          transform: isSticky ? 'none' : `translateX(${translateX}px)`,
+          transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         }}
       >
         {/* Gradient shadow */}
@@ -847,13 +842,15 @@ export function VideoCarousel() {
           className="relative rounded-xl overflow-hidden"
           style={{ aspectRatio: '4/3.5' }}
         >
-          {/* Video INSIDE placeholder when NOT sticky - moves naturally with scroll */}
-          {!isSticky && videoElement}
+          {/* Video ALWAYS inside placeholder - NEVER moves in DOM = preserves playback */}
+          {/* In normal mode: position absolute (moves with scroll naturally) */}
+          {/* In sticky mode: position fixed (stays at top - works because parent transform is disabled) */}
+          {videoElement}
 
-          {/* Visual placeholder when sticky (video is in portal above) */}
+          {/* Visual overlay when sticky (video is fixed at top but still in DOM here) */}
           {isSticky && (
             <div
-              className="absolute inset-0 rounded-xl border border-white/5 flex items-center justify-center"
+              className="absolute inset-0 rounded-xl border border-white/5 flex items-center justify-center pointer-events-none"
               style={{ background: 'linear-gradient(135deg, rgba(15,15,25,0.3) 0%, rgba(5,5,15,0.3) 100%)' }}
             >
               <div className="text-center opacity-40">
@@ -872,8 +869,8 @@ export function VideoCarousel() {
         </div>
       </div>
 
-      {/* VIDEO VIA PORTAL - Only when sticky (to escape parent's transform) */}
-      {isSticky && portalReady && typeof document !== 'undefined' && createPortal(videoElement, document.body)}
+      {/* Portal removed - video always stays inside placeholder for playback continuity */}
+      {/* position:fixed works in sticky mode because parent transform is disabled when sticky */}
     </>
   );
 }
