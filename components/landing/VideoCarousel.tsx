@@ -918,8 +918,8 @@ export function VideoCarousel() {
         </div>
       </div>
 
-      {/* VIDEO VIA PORTAL - Always in portal, never remounts */}
-      {portalReady && typeof document !== 'undefined' && createPortal(videoElement, document.body)}
+      {/* VIDEO VIA PORTAL - Only render when placeholderRect is ready (prevents initial position jump) */}
+      {portalReady && placeholderRect && typeof document !== 'undefined' && createPortal(videoElement, document.body)}
     </>
   );
 }
