@@ -316,7 +316,7 @@ export function VideoCarousel() {
   }, []);
 
   // Update placeholder rect for positioning - ONLY on resize (not scroll)
-  // Scroll positioning is handled by direct DOM manipulation below (no lag)
+  // MOBILE FIX: Delay initial calculation to ensure layout is complete
   useEffect(() => {
     if (!placeholderRef.current) return;
 
@@ -329,14 +329,23 @@ export function VideoCarousel() {
       }
     };
 
-    updateRect();
+    // CRITICAL: On mobile, layout may not be complete on first render
+    // Use RAF + small delay to ensure accurate measurements
+    const initialUpdate = () => {
+      requestAnimationFrame(() => {
+        setTimeout(updateRect, 50); // Small delay for mobile layout completion
+      });
+    };
+
+    initialUpdate();
     window.addEventListener('resize', updateRect, { passive: true });
     return () => window.removeEventListener('resize', updateRect);
   }, []);
 
-  // CRITICAL: Update video Y position using requestAnimationFrame (not scroll event)
-  // Mobile browsers don't fire scroll events every frame - RAF ensures smooth 60fps updates
+  // PC ONLY: Update video Y position using requestAnimationFrame
+  // Mobile doesn't need this - video is inside placeholder and moves naturally with scroll
   useEffect(() => {
+    if (isMobile) return; // Mobile uses different strategy (video inside placeholder)
     if (isSticky) return; // Sticky mode has fixed position, no need to track
 
     let rafId: number;
@@ -356,7 +365,7 @@ export function VideoCarousel() {
 
     rafId = requestAnimationFrame(updateVideoPosition);
     return () => cancelAnimationFrame(rafId);
-  }, [isSticky]);
+  }, [isSticky, isMobile]);
 
   // Get MuxPlayer
   const getMuxPlayer = useCallback((): any => {
@@ -643,11 +652,36 @@ export function VideoCarousel() {
   const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 500;
   const stickyWidth = Math.min(400, windowWidth - 32);
 
-  // Video styles - ALWAYS fixed, position changes based on sticky
-  // CRITICAL: In normal mode, 'top' is calculated from initialDocTop (no getBoundingClientRect lag)
-  // The scroll listener in useEffect updates 'top' directly in DOM for real-time positioning
+  // Video styles - DIFFERENT STRATEGIES for PC vs Mobile
+  // PC: position fixed with RAF tracking (already works perfectly)
+  // MOBILE: position absolute in placeholder (ZERO lag - moves naturally with scroll)
   const currentScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
-  const videoStyles: React.CSSProperties = isSticky
+
+  // MOBILE STRATEGY: Video inside placeholder = natural scroll movement = ZERO vertical wobble
+  const mobileVideoStyles: React.CSSProperties = isSticky
+    ? {
+        position: 'fixed',
+        top: NAVBAR_HEIGHT,
+        left: `calc(50% - ${stickyWidth / 2}px)`,
+        width: stickyWidth,
+        zIndex: 9999,
+        animation: getStickyAnimation(),
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 16px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)',
+        borderRadius: '1rem',
+        overflow: 'hidden',
+      }
+    : {
+        // CRITICAL: Absolute positioning = moves with document flow = ZERO JavaScript lag
+        position: 'absolute',
+        inset: 0,
+        zIndex: 50,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
+        borderRadius: '1rem',
+        overflow: 'hidden',
+      };
+
+  // PC STRATEGY: position fixed with RAF tracking (proven to work)
+  const pcVideoStyles: React.CSSProperties = isSticky
     ? {
         position: 'fixed',
         top: NAVBAR_HEIGHT,
@@ -662,10 +696,8 @@ export function VideoCarousel() {
     : placeholderRect
     ? {
         position: 'fixed',
-        // CRITICAL: Calculate top from absolute doc position - NO LAG from getBoundingClientRect
-        // Scroll listener updates this directly in DOM for smooth tracking
         top: initialDocTop.current - currentScrollY,
-        left: placeholderRect.left + translateX, // SYNC with rubber band
+        left: placeholderRect.left + translateX,
         width: placeholderRect.width,
         height: placeholderRect.height,
         zIndex: 50,
@@ -676,13 +708,12 @@ export function VideoCarousel() {
       }
     : {
         position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        inset: 0,
         borderRadius: '1rem',
         overflow: 'hidden',
       };
+
+  const videoStyles = isMobile ? mobileVideoStyles : pcVideoStyles;
 
   // The video element (ALWAYS in portal)
   const videoElement = (
@@ -829,10 +860,11 @@ export function VideoCarousel() {
       <style jsx global>{animationStyles}</style>
 
       {/* Main container with rubber band - affects placeholder + floating words */}
+      {/* MOBILE STICKY: Disable transform so position:fixed works inside */}
       <div
         className="relative w-full max-w-md mx-auto"
         style={{
-          transform: `translateX(${translateX}px)`,
+          transform: (isMobile && isSticky) ? 'none' : `translateX(${translateX}px)`,
           transition: translateX === 0 ? 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
         }}
       >
@@ -882,16 +914,20 @@ export function VideoCarousel() {
           </>
         )}
 
-        {/* PLACEHOLDER - reserves space, video positioned over it via portal */}
+        {/* PLACEHOLDER - reserves space for video */}
         <div
           ref={placeholderRef}
           className="relative rounded-xl overflow-hidden"
           style={{ aspectRatio: '4/3.5' }}
         >
-          {/* Visual placeholder when sticky */}
+          {/* MOBILE: Video ALWAYS inside placeholder (moves naturally with scroll = ZERO lag) */}
+          {/* This preserves playback continuity AND eliminates vertical wobble */}
+          {isMobile && videoElement}
+
+          {/* Visual overlay when sticky (video is fixed at top but still in DOM here) */}
           {isSticky && (
             <div
-              className="absolute inset-0 rounded-xl border border-white/5 flex items-center justify-center"
+              className="absolute inset-0 rounded-xl border border-white/5 flex items-center justify-center pointer-events-none"
               style={{ background: 'linear-gradient(135deg, rgba(15,15,25,0.3) 0%, rgba(5,5,15,0.3) 100%)' }}
             >
               <div className="text-center opacity-40">
@@ -910,8 +946,8 @@ export function VideoCarousel() {
         </div>
       </div>
 
-      {/* VIDEO VIA PORTAL - Always in portal, never remounts */}
-      {portalReady && typeof document !== 'undefined' && createPortal(videoElement, document.body)}
+      {/* VIDEO VIA PORTAL - Only for PC (mobile has video inside placeholder for zero lag) */}
+      {!isMobile && portalReady && typeof document !== 'undefined' && createPortal(videoElement, document.body)}
     </>
   );
 }
