@@ -314,27 +314,23 @@ export function VideoCarousel() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Update placeholder rect for positioning (CRITICAL for no-flasheo)
+  // Update placeholder rect on resize only (NOT on scroll - video is inside placeholder now)
+  // Scroll updates are no longer needed because video moves naturally with document flow
   useEffect(() => {
     if (!placeholderRef.current) return;
 
     const updateRect = () => {
-      if (placeholderRef.current && !isSticky) {
+      if (placeholderRef.current) {
         setPlaceholderRect(placeholderRef.current.getBoundingClientRect());
       }
     };
 
     updateRect();
 
-    if (!isSticky) {
-      window.addEventListener('scroll', updateRect, { passive: true });
-      window.addEventListener('resize', updateRect, { passive: true });
-      return () => {
-        window.removeEventListener('scroll', updateRect);
-        window.removeEventListener('resize', updateRect);
-      };
-    }
-  }, [isSticky]);
+    // Only resize updates needed now - scroll positioning handled by CSS
+    window.addEventListener('resize', updateRect, { passive: true });
+    return () => window.removeEventListener('resize', updateRect);
+  }, []);
 
   // Get MuxPlayer
   const getMuxPlayer = useCallback((): any => {
@@ -621,8 +617,9 @@ export function VideoCarousel() {
   const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 500;
   const stickyWidth = Math.min(400, windowWidth - 32);
 
-  // Video styles - ALWAYS fixed, position changes based on sticky
-  // CRITICAL: In normal mode, apply same translateX as rubber band container
+  // Video styles - Different strategies for normal vs sticky mode
+  // NORMAL: position absolute inside placeholder (moves naturally with scroll - NO JavaScript!)
+  // STICKY: position fixed via portal (escapes transform of parent container)
   const videoStyles: React.CSSProperties = isSticky
     ? {
         position: 'fixed',
@@ -635,32 +632,18 @@ export function VideoCarousel() {
         borderRadius: '1rem',
         overflow: 'hidden',
       }
-    : placeholderRect
-    ? {
-        position: 'fixed',
-        top: placeholderRect.top,
-        left: placeholderRect.left + translateX, // SYNC with rubber band
-        width: placeholderRect.width,
-        height: placeholderRect.height,
+    : {
+        // NORMAL MODE: Absolute positioning inside placeholder
+        // Video is part of document flow - moves with scroll naturally, ZERO JavaScript lag
+        position: 'absolute',
+        inset: 0,
         zIndex: 50,
         boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
         borderRadius: '1rem',
         overflow: 'hidden',
-        transition: translateX === 0 ? 'left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
-        // NOTE: Removed 'float' animation to prevent vertical wobble during scroll
-        // The floating words still animate independently (lines 838, 851)
-      }
-    : {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        borderRadius: '1rem',
-        overflow: 'hidden',
       };
 
-  // The video element (ALWAYS in portal)
+  // The video element (inside placeholder when normal, in portal when sticky)
   const videoElement = (
     <div
       ref={videoContainerRef}
@@ -858,13 +841,16 @@ export function VideoCarousel() {
           </>
         )}
 
-        {/* PLACEHOLDER - reserves space, video positioned over it via portal */}
+        {/* PLACEHOLDER - reserves space for video */}
         <div
           ref={placeholderRef}
           className="relative rounded-xl overflow-hidden"
           style={{ aspectRatio: '4/3.5' }}
         >
-          {/* Visual placeholder when sticky */}
+          {/* Video INSIDE placeholder when NOT sticky - moves naturally with scroll */}
+          {!isSticky && videoElement}
+
+          {/* Visual placeholder when sticky (video is in portal above) */}
           {isSticky && (
             <div
               className="absolute inset-0 rounded-xl border border-white/5 flex items-center justify-center"
@@ -886,8 +872,8 @@ export function VideoCarousel() {
         </div>
       </div>
 
-      {/* VIDEO VIA PORTAL - Always in portal, never remounts */}
-      {portalReady && typeof document !== 'undefined' && createPortal(videoElement, document.body)}
+      {/* VIDEO VIA PORTAL - Only when sticky (to escape parent's transform) */}
+      {isSticky && portalReady && typeof document !== 'undefined' && createPortal(videoElement, document.body)}
     </>
   );
 }
