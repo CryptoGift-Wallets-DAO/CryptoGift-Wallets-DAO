@@ -2,12 +2,12 @@
 
 ## 🎯 INFORMACIÓN CRÍTICA DEL PROYECTO
 
-### ESTADO ACTUAL (12 ENE 2026) - VIDEO PLAYER CONTROLS + RBAC ✅
-- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **GOVERNANCE COMPLETO** + **RBAC ENTERPRISE** + **VIDEO UX** ✅
-- **Fase actual**: Sistema DAO con permisos programáticos + Video Player con controles avanzados
-- **Último Commit**: `9f2281b` feat(video): add visual swipe animation feedback for mobile dismiss
-- **Critical Update**: Video sticky con controles minimize/fullscreen + swipe gestures con animación visual
-- **Nuevo**: Animaciones de dismiss direccionales (up/left/right) + fix vibración en touch
+### ESTADO ACTUAL (14 ENE 2026) - VIDEO CAROUSEL PERFECCIONADO ✅
+- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **GOVERNANCE COMPLETO** + **RBAC ENTERPRISE** + **VIDEO UX PERFECTO** ✅
+- **Fase actual**: Sistema DAO completo + Video Carousel con posicionamiento y autoplay perfeccionados
+- **Último Commit**: `ea20d6d` feat(video): universal autoplay with audio on any user interaction
+- **Critical Update**: Video carousel con posicionamiento matemático + autoplay universal con audio
+- **Nuevo**: Eliminado wobble vertical, posición inicial correcta, reproducción continua con audio
 
 ### 🎮 DISCORD SERVER CONFIGURADO (9 DIC 2025) ✅
 ```
@@ -82,9 +82,27 @@ COMPONENTES GATE:
 └── Todos soportan: children, fallback, showFallback
 ```
 
-### 🎬 VIDEO PLAYER CONTROLS (12 ENE 2026) ✅
+### 🎬 VIDEO CAROUSEL SYSTEM (14 ENE 2026) ✅ - PERFECCIONADO
 ```
-COMPONENTE: components/video/EmbeddedVideoDevice.tsx
+COMPONENTE: components/landing/VideoCarousel.tsx
+
+⚠️ SISTEMA COMPLETADO - NO MODIFICAR SIN MEDIR PRIMERO
+Este sistema fue perfeccionado tras múltiples iteraciones.
+Cualquier cambio debe ser precedido por análisis exhaustivo.
+
+POSICIONAMIENTO (CRÍTICO - RESUELTO):
+├── Mobile: calc(50% - width/2) - Cálculo matemático, NO getBoundingClientRect
+├── PC: placeholderRect.left - Medición directa funciona bien
+├── Vertical: transform: translateY() - GPU accelerated via RAF
+├── Mediciones estables: Espera 2 lecturas consecutivas iguales antes de renderizar
+└── initialDocTop ref: Posición absoluta en documento para cálculos
+
+AUTOPLAY CON AUDIO (CRÍTICO - RESUELTO):
+├── audioUnlocked ref: Trackea si usuario ha interactuado
+├── Detecta ANY interaction: click, touchstart, keydown en document
+├── Mobile: Autoplay con audio funciona inmediatamente
+├── PC: Espera primera interacción, luego autoplay con audio
+└── Navegación: wasPlayingBeforeChange preserva estado de reproducción
 
 CONTROLES PC:
 ├── Botón Minimize (top-left) - Solo visible en modo sticky
@@ -92,35 +110,28 @@ CONTROLES PC:
 └── Double-click para fullscreen
 
 CONTROLES MOBILE:
-├── Swipe UP → Video desliza hacia arriba y desaparece
-├── Swipe LEFT → Video desliza hacia izquierda
-├── Swipe RIGHT → Video desliza hacia derecha
+├── Swipe UP/LEFT/RIGHT → Dismiss con animación direccional
 ├── Double Tap → Toggle fullscreen
 └── Tap → Play/Pause
 
 ANIMACIONES CSS:
-├── dismissUp - translateY(-150px) + scale(0.8) + fade
-├── dismissLeft - translateX(-120%) + scale(0.9) + fade
-├── dismissRight - translateX(120%) + scale(0.9) + fade
-└── floatVideo - Flotación sutil (pausada durante touch)
+├── dismissUp/Left/Right - Animaciones de salida direccionales
+├── floatVideoNormal - Flotación sutil ±6px (margin-top, no interfiere con transform)
+├── floatVideoSticky - Flotación en modo sticky
+└── Float pausada durante touch (evita vibración)
 
-COMPATIBILIDAD FULLSCREEN:
-├── iOS Safari: webkitEnterFullscreen
-├── iOS newer: webkitRequestFullscreen
-├── Standard: requestFullscreen
-└── Fallback: container.requestFullscreen
+FLUJO DE REPRODUCCIÓN:
+├── Video 1: Autoplay con audio (mobile inmediato, PC tras interacción)
+├── Video 2+: Continúa automáticamente con audio ON
+├── Navegación manual: Preserva estado de reproducción
+└── Nunca requiere que usuario de play manualmente
 
-ESTADOS:
-├── dismissDirection: 'none' | 'up' | 'left' | 'right'
-├── isTouching: boolean (pausa floatVideo)
-├── isSticky: boolean (activa controles)
-└── stickyLocked: ref (previene re-sticky)
-
-COMPORTAMIENTO:
-├── Minimize NO hace scroll - usuario queda donde está
-├── Lock 1.5s después de minimize para prevenir re-sticky
-├── Animación 300ms antes de ocultar video
-└── Float animation pausada durante touch (evita vibración)
+COMMITS CLAVE DE ESTA SESIÓN:
+├── ea20d6d - Universal autoplay con audio
+├── 93a3d90 - Reproducción continua en navegación
+├── ddb83db - Posicionamiento matemático mobile
+├── 6325c6b - Mediciones estables antes de render
+└── 82b7373 - Animación flotante restaurada
 ```
 
 ### 💰 FUNDING & GRANTS SYSTEM (12 DIC 2025) ✅
@@ -367,7 +378,15 @@ const tCommon = useTranslations('common');   // Para textos comunes
 // components/ui/LanguageToggle.tsx - Toggle EN|ES
 ```
 
-### 🎯 COMMITS RECIENTES (12 ENE 2026) - VIDEO PLAYER CONTROLS
+### 🎯 COMMITS RECIENTES (14 ENE 2026) - VIDEO CAROUSEL PERFECCIONADO
+- `ea20d6d` - feat(video): universal autoplay with audio on any user interaction
+- `93a3d90` - fix(video): continuous playback with audio on video navigation
+- `ddb83db` - fix(video): calculate mobile left position mathematically
+- `6325c6b` - fix(video): wait for stable layout before rendering portal position
+- `82b7373` - feat(video): restore gentle float animation in normal mode
+- `f053889` - perf(video): GPU-accelerated positioning + fix initial position
+
+### 🎯 COMMITS ANTERIORES (12 ENE 2026) - VIDEO PLAYER CONTROLS
 - `9f2281b` - feat(video): add visual swipe animation feedback for mobile dismiss
 - `04e55b5` - fix: minimize stays in place + mobile fullscreen compatibility
 - `510a827` - feat: add minimize/fullscreen controls + mobile swipe gestures

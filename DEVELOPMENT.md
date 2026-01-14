@@ -17,6 +17,150 @@ Todas las referencias históricas a "2M CGC" en este documento se refieren ahora
 
 ---
 
+## 🎬 SESIÓN DE DESARROLLO - 14 ENERO 2026 ⭐ VIDEO CAROUSEL PERFECCIONADO
+
+### 📅 Fecha: 14 Enero 2026
+### 👤 Desarrollador: Claude Opus 4.5 (AI Assistant)
+### 🎯 Objetivo: Perfeccionar Video Carousel - Posicionamiento Mobile + Autoplay Universal con Audio
+
+### 📊 RESUMEN EJECUTIVO
+- ✅ **Posicionamiento Mobile Perfecto**: Video ya no aparece desplazado al refrescar
+- ✅ **Mediciones Estables**: Espera layout estable antes de renderizar portal
+- ✅ **Reproducción Continua**: Videos continúan automáticamente sin pausar
+- ✅ **Autoplay Universal con Audio**: Funciona en mobile Y PC tras primera interacción
+- ✅ **Animación Flotante Restaurada**: Video flota suavemente como las palabras laterales
+
+### ⚠️ SISTEMA COMPLETADO - NO MODIFICAR SIN ANÁLISIS PREVIO
+Este sistema fue perfeccionado tras múltiples iteraciones. Cualquier cambio futuro
+debe ser precedido por análisis exhaustivo del código existente.
+
+### 🔧 CAMBIOS TÉCNICOS DETALLADOS
+
+#### 1. POSICIONAMIENTO MATEMÁTICO (CRÍTICO)
+**Archivo**: `components/landing/VideoCarousel.tsx`
+
+**Problema Resuelto**: Video aparecía desplazado a la derecha en mobile al refrescar.
+
+**Causa Raíz**: `getBoundingClientRect().left` capturaba valores incorrectos antes de que
+el CSS (`mx-auto`) terminara de computar el centrado del contenedor.
+
+**Solución Implementada**:
+```typescript
+// ANTES (problemático):
+left: placeholderRect.left + translateX
+
+// AHORA (perfecto):
+left: isMobile
+  ? `calc(50% - ${placeholderRect.width / 2}px + ${translateX}px)`
+  : placeholderRect.left + translateX
+```
+
+**Por qué funciona**: En mobile, el contenedor siempre está centrado (`mx-auto`), así que
+calculamos matemáticamente: `50%` (centro viewport) - `width/2` = posición correcta.
+No dependemos de `left` que puede estar mal, solo del `width` que es confiable.
+
+#### 2. MEDICIONES ESTABLES ANTES DE RENDER
+**Problema Resuelto**: Incluso esperando, las mediciones podían ser incorrectas.
+
+**Solución**: Esperar dos lecturas consecutivas IGUALES antes de setear `placeholderRect`:
+```typescript
+const isStable = measurementCount > 0 &&
+  Math.abs(rect.left - lastLeft) < 1 &&
+  Math.abs(rect.top - lastTop) < 1;
+
+if (isStable) {
+  setPlaceholderRect(rect); // Solo cuando está estable
+}
+```
+
+#### 3. REPRODUCCIÓN CONTINUA CON AUDIO
+**Problema Resuelto**: Al cambiar de video, se pausaba en lugar de continuar.
+
+**Solución**: `goToPrevious`, `goToNext`, y click en dots ahora setean
+`wasPlayingBeforeChange.current = true` cuando `isPlaying` es true.
+
+Auto-play siempre usa `muted = false` (audio ON):
+```typescript
+player.volume = AUTO_PLAY_VOLUME;
+player.muted = false; // SIEMPRE audio ON
+player.play()...
+```
+
+#### 4. AUTOPLAY UNIVERSAL (BROWSER POLICY WORKAROUND)
+**Problema**: Navegadores bloquean autoplay con audio hasta interacción del usuario.
+
+**Solución**: Detectar CUALQUIER interacción y desbloquear audio:
+```typescript
+// Nuevo ref para trackear interacción
+const audioUnlocked = useRef(false);
+
+// Listener en document para ANY interaction
+const handleUserInteraction = () => {
+  audioUnlocked.current = true;
+  // Si video visible, intentar autoplay con audio
+  if (isVisible && !hasAutoPlayed.current) {
+    attemptAutoplayWithAudio();
+  }
+};
+
+document.addEventListener('click', handleUserInteraction, { capture: true });
+document.addEventListener('touchstart', handleUserInteraction, { capture: true });
+document.addEventListener('keydown', handleUserInteraction, { capture: true });
+```
+
+**Flujo Resultante**:
+- Mobile: Autoplay con audio inmediato (navegadores más permisivos)
+- PC: Espera primera interacción (click/touch/key), luego autoplay con audio
+- Todos los videos siguientes: Continúan con audio automáticamente
+
+### 📁 ARCHIVOS MODIFICADOS
+| Archivo | Cambios |
+|---------|---------|
+| `components/landing/VideoCarousel.tsx` | Posicionamiento matemático, mediciones estables, autoplay universal, reproducción continua |
+
+### 🔗 COMMITS DE ESTA SESIÓN
+| Hash | Mensaje |
+|------|---------|
+| `ea20d6d` | feat(video): universal autoplay with audio on any user interaction |
+| `93a3d90` | fix(video): continuous playback with audio on video navigation |
+| `ddb83db` | fix(video): calculate mobile left position mathematically |
+| `6325c6b` | fix(video): wait for stable layout before rendering portal position |
+| `82b7373` | feat(video): restore gentle float animation in normal mode |
+| `f053889` | perf(video): GPU-accelerated positioning + fix initial position |
+| `4b860b9` | fix(video): prevent initial position jump on mobile |
+| `c43010d` | fix(video): use requestAnimationFrame for smooth mobile scroll tracking |
+| `2c154e6` | fix(video): eliminate vertical wobble using direct DOM updates |
+
+### 📈 IMPACT ANALYSIS
+
+**Antes de esta sesión**:
+- ❌ Video aparecía desplazado a la derecha en mobile al refrescar
+- ❌ Video se pausaba al cambiar de video
+- ❌ PC no tenía autoplay con audio
+- ❌ Wobble vertical en scroll mobile
+
+**Después de esta sesión**:
+- ✅ Video siempre centrado correctamente desde el inicio
+- ✅ Reproducción continua automática entre videos
+- ✅ Autoplay con audio en AMBAS plataformas (tras interacción en PC)
+- ✅ Scroll suave sin wobble gracias a transform + RAF
+
+### 🎓 LECCIONES APRENDIDAS
+
+1. **`getBoundingClientRect()` no es confiable inmediatamente**: El CSS puede no estar
+   completamente computado. Usar cálculos matemáticos cuando sea posible.
+
+2. **Mediciones "estables" pueden seguir siendo incorrectas**: Dos lecturas iguales no
+   garantizan que el valor sea correcto, solo que no está cambiando.
+
+3. **Browser autoplay policies**: No se pueden evadir, pero sí se puede detectar la
+   primera interacción del usuario y actuar en consecuencia.
+
+4. **`transform` vs `top`**: `transform: translateY()` usa GPU compositor (sin reflow),
+   mientras que `top` causa reflow en cada cambio.
+
+---
+
 ## 🎬 SESIÓN DE DESARROLLO - 12 ENERO 2026
 
 ### 📅 Fecha: 12 Enero 2026 - 00:00 - 03:00 UTC
