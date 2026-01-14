@@ -320,27 +320,62 @@ export function VideoCarousel() {
   }, []);
 
   // Update placeholder rect for positioning - ONLY on resize (not scroll)
-  // MOBILE FIX: Delay initial calculation to ensure layout is complete
+  // MOBILE FIX: Wait for STABLE measurements (two consecutive equal readings)
   useEffect(() => {
     if (!placeholderRef.current) return;
 
-    const updateRect = () => {
-      if (placeholderRef.current) {
-        const rect = placeholderRef.current.getBoundingClientRect();
+    let measurementCount = 0;
+    let lastLeft = -9999;
+    let lastTop = -9999;
+    let stableTimer: ReturnType<typeof setTimeout>;
+
+    const measure = () => {
+      if (!placeholderRef.current) return;
+      const rect = placeholderRef.current.getBoundingClientRect();
+
+      // CRITICAL: Check if measurement is STABLE (same as last one within 1px tolerance)
+      // This ensures mobile layout has fully settled before rendering video
+      const isStable = measurementCount > 0 &&
+        Math.abs(rect.left - lastLeft) < 1 &&
+        Math.abs(rect.top - lastTop) < 1;
+
+      if (isStable) {
+        // Position is stable - safe to render video at this position
         setPlaceholderRect(rect);
-        // Calculate absolute position in document (viewport top + current scroll)
+        initialDocTop.current = rect.top + window.scrollY;
+        return;
+      }
+
+      // Not stable yet - save current values and retry
+      lastLeft = rect.left;
+      lastTop = rect.top;
+      measurementCount++;
+
+      if (measurementCount < 15) { // Max 15 attempts (~750ms)
+        stableTimer = setTimeout(measure, 50);
+      } else {
+        // Fallback after max attempts - use current measurement
+        setPlaceholderRect(rect);
         initialDocTop.current = rect.top + window.scrollY;
       }
     };
 
-    // CRITICAL: On mobile, layout may not be complete on first render
-    // Use RAF + small delay to ensure accurate initial measurements
-    requestAnimationFrame(() => {
-      setTimeout(updateRect, 50);
-    });
+    // Start measuring after initial RAF
+    requestAnimationFrame(measure);
 
-    window.addEventListener('resize', updateRect, { passive: true });
-    return () => window.removeEventListener('resize', updateRect);
+    // Also update on resize (reset and re-measure)
+    const handleResize = () => {
+      measurementCount = 0;
+      lastLeft = -9999;
+      lastTop = -9999;
+      measure();
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(stableTimer);
+    };
   }, []);
 
   // CRITICAL: Update video Y position using requestAnimationFrame (not scroll event)
