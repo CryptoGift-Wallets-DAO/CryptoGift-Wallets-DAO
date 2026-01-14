@@ -334,21 +334,28 @@ export function VideoCarousel() {
     return () => window.removeEventListener('resize', updateRect);
   }, []);
 
-  // CRITICAL: Update video Y position directly in DOM (bypasses React = ZERO lag)
-  // This eliminates the vertical wobble caused by getBoundingClientRect lag
+  // CRITICAL: Update video Y position using requestAnimationFrame (not scroll event)
+  // Mobile browsers don't fire scroll events every frame - RAF ensures smooth 60fps updates
   useEffect(() => {
     if (isSticky) return; // Sticky mode has fixed position, no need to track
 
+    let rafId: number;
+    let lastScrollY = window.scrollY;
+
     const updateVideoPosition = () => {
-      if (videoContainerRef.current && placeholderRef.current) {
-        // Calculate current viewport position from absolute document position
-        const currentTop = initialDocTop.current - window.scrollY;
-        videoContainerRef.current.style.top = `${currentTop}px`;
+      // Only update DOM if scroll position actually changed (performance optimization)
+      if (window.scrollY !== lastScrollY || !videoContainerRef.current?.style.top) {
+        lastScrollY = window.scrollY;
+        if (videoContainerRef.current) {
+          const currentTop = initialDocTop.current - window.scrollY;
+          videoContainerRef.current.style.top = `${currentTop}px`;
+        }
       }
+      rafId = requestAnimationFrame(updateVideoPosition);
     };
 
-    window.addEventListener('scroll', updateVideoPosition, { passive: true });
-    return () => window.removeEventListener('scroll', updateVideoPosition);
+    rafId = requestAnimationFrame(updateVideoPosition);
+    return () => cancelAnimationFrame(rafId);
   }, [isSticky]);
 
   // Get MuxPlayer
