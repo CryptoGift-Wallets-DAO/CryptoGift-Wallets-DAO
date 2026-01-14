@@ -1252,43 +1252,7 @@ export function SpecialInviteFlow({
               💡 {t('complete.importToken.checkHistory')}
             </p>
           </div>
-        ) : (
-          /* Default Help Section for other steps */
-          <div className="bg-white/70 dark:bg-slate-800/60 backdrop-blur-md rounded-lg shadow-lg p-6 border border-white/20 dark:border-slate-600/30">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              🎟️ {t('helpSection.title')}
-            </h3>
-            <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                  <span className="text-white font-bold text-xs">💰</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">{t('card.tokensTitle')}</p>
-                  <p className="text-xs mt-1">{t('card.tokensDesc')}</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                  <span className="text-white font-bold text-xs">🚀</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">{t('card.tasksTitle')}</p>
-                  <p className="text-xs mt-1">{t('card.tasksDesc')}</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                  <span className="text-white font-bold text-xs">🎓</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">{t('card.communityTitle')}</p>
-                  <p className="text-xs mt-1">{t('card.communityDesc')}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        ) : null}
       </div>
 
       {/* Right Panel - Flow Content */}
