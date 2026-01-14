@@ -549,14 +549,22 @@ export function VideoCarousel() {
   }, [isSticky]);
 
   const goToPrevious = useCallback(() => {
+    // CRITICAL: Preserve playback state when navigating
+    if (isPlaying) {
+      wasPlayingBeforeChange.current = true;
+    }
     setCurrentIndex((prev) => (prev === 0 ? videos.length - 1 : prev - 1));
     hasAutoPlayed.current = false;
-  }, [videos.length]);
+  }, [videos.length, isPlaying]);
 
   const goToNext = useCallback(() => {
+    // CRITICAL: Preserve playback state when navigating
+    if (isPlaying) {
+      wasPlayingBeforeChange.current = true;
+    }
     setCurrentIndex((prev) => (prev === videos.length - 1 ? 0 : prev + 1));
     hasAutoPlayed.current = false;
-  }, [videos.length]);
+  }, [videos.length, isPlaying]);
 
   // Touch handlers for sticky mode
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -633,6 +641,7 @@ export function VideoCarousel() {
   }, [currentIndex, videos.length]);
 
   // Auto-play when video changes and was playing before (carousel continuation)
+  // CRITICAL: Always play with audio ON - user already interacted, no need to be silent
   useEffect(() => {
     if (!wasPlayingBeforeChange.current) return;
 
@@ -644,45 +653,32 @@ export function VideoCarousel() {
 
       const player = wrapper.querySelector('mux-player') as any;
       if (player) {
+        // ALWAYS play with audio ON - user has already interacted
         player.volume = AUTO_PLAY_VOLUME;
-        player.muted = isMuted; // Preserve current mute state
+        player.muted = false;
         player.play()?.then(() => {
           setIsPlaying(true);
+          setIsMuted(false); // Ensure UI reflects audio is ON
           hasAutoPlayed.current = true;
           wasPlayingBeforeChange.current = false;
         }).catch(() => {
-          // On mobile: User already interacted, retry with audio (don't fallback to mute)
-          // On PC: Try muted autoplay as fallback
-          if (isMobile) {
-            // Mobile: Retry after small delay (video might not be ready yet)
-            setTimeout(() => {
-              player.volume = AUTO_PLAY_VOLUME;
-              player.muted = false;
-              player.play()?.then(() => {
-                setIsPlaying(true);
-                setIsMuted(false);
-                hasAutoPlayed.current = true;
-              }).catch(() => {});
-            }, 200);
-            wasPlayingBeforeChange.current = false;
-          } else {
-            // PC: Fallback to muted autoplay
-            player.muted = true;
+          // Retry after small delay (video might not be ready yet)
+          setTimeout(() => {
+            player.volume = AUTO_PLAY_VOLUME;
+            player.muted = false;
             player.play()?.then(() => {
               setIsPlaying(true);
-              setIsMuted(true);
+              setIsMuted(false);
               hasAutoPlayed.current = true;
-              wasPlayingBeforeChange.current = false;
-            }).catch(() => {
-              wasPlayingBeforeChange.current = false;
-            });
-          }
+            }).catch(() => {});
+          }, 200);
+          wasPlayingBeforeChange.current = false;
         });
       }
     }, 400); // Wait for MuxPlayer to fully mount
 
     return () => clearTimeout(timer);
-  }, [currentIndex, isMuted, isMobile]);
+  }, [currentIndex, isMobile]);
 
   // Calculate dimensions
   const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 500;
@@ -858,7 +854,14 @@ export function VideoCarousel() {
                 {videos.map((_, index) => (
                   <button
                     key={index}
-                    onClick={() => { setCurrentIndex(index); hasAutoPlayed.current = false; }}
+                    onClick={() => {
+                      // CRITICAL: Preserve playback state when navigating via dots
+                      if (isPlaying) {
+                        wasPlayingBeforeChange.current = true;
+                      }
+                      setCurrentIndex(index);
+                      hasAutoPlayed.current = false;
+                    }}
                     className={`w-2 h-2 rounded-full transition-all ${
                       index === currentIndex ? 'bg-blue-500 w-4' : 'bg-gray-400 dark:bg-gray-600 hover:bg-gray-500'
                     }`}
