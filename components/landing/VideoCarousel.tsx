@@ -14,6 +14,7 @@
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { ChevronLeft, ChevronRight, Play, Maximize2, Volume2, VolumeX, Minimize2 } from 'lucide-react';
@@ -257,6 +258,7 @@ export function VideoCarousel() {
   const [isMuted, setIsMuted] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [portalReady, setPortalReady] = useState(false);
   const [placeholderRect, setPlaceholderRect] = useState<DOMRect | null>(null);
 
   // Animation states
@@ -273,6 +275,7 @@ export function VideoCarousel() {
   const lastScrollY = useRef(0);
   const scrollDirection = useRef<'up' | 'down'>('up'); // Default to 'up' to prevent sticky on initial load
   const wasPlayingBeforeChange = useRef(false);
+  const initialDocTop = useRef<number>(0); // Absolute position in document (not viewport)
 
   const currentVideo = videos[currentIndex];
   const muxPlayerId = `mux-carousel-${currentIndex}`;
@@ -295,6 +298,11 @@ export function VideoCarousel() {
     }
   }, []);
 
+  // Portal ready
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
   // Track scroll direction - CRITICAL: Only go sticky on scroll DOWN
   useEffect(() => {
     const handleScroll = () => {
@@ -307,23 +315,41 @@ export function VideoCarousel() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Update placeholder rect on resize only (NOT on scroll - video is inside placeholder now)
-  // Scroll updates are no longer needed because video moves naturally with document flow
+  // Update placeholder rect for positioning - ONLY on resize (not scroll)
+  // Scroll positioning is handled by direct DOM manipulation below (no lag)
   useEffect(() => {
     if (!placeholderRef.current) return;
 
     const updateRect = () => {
       if (placeholderRef.current) {
-        setPlaceholderRect(placeholderRef.current.getBoundingClientRect());
+        const rect = placeholderRef.current.getBoundingClientRect();
+        setPlaceholderRect(rect);
+        // Calculate absolute position in document (viewport top + current scroll)
+        initialDocTop.current = rect.top + window.scrollY;
       }
     };
 
     updateRect();
-
-    // Only resize updates needed now - scroll positioning handled by CSS
     window.addEventListener('resize', updateRect, { passive: true });
     return () => window.removeEventListener('resize', updateRect);
   }, []);
+
+  // CRITICAL: Update video Y position directly in DOM (bypasses React = ZERO lag)
+  // This eliminates the vertical wobble caused by getBoundingClientRect lag
+  useEffect(() => {
+    if (isSticky) return; // Sticky mode has fixed position, no need to track
+
+    const updateVideoPosition = () => {
+      if (videoContainerRef.current && placeholderRef.current) {
+        // Calculate current viewport position from absolute document position
+        const currentTop = initialDocTop.current - window.scrollY;
+        videoContainerRef.current.style.top = `${currentTop}px`;
+      }
+    };
+
+    window.addEventListener('scroll', updateVideoPosition, { passive: true });
+    return () => window.removeEventListener('scroll', updateVideoPosition);
+  }, [isSticky]);
 
   // Get MuxPlayer
   const getMuxPlayer = useCallback((): any => {
@@ -610,9 +636,10 @@ export function VideoCarousel() {
   const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 500;
   const stickyWidth = Math.min(400, windowWidth - 32);
 
-  // Video styles - Different strategies for normal vs sticky mode
-  // NORMAL: position absolute inside placeholder (moves naturally with scroll - NO JavaScript!)
-  // STICKY: position fixed via portal (escapes transform of parent container)
+  // Video styles - ALWAYS fixed, position changes based on sticky
+  // CRITICAL: In normal mode, 'top' is calculated from initialDocTop (no getBoundingClientRect lag)
+  // The scroll listener in useEffect updates 'top' directly in DOM for real-time positioning
+  const currentScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
   const videoStyles: React.CSSProperties = isSticky
     ? {
         position: 'fixed',
@@ -625,18 +652,32 @@ export function VideoCarousel() {
         borderRadius: '1rem',
         overflow: 'hidden',
       }
-    : {
-        // NORMAL MODE: Absolute positioning inside placeholder
-        // Video is part of document flow - moves with scroll naturally, ZERO JavaScript lag
-        position: 'absolute',
-        inset: 0,
+    : placeholderRect
+    ? {
+        position: 'fixed',
+        // CRITICAL: Calculate top from absolute doc position - NO LAG from getBoundingClientRect
+        // Scroll listener updates this directly in DOM for smooth tracking
+        top: initialDocTop.current - currentScrollY,
+        left: placeholderRect.left + translateX, // SYNC with rubber band
+        width: placeholderRect.width,
+        height: placeholderRect.height,
         zIndex: 50,
         boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
         borderRadius: '1rem',
         overflow: 'hidden',
+        transition: translateX === 0 ? 'left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
+      }
+    : {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        borderRadius: '1rem',
+        overflow: 'hidden',
       };
 
-  // The video element (inside placeholder when normal, in portal when sticky)
+  // The video element (ALWAYS in portal)
   const videoElement = (
     <div
       ref={videoContainerRef}
@@ -781,13 +822,11 @@ export function VideoCarousel() {
       <style jsx global>{animationStyles}</style>
 
       {/* Main container with rubber band - affects placeholder + floating words */}
-      {/* CRITICAL: No transform when sticky - allows position:fixed to work inside */}
-      {/* This is safe because floating words are hidden when sticky anyway */}
       <div
         className="relative w-full max-w-md mx-auto"
         style={{
-          transform: isSticky ? 'none' : `translateX(${translateX}px)`,
-          transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          transform: `translateX(${translateX}px)`,
+          transition: translateX === 0 ? 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
         }}
       >
         {/* Gradient shadow */}
@@ -836,21 +875,16 @@ export function VideoCarousel() {
           </>
         )}
 
-        {/* PLACEHOLDER - reserves space for video */}
+        {/* PLACEHOLDER - reserves space, video positioned over it via portal */}
         <div
           ref={placeholderRef}
           className="relative rounded-xl overflow-hidden"
           style={{ aspectRatio: '4/3.5' }}
         >
-          {/* Video ALWAYS inside placeholder - NEVER moves in DOM = preserves playback */}
-          {/* In normal mode: position absolute (moves with scroll naturally) */}
-          {/* In sticky mode: position fixed (stays at top - works because parent transform is disabled) */}
-          {videoElement}
-
-          {/* Visual overlay when sticky (video is fixed at top but still in DOM here) */}
+          {/* Visual placeholder when sticky */}
           {isSticky && (
             <div
-              className="absolute inset-0 rounded-xl border border-white/5 flex items-center justify-center pointer-events-none"
+              className="absolute inset-0 rounded-xl border border-white/5 flex items-center justify-center"
               style={{ background: 'linear-gradient(135deg, rgba(15,15,25,0.3) 0%, rgba(5,5,15,0.3) 100%)' }}
             >
               <div className="text-center opacity-40">
@@ -869,8 +903,8 @@ export function VideoCarousel() {
         </div>
       </div>
 
-      {/* Portal removed - video always stays inside placeholder for playback continuity */}
-      {/* position:fixed works in sticky mode because parent transform is disabled when sticky */}
+      {/* VIDEO VIA PORTAL - Always in portal, never remounts */}
+      {portalReady && typeof document !== 'undefined' && createPortal(videoElement, document.body)}
     </>
   );
 }
