@@ -44,6 +44,10 @@ const animationStyles = `
     0%, 100% { margin-top: 0px; }
     50% { margin-top: -8px; }
   }
+  @keyframes floatVideoNormal {
+    0%, 100% { margin-top: 0px; }
+    50% { margin-top: -6px; }
+  }
   @keyframes floatWord {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-6px); }
@@ -681,6 +685,8 @@ export function VideoCarousel() {
         transition: translateX === 0 ? 'left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
         willChange: 'transform', // Hint browser for GPU optimization
         transform: `translateY(${initialDocTop.current - currentScrollY}px)`, // Initial position
+        // Float animation using margin-top (doesn't interfere with transform positioning)
+        animation: 'floatVideoNormal 4s ease-in-out infinite',
       }
     : {
         position: 'absolute',
