@@ -7,6 +7,8 @@
  * - AMBIENT MODE: YouTube-style glow effect from video colors
  * - Auto-play when >50% visible with 15% volume
  * - Picture-in-Picture when <30% visible
+ * - PORTAL RENDERING: Escapes backdrop-filter containers for proper positioning
+ * - MATHEMATICAL POSITIONING: Uses calc() for mobile to avoid timing issues
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -15,6 +17,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { SkipForward, ArrowLeft, Play, Maximize2 } from 'lucide-react';
@@ -92,8 +95,14 @@ export default function IntroVideoGate({
     accent: 'rgba(168, 85, 247, 0.3)'
   });
 
+  // PORTAL RENDERING: State for escaping backdrop-filter containers
+  const [portalReady, setPortalReady] = useState(false);
+  const [placeholderRect, setPlaceholderRect] = useState<DOMRect | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
   // Refs for video element and canvas
   const containerRef = useRef<HTMLDivElement>(null);
+  const placeholderRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ambientIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -108,6 +117,52 @@ export default function IntroVideoGate({
       canvasRef.current = canvas;
     }
   }, []);
+
+  // PORTAL: Detect mobile device
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const checkMobile = () => {
+        const isSmallScreen = window.innerWidth < 768;
+        const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        return isSmallScreen || mobileUA;
+      };
+      setIsMobile(checkMobile());
+      const handleResize = () => setIsMobile(checkMobile());
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+
+  // PORTAL: Ready check (client-side only)
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
+  // PORTAL: Update placeholder rect for positioning
+  useEffect(() => {
+    if (!placeholderRef.current) return;
+
+    const updateRect = () => {
+      if (placeholderRef.current) {
+        // Wait for stable layout measurements
+        const rect = placeholderRef.current.getBoundingClientRect();
+        setPlaceholderRect(rect);
+      }
+    };
+
+    // Initial update with small delay for CSS to compute
+    const timer = setTimeout(updateRect, 50);
+
+    // Update on scroll and resize
+    window.addEventListener('scroll', updateRect, { passive: true });
+    window.addEventListener('resize', updateRect, { passive: true });
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', updateRect);
+      window.removeEventListener('resize', updateRect);
+    };
+  }, [show]);
 
   // Get video element from MuxPlayer
   const getVideoElement = useCallback((): HTMLVideoElement | null => {
@@ -320,98 +375,144 @@ export default function IntroVideoGate({
 
   if (!show) return null;
 
+  // Calculate video positioning styles
+  // MOBILE FIX: Use mathematical calculation instead of getBoundingClientRect for left position
+  // This avoids timing issues where CSS layout hasn't fully computed yet
+  const videoStyles: React.CSSProperties = placeholderRect
+    ? {
+        position: 'fixed',
+        top: placeholderRect.top,
+        // CRITICAL: For mobile, calculate left mathematically: calc(50% - width/2)
+        // For desktop, use the measured left value
+        left: isMobile
+          ? `calc(50% - ${placeholderRect.width / 2}px)`
+          : placeholderRect.left,
+        width: placeholderRect.width,
+        height: placeholderRect.height,
+        zIndex: 50,
+        borderRadius: '1.5rem',
+        overflow: 'hidden',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
+      }
+    : {
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        borderRadius: '1.5rem',
+        overflow: 'hidden',
+      };
+
+  // The video element - extracted for portal usage
+  const videoElement = (
+    <div
+      ref={containerRef}
+      style={videoStyles}
+    >
+      {/* AMBIENT MODE: Glow layer behind video */}
+      {isPlaying && (
+        <div
+          className="absolute inset-0 -z-10 pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(ellipse 120% 100% at 50% 0%, ${ambientColors.secondary} 0%, transparent 60%),
+              radial-gradient(ellipse 100% 120% at 0% 50%, ${ambientColors.dominant} 0%, transparent 55%),
+              radial-gradient(ellipse 100% 120% at 100% 50%, ${ambientColors.accent} 0%, transparent 55%),
+              radial-gradient(ellipse 120% 100% at 50% 100%, ${ambientColors.dominant} 0%, transparent 60%)
+            `,
+            filter: `blur(${AMBIENT_CONFIG.blur}px)`,
+            opacity: AMBIENT_CONFIG.opacity,
+            transform: `scale(${AMBIENT_CONFIG.scale})`,
+            transition: 'background 0.3s ease-out, opacity 0.5s ease-out',
+          }}
+        />
+      )}
+
+      {/* Glass container with premium aesthetic - VIDEO ONLY */}
+      <div className="relative aspect-video w-full h-full
+        bg-gradient-to-br from-gray-900/95 to-black/95
+        rounded-3xl overflow-hidden
+        border border-white/10 dark:border-gray-800/50
+        shadow-2xl shadow-purple-500/20 z-10
+        cursor-pointer"
+        onClick={handleVideoClick}
+        onDoubleClick={handleDoubleClick}
+      >
+        {/* Mux Player */}
+        <MuxPlayer
+          playbackId={muxPlaybackId}
+          streamType="on-demand"
+          autoPlay={false}
+          muted={false}
+          playsInline
+          poster={poster}
+          onEnded={handleFinish}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            '--controls': 'none',
+          } as any}
+          className="w-full h-full"
+          metadata={{
+            video_title: title,
+            video_series: "CryptoGift Educational"
+          }}
+        >
+          {captionsVtt && (
+            <track
+              kind="subtitles"
+              srcLang="es"
+              src={captionsVtt}
+              default
+              label="Español"
+            />
+          )}
+        </MuxPlayer>
+
+        {/* Play overlay - shows when paused */}
+        {!isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+            <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
+              <Play className="w-8 h-8 text-white fill-white" />
+            </div>
+          </div>
+        )}
+
+        {/* Fullscreen hint */}
+        <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+          <div className="px-2 py-1 rounded bg-black/50 text-white text-xs flex items-center gap-1">
+            <Maximize2 className="w-3 h-3" />
+            <span>Doble clic</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        ref={containerRef}
         className="relative w-full max-w-4xl mx-auto"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.3 }}
       >
-        {/* AMBIENT MODE: Glow layer behind video */}
-        {isPlaying && (
-          <div
-            className="absolute inset-0 -z-10 pointer-events-none"
-            style={{
-              background: `
-                radial-gradient(ellipse 120% 100% at 50% 0%, ${ambientColors.secondary} 0%, transparent 60%),
-                radial-gradient(ellipse 100% 120% at 0% 50%, ${ambientColors.dominant} 0%, transparent 55%),
-                radial-gradient(ellipse 100% 120% at 100% 50%, ${ambientColors.accent} 0%, transparent 55%),
-                radial-gradient(ellipse 120% 100% at 50% 100%, ${ambientColors.dominant} 0%, transparent 60%)
-              `,
-              filter: `blur(${AMBIENT_CONFIG.blur}px)`,
-              opacity: AMBIENT_CONFIG.opacity,
-              transform: `scale(${AMBIENT_CONFIG.scale})`,
-              transition: 'background 0.3s ease-out, opacity 0.5s ease-out',
-            }}
-          />
-        )}
-
-        {/* Glass container with premium aesthetic - VIDEO ONLY */}
-        <div className="relative aspect-video w-full
-          bg-gradient-to-br from-gray-900/95 to-black/95
-          backdrop-blur-xl backdrop-saturate-150
-          rounded-3xl overflow-hidden
-          border border-white/10 dark:border-gray-800/50
-          shadow-2xl shadow-purple-500/20 z-10
-          cursor-pointer"
-          onClick={handleVideoClick}
-          onDoubleClick={handleDoubleClick}
+        {/* PLACEHOLDER: Reserves space and provides measurements for portal positioning */}
+        <div
+          ref={placeholderRef}
+          className="relative w-full"
+          style={{ paddingBottom: '56.25%', height: 0 }}
         >
-          {/* Mux Player */}
-          <MuxPlayer
-            playbackId={muxPlaybackId}
-            streamType="on-demand"
-            autoPlay={false}
-            muted={false}
-            playsInline
-            poster={poster}
-            onEnded={handleFinish}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              '--controls': 'none',
-            } as any}
-            className="w-full h-full"
-            metadata={{
-              video_title: title,
-              video_series: "CryptoGift Educational"
-            }}
-          >
-            {captionsVtt && (
-              <track
-                kind="subtitles"
-                srcLang="es"
-                src={captionsVtt}
-                default
-                label="Español"
-              />
-            )}
-          </MuxPlayer>
-
-          {/* Play overlay - shows when paused */}
-          {!isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
-              <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
-                <Play className="w-8 h-8 text-white fill-white" />
-              </div>
-            </div>
-          )}
-
-          {/* Fullscreen hint */}
-          <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
-            <div className="px-2 py-1 rounded bg-black/50 text-white text-xs flex items-center gap-1">
-              <Maximize2 className="w-3 h-3" />
-              <span>Doble clic</span>
-            </div>
-          </div>
+          {/* Video via PORTAL - Escapes backdrop-filter containers for proper positioning */}
+          {portalReady && placeholderRect && typeof document !== 'undefined'
+            ? createPortal(videoElement, document.body)
+            : videoElement
+          }
         </div>
 
         {/* Title, description and navigation buttons - OUTSIDE video for clean viewing */}
