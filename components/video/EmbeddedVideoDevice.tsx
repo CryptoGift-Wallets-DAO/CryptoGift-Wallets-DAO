@@ -164,6 +164,7 @@ export function EmbeddedVideoDevice({
   }, []);
 
   // Update placeholder rect for positioning when NOT sticky
+  // CRITICAL: Calculate immediately and continuously to avoid "jump" on initial render
   useEffect(() => {
     if (!placeholderRef.current) return;
 
@@ -173,18 +174,39 @@ export function EmbeddedVideoDevice({
       }
     };
 
-    // Initial update
-    updateRect();
+    // CRITICAL FIX: Use requestAnimationFrame to ensure layout is complete
+    // This prevents the initial "jump" where video appears in wrong position
+    const rafUpdate = () => {
+      requestAnimationFrame(() => {
+        updateRect();
+        // Double RAF for extra safety on first load (ensures paint is complete)
+        requestAnimationFrame(updateRect);
+      });
+    };
+
+    // Initial update with RAF
+    rafUpdate();
+
+    // Also update after a small delay to catch any late layout changes
+    const initialTimeout = setTimeout(updateRect, 100);
+    const secondTimeout = setTimeout(updateRect, 300);
 
     // Update on scroll and resize when not sticky
     if (!isSticky) {
       window.addEventListener('scroll', updateRect, { passive: true });
       window.addEventListener('resize', updateRect, { passive: true });
       return () => {
+        clearTimeout(initialTimeout);
+        clearTimeout(secondTimeout);
         window.removeEventListener('scroll', updateRect);
         window.removeEventListener('resize', updateRect);
       };
     }
+
+    return () => {
+      clearTimeout(initialTimeout);
+      clearTimeout(secondTimeout);
+    };
   }, [isSticky]);
 
   // Capture original height when video is ready
@@ -633,14 +655,16 @@ export function EmbeddedVideoDevice({
         boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
       }
     : {
-        // FALLBACK before rect is calculated
-        position: 'absolute',
+        // FALLBACK before rect is calculated - HIDDEN to prevent "jump"
+        // Video will appear once placeholderRect is calculated (within ~100ms)
+        position: 'fixed',
         top: 0,
         left: 0,
-        right: 0,
-        bottom: 0,
-        // Shadow for fallback mode
-        boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
+        width: '100%',
+        maxWidth: '600px',
+        opacity: 0, // CRITICAL: Hidden until rect is calculated
+        pointerEvents: 'none',
+        zIndex: -1,
       };
 
   // The video element - extracted for portal usage
