@@ -3,8 +3,8 @@
  * STATIC component (no wobble) for SalesMasterclass
  *
  * FEATURES:
- * - GLOBAL AUDIO UNLOCK: Click anywhere on page unlocks audio playback
- * - Auto-play when visible with 15% volume
+ * - MOBILE: Auto-play with audio immediately
+ * - PC: Click anywhere on page triggers play with audio
  * - Click to play/pause, double-click for fullscreen
  * - NO portal rendering, NO position tracking = ZERO wobble
  *
@@ -63,56 +63,98 @@ export default function IntroVideoGate({
 }: IntroVideoGateProps) {
   const storageKey = useMemo(() => `intro_video_seen:${lessonId}`, [lessonId]);
 
+  // Unique ID for this video instance
+  const muxPlayerId = useMemo(() => `mux-intro-${lessonId.replace(/[^a-zA-Z0-9]/g, '-')}`, [lessonId]);
+
   const [show, setShow] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const hasAutoPlayed = useRef(false);
   const audioUnlocked = useRef(false);
 
-  // Get video element from MuxPlayer shadow DOM
-  const getVideoElement = useCallback((): HTMLVideoElement | null => {
-    if (videoRef.current) return videoRef.current;
-    if (containerRef.current) {
-      const muxPlayer = containerRef.current.querySelector('mux-player');
-      if (muxPlayer) {
-        const shadowRoot = (muxPlayer as HTMLElement & { shadowRoot: ShadowRoot | null }).shadowRoot;
-        if (shadowRoot) {
-          const video = shadowRoot.querySelector('video');
-          if (video) {
-            videoRef.current = video;
-            return video;
-          }
-        }
-      }
-      const video = containerRef.current.querySelector('video');
-      if (video) {
-        videoRef.current = video;
-        return video;
-      }
-    }
-    return null;
-  }, []);
+  // Get MuxPlayer element - CRITICAL: Use the mux-player directly, not the video inside shadow DOM
+  const getMuxPlayer = useCallback((): any => {
+    if (typeof document === 'undefined') return null;
+    const wrapper = document.getElementById(muxPlayerId);
+    if (!wrapper) return null;
+    return wrapper.querySelector('mux-player');
+  }, [muxPlayerId]);
 
-  // GLOBAL AUDIO UNLOCK: Detect ANY user interaction
+  // Attempt to play video with audio
+  const attemptPlay = useCallback(() => {
+    if (hasAutoPlayed.current) return;
+
+    const player = getMuxPlayer();
+    if (!player) {
+      // Player not ready yet, retry in 100ms
+      setTimeout(() => attemptPlay(), 100);
+      return;
+    }
+
+    player.volume = AUTO_PLAY_VOLUME;
+    player.muted = false;
+
+    player.play()?.then(() => {
+      hasAutoPlayed.current = true;
+      audioUnlocked.current = true;
+      setIsPlaying(true);
+      console.log('[Video] ▶️ Playing with audio');
+    }).catch(() => {
+      // Try muted as fallback (mobile without interaction)
+      player.muted = true;
+      player.play()?.then(() => {
+        hasAutoPlayed.current = true;
+        setIsPlaying(true);
+        console.log('[Video] ▶️ Playing muted (fallback)');
+      }).catch(() => {
+        console.log('[Video] ❌ Autoplay blocked, waiting for interaction');
+      });
+    });
+  }, [getMuxPlayer]);
+
+  // MOBILE: Auto-play immediately when visible
+  // PC: Wait for user interaction
+  useEffect(() => {
+    if (!containerRef.current || hasAutoPlayed.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasAutoPlayed.current) {
+          // Small delay to ensure MuxPlayer is mounted
+          setTimeout(() => attemptPlay(), 300);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [attemptPlay]);
+
+  // PC: Click anywhere on page triggers play with audio
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
     const handleUserInteraction = () => {
-      if (!audioUnlocked.current) {
-        audioUnlocked.current = true;
+      if (audioUnlocked.current) return;
+      audioUnlocked.current = true;
 
-        const video = getVideoElement();
-        if (video && video.paused && !hasAutoPlayed.current) {
-          video.muted = false;
-          video.volume = AUTO_PLAY_VOLUME;
-          video.play().then(() => {
-            hasAutoPlayed.current = true;
-            setIsPlaying(true);
-          }).catch(() => {});
-        }
+      const player = getMuxPlayer();
+      if (player && player.paused && !hasAutoPlayed.current) {
+        player.volume = AUTO_PLAY_VOLUME;
+        player.muted = false;
+        player.play()?.then(() => {
+          hasAutoPlayed.current = true;
+          setIsPlaying(true);
+          console.log('[Video] ▶️ Started playing after user interaction');
+        }).catch(() => {});
+      } else if (player && player.paused === false && player.muted) {
+        // Already playing muted, unmute it
+        player.muted = false;
+        player.volume = AUTO_PLAY_VOLUME;
+        console.log('[Video] 🔊 Unmuted after user interaction');
       }
     };
 
@@ -125,46 +167,7 @@ export default function IntroVideoGate({
       document.removeEventListener('touchstart', handleUserInteraction, { capture: true });
       document.removeEventListener('keydown', handleUserInteraction, { capture: true });
     };
-  }, [getVideoElement]);
-
-  // Auto-play when visible (single threshold - no wobble)
-  useEffect(() => {
-    if (!containerRef.current || hasAutoPlayed.current) return;
-
-    const attemptAutoplay = () => {
-      if (hasAutoPlayed.current) return;
-      const video = getVideoElement();
-      if (!video) return;
-
-      video.volume = AUTO_PLAY_VOLUME;
-      video.muted = !audioUnlocked.current;
-
-      video.play().then(() => {
-        hasAutoPlayed.current = true;
-        setIsPlaying(true);
-      }).catch(() => {
-        // Try muted as fallback
-        video.muted = true;
-        video.play().then(() => {
-          hasAutoPlayed.current = true;
-          setIsPlaying(true);
-        }).catch(() => {});
-      });
-    };
-
-    // Simple observer - single threshold = no excessive callbacks
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !hasAutoPlayed.current) {
-          attemptAutoplay();
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [getVideoElement]);
+  }, [getMuxPlayer]);
 
   // Handlers
   const handleFinish = useCallback(() => {
@@ -181,32 +184,43 @@ export default function IntroVideoGate({
 
   const handleVideoClick = useCallback(() => {
     audioUnlocked.current = true;
-    const video = getVideoElement();
-    if (video) {
-      if (video.paused) {
-        video.volume = AUTO_PLAY_VOLUME;
-        video.muted = false;
-        video.play().then(() => setIsPlaying(true)).catch(() => {
-          video.muted = true;
-          video.play().then(() => setIsPlaying(true)).catch(() => {});
-        });
-      } else {
-        video.pause();
-        setIsPlaying(false);
-      }
+    const player = getMuxPlayer();
+    if (!player) return;
+
+    if (player.paused) {
+      player.volume = AUTO_PLAY_VOLUME;
+      player.muted = false;
+      player.play()?.then(() => {
+        setIsPlaying(true);
+        hasAutoPlayed.current = true;
+      }).catch(() => {
+        player.muted = true;
+        player.play()?.then(() => setIsPlaying(true)).catch(() => {});
+      });
+    } else {
+      player.pause();
+      setIsPlaying(false);
     }
-  }, [getVideoElement]);
+  }, [getMuxPlayer]);
 
   const handleDoubleClick = useCallback(() => {
-    const player = containerRef.current?.querySelector('mux-player') as HTMLElement | null;
-    if (player) {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        player.requestFullscreen?.();
+    const player = getMuxPlayer();
+    if (!player) return;
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      // Try various fullscreen methods for compatibility
+      const videoEl = player.querySelector?.('video') || player;
+      if ((videoEl as any).webkitEnterFullscreen) {
+        (videoEl as any).webkitEnterFullscreen();
+      } else if ((videoEl as any).webkitRequestFullscreen) {
+        (videoEl as any).webkitRequestFullscreen();
+      } else if (player.requestFullscreen) {
+        player.requestFullscreen();
       }
     }
-  }, []);
+  }, [getMuxPlayer]);
 
   if (!show) return null;
 
@@ -231,7 +245,7 @@ export default function IntroVideoGate({
         }}
       />
 
-      {/* Video container - STATIC position, no transforms */}
+      {/* Video container - STATIC position */}
       <div
         className="relative aspect-video w-full
           bg-gradient-to-br from-gray-900/95 to-black/95
@@ -243,44 +257,44 @@ export default function IntroVideoGate({
         onClick={handleVideoClick}
         onDoubleClick={handleDoubleClick}
       >
-        <MuxPlayer
-          playbackId={muxPlaybackId}
-          streamType="on-demand"
-          autoPlay={false}
-          muted={false}
-          playsInline
-          poster={poster}
-          onEnded={handleFinish}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          style={{
-            width: '100%',
-            height: '100%',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            '--controls': 'none',
-          } as React.CSSProperties}
-          className="w-full h-full"
-          metadata={{
-            video_title: title,
-            video_series: "CryptoGift Educational"
-          }}
-        >
-          {captionsVtt && (
-            <track
-              kind="subtitles"
-              srcLang="en"
-              src={captionsVtt}
-              default
-              label="English"
-            />
-          )}
-        </MuxPlayer>
+        {/* Wrapper with ID for getMuxPlayer to find */}
+        <div id={muxPlayerId} className="absolute inset-0">
+          <MuxPlayer
+            playbackId={muxPlaybackId}
+            streamType="on-demand"
+            autoPlay={false}
+            muted={false}
+            playsInline
+            poster={poster}
+            onEnded={handleFinish}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            style={{
+              width: '100%',
+              height: '100%',
+              '--controls': 'none',
+            } as any}
+            className="w-full h-full"
+            metadata={{
+              video_title: title,
+              video_series: "CryptoGift Educational"
+            }}
+          >
+            {captionsVtt && (
+              <track
+                kind="subtitles"
+                srcLang="en"
+                src={captionsVtt}
+                default
+                label="English"
+              />
+            )}
+          </MuxPlayer>
+        </div>
 
         {/* Play overlay */}
         {!isPlaying && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none z-20">
             <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
               <Play className="w-8 h-8 text-white fill-white" />
             </div>
@@ -288,7 +302,7 @@ export default function IntroVideoGate({
         )}
 
         {/* Fullscreen hint */}
-        <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+        <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity pointer-events-none z-20">
           <div className="px-2 py-1 rounded bg-black/50 text-white text-xs flex items-center gap-1">
             <Maximize2 className="w-3 h-3" />
             <span>Double click</span>
