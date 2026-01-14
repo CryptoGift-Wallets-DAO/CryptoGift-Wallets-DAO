@@ -3211,70 +3211,107 @@ const CaptureBlock: React.FC<{
       </div>
       )}
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 max-w-6xl mx-auto pt-4 overflow-visible">
+      {/* Role Cards - Mobile: column layout with inline description, Desktop: grid */}
+      <div className="flex flex-col gap-4 mb-12 max-w-6xl mx-auto pt-4 overflow-visible md:grid md:grid-cols-2 lg:grid-cols-3">
         {content.paths.map((path: any) => (
-          <motion.button
-            key={path.name}
-            onClick={() => {
-              setSelectedPath(path.name);
-              // 🆕 PERSISTENCE: Save selected path to localStorage immediately
-              if (onPathSelected) {
-                onPathSelected(path.name);
-              }
-            }}
-            className={`relative p-6 rounded-2xl transition-all text-left backdrop-blur-xl overflow-visible ${
-              selectedPath === path.name
-                ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-2 border-amber-400/60 dark:border-amber-400/50 scale-[1.03] shadow-xl shadow-amber-500/20'
-                : 'glass-crystal border border-gray-200/50 dark:border-white/10 hover:border-purple-400/50 dark:hover:border-purple-400/30 hover:shadow-lg hover:shadow-purple-500/10'
-            }`}
-            whileHover={{ scale: selectedPath === path.name ? 1.03 : 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {/* Popular Badge */}
-            {path.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                <span className="px-3 py-1 text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-full shadow-lg whitespace-nowrap flex items-center gap-1">
-                  <Star className="w-3 h-3" /> MÁS POPULAR
+          <React.Fragment key={path.name}>
+            <motion.button
+              onClick={() => {
+                setSelectedPath(path.name);
+                // 🆕 PERSISTENCE: Save selected path to localStorage immediately
+                if (onPathSelected) {
+                  onPathSelected(path.name);
+                }
+              }}
+              className={`relative p-6 rounded-2xl transition-all text-left backdrop-blur-xl overflow-visible ${
+                selectedPath === path.name
+                  ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-2 border-amber-400/60 dark:border-amber-400/50 scale-[1.03] shadow-xl shadow-amber-500/20'
+                  : 'glass-crystal border border-gray-200/50 dark:border-white/10 hover:border-purple-400/50 dark:hover:border-purple-400/30 hover:shadow-lg hover:shadow-purple-500/10'
+              }`}
+              whileHover={{ scale: selectedPath === path.name ? 1.03 : 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {/* Popular Badge */}
+              {path.popular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                  <span className="px-3 py-1 text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-full shadow-lg whitespace-nowrap flex items-center gap-1">
+                    <Star className="w-3 h-3" /> MÁS POPULAR
+                  </span>
+                </div>
+              )}
+
+              {/* Icon & Title Row */}
+              <div className="flex items-center gap-3 mb-3">
+                <StyledIcon icon={path.icon as IconKey} size="xl" withGlow />
+                <h3 className="font-bold text-xl text-gray-900 dark:text-white">{path.nameEs || path.name}</h3>
+              </div>
+
+              {/* Description */}
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">{path.description}</p>
+
+              {/* Spots Badge */}
+              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-500/20 mb-3">
+                <span className="text-amber-600 dark:text-amber-300 font-semibold text-sm flex items-center gap-1.5">
+                  {typeof path.spots === 'number' ? (
+                    <><Flame className="w-4 h-4" /> Solo {path.spots} lugares</>
+                  ) : (
+                    <><Sparkles className="w-4 h-4" /> {path.spots}</>
+                  )}
                 </span>
               </div>
+
+              {/* Benefit */}
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5">
+                  <CheckCircle className="w-4 h-4" /> {path.benefit}
+                </span>
+              </div>
+            </motion.button>
+
+            {/* MOBILE ONLY: Role Description appears DIRECTLY below the selected card */}
+            {selectedPath === path.name && educationalMode && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginTop: 0 }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="md:hidden bg-gradient-to-r from-purple-500/10 to-blue-500/10
+                  backdrop-blur-xl backdrop-saturate-150
+                  border border-purple-500/30 rounded-2xl p-5
+                  shadow-xl shadow-purple-500/10"
+              >
+                <p className="text-base text-gray-700 dark:text-gray-200 mb-2 font-semibold">
+                  Has seleccionado: <span className="bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{path.nameEs || path.name}</span>
+                </p>
+                <p className="text-sm text-gray-600/90 dark:text-gray-300/90 leading-relaxed">
+                  {path.name === 'Quest Creator' && (
+                    <><Target className="w-4 h-4 inline-block mr-1.5 text-orange-500" />Como <strong className="text-purple-600 dark:text-purple-300">Quest Creator</strong>, serás arquitecto de experiencias que transforman vidas. Tu creatividad construirá el puente entre el mundo tradicional y Web3, y por cada misión que diseñes recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que reconocen tu aporte al ecosistema.</>
+                  )}
+                  {path.name === 'Integration Partner' && (
+                    <><Wrench className="w-4 h-4 inline-block mr-1.5 text-slate-400" />Como <strong className="text-purple-600 dark:text-purple-300">Integration Partner</strong>, llevarás la tecnología CryptoGift a nuevas fronteras. Cada integración que desarrolles no solo expandirá el ecosistema, sino que te posicionará como pionero y serás recompensado con <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> proporcionales a tu impacto.</>
+                  )}
+                  {path.name === 'Community' && (
+                    <><Star className="w-4 h-4 inline-block mr-1.5 text-yellow-500" />Como <strong className="text-purple-600 dark:text-purple-300">Community Member</strong>, eres el corazón de CryptoGift. Tu participación activa, feedback y apoyo son invaluables. Por tu compromiso recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que te dan voz y voto en el futuro de la plataforma.</>
+                  )}
+                  {path.name === 'Investor' && (
+                    <><Gem className="w-4 h-4 inline-block mr-1.5 text-purple-500" />Como <strong className="text-purple-600 dark:text-purple-300">Inversor</strong>, tienes visión de futuro. Tu participación nos permite escalar y transformar la industria. Recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que reflejan tu confianza y te dan participación en las decisiones estratégicas.</>
+                  )}
+                  {path.name === 'White-Label' && (
+                    <><Building2 className="w-4 h-4 inline-block mr-1.5 text-blue-500" />Como <strong className="text-purple-600 dark:text-purple-300">White-Label Partner</strong>, llevarás el poder de CryptoGift a tu propia marca. Esta alianza estratégica incluye <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> preferentes que reconocen tu rol como embajador de la tecnología.</>
+                  )}
+                </p>
+              </motion.div>
             )}
-
-            {/* Icon & Title Row */}
-            <div className="flex items-center gap-3 mb-3">
-              <StyledIcon icon={path.icon as IconKey} size="xl" withGlow />
-              <h3 className="font-bold text-xl text-gray-900 dark:text-white">{path.nameEs || path.name}</h3>
-            </div>
-
-            {/* Description */}
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">{path.description}</p>
-
-            {/* Spots Badge */}
-            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-500/20 mb-3">
-              <span className="text-amber-600 dark:text-amber-300 font-semibold text-sm flex items-center gap-1.5">
-                {typeof path.spots === 'number' ? (
-                  <><Flame className="w-4 h-4" /> Solo {path.spots} lugares</>
-                ) : (
-                  <><Sparkles className="w-4 h-4" /> {path.spots}</>
-                )}
-              </span>
-            </div>
-
-            {/* Benefit */}
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4" /> {path.benefit}
-              </span>
-            </div>
-          </motion.button>
+          </React.Fragment>
         ))}
       </div>
 
-      {/* Role Description - Shows directly below the grid when a role is selected (educational mode only) */}
+      {/* DESKTOP ONLY: Role Description - Shows below the grid on larger screens */}
       {selectedPath && educationalMode && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-2xl mx-auto mb-6 bg-gradient-to-r from-purple-500/10 to-blue-500/10
+          className="hidden md:block max-w-2xl mx-auto mb-6 bg-gradient-to-r from-purple-500/10 to-blue-500/10
             backdrop-blur-xl backdrop-saturate-150
             border border-purple-500/30 rounded-2xl p-6
             shadow-xl shadow-purple-500/10"
