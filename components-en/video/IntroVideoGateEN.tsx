@@ -1,13 +1,12 @@
 /**
  * INTRO VIDEO GATE EN - Reusable video system for lessons (English version)
- * Simplified component with native MuxPlayer controls (mobile-optimized)
- * Supports Mux Player with progress persistence
+ * STATIC component (no wobble) for SalesMasterclass
  *
  * FEATURES:
- * - AMBIENT MODE: YouTube-style glow effect from video colors
- * - Auto-play when >50% visible with 15% volume
- * - Picture-in-Picture when <30% visible
  * - GLOBAL AUDIO UNLOCK: Click anywhere on page unlocks audio playback
+ * - Auto-play when visible with 15% volume
+ * - Click to play/pause, double-click for fullscreen
+ * - NO portal rendering, NO position tracking = ZERO wobble
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -16,24 +15,12 @@
 "use client";
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { SkipForward, ArrowLeft, Play, Maximize2 } from 'lucide-react';
 
-// Ambient Mode configuration
-const AMBIENT_CONFIG = {
-  blur: 80,
-  opacity: 0.5,
-  brightness: 1.15,
-  saturate: 1.3,
-  scale: 1.18,
-  updateInterval: 100
-};
-
 const AUTO_PLAY_VOLUME = 0.15;
 
-// Lazy load Mux Player for optimization
-// @ts-ignore - Mux player types may not be available
+// Lazy load MUX Player
 const MuxPlayer = dynamic(
   () => import('@mux/mux-player-react').then(mod => mod.default),
   {
@@ -52,16 +39,16 @@ const MuxPlayer = dynamic(
 );
 
 interface IntroVideoGateProps {
-  lessonId: string;           // Unique lesson ID (for persistence)
-  muxPlaybackId: string;      // Mux Playback ID
-  poster?: string;            // Optional cover image
-  captionsVtt?: string;       // Optional subtitles
-  title?: string;             // Video title
-  description?: string;       // Optional description
-  onFinish: () => void;       // Callback when finished/skipped
-  onBack?: () => void;        // Callback to go back (to Welcome)
-  autoSkip?: boolean;         // Should auto-skip if already watched
-  forceShow?: boolean;        // Force show even if already watched
+  lessonId: string;
+  muxPlaybackId: string;
+  poster?: string;
+  captionsVtt?: string;
+  title?: string;
+  description?: string;
+  onFinish: () => void;
+  onBack?: () => void;
+  autoSkip?: boolean;
+  forceShow?: boolean;
 }
 
 export default function IntroVideoGate({
@@ -73,87 +60,19 @@ export default function IntroVideoGate({
   description,
   onFinish,
   onBack,
-  autoSkip = true,
-  forceShow = false,
 }: IntroVideoGateProps) {
-  // Key for localStorage - allows easy reset by changing lessonId
   const storageKey = useMemo(() => `intro_video_seen:${lessonId}`, [lessonId]);
 
-  // Simplified states
   const [show, setShow] = useState(true);
-  const [showSkipButton, setShowSkipButton] = useState(true);
-
-  // Ambient Mode state
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isInPiP, setIsInPiP] = useState(false);
-  const [ambientColors, setAmbientColors] = useState({
-    dominant: 'rgba(139, 92, 246, 0.35)',
-    secondary: 'rgba(6, 182, 212, 0.25)',
-    accent: 'rgba(168, 85, 247, 0.3)'
-  });
 
-  // Refs for video element and canvas
+  // Refs
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const ambientIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasAutoPlayed = useRef(false);
-
-  // GLOBAL AUDIO UNLOCK: Track if user has interacted with the page
   const audioUnlocked = useRef(false);
 
-  // Create canvas for color extraction
-  useEffect(() => {
-    if (typeof document !== 'undefined' && !canvasRef.current) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 16;
-      canvas.height = 9;
-      canvasRef.current = canvas;
-    }
-  }, []);
-
-  // GLOBAL AUDIO UNLOCK: Detect ANY user interaction on page
-  // Once user interacts, we can play with audio (browser policy)
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-
-    const handleUserInteraction = () => {
-      if (!audioUnlocked.current) {
-        console.log('[Video] 🔊 Audio unlocked by user interaction');
-        audioUnlocked.current = true;
-
-        // If video is paused and ready, try to play with audio now
-        const video = videoRef.current;
-        if (video && video.paused && !hasAutoPlayed.current) {
-          video.muted = false;
-          video.volume = AUTO_PLAY_VOLUME;
-          video.play().then(() => {
-            hasAutoPlayed.current = true;
-            setIsPlaying(true);
-            setIsMuted(false);
-            console.log('[Video] ▶️ Started playing with audio after unlock');
-          }).catch(() => {
-            // Still blocked, will retry on next interaction
-            console.log('[Video] Still blocked, will retry');
-          });
-        }
-      }
-    };
-
-    // Capture phase ensures we get the event before any element stops propagation
-    document.addEventListener('click', handleUserInteraction, { capture: true, passive: true });
-    document.addEventListener('touchstart', handleUserInteraction, { capture: true, passive: true });
-    document.addEventListener('keydown', handleUserInteraction, { capture: true, passive: true });
-
-    return () => {
-      document.removeEventListener('click', handleUserInteraction, { capture: true });
-      document.removeEventListener('touchstart', handleUserInteraction, { capture: true });
-      document.removeEventListener('keydown', handleUserInteraction, { capture: true });
-    };
-  }, []);
-
-  // Get video element from MuxPlayer
+  // Get video element from MuxPlayer shadow DOM
   const getVideoElement = useCallback((): HTMLVideoElement | null => {
     if (videoRef.current) return videoRef.current;
     if (containerRef.current) {
@@ -177,183 +96,98 @@ export default function IntroVideoGate({
     return null;
   }, []);
 
-  // Extract colors from video for Ambient Mode
-  const extractVideoColors = useCallback(() => {
-    const video = getVideoElement();
-    const canvas = canvasRef.current;
-    if (!video || !canvas || video.paused || video.ended) return;
+  // GLOBAL AUDIO UNLOCK: Detect ANY user interaction
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
 
-    try {
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
-      if (!ctx) return;
+    const handleUserInteraction = () => {
+      if (!audioUnlocked.current) {
+        audioUnlocked.current = true;
 
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const center = ctx.getImageData(canvas.width / 2 - 2, canvas.height / 2 - 2, 4, 4).data;
-      const topLeft = ctx.getImageData(0, 0, 4, 4).data;
-      const bottomRight = ctx.getImageData(canvas.width - 4, canvas.height - 4, 4, 4).data;
-
-      const avgColor = (data: Uint8ClampedArray) => {
-        let r = 0, g = 0, b = 0, count = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          r += data[i]; g += data[i + 1]; b += data[i + 2]; count++;
+        const video = getVideoElement();
+        if (video && video.paused && !hasAutoPlayed.current) {
+          video.muted = false;
+          video.volume = AUTO_PLAY_VOLUME;
+          video.play().then(() => {
+            hasAutoPlayed.current = true;
+            setIsPlaying(true);
+          }).catch(() => {});
         }
-        return { r: Math.round(r / count), g: Math.round(g / count), b: Math.round(b / count) };
-      };
+      }
+    };
 
-      const adjust = (c: { r: number; g: number; b: number }) => {
-        const br = AMBIENT_CONFIG.brightness;
-        const sat = AMBIENT_CONFIG.saturate;
-        let r = Math.min(255, c.r * br), g = Math.min(255, c.g * br), b = Math.min(255, c.b * br);
-        const gray = (r + g + b) / 3;
-        r = Math.min(255, r + (r - gray) * (sat - 1));
-        g = Math.min(255, g + (g - gray) * (sat - 1));
-        b = Math.min(255, b + (b - gray) * (sat - 1));
-        return { r: Math.round(r), g: Math.round(g), b: Math.round(b) };
-      };
+    document.addEventListener('click', handleUserInteraction, { capture: true, passive: true });
+    document.addEventListener('touchstart', handleUserInteraction, { capture: true, passive: true });
+    document.addEventListener('keydown', handleUserInteraction, { capture: true, passive: true });
 
-      const d = adjust(avgColor(center));
-      const s = adjust(avgColor(topLeft));
-      const a = adjust(avgColor(bottomRight));
-
-      setAmbientColors({
-        dominant: `rgba(${d.r}, ${d.g}, ${d.b}, 0.4)`,
-        secondary: `rgba(${s.r}, ${s.g}, ${s.b}, 0.3)`,
-        accent: `rgba(${a.r}, ${a.g}, ${a.b}, 0.35)`
-      });
-    } catch {
-      // CORS error - use fallback colors
-    }
+    return () => {
+      document.removeEventListener('click', handleUserInteraction, { capture: true });
+      document.removeEventListener('touchstart', handleUserInteraction, { capture: true });
+      document.removeEventListener('keydown', handleUserInteraction, { capture: true });
+    };
   }, [getVideoElement]);
 
-  // Start/stop ambient color extraction
+  // Auto-play when visible (single threshold - no wobble)
   useEffect(() => {
-    if (isPlaying) {
-      ambientIntervalRef.current = setInterval(extractVideoColors, AMBIENT_CONFIG.updateInterval);
-      return () => {
-        if (ambientIntervalRef.current) {
-          clearInterval(ambientIntervalRef.current);
-          ambientIntervalRef.current = null;
-        }
-      };
-    }
-  }, [isPlaying, extractVideoColors]);
+    if (!containerRef.current || hasAutoPlayed.current) return;
 
-  // Enter Picture-in-Picture
-  const enterPiP = useCallback(async () => {
-    const video = getVideoElement();
-    if (!video || isInPiP) return;
-    try {
-      if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
-        await video.requestPictureInPicture();
-        setIsInPiP(true);
-      }
-    } catch { /* PiP not supported or denied */ }
-  }, [getVideoElement, isInPiP]);
+    const attemptAutoplay = () => {
+      if (hasAutoPlayed.current) return;
+      const video = getVideoElement();
+      if (!video) return;
 
-  // Exit Picture-in-Picture
-  const exitPiP = useCallback(async () => {
-    if (!isInPiP) return;
-    try {
-      if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture();
-        setIsInPiP(false);
-      }
-    } catch { /* Already exited */ }
-  }, [isInPiP]);
+      video.volume = AUTO_PLAY_VOLUME;
+      video.muted = !audioUnlocked.current;
 
-  // IntersectionObserver for auto-play and PiP
-  useEffect(() => {
-    if (!containerRef.current) return;
+      video.play().then(() => {
+        hasAutoPlayed.current = true;
+        setIsPlaying(true);
+      }).catch(() => {
+        // Try muted as fallback
+        video.muted = true;
+        video.play().then(() => {
+          hasAutoPlayed.current = true;
+          setIsPlaying(true);
+        }).catch(() => {});
+      });
+    };
 
+    // Simple observer - single threshold = no excessive callbacks
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          const ratio = entry.intersectionRatio;
-          const video = getVideoElement();
-
-          // Auto-play when >50% visible
-          if (ratio > 0.5 && !hasAutoPlayed.current && video) {
-            if (video.paused) {
-              video.volume = AUTO_PLAY_VOLUME;
-              // AUDIO UNLOCK: Try with audio if user has already interacted
-              video.muted = !audioUnlocked.current;
-              video.play().then(() => {
-                hasAutoPlayed.current = true;
-                setIsPlaying(true);
-                setIsMuted(!audioUnlocked.current);
-                console.log(`[Video] ▶️ Auto-play started (audio: ${audioUnlocked.current ? 'ON' : 'OFF'})`);
-              }).catch(() => {
-                // Browser blocked - try muted as fallback
-                video.muted = true;
-                setIsMuted(true);
-                video.play().then(() => {
-                  hasAutoPlayed.current = true;
-                  setIsPlaying(true);
-                  console.log('[Video] ▶️ Auto-play started (muted fallback)');
-                }).catch(() => { /* Autoplay completely blocked */ });
-              });
-            }
-          }
-
-          // PiP when <30% visible
-          if (ratio < 0.3 && isPlaying && !isInPiP) enterPiP();
-          if (ratio > 0.5 && isInPiP) exitPiP();
-        });
+        if (entries[0].isIntersecting && !hasAutoPlayed.current) {
+          attemptAutoplay();
+        }
       },
-      { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] }
+      { threshold: 0.5 }
     );
 
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [isPlaying, isInPiP, getVideoElement, enterPiP, exitPiP]);
-
-  // Check if already watched (only if autoSkip is enabled)
-  // In educational module, always show video
-  useEffect(() => {
-    // Commented to always show video in educational mode
-    // if (!forceShow && autoSkip && typeof window !== "undefined") {
-    //   const seen = localStorage.getItem(storageKey);
-    //   if (seen === "completed") {
-    //     setShow(false);
-    //     onFinish();
-    //   }
-    // }
-  }, [storageKey, onFinish, autoSkip, forceShow]);
+  }, [getVideoElement]);
 
   // Handlers
   const handleFinish = useCallback(() => {
-    console.log('📹 Video finished naturally');
     localStorage.setItem(storageKey, "completed");
     setShow(false);
     onFinish();
   }, [storageKey, onFinish]);
 
   const handleSkip = useCallback(() => {
-    console.log('⏭️ Video skipped by user');
-    // Mark as watched but with "skipped" flag
     localStorage.setItem(storageKey, "skipped");
     setShow(false);
     onFinish();
   }, [storageKey, onFinish]);
 
-  // Handle click to play/pause - MUST be before early return (React hooks rules)
-  // Click also marks audioUnlocked for subsequent auto-plays
   const handleVideoClick = useCallback(() => {
-    // Mark audio as unlocked since user clicked
     audioUnlocked.current = true;
-
     const video = getVideoElement();
     if (video) {
       if (video.paused) {
         video.volume = AUTO_PLAY_VOLUME;
-        video.muted = false; // Always try with audio on direct click
-        video.play().then(() => {
-          setIsPlaying(true);
-          setIsMuted(false);
-          console.log('[Video] ▶️ Playing with audio (user click)');
-        }).catch(() => {
+        video.muted = false;
+        video.play().then(() => setIsPlaying(true)).catch(() => {
           video.muted = true;
-          setIsMuted(true);
           video.play().then(() => setIsPlaying(true)).catch(() => {});
         });
       } else {
@@ -363,7 +197,6 @@ export default function IntroVideoGate({
     }
   }, [getVideoElement]);
 
-  // Handle double-click for fullscreen - MUST be before early return (React hooks rules)
   const handleDoubleClick = useCallback(() => {
     const player = containerRef.current?.querySelector('mux-player') as HTMLElement | null;
     if (player) {
@@ -378,159 +211,142 @@ export default function IntroVideoGate({
   if (!show) return null;
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        ref={containerRef}
-        className="relative w-full max-w-4xl mx-auto"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.3 }}
-      >
-        {/* AMBIENT MODE: Glow layer behind video */}
-        {isPlaying && (
-          <div
-            className="absolute inset-0 -z-10 pointer-events-none"
-            style={{
-              background: `
-                radial-gradient(ellipse 120% 100% at 50% 0%, ${ambientColors.secondary} 0%, transparent 60%),
-                radial-gradient(ellipse 100% 120% at 0% 50%, ${ambientColors.dominant} 0%, transparent 55%),
-                radial-gradient(ellipse 100% 120% at 100% 50%, ${ambientColors.accent} 0%, transparent 55%),
-                radial-gradient(ellipse 120% 100% at 50% 100%, ${ambientColors.dominant} 0%, transparent 60%)
-              `,
-              filter: `blur(${AMBIENT_CONFIG.blur}px)`,
-              opacity: AMBIENT_CONFIG.opacity,
-              transform: `scale(${AMBIENT_CONFIG.scale})`,
-              transition: 'background 0.3s ease-out, opacity 0.5s ease-out',
-            }}
-          />
-        )}
+    <div
+      ref={containerRef}
+      className="relative w-full max-w-4xl mx-auto"
+    >
+      {/* Static glow - CSS only, no JavaScript updates */}
+      <div
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{
+          background: `
+            radial-gradient(ellipse 120% 100% at 50% 0%, rgba(6, 182, 212, 0.25) 0%, transparent 60%),
+            radial-gradient(ellipse 100% 120% at 0% 50%, rgba(139, 92, 246, 0.35) 0%, transparent 55%),
+            radial-gradient(ellipse 100% 120% at 100% 50%, rgba(168, 85, 247, 0.3) 0%, transparent 55%),
+            radial-gradient(ellipse 120% 100% at 50% 100%, rgba(139, 92, 246, 0.35) 0%, transparent 60%)
+          `,
+          filter: 'blur(80px)',
+          opacity: 0.5,
+          transform: 'scale(1.18)',
+        }}
+      />
 
-        {/* Glass container with premium aesthetic - VIDEO ONLY */}
-        <div className="relative aspect-video w-full
+      {/* Video container - STATIC position, no transforms */}
+      <div
+        className="relative aspect-video w-full
           bg-gradient-to-br from-gray-900/95 to-black/95
           backdrop-blur-xl backdrop-saturate-150
           rounded-3xl overflow-hidden
           border border-white/10 dark:border-gray-800/50
           shadow-2xl shadow-purple-500/20 z-10
           cursor-pointer"
-          onClick={handleVideoClick}
-          onDoubleClick={handleDoubleClick}
+        onClick={handleVideoClick}
+        onDoubleClick={handleDoubleClick}
+      >
+        <MuxPlayer
+          playbackId={muxPlaybackId}
+          streamType="on-demand"
+          autoPlay={false}
+          muted={false}
+          playsInline
+          poster={poster}
+          onEnded={handleFinish}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            '--controls': 'none',
+          } as React.CSSProperties}
+          className="w-full h-full"
+          metadata={{
+            video_title: title,
+            video_series: "CryptoGift Educational"
+          }}
         >
-          {/* Mux Player */}
-          <MuxPlayer
-            playbackId={muxPlaybackId}
-            streamType="on-demand"
-            autoPlay={false}
-            muted={false}
-            playsInline
-            poster={poster}
-            onEnded={handleFinish}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              '--controls': 'none',
-            } as any}
-            className="w-full h-full"
-            metadata={{
-              video_title: title,
-              video_series: "CryptoGift Educational"
-            }}
-          >
-            {captionsVtt && (
-              <track
-                kind="subtitles"
-                srcLang="en"
-                src={captionsVtt}
-                default
-                label="English"
-              />
-            )}
-          </MuxPlayer>
+          {captionsVtt && (
+            <track
+              kind="subtitles"
+              srcLang="en"
+              src={captionsVtt}
+              default
+              label="English"
+            />
+          )}
+        </MuxPlayer>
 
-          {/* Play overlay - shows when paused */}
-          {!isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
-              <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
-                <Play className="w-8 h-8 text-white fill-white" />
-              </div>
+        {/* Play overlay */}
+        {!isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+            <div className="p-4 rounded-full bg-white/20 backdrop-blur-sm">
+              <Play className="w-8 h-8 text-white fill-white" />
             </div>
+          </div>
+        )}
+
+        {/* Fullscreen hint */}
+        <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+          <div className="px-2 py-1 rounded bg-black/50 text-white text-xs flex items-center gap-1">
+            <Maximize2 className="w-3 h-3" />
+            <span>Double click</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Title, description and buttons */}
+      <div className="mt-6 space-y-4">
+        <div className="bg-white/10 dark:bg-black/30
+          backdrop-blur-xl backdrop-saturate-150
+          rounded-2xl px-6 py-4
+          border border-white/20 dark:border-gray-700/50
+          shadow-xl">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+            {title}
+          </h3>
+          {description && (
+            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+              {description}
+            </p>
+          )}
+        </div>
+
+        <div className="flex justify-center gap-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="px-6 py-4 rounded-xl
+                bg-white/10 dark:bg-black/30
+                hover:bg-white/20 dark:hover:bg-black/40
+                text-gray-700 dark:text-gray-300 font-bold text-lg
+                backdrop-blur-xl border border-gray-300/30 dark:border-gray-700/30
+                transition-all hover:scale-105
+                shadow-lg
+                flex items-center gap-3"
+            >
+              <ArrowLeft className="w-6 h-6" />
+              <span>Back</span>
+            </button>
           )}
 
-          {/* Fullscreen hint */}
-          <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
-            <div className="px-2 py-1 rounded bg-black/50 text-white text-xs flex items-center gap-1">
-              <Maximize2 className="w-3 h-3" />
-              <span>Double click</span>
-            </div>
-          </div>
+          <button
+            onClick={handleSkip}
+            className="px-8 py-4 rounded-xl
+              bg-gradient-to-r from-purple-500 to-pink-500
+              hover:from-purple-600 hover:to-pink-600
+              text-white font-bold text-lg
+              backdrop-blur-xl border border-purple-400/30
+              transition-all hover:scale-105
+              shadow-lg shadow-purple-500/30
+              flex items-center gap-3"
+          >
+            <SkipForward className="w-6 h-6" />
+            <span>Skip intro</span>
+          </button>
         </div>
-
-        {/* Title, description and navigation buttons - OUTSIDE video for clean viewing */}
-        <div className="mt-6 space-y-4">
-          {/* Title and description card */}
-          <div className="bg-white/10 dark:bg-black/30
-            backdrop-blur-xl backdrop-saturate-150
-            rounded-2xl px-6 py-4
-            border border-white/20 dark:border-gray-700/50
-            shadow-xl">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              {title}
-            </h3>
-            {description && (
-              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
-                {description}
-              </p>
-            )}
-          </div>
-
-          {/* Navigation buttons */}
-          <div className="flex justify-center gap-4">
-            {/* Back button */}
-            {onBack && (
-              <button
-                onClick={onBack}
-                className="px-6 py-4 rounded-xl
-                  bg-white/10 dark:bg-black/30
-                  hover:bg-white/20 dark:hover:bg-black/40
-                  text-gray-700 dark:text-gray-300 font-bold text-lg
-                  backdrop-blur-xl border border-gray-300/30 dark:border-gray-700/30
-                  transition-all hover:scale-105
-                  shadow-lg
-                  flex items-center gap-3"
-                aria-label="Go back"
-              >
-                <ArrowLeft className="w-6 h-6" />
-                <span>Back</span>
-              </button>
-            )}
-
-            {/* Skip intro button */}
-            {showSkipButton && (
-              <button
-                onClick={handleSkip}
-                className="px-8 py-4 rounded-xl
-                  bg-gradient-to-r from-purple-500 to-pink-500
-                  hover:from-purple-600 hover:to-pink-600
-                  text-white font-bold text-lg
-                  backdrop-blur-xl border border-purple-400/30
-                  transition-all hover:scale-105
-                  shadow-lg shadow-purple-500/30
-                  flex items-center gap-3"
-                aria-label="Skip intro"
-              >
-                <SkipForward className="w-6 h-6" />
-                <span>Skip intro</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </motion.div>
-    </AnimatePresence>
+      </div>
+    </div>
   );
 }
