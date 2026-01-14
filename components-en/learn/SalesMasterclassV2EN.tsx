@@ -70,13 +70,110 @@ import {
   MessageSquare,
   ArrowLeft,
   Gem,
-  Wrench
+  Wrench,
+  AlertTriangle,
+  Handshake,
+  Swords,
+  Eye,
+  EyeOff,
+  Link as LinkIcon,
+  Bot,
+  Loader2,
+  Brain,
+  ArrowLeftRight
 } from 'lucide-react';
 import { EmailVerificationModal } from '@/components/email/EmailVerificationModal';
 import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
 import IntroVideoGate from '@/components-en/video/IntroVideoGateEN';
 import { useSocialOAuth } from '@/hooks/useSocialOAuth';
 import { VIDEO_CONFIG } from '@/config/videoConfigEN';
+
+// =============================================================================
+// MODERN ICON SYSTEM - Lucide React icons with gradient styling
+// =============================================================================
+type IconKey = 'star' | 'target' | 'wrench' | 'building' | 'gem' | 'rocket' | 'trophy' | 'check' | 'sparkles' | 'flame' | 'lock' | 'warning' | 'mail' | 'gift' | 'users' | 'gamepad' | 'handshake' | 'swords' | 'globe' | 'lightbulb' | 'party' | 'bot' | 'calendar' | 'chart' | 'loader';
+
+const ICON_MAP: Record<IconKey, React.ComponentType<{ className?: string }>> = {
+  star: Star,
+  target: Target,
+  wrench: Wrench,
+  building: Building2,
+  gem: Gem,
+  rocket: Rocket,
+  trophy: Trophy,
+  check: CheckCircle,
+  sparkles: Sparkles,
+  flame: Flame,
+  lock: Lock,
+  warning: AlertTriangle,
+  mail: Mail,
+  gift: Gift,
+  users: Users,
+  gamepad: Gamepad2,
+  handshake: Handshake,
+  swords: Swords,
+  globe: Globe,
+  lightbulb: Lightbulb,
+  party: PartyPopper,
+  bot: Bot,
+  calendar: Calendar,
+  chart: BarChart3,
+  loader: Loader2,
+};
+
+const ICON_COLORS: Record<IconKey, string> = {
+  star: 'text-yellow-500',
+  target: 'text-orange-500',
+  wrench: 'text-slate-400',
+  building: 'text-blue-500',
+  gem: 'text-purple-500',
+  rocket: 'text-cyan-500',
+  trophy: 'text-amber-500',
+  check: 'text-emerald-500',
+  sparkles: 'text-pink-500',
+  flame: 'text-red-500',
+  lock: 'text-blue-400',
+  warning: 'text-amber-500',
+  mail: 'text-blue-500',
+  gift: 'text-pink-500',
+  users: 'text-blue-500',
+  gamepad: 'text-purple-500',
+  handshake: 'text-green-500',
+  swords: 'text-red-500',
+  globe: 'text-cyan-500',
+  lightbulb: 'text-yellow-500',
+  party: 'text-pink-500',
+  bot: 'text-cyan-500',
+  calendar: 'text-blue-500',
+  chart: 'text-emerald-500',
+  loader: 'text-blue-500',
+};
+
+// Styled icon component with modern gradient effects
+interface StyledIconProps {
+  icon: IconKey;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  className?: string;
+  withGlow?: boolean;
+}
+
+const StyledIcon: React.FC<StyledIconProps> = ({ icon, size = 'md', className = '', withGlow = false }) => {
+  const IconComponent = ICON_MAP[icon];
+  const colorClass = ICON_COLORS[icon];
+  const sizeClasses = {
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5',
+    lg: 'w-6 h-6',
+    xl: 'w-8 h-8',
+  };
+
+  return (
+    <span className={`inline-flex items-center justify-center ${withGlow ? 'drop-shadow-[0_0_8px_currentColor]' : ''} ${className}`}>
+      <IconComponent className={`${sizeClasses[size]} ${colorClass}`} />
+    </span>
+  );
+};
+
 // Enhanced confetti function matching KnowledgeLessonModal implementation
 function triggerConfetti(options?: ConfettiOptions) {
   // Visual confetti effect using CSS animation
@@ -446,7 +543,7 @@ const SALES_BLOCKS: SalesBlock[] = [
           description: 'Adoption ambassador',
           spots: 'Unlimited',
           benefit: 'CGC Tokens + Real voting power',
-          icon: '🌟',
+          icon: 'star',
           popular: true
         },
         {
@@ -454,28 +551,28 @@ const SALES_BLOCKS: SalesBlock[] = [
           description: 'Create gamified experiences',
           spots: 33,
           benefit: '30% revenue share',
-          icon: '🎯'
+          icon: 'target'
         },
         {
           name: 'Integration Partner',
           description: 'Integrate our widget',
           spots: 19,
           benefit: '1M free transactions',
-          icon: '🔧'
+          icon: 'wrench'
         },
         {
           name: 'White-Label',
           description: 'Your own platform',
           spots: 6,
           benefit: 'SLA 99.99%',
-          icon: '🏢'
+          icon: 'building'
         },
         {
           name: 'Investor',
           description: 'Invest in the future',
           spots: 'Limited',
           benefit: 'Min $50k',
-          icon: '💎'
+          icon: 'gem'
         }
       ],
       urgency: '20% lifetime bonus for the first 100'
@@ -1820,7 +1917,7 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           <div>Questions: {metrics.correctAnswers}/{metrics.questionsAnswered}</div>
           <div>Wow Moments: {metrics.wowMoments}</div>
           <div>Claim: {claimStatus}</div>
-          <div>Lead: {metrics.leadSubmitted ? '✅' : '⏳'}</div>
+          <div className="flex items-center gap-1">Lead: {metrics.leadSubmitted ? <CheckCircle className="w-3 h-3 text-green-500" /> : <Clock className="w-3 h-3 text-yellow-500" />}</div>
         </div>
       )}
 
@@ -1842,7 +1939,7 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
             }
           }}
           source="masterclass"
-          title="📧 We Need Your Email!"
+          title="We Need Your Email!"
           subtitle="To send you exclusive information and next steps"
         />
       )}
@@ -2365,7 +2462,7 @@ const DemoBlock: React.FC<{
             animate={{ scale: 1 }}
           >
             <CheckCircle className="w-32 h-32 text-green-400 mx-auto mb-8" />
-            <h3 className="text-4xl font-bold mb-4 text-gray-800 dark:text-white">YOU'VE GOT IT! 🎉</h3>
+            <h3 className="text-4xl font-bold mb-4 text-gray-800 dark:text-white flex items-center justify-center gap-2">YOU&apos;VE GOT IT! <StyledIcon icon="party" size="lg" withGlow /></h3>
           </motion.div>
         )}
       </div>
@@ -2477,7 +2574,7 @@ const CasesBlock: React.FC<{
   timeLeft: number;
 }> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, onPrevious, canProceed, canGoBack = false, timeLeft }) => (
   <div className="py-12">
-    <h2 className="text-5xl font-bold text-center mb-12">Real Results 📊</h2>
+    <h2 className="text-5xl font-bold text-center mb-12 flex items-center justify-center gap-3">Real Results <BarChart3 className="w-10 h-10 text-emerald-500" /></h2>
     
     <div className="grid md:grid-cols-4 gap-4 mb-8">
       {content.metrics.map((metric: any, idx: number) => (
@@ -2601,7 +2698,7 @@ const RoadmapBlock: React.FC<{
   timeLeft: number;
 }> = ({ content, question, onAnswer, selectedAnswer, showFeedback, onNext, onPrevious, canProceed, canGoBack = false, timeLeft }) => (
   <div className="py-12">
-    <h2 className="text-5xl font-bold text-center mb-12">The Future is Exponential 🚀</h2>
+    <h2 className="text-5xl font-bold text-center mb-12 flex items-center justify-center gap-3">The Future is Exponential <Rocket className="w-10 h-10 text-cyan-500" /></h2>
     
     <div className="space-y-6 max-w-4xl mx-auto mb-8">
       {content.phases.map((phase: any, idx: number) => (
@@ -3111,7 +3208,7 @@ const CaptureBlock: React.FC<{
 
               {/* Icon & Title Row */}
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-2xl">{path.icon}</span>
+                <StyledIcon icon={path.icon as IconKey} size="lg" />
                 <h3 className="font-bold text-xl text-gray-900 dark:text-white">{path.name}</h3>
               </div>
 
@@ -3234,7 +3331,7 @@ const CaptureBlock: React.FC<{
                 {/* Privacy notice - no data collection */}
                 {requiresSocialEngagement && (
                   <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start gap-2">
-                    <span className="text-blue-400 mt-0.5">🔒</span>
+                    <Lock className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
                     <p className="text-xs text-blue-300/80">
                       <strong>We only verify that you follow/join</strong> — we don&apos;t collect or store any personal data from your accounts.
                     </p>
@@ -3244,7 +3341,7 @@ const CaptureBlock: React.FC<{
                 {/* Error display for OAuth */}
                 {socialOAuthError && (
                   <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2">
-                    <span className="text-red-400">⚠️</span>
+                    <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
                     <p className="text-sm text-red-400">{socialOAuthError}</p>
                   </div>
                 )}
@@ -3270,15 +3367,15 @@ const CaptureBlock: React.FC<{
                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 
                         rounded-lg flex items-center justify-center backdrop-blur-xl 
                         border border-blue-500/30 group-hover:scale-110 transition-transform">
-                        <span className="text-lg">📧</span>
+                        <Mail className="w-5 h-5 text-blue-400" />
                       </div>
                       <span className="font-semibold text-gray-900 dark:text-white">
                         Verify your email
                       </span>
                       {emailVerified && (
                         <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
-                          border border-green-500/30 backdrop-blur-xl">
-                          ✓ Verified
+                          border border-green-500/30 backdrop-blur-xl flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Verified
                         </span>
                       )}
                       {processingEmail && (
@@ -3292,8 +3389,8 @@ const CaptureBlock: React.FC<{
                       We'll send you exclusive information about the crypto ecosystem
                     </p>
                     {verifiedEmail && emailVerified && (
-                      <p className="text-xs text-green-400 mt-1 ml-11 font-mono">
-                        ✉️ {verifiedEmail}
+                      <p className="text-xs text-green-400 mt-1 ml-11 font-mono flex items-center gap-1">
+                        <Mail className="w-3 h-3" /> {verifiedEmail}
                       </p>
                     )}
                   </label>
@@ -3322,15 +3419,15 @@ const CaptureBlock: React.FC<{
                         <div className="w-8 h-8 bg-gradient-to-br from-purple-500/20 to-pink-500/20
                           rounded-lg flex items-center justify-center backdrop-blur-xl
                           border border-purple-500/30 group-hover:scale-110 transition-transform">
-                          <span className="text-lg">📅</span>
+                          <Calendar className="w-5 h-5 text-purple-400" />
                         </div>
                         <span className="font-semibold text-gray-900 dark:text-white">
                           Schedule a free session
                         </span>
                         {calendarScheduled && (
                           <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
-                            border border-green-500/30 backdrop-blur-xl">
-                            ✓ Scheduled
+                            border border-green-500/30 backdrop-blur-xl flex items-center gap-1">
+                            <Check className="w-3 h-3" /> Scheduled
                           </span>
                         )}
                         {processingCalendar && (
@@ -3369,8 +3466,8 @@ const CaptureBlock: React.FC<{
                           </span>
                           {twitterFollowed && (
                             <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
-                              border border-green-500/30 backdrop-blur-xl">
-                              ✓ Verified
+                              border border-green-500/30 backdrop-blur-xl flex items-center gap-1">
+                              <Check className="w-3 h-3" /> Verified
                             </span>
                           )}
                         </div>
@@ -3399,7 +3496,7 @@ const CaptureBlock: React.FC<{
                             >
                               {twitterVerifying || processingTwitter ? (
                                 <>
-                                  <span className="animate-spin">⏳</span>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
                                   Verifying...
                                 </>
                               ) : (
@@ -3432,8 +3529,8 @@ const CaptureBlock: React.FC<{
                           </span>
                           {discordJoined && (
                             <span className="px-2 py-1 bg-green-500/20 text-green-600 dark:text-green-400 text-xs rounded-full
-                              border border-green-500/30 backdrop-blur-xl">
-                              ✓ Verified
+                              border border-green-500/30 backdrop-blur-xl flex items-center gap-1">
+                              <Check className="w-3 h-3" /> Verified
                             </span>
                           )}
                         </div>
@@ -3462,7 +3559,7 @@ const CaptureBlock: React.FC<{
                             >
                               {discordVerifying || processingDiscord ? (
                                 <>
-                                  <span className="animate-spin">⏳</span>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
                                   Verifying...
                                 </>
                               ) : (
@@ -3488,7 +3585,7 @@ const CaptureBlock: React.FC<{
                       {canProceed ? (
                         <>
                           <span className="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center">
-                            ✅
+                            <CheckCircle className="w-4 h-4 text-green-500" />
                           </span>
                           <span className="text-green-400 font-semibold">
                             Everything ready to continue
@@ -3497,7 +3594,7 @@ const CaptureBlock: React.FC<{
                       ) : (
                         <>
                           <span className="w-6 h-6 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                            ⏳
+                            <Clock className="w-4 h-4 text-yellow-500" />
                           </span>
                           <span className="text-gray-600 dark:text-gray-300">
                             {requiresCalendly
@@ -3573,15 +3670,15 @@ const CaptureBlock: React.FC<{
               
               <motion.button
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold text-xl rounded-lg"
+                className="w-full py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold text-xl rounded-lg flex items-center justify-center gap-2"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                🚀 CONFIRMAR Y UNIRME
+                <Rocket className="w-6 h-6" /> CONFIRM & JOIN
               </motion.button>
-              
-              <div className="text-center text-yellow-400 text-sm">
-                ⏰ {content.urgency}
+
+              <div className="text-center text-yellow-400 text-sm flex items-center justify-center gap-1">
+                <Clock className="w-4 h-4" /> {content.urgency}
               </div>
             </>
           )}
@@ -4114,8 +4211,8 @@ const SuccessBlock: React.FC<{
             className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border border-gray-200/50 dark:border-gray-700/50 rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-[1.02] max-w-4xl mx-auto"
           >
             <div className="text-center mb-6">
-              <h2 className="text-4xl font-black mb-4 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
-                🌟 Welcome to our DAO Community! 🌟
+              <h2 className="text-4xl font-black mb-4 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent flex items-center justify-center gap-2">
+                <StyledIcon icon="sparkles" size="lg" withGlow /> Welcome to our DAO Community! <StyledIcon icon="sparkles" size="lg" withGlow />
               </h2>
               <p className="text-xl text-gray-700 dark:text-gray-300">
                 Has completado tu entrenamiento y ahora formas parte de algo extraordinario
@@ -4137,7 +4234,7 @@ const SuccessBlock: React.FC<{
                   className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-blue-500/50 shadow-lg"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
-                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">🤖 APEX</h3>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 flex items-center justify-center gap-2"><StyledIcon icon="bot" /> APEX</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Our AI Assistant that will guide you through every step of the crypto ecosystem</p>
               </motion.div>
 
@@ -4154,7 +4251,7 @@ const SuccessBlock: React.FC<{
                   className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-emerald-500/50 shadow-lg"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
-                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">💎 Godez22</h3>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 flex items-center justify-center gap-2"><Gem className="w-5 h-5 text-purple-500" /> Godez22</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Pioneer developer who brought this wonderful system to life</p>
               </motion.div>
 
@@ -4171,7 +4268,7 @@ const SuccessBlock: React.FC<{
                   className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-orange-500/50 shadow-lg"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
-                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">🚀 RLGra95</h3>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 flex items-center justify-center gap-2"><Rocket className="w-5 h-5 text-cyan-500" /> RLGra95</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Visionary co-founder in the project's early steps</p>
               </motion.div>
             </div>
@@ -4197,11 +4294,11 @@ const SuccessBlock: React.FC<{
               </div>
               <p className="text-gray-700 dark:text-gray-300 mb-3">Dozens of utilities that will transform your crypto experience:</p>
               <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                <li>• 🔒 Seguridad multi-capa con backup automático</li>
-                <li>• 💸 Intercambios sin comisiones entre usuarios</li>
-                <li>• 🎁 Portador de vida con funcionalidades integradas</li>
-                <li>• 📊 Analytics avanzados de tu portafolio</li>
-                <li>• 🌐 Cross-chain compatibility</li>
+                <li className="flex items-center gap-2">• <Lock className="w-4 h-4 text-blue-400 inline" /> Multi-layer security with automatic backup</li>
+                <li className="flex items-center gap-2">• <ArrowLeftRight className="w-4 h-4 text-green-500 inline" /> Fee-free exchanges between users</li>
+                <li className="flex items-center gap-2">• <Gift className="w-4 h-4 text-pink-500 inline" /> Life bearer with integrated functionalities</li>
+                <li className="flex items-center gap-2">• <BarChart3 className="w-4 h-4 text-purple-500 inline" /> Advanced portfolio analytics</li>
+                <li className="flex items-center gap-2">• <Globe className="w-4 h-4 text-cyan-500 inline" /> Cross-chain compatibility</li>
               </ul>
             </div>
 
@@ -4243,8 +4340,8 @@ const SuccessBlock: React.FC<{
                 className="w-16 h-16 mx-auto mb-4 rounded-2xl shadow-lg"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
-              <h3 className="text-3xl font-black mb-4 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
-                🧠 Knowledge: The Future's Nerve Center
+              <h3 className="text-3xl font-black mb-4 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent flex items-center justify-center gap-3">
+                <Brain className="w-8 h-8 text-purple-500" /> Knowledge: The Future&apos;s Nerve Center
               </h3>
               <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
                 The Knowledge section will become the epicenter where content creators and consumers converge,
@@ -4254,15 +4351,15 @@ const SuccessBlock: React.FC<{
 
             <div className="grid md:grid-cols-3 gap-4 text-center text-sm text-gray-600 dark:text-gray-400">
               <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4">
-                <h4 className="font-bold text-orange-600 dark:text-orange-400 mb-2">🏆 Elite Academies</h4>
+                <h4 className="font-bold text-orange-600 dark:text-orange-400 mb-2 flex items-center justify-center gap-2"><Trophy className="w-5 h-5 text-amber-500" /> Elite Academies</h4>
                 <p>Integration with Binance Academy, Coin Bureau, DeFi Pulse and more</p>
               </div>
               <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4">
-                <h4 className="font-bold text-green-600 dark:text-green-400 mb-2">🎮 Gamification</h4>
+                <h4 className="font-bold text-green-600 dark:text-green-400 mb-2 flex items-center justify-center gap-2"><StyledIcon icon="gamepad" /> Gamification</h4>
                 <p>Achievement system, NFT badges and learning rewards</p>
               </div>
               <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4">
-                <h4 className="font-bold text-blue-600 dark:text-blue-400 mb-2">🤝 DAO Community</h4>
+                <h4 className="font-bold text-blue-600 dark:text-blue-400 mb-2 flex items-center justify-center gap-2"><StyledIcon icon="handshake" /> DAO Community</h4>
                 <p>Participative governance and community decisions</p>
               </div>
             </div>
@@ -4281,8 +4378,8 @@ const SuccessBlock: React.FC<{
               }, 500);
             }}
           >
-            <p className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent mb-6">
-              🎉 The future of digital payments begins with you! 🎉
+            <p className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent mb-6 flex items-center justify-center gap-2">
+              <StyledIcon icon="party" size="lg" withGlow /> The future of digital payments begins with you! <StyledIcon icon="party" size="lg" withGlow />
             </p>
             
             {/* FASE 3: Condicionar CTAs - ocultar en modo educacional */}
