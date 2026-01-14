@@ -2043,14 +2043,6 @@ const NavigationArea: React.FC<{
             <ArrowRight className="w-6 h-6" />
           </motion.button>
         </div>
-
-        <div className="mt-4 text-gray-600 dark:text-gray-400 text-sm flex items-center justify-center gap-2">
-          <ChevronRight className="w-4 h-4" />
-          <span>Haz clic para continuar</span>
-          <span className="text-gray-400 dark:text-gray-500">•</span>
-          <Clock className="w-4 h-4" />
-          <span>Tiempo restante: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</span>
-        </div>
       </motion.div>
     ) : timeLeft === 0 ? (
       <motion.div
@@ -2058,14 +2050,6 @@ const NavigationArea: React.FC<{
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-yellow-400 text-lg font-medium mb-4">
-          <Clock className="w-5 h-5" />
-          <span>Tiempo agotado - Esperando...</span>
-        </div>
-        <div className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-          El siguiente bloque está disponible cuando completes esta sección
-        </div>
-
         {/* 🔙 BACK + CONTINUE BUTTONS (timeout state) */}
         <div className="flex items-center justify-center gap-4">
           {canGoBack && onPrevious && (
@@ -3196,6 +3180,39 @@ const CaptureBlock: React.FC<{
         ))}
       </div>
 
+      {/* Role Description - Shows directly below the grid when a role is selected (educational mode only) */}
+      {selectedPath && educationalMode && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-2xl mx-auto mb-6 bg-gradient-to-r from-purple-500/10 to-blue-500/10
+            backdrop-blur-xl backdrop-saturate-150
+            border border-purple-500/30 rounded-2xl p-6
+            shadow-xl shadow-purple-500/10"
+        >
+          <p className="text-lg text-gray-700 dark:text-gray-200 mb-3">
+            Has seleccionado: <span className="font-bold bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{selectedPath}</span>
+          </p>
+          <p className="text-sm text-gray-600/90 dark:text-gray-300/90 leading-relaxed">
+            {selectedPath === 'Quest Creator' && (
+              <>🎯 Como <strong className="text-purple-600 dark:text-purple-300">Quest Creator</strong>, serás arquitecto de experiencias que transforman vidas. Tu creatividad construirá el puente entre el mundo tradicional y Web3, y por cada misión que diseñes recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que reconocen tu aporte al ecosistema.</>
+            )}
+            {selectedPath === 'Integration Partner' && (
+              <>🔧 Como <strong className="text-purple-600 dark:text-purple-300">Integration Partner</strong>, llevarás la tecnología CryptoGift a nuevas fronteras. Cada integración que desarrolles no solo expandirá el ecosistema, sino que te posicionará como pionero y serás recompensado con <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> proporcionales a tu impacto.</>
+            )}
+            {selectedPath === 'Community' && (
+              <>🌟 Como <strong className="text-purple-600 dark:text-purple-300">Community Member</strong>, eres el corazón de CryptoGift. Tu participación activa, feedback y apoyo son invaluables. Por tu compromiso recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que te dan voz y voto en el futuro de la plataforma.</>
+            )}
+            {selectedPath === 'Investor' && (
+              <>💎 Como <strong className="text-purple-600 dark:text-purple-300">Inversor</strong>, tienes visión de futuro. Tu participación nos permite escalar y transformar la industria. Recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que reflejan tu confianza y te dan participación en las decisiones estratégicas.</>
+            )}
+            {selectedPath === 'White-Label' && (
+              <>🏢 Como <strong className="text-purple-600 dark:text-purple-300">White-Label Partner</strong>, llevarás el poder de CryptoGift a tu propia marca. Esta alianza estratégica incluye <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> preferentes que reconocen tu rol como embajador de la tecnología.</>
+            )}
+          </p>
+        </motion.div>
+      )}
+
       {selectedPath && (
         <motion.form
           initial={{ opacity: 0, y: 20 }}
@@ -3206,32 +3223,6 @@ const CaptureBlock: React.FC<{
           {/* En modo educacional, mostrar checkboxes */}
           {educationalMode ? (
             <>
-              <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10
-                backdrop-blur-xl backdrop-saturate-150
-                border border-purple-500/30 rounded-2xl p-6
-                shadow-xl shadow-purple-500/10">
-                <p className="text-lg text-gray-700 dark:text-gray-200 mb-3">
-                  Has seleccionado: <span className="font-bold bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{selectedPath}</span>
-                </p>
-                <p className="text-sm text-gray-600/90 dark:text-gray-300/90 leading-relaxed">
-                  {selectedPath === 'Quest Creator' && (
-                    <>🎯 Como <strong className="text-purple-600 dark:text-purple-300">Quest Creator</strong>, serás arquitecto de experiencias que transforman vidas. Tu creatividad construirá el puente entre el mundo tradicional y Web3, y por cada misión que diseñes recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que reconocen tu aporte al ecosistema.</>
-                  )}
-                  {selectedPath === 'Integration Partner' && (
-                    <>🔧 Como <strong className="text-purple-600 dark:text-purple-300">Integration Partner</strong>, llevarás la tecnología CryptoGift a nuevas fronteras. Cada integración que desarrolles no solo expandirá el ecosistema, sino que te posicionará como pionero y serás recompensado con <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> proporcionales a tu impacto.</>
-                  )}
-                  {selectedPath === 'Community' && (
-                    <>🌟 Como <strong className="text-purple-600 dark:text-purple-300">Community Member</strong>, eres el corazón de CryptoGift. Tu participación activa, feedback y apoyo son invaluables. Por tu compromiso recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que te dan voz y voto en el futuro de la plataforma.</>
-                  )}
-                  {selectedPath === 'Investor' && (
-                    <>💎 Como <strong className="text-purple-600 dark:text-purple-300">Inversor</strong>, tienes visión de futuro. Tu participación nos permite escalar y transformar la industria. Recibirás <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> que reflejan tu confianza y te dan participación en las decisiones estratégicas.</>
-                  )}
-                  {selectedPath === 'White-Label' && (
-                    <>🏢 Como <strong className="text-purple-600 dark:text-purple-300">White-Label Partner</strong>, llevarás el poder de CryptoGift a tu propia marca. Esta alianza estratégica incluye <strong className="text-yellow-600 dark:text-yellow-400">tokens CGC de gobernanza</strong> preferentes que reconocen tu rol como embajador de la tecnología.</>
-                  )}
-                </p>
-              </div>
-              
               {/* FASE 1: CHECKBOXES INLINE - GLASS MORPHISM PREMIUM */}
               <div className="bg-white/60 dark:bg-gray-800/60 
                 backdrop-blur-xl backdrop-saturate-150 
