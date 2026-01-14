@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
+import { Ticket, Coins, Rocket, Star } from 'lucide-react';
 import { NFTImageModal } from './NFTImageModal';
 import { useAutoTranslate } from '@/hooks/useAutoTranslate';
 import { EmbeddedVideoDevice } from '@/components/video/EmbeddedVideoDevice';
@@ -151,7 +152,7 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
               {/* FUTURISTIC PLACEHOLDER DESIGN */}
               <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent" />
               <div className="relative z-10 text-center">
-                <div className="text-8xl mb-4 drop-shadow-lg">🎟️</div>
+                <Ticket className="w-20 h-20 text-white mb-4 drop-shadow-lg mx-auto" />
                 <div className="text-white font-bold text-lg">{t('placeholder.title')}</div>
                 <div className="text-white/80 text-sm">{t('placeholder.subtitle')}</div>
               </div>
@@ -245,26 +246,26 @@ export const InviteImageCard: React.FC<InviteImageCardProps> = ({
             {/* Urgency Banner Below Video */}
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-4 border border-amber-200 dark:border-amber-700 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="text-xl animate-bounce">🎟️</span>
+                <Ticket className="w-5 h-5 text-amber-600 dark:text-amber-400 animate-bounce" />
                 <span className="font-bold text-amber-800 dark:text-amber-300">
                   {t('introVideo.urgencyTitle', { defaultValue: 'Este Lugar No Esperará Para Siempre' })}
                 </span>
               </div>
               <div className="space-y-2 text-sm text-amber-700 dark:text-amber-400">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">💰</span>
+                  <Coins className="w-5 h-5 text-yellow-500 flex-shrink-0" />
                   <span>
                     <strong>200 CGC Instantáneos</strong> - {t('introVideo.benefit1', { defaultValue: 'Empieza con tokens de gobernanza. 1 CGC = 1 Voto en decisiones reales.' })}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">🚀</span>
+                  <Rocket className="w-5 h-5 text-cyan-500 flex-shrink-0" />
                   <span>
                     <strong>{t('introVideo.earnRange', { defaultValue: 'Gana 200-3000 CGC' })}</strong> - {t('introVideo.benefit2', { defaultValue: 'Completa tareas, cobra en tokens. Sin jefe, sin permisos necesarios.' })}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">⭐</span>
+                  <Star className="w-5 h-5 text-yellow-500 flex-shrink-0" />
                   <span>
                     <strong>{t('introVideo.founderMembers', { defaultValue: 'Solo Miembros Fundadores' })}</strong> - {t('introVideo.benefit3', { defaultValue: 'Únete a los primeros 10,000 pioneros construyendo el futuro de la adopción Web3.' })}
                   </span>

@@ -68,7 +68,9 @@ import {
   Calendar,
   Twitter,
   MessageSquare,
-  ArrowLeft
+  ArrowLeft,
+  Gem,
+  Wrench
 } from 'lucide-react';
 import { EmailVerificationModal } from '@/components/email/EmailVerificationModal';
 import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
@@ -3007,7 +3009,7 @@ const CaptureBlock: React.FC<{
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          Excellent Choice! 🎯
+          <span className="flex items-center justify-center gap-3">Excellent Choice! <Target className="w-10 h-10 text-orange-500" /></span>
         </motion.h2>
         
         <motion.div
@@ -3053,8 +3055,8 @@ const CaptureBlock: React.FC<{
         </div>
       )}
 
-      <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent drop-shadow-sm leading-normal pb-1">
-        {content.title} 🚀
+      <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent drop-shadow-sm leading-normal pb-1 flex items-center justify-center gap-3">
+        {content.title} <Rocket className="w-10 h-10 text-cyan-500" />
       </h2>
 
       {/* Score Display - Glass Crystal Style - Only show if quiz was completed */}
@@ -3068,70 +3070,108 @@ const CaptureBlock: React.FC<{
             </p>
             {/* Show PERFECT only for 8/9 or 9/9 (high scores) */}
             {questionsScore.correct >= 8 ? (
-              <p className="text-emerald-600 dark:text-emerald-400 font-bold mt-3">PERFECT! You're an expert 🏆</p>
+              <p className="text-emerald-400 font-bold mt-3 flex items-center justify-center gap-2">PERFECT! You&apos;re an expert <Trophy className="w-5 h-5 text-amber-500" /></p>
             ) : (
-              <p className="text-blue-600 dark:text-blue-400 font-medium mt-3 max-w-lg mx-auto leading-relaxed">
-                Congratulations on making it this far! 🎉 You're just a couple of steps away from becoming an important part of this community.
+              <p className="text-blue-400 font-medium mt-3 max-w-lg mx-auto leading-relaxed flex items-center justify-center gap-2">
+                <PartyPopper className="w-5 h-5 text-pink-500" /> Congratulations on making it this far! You&apos;re just a couple of steps away from becoming an important part of this community.
               </p>
             )}
           </div>
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 max-w-6xl mx-auto pt-4 overflow-visible">
+      {/* Role Cards - Mobile: column layout with inline description, Desktop: grid */}
+      <div className="flex flex-col gap-4 mb-12 max-w-6xl mx-auto pt-4 overflow-visible md:grid md:grid-cols-2 lg:grid-cols-3">
         {content.paths.map((path: any) => (
-          <motion.button
-            key={path.name}
-            onClick={() => {
-              setSelectedPath(path.name);
-              // 🆕 PERSISTENCE: Save selected path to localStorage immediately
-              if (onPathSelected) {
-                onPathSelected(path.name);
-              }
-            }}
-            className={`relative p-6 rounded-2xl transition-all text-left backdrop-blur-xl overflow-visible ${
-              selectedPath === path.name
-                ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-2 border-amber-400/60 dark:border-amber-400/50 scale-[1.03] shadow-xl shadow-amber-500/20'
-                : 'glass-crystal border border-gray-200/50 dark:border-white/10 hover:border-purple-400/50 dark:hover:border-purple-400/30 hover:shadow-lg hover:shadow-purple-500/10'
-            }`}
-            whileHover={{ scale: selectedPath === path.name ? 1.03 : 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {/* Popular Badge */}
-            {path.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                <span className="px-3 py-1 text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-full shadow-lg whitespace-nowrap">
-                  ⭐ MOST POPULAR
+          <React.Fragment key={path.name}>
+            <motion.button
+              onClick={() => {
+                setSelectedPath(path.name);
+                // PERSISTENCE: Save selected path to localStorage immediately
+                if (onPathSelected) {
+                  onPathSelected(path.name);
+                }
+              }}
+              className={`relative p-6 rounded-2xl transition-all text-left backdrop-blur-xl overflow-visible ${
+                selectedPath === path.name
+                  ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-2 border-amber-400/60 dark:border-amber-400/50 scale-[1.03] shadow-xl shadow-amber-500/20'
+                  : 'glass-crystal border border-gray-200/50 dark:border-white/10 hover:border-purple-400/50 dark:hover:border-purple-400/30 hover:shadow-lg hover:shadow-purple-500/10'
+              }`}
+              whileHover={{ scale: selectedPath === path.name ? 1.03 : 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {/* Popular Badge */}
+              {path.popular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                  <span className="px-3 py-1 text-xs font-bold bg-gradient-to-r from-amber-500 to-yellow-500 text-white rounded-full shadow-lg whitespace-nowrap flex items-center gap-1">
+                    <Star className="w-3 h-3" /> MOST POPULAR
+                  </span>
+                </div>
+              )}
+
+              {/* Icon & Title Row */}
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-2xl">{path.icon}</span>
+                <h3 className="font-bold text-xl text-gray-900 dark:text-white">{path.name}</h3>
+              </div>
+
+              {/* Description */}
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">{path.description}</p>
+
+              {/* Spots Badge */}
+              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-500/20 mb-3">
+                <span className="text-amber-600 dark:text-amber-300 font-semibold text-sm flex items-center gap-1.5">
+                  {typeof path.spots === 'number' ? (
+                    <><Flame className="w-4 h-4" /> Only {path.spots} spots</>
+                  ) : (
+                    <><Sparkles className="w-4 h-4" /> {path.spots}</>
+                  )}
                 </span>
               </div>
+
+              {/* Benefit */}
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5">
+                  <CheckCircle className="w-4 h-4" /> {path.benefit}
+                </span>
+              </div>
+            </motion.button>
+
+            {/* MOBILE ONLY: Role Description appears DIRECTLY below the selected card */}
+            {selectedPath === path.name && educationalMode && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginTop: 0 }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="md:hidden bg-gradient-to-r from-purple-500/10 to-blue-500/10
+                  backdrop-blur-xl backdrop-saturate-150
+                  border border-purple-500/30 rounded-2xl p-5
+                  shadow-xl shadow-purple-500/10"
+              >
+                <p className="text-base text-gray-700 dark:text-gray-200 mb-2 font-semibold">
+                  You&apos;ve selected: <span className="bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{path.name}</span>
+                </p>
+                <p className="text-sm text-gray-600/90 dark:text-gray-300/90 leading-relaxed">
+                  {path.name === 'Quest Creator' && (
+                    <><Target className="w-4 h-4 inline-block mr-1.5 text-orange-500" />As a <strong className="text-purple-600 dark:text-purple-300">Quest Creator</strong>, you&apos;ll be an architect of life-changing experiences. Your creativity will bridge traditional and Web3 worlds, and for each quest you design, you&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> recognizing your contribution to the ecosystem.</>
+                  )}
+                  {path.name === 'Integration Partner' && (
+                    <><Wrench className="w-4 h-4 inline-block mr-1.5 text-slate-400" />As an <strong className="text-purple-600 dark:text-purple-300">Integration Partner</strong>, you&apos;ll take CryptoGift technology to new frontiers. Each integration you develop not only expands the ecosystem but positions you as a pioneer, and you&apos;ll be rewarded with <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> proportional to your impact.</>
+                  )}
+                  {path.name === 'Community' && (
+                    <><Star className="w-4 h-4 inline-block mr-1.5 text-yellow-500" />As a <strong className="text-purple-600 dark:text-purple-300">Community Member</strong>, you are the heart of CryptoGift. Your active participation, feedback, and support are invaluable. For your commitment, you&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that give you voice and vote in the platform&apos;s future.</>
+                  )}
+                  {path.name === 'Investor' && (
+                    <><Gem className="w-4 h-4 inline-block mr-1.5 text-purple-500" />As an <strong className="text-purple-600 dark:text-purple-300">Investor</strong>, you have vision for the future. Your participation enables us to scale and transform the industry. You&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that reflect your trust and give you a stake in strategic decisions.</>
+                  )}
+                  {path.name === 'White-Label' && (
+                    <><Building2 className="w-4 h-4 inline-block mr-1.5 text-blue-500" />As a <strong className="text-purple-600 dark:text-purple-300">White-Label Partner</strong>, you&apos;ll bring CryptoGift&apos;s power to your own brand. This strategic alliance includes preferential <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that recognize your role as a technology ambassador.</>
+                  )}
+                </p>
+              </motion.div>
             )}
-
-            {/* Icon & Title Row */}
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-2xl">{path.icon}</span>
-              <h3 className="font-bold text-xl text-gray-900 dark:text-white">{path.name}</h3>
-            </div>
-
-            {/* Description */}
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">{path.description}</p>
-
-            {/* Spots Badge */}
-            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-500/20 mb-3">
-              <span className="text-amber-600 dark:text-amber-300 font-semibold text-sm">
-                {typeof path.spots === 'number'
-                  ? `🔥 Only ${path.spots} spots`
-                  : `✨ ${path.spots}`
-                }
-              </span>
-            </div>
-
-            {/* Benefit */}
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                ✅ {path.benefit}
-              </span>
-            </div>
-          </motion.button>
+          </React.Fragment>
         ))}
       </div>
 
@@ -3145,8 +3185,9 @@ const CaptureBlock: React.FC<{
           {/* En modo educacional, mostrar checkboxes */}
           {educationalMode ? (
             <>
-              <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 
-                backdrop-blur-xl backdrop-saturate-150 
+              {/* DESKTOP ONLY: Role Description - Shows here on larger screens */}
+              <div className="hidden md:block bg-gradient-to-r from-purple-500/10 to-blue-500/10
+                backdrop-blur-xl backdrop-saturate-150
                 border border-purple-500/30 rounded-2xl p-6
                 shadow-xl shadow-purple-500/10">
                 <p className="text-lg text-gray-700 dark:text-gray-200 mb-3">
@@ -3154,19 +3195,19 @@ const CaptureBlock: React.FC<{
                 </p>
                 <p className="text-sm text-gray-600/90 dark:text-gray-300/90 leading-relaxed">
                   {selectedPath === 'Quest Creator' && (
-                    <>🎯 As a <strong className="text-purple-600 dark:text-purple-300">Quest Creator</strong>, you&apos;ll be an architect of life-changing experiences. Your creativity will bridge traditional and Web3 worlds, and for each quest you design, you&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> recognizing your contribution to the ecosystem.</>
+                    <><Target className="w-4 h-4 inline-block mr-1.5 text-orange-500" />As a <strong className="text-purple-600 dark:text-purple-300">Quest Creator</strong>, you&apos;ll be an architect of life-changing experiences. Your creativity will bridge traditional and Web3 worlds, and for each quest you design, you&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> recognizing your contribution to the ecosystem.</>
                   )}
                   {selectedPath === 'Integration Partner' && (
-                    <>🔧 As an <strong className="text-purple-600 dark:text-purple-300">Integration Partner</strong>, you&apos;ll take CryptoGift technology to new frontiers. Each integration you develop not only expands the ecosystem but positions you as a pioneer, and you&apos;ll be rewarded with <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> proportional to your impact.</>
+                    <><Wrench className="w-4 h-4 inline-block mr-1.5 text-slate-400" />As an <strong className="text-purple-600 dark:text-purple-300">Integration Partner</strong>, you&apos;ll take CryptoGift technology to new frontiers. Each integration you develop not only expands the ecosystem but positions you as a pioneer, and you&apos;ll be rewarded with <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> proportional to your impact.</>
                   )}
                   {selectedPath === 'Community' && (
-                    <>🌟 As a <strong className="text-purple-600 dark:text-purple-300">Community Member</strong>, you are the heart of CryptoGift. Your active participation, feedback, and support are invaluable. For your commitment, you&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that give you voice and vote in the platform&apos;s future.</>
+                    <><Star className="w-4 h-4 inline-block mr-1.5 text-yellow-500" />As a <strong className="text-purple-600 dark:text-purple-300">Community Member</strong>, you are the heart of CryptoGift. Your active participation, feedback, and support are invaluable. For your commitment, you&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that give you voice and vote in the platform&apos;s future.</>
                   )}
                   {selectedPath === 'Investor' && (
-                    <>💎 As an <strong className="text-purple-600 dark:text-purple-300">Investor</strong>, you have vision for the future. Your participation enables us to scale and transform the industry. You&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that reflect your trust and give you a stake in strategic decisions.</>
+                    <><Gem className="w-4 h-4 inline-block mr-1.5 text-purple-500" />As an <strong className="text-purple-600 dark:text-purple-300">Investor</strong>, you have vision for the future. Your participation enables us to scale and transform the industry. You&apos;ll receive <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that reflect your trust and give you a stake in strategic decisions.</>
                   )}
                   {selectedPath === 'White-Label' && (
-                    <>🏢 As a <strong className="text-purple-600 dark:text-purple-300">White-Label Partner</strong>, you&apos;ll bring CryptoGift&apos;s power to your own brand. This strategic alliance includes preferential <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that recognize your role as a technology ambassador.</>
+                    <><Building2 className="w-4 h-4 inline-block mr-1.5 text-blue-500" />As a <strong className="text-purple-600 dark:text-purple-300">White-Label Partner</strong>, you&apos;ll bring CryptoGift&apos;s power to your own brand. This strategic alliance includes preferential <strong className="text-yellow-600 dark:text-yellow-400">CGC governance tokens</strong> that recognize your role as a technology ambassador.</>
                   )}
                 </p>
               </div>

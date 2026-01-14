@@ -27,7 +27,7 @@ import { EmailVerificationModal } from '@/components/email/EmailVerificationModa
 import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
-import { GraduationCap, Star } from 'lucide-react';
+import { GraduationCap, Star, Lock, Landmark, Rocket, Check, Trophy, Home } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
@@ -705,11 +705,11 @@ export function SpecialInviteFlow({
                 {t('welcome.trustSecure')}
               </span>
               <span className="flex items-center gap-1">
-                <span className="text-yellow-500">⭐</span>
+                <Star className="w-4 h-4 text-yellow-500" />
                 {t('welcome.trustMembers')}
               </span>
               <span className="flex items-center gap-1">
-                <span className="text-blue-500">🔒</span>
+                <Lock className="w-4 h-4 text-blue-500" />
                 {t('welcome.trustVerified')}
               </span>
             </div>
@@ -718,7 +718,7 @@ export function SpecialInviteFlow({
             <div className="p-4 bg-gradient-to-r from-purple-50 to-cyan-50 dark:from-purple-900/20 dark:to-cyan-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
               <div className="flex items-start">
                 <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
-                  <span className="text-2xl">🏛️</span>
+                  <Landmark className="w-7 h-7 text-white" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-purple-800 dark:text-purple-300 mb-1">
@@ -737,7 +737,7 @@ export function SpecialInviteFlow({
               className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white py-4 px-6 rounded-xl hover:from-purple-700 hover:to-cyan-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               <span className="flex items-center justify-center gap-2">
-                <span>🚀</span>
+                <Rocket className="w-5 h-5" />
                 {t('welcome.startButton')}
               </span>
             </button>
@@ -745,15 +745,15 @@ export function SpecialInviteFlow({
             {/* Benefits Preview */}
             <div className="space-y-2">
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <span className="text-green-500 mr-2">✓</span>
+                <Check className="w-4 h-4 text-green-500 mr-2" />
                 <span>{t('welcome.benefit1')}</span>
               </div>
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <span className="text-green-500 mr-2">✓</span>
+                <Check className="w-4 h-4 text-green-500 mr-2" />
                 <span>{t('welcome.benefit2')}</span>
               </div>
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <span className="text-green-500 mr-2">✓</span>
+                <Check className="w-4 h-4 text-green-500 mr-2" />
                 <span>{t('welcome.benefit3')}</span>
               </div>
             </div>
@@ -1066,14 +1066,14 @@ export function SpecialInviteFlow({
                 href="/"
                 className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-cyan-600 text-white px-6 py-3 rounded-xl font-medium hover:from-purple-700 hover:to-cyan-700 transition-all"
               >
-                <span>🚀</span>
+                <Rocket className="w-5 h-5" />
                 {t('complete.dashboardButton')}
               </a>
               <a
                 href="/"
                 className="inline-flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
               >
-                <span>🏠</span>
+                <Home className="w-5 h-5" />
                 {t('complete.homeButton')}
               </a>
             </div>
@@ -1268,8 +1268,8 @@ export function SpecialInviteFlow({
                 <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-1">
-                  🏆 {t('helpSection.whyTitle')}
+                <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-1 flex items-center gap-1.5">
+                  <Trophy className="w-4 h-4 text-amber-500" /> {t('helpSection.whyTitle')}
                 </h4>
                 <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
                   <li>• {t('helpSection.decentralized')}</li>
