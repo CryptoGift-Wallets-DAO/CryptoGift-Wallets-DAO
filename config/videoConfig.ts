@@ -84,20 +84,20 @@ export const VIDEO_CONFIG: Record<string, VideoConfig> = {
 
   // Video 2: THE SOLUTION (MOFU - Middle of Funnel) - ~2:15
   // Psychology: Logic + Proof
-  // Updated: 2025-01-05 - New Spanish version
+  // Updated: 2026-01-15 - New Spanish version
   salesMasterclassV2_TheSolution: {
-    lessonId: "sales-masterclass-v2-solution-v4",
-    muxPlaybackId: "TRT85U1Ll3Us78KQIOuhC01AQk1LE74UWg023AwWKioeg",
+    lessonId: "sales-masterclass-v2-solution-v5",
+    muxPlaybackId: "w4Vc301lPESPjSzw4RropH7EtQ5wUt4ETlLZTd01ipcd4",
     title: "La Solución",
     description: "La tecnología detrás de la magia.\n\n5 contratos verificados. 717+ transacciones on-chain. 85.7% claim rate.",
   },
 
   // Video 3: THE OPPORTUNITY (BOFU - Bottom of Funnel) - ~3:00
   // Psychology: Trust + Action
-  // Updated: 2025-01-05 - New Spanish version
+  // Updated: 2026-01-15 - New Spanish version
   salesMasterclassV2_TheOpportunity: {
-    lessonId: "sales-masterclass-v2-opportunity-v3",
-    muxPlaybackId: "rF61CMLJ02io018xlko25uhCQsBZ4Eiyn015ImObGGt01qM",
+    lessonId: "sales-masterclass-v2-opportunity-v4",
+    muxPlaybackId: "kW3Qjf32XNK1XnNQBtTVT68SDJrIk2m502MUrrJwzoyE",
     title: "La Oportunidad",
     description: "Tu invitación al futuro.\n\nEstamos temprano. La infraestructura está lista. La comunidad se está formando.",
   },

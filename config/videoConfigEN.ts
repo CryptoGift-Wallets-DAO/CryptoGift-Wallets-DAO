@@ -84,20 +84,20 @@ export const VIDEO_CONFIG: Record<string, VideoConfig> = {
 
   // Video 2: THE SOLUTION (MOFU - Middle of Funnel) - ~2:15
   // Psychology: Logic + Proof
-  // Updated: 2025-01-04 - CryptoGift DAO 2 (final version)
+  // Updated: 2026-01-15 - CryptoGift DAO 2 (new version)
   salesMasterclassV2_TheSolution: {
-    lessonId: "sales-masterclass-v2-solution-v3",
-    muxPlaybackId: "jaqNcipaSjC8Dsk1L3P0202K02Eleo01oQmknS2zbqTN1hc",
+    lessonId: "sales-masterclass-v2-solution-v4",
+    muxPlaybackId: "sCdMXnMSw00F6ZOvbN6Zr4A8YUbINEHslDGaWACdaxr8",
     title: "The Solution",
     description: "The technology behind the magic.\n\n5 verified contracts. 717+ on-chain transactions. 85.7% claim rate.",
   },
 
   // Video 3: THE OPPORTUNITY (BOFU - Bottom of Funnel) - ~3:00
   // Psychology: Trust + Action
-  // Updated: 2025-01-01 - CryptoGift DAO 3 (same for EN until ES version ready)
+  // Updated: 2026-01-15 - CryptoGift DAO 3 (new version)
   salesMasterclassV2_TheOpportunity: {
-    lessonId: "sales-masterclass-v2-opportunity-v2",
-    muxPlaybackId: "papdpJAYPT8r01ql01pQAu4025VJRMECe7tFM24Oy4T01gU",
+    lessonId: "sales-masterclass-v2-opportunity-v3",
+    muxPlaybackId: "Jq01802JfkUoWINtzf5e00UmPD53RLFvtfsCiXvv00t1HFE",
     title: "The Opportunity",
     description: "Your invitation to the future.\n\nWe're early. The infrastructure is ready. The community is forming.",
   },
