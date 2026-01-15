@@ -22,5 +22,8 @@ export { QuickActions } from './QuickActions';
 export { VideoAvatar } from './VideoAvatar';
 export { VideoAvatarUpload } from './VideoAvatarUpload';
 
+// Team Member apeX
+export { TeamMemberApex, TEAM_MEMBERS } from './TeamMemberApex';
+
 // Hooks
 export { useApexPosition } from './hooks/useApexPosition';
