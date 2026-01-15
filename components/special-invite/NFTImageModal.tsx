@@ -166,7 +166,7 @@ export function NFTImageModal({
           {/* MOBILE VERSION */}
           {isMobile ? (
             <motion.div
-              className="fixed inset-0 z-50 bg-white dark:bg-slate-900 overflow-y-auto"
+              className="fixed inset-0 z-[10050] bg-white dark:bg-slate-900 overflow-y-auto"
               initial={{ y: '100%' }}
               animate={{ y: dragY }}
               exit={{ y: '100%' }}
@@ -296,7 +296,7 @@ export function NFTImageModal({
             <>
               {/* Backdrop */}
               <motion.div
-                className="fixed inset-0 bg-black/80 backdrop-blur-md z-50"
+                className="fixed inset-0 bg-black/80 backdrop-blur-md z-[10050]"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -305,7 +305,7 @@ export function NFTImageModal({
 
               {/* Modal Container */}
               <motion.div
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                className="fixed inset-0 z-[10050] flex items-center justify-center p-4"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
