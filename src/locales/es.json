@@ -2387,6 +2387,18 @@
       "shareReferralDesc": "Invita amigos y gana recompensas",
       "myProfile": "Mi Perfil",
       "myProfileDesc": "Ver y editar tu perfil"
+    },
+    "videoAvatar": {
+      "title": "Avatar de Perfil",
+      "description": "Sube un video o imagen para tu avatar de perfil",
+      "maxSize": "Tamaño máximo",
+      "dragDrop": "Arrastra y suelta o haz clic para subir",
+      "formats": "MP4, WebM, MOV, JPG, PNG, WebP, GIF",
+      "uploading": "Subiendo...",
+      "remove": "Eliminar Avatar",
+      "fileTooLarge": "Archivo muy grande. El tamaño máximo es {size}MB.",
+      "invalidType": "Tipo de archivo inválido. Por favor sube un video o imagen.",
+      "uploadFailed": "Error al subir. Por favor intenta de nuevo."
     }
   }
 }

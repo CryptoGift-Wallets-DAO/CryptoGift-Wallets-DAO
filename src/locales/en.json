@@ -2387,6 +2387,18 @@
       "shareReferralDesc": "Invite friends & earn rewards",
       "myProfile": "My Profile",
       "myProfileDesc": "View and edit your profile"
+    },
+    "videoAvatar": {
+      "title": "Profile Avatar",
+      "description": "Upload a video or image for your profile avatar",
+      "maxSize": "Max size",
+      "dragDrop": "Drag and drop or click to upload",
+      "formats": "MP4, WebM, MOV, JPG, PNG, WebP, GIF",
+      "uploading": "Uploading...",
+      "remove": "Remove Avatar",
+      "fileTooLarge": "File too large. Maximum size is {size}MB.",
+      "invalidType": "Invalid file type. Please upload a video or image.",
+      "uploadFailed": "Upload failed. Please try again."
     }
   }
 }

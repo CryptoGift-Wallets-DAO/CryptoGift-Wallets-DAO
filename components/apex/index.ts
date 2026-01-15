@@ -18,5 +18,9 @@ export { AvatarBadge } from './AvatarBadge';
 export { QuickStats } from './QuickStats';
 export { QuickActions } from './QuickActions';
 
+// Video Avatar components
+export { VideoAvatar } from './VideoAvatar';
+export { VideoAvatarUpload } from './VideoAvatarUpload';
+
 // Hooks
 export { useApexPosition } from './hooks/useApexPosition';

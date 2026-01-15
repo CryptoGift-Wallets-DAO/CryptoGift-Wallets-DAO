@@ -10,7 +10,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Navbar } from '@/components/layout/Navbar';
-import { SpecialReferralCard } from '@/components/referrals/SpecialReferralCard';
 import { PermanentReferralCard } from '@/components/referrals/PermanentReferralCard';
 import { QRCodeModal } from '@/components/referrals/QRCodeModal';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -343,9 +342,6 @@ function ReferralsDashboard() {
 
       {/* Permanent Referral Link Section (FEATURED - Multi-use, never expires) */}
       <PermanentReferralCard referralCode={referralCode} walletAddress={address} />
-
-      {/* Special Referral Link Section (Limited - one-time use, minimized) */}
-      <SpecialReferralCard referralCode={referralCode} walletAddress={address} />
 
       {/* Tabs */}
       <div className="flex space-x-2 border-b border-gray-200 dark:border-slate-700 pb-2 overflow-x-auto">
