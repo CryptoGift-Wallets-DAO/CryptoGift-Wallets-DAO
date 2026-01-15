@@ -1189,7 +1189,7 @@ export function SpecialInviteFlow({
           referrerCode={inviteData.referrerCode}
           inviteCode={inviteData.code}
           expiresAt={inviteData.expiresAt}
-          status="active"
+          status={(currentStep === 'delegate' || currentStep === 'complete') ? 'claimed' : 'active'}
           className="mb-6"
         />
 
