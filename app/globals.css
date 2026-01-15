@@ -646,3 +646,111 @@ body {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
+
+/* ====================================================
+   🦊 APEX AVATAR - FLOATING VIDEO PROFILE SYSTEM
+   ==================================================== */
+
+/* ApexAvatar float animation - gentle oscillation like Apple Watch */
+@keyframes apexFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ApexAvatar pulse glow - subtle golden pulse */
+@keyframes apexPulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.15);
+  }
+  50% {
+    box-shadow: 0 8px 24px rgba(251, 191, 36, 0.3);
+  }
+}
+
+/* ApexAvatar glow animation - ambient glow effect */
+@keyframes apexGlow {
+  0%, 100% {
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+  }
+  50% {
+    filter: drop-shadow(0 8px 24px rgba(251, 191, 36, 0.25));
+  }
+}
+
+/* Main float class for ApexAvatar */
+.apex-float {
+  animation: apexFloat 3s ease-in-out infinite, apexGlow 3s ease-in-out infinite;
+}
+
+/* Sticky mode float - slightly different timing */
+.apex-float-sticky {
+  animation: apexFloat 2.5s ease-in-out infinite, apexPulse 2.5s ease-in-out infinite;
+}
+
+/* ApexAvatar badge pulse animation */
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.badge-pulse {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+/* Squircle shape for Apple Watch style - superellipse approximation */
+.squircle {
+  border-radius: 22%;
+  overflow: hidden;
+}
+
+/* ApexAvatar container */
+.apex-avatar-container {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.apex-avatar-container:hover {
+  transform: scale(1.05);
+}
+
+.apex-avatar-container:active {
+  transform: scale(0.98);
+}
+
+/* Dark mode enhancements for ApexAvatar */
+.dark .apex-float {
+  animation: apexFloat 3s ease-in-out infinite;
+}
+
+@keyframes apexGlowDark {
+  0%, 100% {
+    filter: drop-shadow(0 4px 12px rgba(148, 163, 184, 0.15));
+  }
+  50% {
+    filter: drop-shadow(0 8px 24px rgba(148, 163, 184, 0.3));
+  }
+}
+
+.dark .apex-float {
+  animation: apexFloat 3s ease-in-out infinite, apexGlowDark 3s ease-in-out infinite;
+}
+
+/* Reduced motion preferences for ApexAvatar */
+@media (prefers-reduced-motion: reduce) {
+  .apex-float,
+  .apex-float-sticky,
+  .badge-pulse {
+    animation: none;
+  }
+}

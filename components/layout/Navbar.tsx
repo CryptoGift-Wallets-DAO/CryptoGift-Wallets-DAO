@@ -48,6 +48,7 @@ import {
   Users,
   User
 } from 'lucide-react';
+import { ApexAvatar } from '@/components/apex';
 
 export const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -309,10 +310,13 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
         className={`flex items-center space-x-2 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 px-3 py-2
                  hover:border-amber-400 dark:hover:border-slate-500 transition-all duration-300 ${fullWidth ? 'w-full' : ''}`}
       >
-        {/* Wallet Icon */}
-        <div className="w-7 h-7 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-          <Wallet className="w-3.5 h-3.5 text-white" />
-        </div>
+        {/* ApexAvatar - Apple Watch style */}
+        <ApexAvatar
+          size="sm"
+          showBadge={false}
+          enableFloat={false}
+          className="flex-shrink-0"
+        />
 
         {/* Wallet Info */}
         <div className="flex-1 text-left">
@@ -348,9 +352,12 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
               {/* Wallet Header */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                    <Wallet className="w-5 h-5 text-white" />
-                  </div>
+                  {/* ApexAvatar - Larger in dropdown */}
+                  <ApexAvatar
+                    size="md"
+                    showBadge={false}
+                    enableFloat={false}
+                  />
                   <div>
                     <div className="font-medium text-gray-900 dark:text-white">{displayAddress}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
