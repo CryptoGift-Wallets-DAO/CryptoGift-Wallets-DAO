@@ -572,7 +572,7 @@ export default function LandingPage() {
               <div className="text-center p-4 rounded-xl glass-crystal">
                 <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-300 dark:border-purple-700">
                   <img
-                    src="/team/rafael-gonzalez.jpg"
+                    src="/team/C3C8D6AE-5738-4BF9-873C-39EE8847C3F2.png"
                     alt="Rafael Gonzalez"
                     className="object-cover w-full h-full"
                   />
@@ -584,22 +584,33 @@ export default function LandingPage() {
                 <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                   Web3 dev, youth educator, built CryptoGift Wallets end-to-end on Base.
                 </p>
-                <a
-                  href="http://www.linkedin.com/in/rafael-gonzalez-cgc-mbxarts"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  <span>LinkedIn</span>
-                  <ArrowRight className="w-3 h-3" />
-                </a>
+                <div className="flex items-center justify-center gap-3">
+                  <a
+                    href="http://www.linkedin.com/in/rafael-gonzalez-cgc-mbxarts"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    <span>LinkedIn</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </a>
+                  <a
+                    href="https://x.com/godezr10894?s=21"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 hover:underline"
+                  >
+                    <span>X/Twitter</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </a>
+                </div>
               </div>
 
               {/* Roberto Legrá */}
               <div className="text-center p-4 rounded-xl glass-crystal">
                 <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-300 dark:border-purple-700">
                   <img
-                    src="/team/roberto-legra.jpg"
+                    src="/team/IMG_6757.PNG"
                     alt="Roberto Legrá"
                     className="object-cover w-full h-full"
                   />
@@ -611,22 +622,33 @@ export default function LandingPage() {
                 <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                   6 years Community strategy designer & Crypto community builder. Management of moderators, ambassadors, and content creators.
                 </p>
-                <a
-                  href="https://www.linkedin.com/in/roberto-legra-7746993a1"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  <span>LinkedIn</span>
-                  <ArrowRight className="w-3 h-3" />
-                </a>
+                <div className="flex items-center justify-center gap-3">
+                  <a
+                    href="https://www.linkedin.com/in/roberto-legra-7746993a1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    <span>LinkedIn</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </a>
+                  <a
+                    href="https://x.com/doctortips_5?s=21"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 hover:underline"
+                  >
+                    <span>X/Twitter</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </a>
+                </div>
               </div>
 
               {/* Leodanni Avila */}
               <div className="text-center p-4 rounded-xl glass-crystal">
                 <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-300 dark:border-purple-700">
                   <img
-                    src="/team/leodanni-avila.jpg"
+                    src="/team/IMG_6773.PNG"
                     alt="Leodanni Avila"
                     className="object-cover w-full h-full"
                   />
@@ -638,15 +660,26 @@ export default function LandingPage() {
                 <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                   3+ years in sales & digital marketing; Experienced Head of Strategy & Business Operations. 5+ years in Web3.
                 </p>
-                <a
-                  href="http://www.linkedin.com/in/leodanni-avila-dev-mbxarts"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  <span>LinkedIn</span>
-                  <ArrowRight className="w-3 h-3" />
-                </a>
+                <div className="flex items-center justify-center gap-3">
+                  <a
+                    href="http://www.linkedin.com/in/leodanni-avila-dev-mbxarts"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    <span>LinkedIn</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </a>
+                  <a
+                    href="https://x.com/0xdr_leo?s=21"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 hover:underline"
+                  >
+                    <span>X/Twitter</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </a>
+                </div>
               </div>
             </div>
 
