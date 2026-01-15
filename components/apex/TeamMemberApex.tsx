@@ -68,25 +68,14 @@ export function TeamMemberApex({ member }: TeamMemberApexProps) {
         className="text-center p-6 rounded-2xl glass-crystal hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
         onClick={() => setIsPanelOpen(true)}
       >
-        {/* Avatar with Holographic Effect */}
-        <div className="relative mx-auto mb-4 w-28 h-28">
-          {/* Outer Glow */}
-          <div
-            className="absolute -inset-2 rounded-[22%] opacity-60 group-hover:opacity-100 transition-opacity"
-            style={{
-              background: 'linear-gradient(135deg, #f59e0b, #ea580c, #ec4899, #8b5cf6)',
-              backgroundSize: '200% 200%',
-              animation: 'holographic 4s ease infinite',
-              filter: 'blur(12px)',
-            }}
-          />
-          {/* VideoAvatar */}
+        {/* Avatar - Clean Apple Watch style */}
+        <div className="relative mx-auto mb-4" style={{ width: 112, height: 112 }}>
           <VideoAvatar
             imageSrc={member.imageSrc}
             videoSrc={member.videoSrc}
             alt={member.name}
             size="xl"
-            className="relative z-10"
+            enableFloat
           />
         </div>
 
@@ -136,15 +125,15 @@ export function TeamMemberApex({ member }: TeamMemberApexProps) {
       {/* Profile Panel (Portal) */}
       {isPanelOpen && typeof document !== 'undefined' && createPortal(
         <>
-          {/* Backdrop */}
+          {/* Backdrop - high z-index to cover video */}
           <div
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm animate-fadeIn"
+            className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm animate-fadeIn"
             onClick={() => setIsPanelOpen(false)}
           />
 
-          {/* Panel */}
+          {/* Panel - highest z-index */}
           <div
-            className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-64px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-scaleIn"
+            className="fixed z-[70] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-64px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-scaleIn"
           >
             {/* Header */}
             <div className="relative p-6 border-b border-gray-200/50 dark:border-slate-700/50">
@@ -156,24 +145,15 @@ export function TeamMemberApex({ member }: TeamMemberApexProps) {
                 <X className="w-5 h-5 text-gray-500" />
               </button>
 
-              {/* Avatar Large */}
-              <div className="relative mx-auto mb-4 w-32 h-32">
-                <div
-                  className="absolute -inset-3 rounded-[22%] opacity-75"
-                  style={{
-                    background: 'linear-gradient(135deg, #f59e0b, #ea580c, #ec4899, #8b5cf6)',
-                    backgroundSize: '200% 200%',
-                    animation: 'holographic 4s ease infinite',
-                    filter: 'blur(15px)',
-                  }}
-                />
+              {/* Avatar Large - Clean style */}
+              <div className="relative mx-auto mb-4" style={{ width: 128, height: 128 }}>
                 <VideoAvatar
                   imageSrc={member.imageSrc}
                   videoSrc={member.videoSrc}
                   alt={member.name}
                   size="xl"
-                  className="relative z-10 !w-32 !h-32"
                   enableSound
+                  className="!w-32 !h-32"
                 />
               </div>
 

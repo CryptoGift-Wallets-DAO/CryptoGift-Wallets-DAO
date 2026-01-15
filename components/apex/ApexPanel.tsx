@@ -115,10 +115,10 @@ export function ApexPanel({ isOpen, onClose, anchorRef }: ApexPanelProps) {
 
   const panelContent = (
     <>
-      {/* Backdrop */}
+      {/* Backdrop - higher z-index to cover video carousel */}
       <div
         className={`
-          fixed inset-0 z-50
+          fixed inset-0 z-[60]
           bg-black/40 dark:bg-black/60
           backdrop-blur-sm
           transition-opacity duration-300
@@ -127,11 +127,11 @@ export function ApexPanel({ isOpen, onClose, anchorRef }: ApexPanelProps) {
         onClick={onClose}
       />
 
-      {/* Panel */}
+      {/* Panel - highest z-index */}
       <div
         ref={panelRef}
         className={`
-          fixed z-50
+          fixed z-[70]
           w-[340px] max-w-[calc(100vw-32px)]
           max-h-[calc(100vh-120px)]
           overflow-y-auto

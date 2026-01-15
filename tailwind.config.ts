@@ -48,6 +48,25 @@ const config: Config = {
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
+      keyframes: {
+        apexFloat: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-6px)' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'translate(-50%, -50%) scale(0.95)' },
+          '100%': { opacity: '1', transform: 'translate(-50%, -50%) scale(1)' },
+        },
+      },
+      animation: {
+        apexFloat: 'apexFloat 4s ease-in-out infinite',
+        fadeIn: 'fadeIn 0.2s ease-out',
+        scaleIn: 'scaleIn 0.25s ease-out',
+      },
     },
   },
   plugins: [],
