@@ -2358,5 +2358,35 @@
       "leaderboard": "Leaderboard",
       "you": "You"
     }
+  },
+  "apex": {
+    "panel": {
+      "title": "apeX Profile",
+      "balance": "Balance",
+      "quickStats": "Quick Stats",
+      "quickActions": "Quick Actions",
+      "comingSoon": "Coming Soon",
+      "apexAgent": "apeX AI Agent coming soon"
+    },
+    "stats": {
+      "referrals": "Referrals",
+      "direct": "direct",
+      "pending": "Pending",
+      "earned": "earned",
+      "competitions": "Competitions",
+      "gifts": "Gifts",
+      "sent": "sent",
+      "received": "received"
+    },
+    "actions": {
+      "sendGift": "Send Gift",
+      "sendGiftDesc": "Gift CGC tokens to friends",
+      "viewTasks": "View Tasks",
+      "viewTasksDesc": "Complete tasks to earn CGC",
+      "shareReferral": "Share Referral",
+      "shareReferralDesc": "Invite friends & earn rewards",
+      "myProfile": "My Profile",
+      "myProfileDesc": "View and edit your profile"
+    }
   }
 }

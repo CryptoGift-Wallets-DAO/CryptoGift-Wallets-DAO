@@ -2358,5 +2358,35 @@
       "leaderboard": "Tabla de Posiciones",
       "you": "Tú"
     }
+  },
+  "apex": {
+    "panel": {
+      "title": "Perfil apeX",
+      "balance": "Balance",
+      "quickStats": "Estadísticas Rápidas",
+      "quickActions": "Acciones Rápidas",
+      "comingSoon": "Próximamente",
+      "apexAgent": "Agente apeX AI próximamente"
+    },
+    "stats": {
+      "referrals": "Referidos",
+      "direct": "directos",
+      "pending": "Pendiente",
+      "earned": "ganados",
+      "competitions": "Competencias",
+      "gifts": "Regalos",
+      "sent": "enviados",
+      "received": "recibidos"
+    },
+    "actions": {
+      "sendGift": "Enviar Regalo",
+      "sendGiftDesc": "Regala tokens CGC a amigos",
+      "viewTasks": "Ver Tareas",
+      "viewTasksDesc": "Completa tareas para ganar CGC",
+      "shareReferral": "Compartir Referido",
+      "shareReferralDesc": "Invita amigos y gana recompensas",
+      "myProfile": "Mi Perfil",
+      "myProfileDesc": "Ver y editar tu perfil"
+    }
   }
 }

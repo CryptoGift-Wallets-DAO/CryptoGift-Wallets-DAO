@@ -2,15 +2,21 @@
  * apeX Avatar Panel System - Barrel Exports
  *
  * Video profile avatar with Apple Watch shape and floating animation.
- * Future: Will include panel expansion and competitions integration.
+ * Includes expandable panel with quick stats and actions.
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
  */
 
+// Main components
 export { ApexAvatar } from './ApexAvatar';
-export { AvatarBadge } from './AvatarBadge';
-export { useApexPosition } from './hooks/useApexPosition';
+export { ApexAvatarWithPanel } from './ApexAvatarWithPanel';
+export { ApexPanel } from './ApexPanel';
 
-// Types
-export type { default as ApexAvatarProps } from './ApexAvatar';
+// Sub-components
+export { AvatarBadge } from './AvatarBadge';
+export { QuickStats } from './QuickStats';
+export { QuickActions } from './QuickActions';
+
+// Hooks
+export { useApexPosition } from './hooks/useApexPosition';
