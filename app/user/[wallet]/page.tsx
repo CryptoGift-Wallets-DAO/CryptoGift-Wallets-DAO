@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Navbar } from '@/components/layout/Navbar';
+import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
 import {
   User,
   MessageCircle,
@@ -88,6 +88,7 @@ export default function PublicProfilePage() {
     return (
       <>
         <Navbar />
+        <NavbarSpacer />
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
         </div>
@@ -99,6 +100,7 @@ export default function PublicProfilePage() {
     return (
       <>
         <Navbar />
+        <NavbarSpacer />
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-xl border border-slate-200 dark:border-slate-700 max-w-md w-full text-center">
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -126,6 +128,7 @@ export default function PublicProfilePage() {
   return (
     <>
       <Navbar />
+      <NavbarSpacer />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         <div className="container mx-auto px-4 py-8 max-w-3xl">
           {/* Back Link */}

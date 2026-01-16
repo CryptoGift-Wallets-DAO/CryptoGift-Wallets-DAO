@@ -67,7 +67,7 @@ export const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-lg sticky top-0 z-[10000] transition-colors duration-300 border-b border-gray-200/50 dark:border-slate-700/50">
+    <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-lg fixed top-0 left-0 right-0 z-[10000] transition-colors duration-300 border-b border-gray-200/50 dark:border-slate-700/50">
       <div className="container mx-auto px-2">
         <div className="flex justify-between items-center py-4">
           {/* Logo and Brand */}
@@ -257,6 +257,12 @@ export const Navbar: React.FC = () => {
     </nav>
   );
 };
+
+// Spacer component to compensate for fixed navbar height
+// Use this after <Navbar /> in pages to prevent content from being hidden
+export const NavbarSpacer: React.FC = () => (
+  <div className="h-[72px]" aria-hidden="true" />
+);
 
 // Compact wallet badge for mobile
 function MobileWalletBadge({ address }: { address: string }) {

@@ -20,7 +20,7 @@
  */
 
 import { useTranslations } from 'next-intl';
-import { Navbar } from '@/components/layout/Navbar';
+import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { PermissionsProvider } from '@/components/auth/RoleGate';
 import {
@@ -81,6 +81,7 @@ export default function CryptoGiftDAODashboard() {
       <div className="min-h-screen theme-gradient-bg">
         {/* Professional Navbar */}
         <Navbar />
+        <NavbarSpacer />
 
         {/* Glassmorphism Background Effect - Theme Aware */}
         <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">

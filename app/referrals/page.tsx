@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Navbar } from '@/components/layout/Navbar';
+import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
 import { PermanentReferralCard } from '@/components/referrals/PermanentReferralCard';
 import { QRCodeModal } from '@/components/referrals/QRCodeModal';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -116,6 +116,7 @@ export default function ReferralsPage() {
   return (
     <>
       <Navbar />
+      <NavbarSpacer />
 
       {/* Open access - no token gating for viewing */}
       <div className="min-h-screen theme-gradient-bg">

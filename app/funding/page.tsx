@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Navbar } from '@/components/layout/Navbar';
+import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate';
 import { ApplicationGuide } from '@/components/funding/ApplicationGuide';
 import { GrowthStrategy } from '@/components/funding/GrowthStrategy';
@@ -1307,6 +1307,7 @@ export default function FundingPage() {
     <div className="min-h-screen theme-gradient-bg">
       {/* Professional Navbar */}
       <Navbar />
+      <NavbarSpacer />
 
       {/* Background effects - Theme Aware */}
       <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">

@@ -15,7 +15,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { Navbar } from '@/components/layout/Navbar';
+import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { VideoCarousel } from '@/components/landing/VideoCarousel';
 import { useDashboardStats } from '@/lib/web3/hooks';
@@ -115,6 +115,7 @@ export default function LandingPage() {
       </div>
 
       <Navbar />
+      <NavbarSpacer />
 
       {/* HERO SECTION - Closer to navbar */}
       <section className="relative pt-8 pb-12 px-4">

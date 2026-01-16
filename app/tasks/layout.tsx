@@ -7,7 +7,7 @@
 
 'use client'
 
-import { Navbar } from '@/components/layout/Navbar'
+import { Navbar, NavbarSpacer } from '@/components/layout/Navbar'
 import { CGCAccessGate } from '@/components/auth/CGCAccessGate'
 import { useTranslations } from 'next-intl'
 import { CheckCircle, Gift, Trophy, Rocket, ArrowRight, Sparkles } from 'lucide-react'
@@ -93,6 +93,7 @@ export default function TasksLayout({
     <>
       {/* Navbar always visible */}
       <Navbar />
+      <NavbarSpacer />
 
       {/* CGC-gated content - 1 CGC minimum */}
       <CGCAccessGate

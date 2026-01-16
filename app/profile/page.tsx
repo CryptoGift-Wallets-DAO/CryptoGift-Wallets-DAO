@@ -13,7 +13,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Navbar } from '@/components/layout/Navbar';
+import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
 import { useAccount } from '@/lib/thirdweb';
 import { useProfileManager, useUsernameCheck } from '@/hooks/useProfile';
 import { SocialEngagementModal } from '@/components/social/SocialEngagementModal';
@@ -227,6 +227,7 @@ export default function ProfilePage() {
   return (
     <>
       <Navbar />
+      <NavbarSpacer />
 
       {/* Social Engagement Modal - Triggered after OAuth connection */}
       <SocialEngagementModal

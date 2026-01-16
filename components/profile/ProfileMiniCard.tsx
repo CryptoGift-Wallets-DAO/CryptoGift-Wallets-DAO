@@ -78,11 +78,11 @@ export function ProfileMiniCard() {
       const rect = thumbnailRef.current?.getBoundingClientRect();
       if (!rect) return;
 
-      // Always position at right edge of screen with 16px margin
+      // Always position at right edge of screen with NO margin - flush to edge
       // Top aligned just below the thumbnail
       setPosition({
         top: rect.bottom + 8,
-        right: 16,
+        right: 0,
         left: undefined,
       });
     };

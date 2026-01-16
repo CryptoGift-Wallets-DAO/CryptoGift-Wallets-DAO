@@ -9,7 +9,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Navbar } from '@/components/layout/Navbar';
+import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -192,6 +192,7 @@ export default function DocsPage() {
   return (
     <>
       <Navbar />
+      <NavbarSpacer />
       <div className="min-h-screen theme-gradient-bg">
         {/* Background effects */}
         <div className="fixed inset-0 opacity-30 dark:opacity-20 pointer-events-none overflow-hidden">
