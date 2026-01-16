@@ -1,15 +1,20 @@
 'use client';
 
 /**
- * ProfileMiniCard - Level 3 of ProfileCard system
+ * ProfileMiniCard - Level 3 of ProfileCard system (Presentation Card)
  *
- * Card view positioned near the navbar panel showing:
+ * Card view showing:
  * - Large avatar (112px)
  * - Name + Role/Tier
  * - Stats preview (Reputation + Tasks)
  * - Username
  * - Social icons preview
  * - Click → opens Level 4 (full modal)
+ *
+ * NOW PART OF SHARE FLOW:
+ * - Opens from L2 in share flow
+ * - Can also be opened standalone via public link (?card=presentation)
+ * - Click outside returns to L4 if in share flow, or closes if standalone
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -53,9 +58,46 @@ type SocialKey = keyof typeof SocialIcons;
 // Card dimensions
 const CARD_WIDTH = 320;
 
-export function ProfileMiniCard() {
-  const { profile, currentLevel, thumbnailRef, closeLevel, goToLevel } = useProfileCard();
+interface ProfileMiniCardProps {
+  /** Standalone mode for public viewing via URL */
+  standalone?: boolean;
+  /** Profile data for standalone mode (when not using context) */
+  standaloneProfile?: {
+    wallet_address: string;
+    username: string | null;
+    display_name: string | null;
+    avatar_url: string | null;
+    tier: string;
+    tier_color: string;
+    reputation_score: number;
+    total_tasks_completed: number;
+    twitter_handle: string | null;
+    telegram_handle: string | null;
+    discord_handle: string | null;
+    website_url: string | null;
+  };
+  /** Callback when card is closed in standalone mode */
+  onClose?: () => void;
+}
+
+export function ProfileMiniCard({
+  standalone = false,
+  standaloneProfile,
+  onClose,
+}: ProfileMiniCardProps = {}) {
+  const {
+    profile: contextProfile,
+    currentLevel,
+    thumbnailRef,
+    isShareFlowActive,
+    closeLevel,
+    closeShareFlow,
+    goToLevel,
+  } = useProfileCard();
   const t = useTranslations('profile');
+
+  // Use standalone profile if provided, otherwise use context profile
+  const profile = standalone && standaloneProfile ? standaloneProfile : contextProfile;
 
   const [mounted, setMounted] = useState(false);
   // Position can be left-aligned or right-aligned based on nearest edge
@@ -70,9 +112,12 @@ export function ProfileMiniCard() {
   }, []);
 
   // Calculate position ONCE when opening - FIXED to screen, not page
-  // ALWAYS stick to the RIGHT edge of the screen, below the thumbnail
+  // In standalone mode, center the card on screen
+  // In normal mode, stick to the RIGHT edge of the screen, below the thumbnail
   useEffect(() => {
-    if (currentLevel !== 3 || !thumbnailRef.current) return;
+    // Skip position calculation for standalone mode (will use CSS centering)
+    if (standalone) return;
+    if (currentLevel !== 3 || !thumbnailRef?.current) return;
 
     const calculatePosition = () => {
       const rect = thumbnailRef.current?.getBoundingClientRect();
@@ -92,38 +137,53 @@ export function ProfileMiniCard() {
     // Only update on resize (responsive), NOT on scroll
     window.addEventListener('resize', calculatePosition);
     return () => window.removeEventListener('resize', calculatePosition);
-  }, [currentLevel, thumbnailRef]);
+  }, [standalone, currentLevel, thumbnailRef]);
 
   // Handle escape key
   useEffect(() => {
-    if (currentLevel !== 3) return;
+    // Skip if not at level 3 and not standalone
+    if (!standalone && currentLevel !== 3) return;
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        closeLevel();
+        if (standalone && onClose) {
+          onClose();
+        } else if (isShareFlowActive) {
+          // Return to L4 when in share flow
+          closeShareFlow();
+        } else {
+          closeLevel();
+        }
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [currentLevel, closeLevel]);
+  }, [standalone, currentLevel, isShareFlowActive, closeLevel, closeShareFlow, onClose]);
 
   // Handle click outside
   useEffect(() => {
-    if (currentLevel !== 3) return;
+    // Skip if not at level 3 and not standalone
+    if (!standalone && currentLevel !== 3) return;
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const cardEl = document.getElementById('profile-mini-card');
-      const thumbnailEl = thumbnailRef.current;
+      const thumbnailEl = thumbnailRef?.current;
 
       if (
         cardEl &&
         !cardEl.contains(target) &&
-        thumbnailEl &&
-        !thumbnailEl.contains(target)
+        (!thumbnailEl || !thumbnailEl.contains(target))
       ) {
-        closeLevel();
+        if (standalone && onClose) {
+          onClose();
+        } else if (isShareFlowActive) {
+          // Return to L4 when in share flow
+          closeShareFlow();
+        } else {
+          closeLevel();
+        }
       }
     };
 
@@ -135,9 +195,13 @@ export function ProfileMiniCard() {
       clearTimeout(timeoutId);
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [currentLevel, closeLevel, thumbnailRef]);
+  }, [standalone, currentLevel, isShareFlowActive, closeLevel, closeShareFlow, thumbnailRef, onClose]);
 
-  if (!mounted || currentLevel !== 3 || !profile) return null;
+  // Render conditions
+  // - Standalone mode: always show if profile exists
+  // - Context mode: show only when at level 3
+  if (!mounted || !profile) return null;
+  if (!standalone && currentLevel !== 3) return null;
 
   // Collect linked socials
   const linkedSocials: { key: SocialKey; url: string }[] = [];
@@ -155,9 +219,138 @@ export function ProfileMiniCard() {
   }
 
   // Determine transform origin based on alignment
-  const transformOrigin = position.right !== undefined ? 'top right' : 'top left';
+  const transformOrigin = standalone ? 'center' : (position.right !== undefined ? 'top right' : 'top left');
 
-  const cardContent = (
+  // Handle card click - go to L4 if not standalone
+  const handleCardClick = () => {
+    if (!standalone) {
+      goToLevel(4);
+    }
+  };
+
+  // Handle close button
+  const handleClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (standalone && onClose) {
+      onClose();
+    } else if (isShareFlowActive) {
+      closeShareFlow();
+    } else {
+      closeLevel();
+    }
+  };
+
+  // The actual card content (shared between both modes)
+  const cardInner = (
+    <div
+      className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 cursor-pointer group overflow-hidden"
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      aria-label={t('clickToExpand')}
+    >
+      {/* Close button */}
+      <button
+        onClick={handleClose}
+        className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors"
+        aria-label="Close"
+      >
+        <X className="w-4 h-4 text-white" />
+      </button>
+
+      {/* Card content */}
+      <div className="text-center p-6">
+        {/* Avatar */}
+        <div className="relative mx-auto mb-4" style={{ width: 112, height: 112 }}>
+          <VideoAvatar
+            imageSrc={profile.avatar_url || undefined}
+            alt={profile.display_name || 'Profile'}
+            size="xl"
+            enableFloat
+          />
+        </div>
+
+        {/* Name */}
+        <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-1">
+          {profile.display_name || profile.username || `${profile.wallet_address.slice(0, 8)}...`}
+        </h4>
+
+        {/* Tier badge */}
+        <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white mb-3"
+          style={{ backgroundColor: profile.tier_color }}
+        >
+          <Trophy className="w-3 h-3" />
+          {profile.tier}
+        </div>
+
+        {/* Quick Stats */}
+        <div className="flex items-center justify-center gap-4 mb-3">
+          <div className="flex items-center gap-1 text-amber-500">
+            <Star className="w-4 h-4" />
+            <span className="text-sm font-semibold">{profile.reputation_score}</span>
+          </div>
+          <div className="flex items-center gap-1 text-blue-500">
+            <Target className="w-4 h-4" />
+            <span className="text-sm font-semibold">{profile.total_tasks_completed}</span>
+          </div>
+        </div>
+
+        {/* Username */}
+        {profile.username && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+            {profile.username}
+          </p>
+        )}
+
+        {/* Social Preview */}
+        {linkedSocials.length > 0 && (
+          <div className="flex items-center justify-center gap-2 mb-2">
+            {linkedSocials.slice(0, 4).map(({ key, url }) => (
+              <a
+                key={key}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors text-gray-600 dark:text-gray-400"
+              >
+                {SocialIcons[key]}
+              </a>
+            ))}
+          </div>
+        )}
+
+        {/* Click hint - only show if not standalone */}
+        {!standalone && (
+          <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            {t('clickToExpand')}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+
+  // Standalone mode: centered modal with backdrop
+  // Normal mode: positioned near thumbnail
+  const cardContent = standalone ? (
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+        onClick={onClose}
+      />
+      <div
+        id="profile-mini-card"
+        className="relative animate-in fade-in zoom-in-95 duration-200"
+        style={{
+          width: CARD_WIDTH,
+          maxWidth: 'calc(100vw - 32px)',
+        }}
+      >
+        {cardInner}
+      </div>
+    </div>
+  ) : (
     <div
       id="profile-mini-card"
       className="fixed z-[99999] animate-expandIn"
@@ -171,94 +364,7 @@ export function ProfileMiniCard() {
         transformOrigin,
       }}
     >
-      {/* Card */}
-      <div
-        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 cursor-pointer group overflow-hidden"
-        onClick={() => goToLevel(4)}
-        role="button"
-        tabIndex={0}
-        aria-label={t('clickToExpand')}
-      >
-        {/* Close button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            closeLevel();
-          }}
-          className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors"
-          aria-label="Close"
-        >
-          <X className="w-4 h-4 text-white" />
-        </button>
-
-        {/* Card content */}
-        <div className="text-center p-6">
-          {/* Avatar */}
-          <div className="relative mx-auto mb-4" style={{ width: 112, height: 112 }}>
-            <VideoAvatar
-              imageSrc={profile.avatar_url || undefined}
-              alt={profile.display_name || 'Profile'}
-              size="xl"
-              enableFloat
-            />
-          </div>
-
-          {/* Name */}
-          <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-1">
-            {profile.display_name || profile.username || `${profile.wallet_address.slice(0, 8)}...`}
-          </h4>
-
-          {/* Tier badge */}
-          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white mb-3"
-            style={{ backgroundColor: profile.tier_color }}
-          >
-            <Trophy className="w-3 h-3" />
-            {profile.tier}
-          </div>
-
-          {/* Quick Stats */}
-          <div className="flex items-center justify-center gap-4 mb-3">
-            <div className="flex items-center gap-1 text-amber-500">
-              <Star className="w-4 h-4" />
-              <span className="text-sm font-semibold">{profile.reputation_score}</span>
-            </div>
-            <div className="flex items-center gap-1 text-blue-500">
-              <Target className="w-4 h-4" />
-              <span className="text-sm font-semibold">{profile.total_tasks_completed}</span>
-            </div>
-          </div>
-
-          {/* Username */}
-          {profile.username && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-              {profile.username}
-            </p>
-          )}
-
-          {/* Social Preview */}
-          {linkedSocials.length > 0 && (
-            <div className="flex items-center justify-center gap-2 mb-2">
-              {linkedSocials.slice(0, 4).map(({ key, url }) => (
-                <a
-                  key={key}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors text-gray-600 dark:text-gray-400"
-                >
-                  {SocialIcons[key]}
-                </a>
-              ))}
-            </div>
-          )}
-
-          {/* Click hint */}
-          <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-            {t('clickToExpand')}
-          </p>
-        </div>
-      </div>
+      {cardInner}
     </div>
   );
 

@@ -3,13 +3,18 @@
 /**
  * Public User Profile Page
  * Shows public profile info with social contact links for referrers to contact invitees
+ *
+ * Query params:
+ * - ?card=presentation - Shows ProfileMiniCard (Presentation Card) as modal over the page
  */
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
+import { ProfileCardProvider } from '@/components/profile/ProfileCardProvider';
+import { ProfileMiniCard } from '@/components/profile/ProfileMiniCard';
 import {
   User,
   MessageCircle,
@@ -47,12 +52,22 @@ interface PublicProfile {
 
 export default function PublicProfilePage() {
   const params = useParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const wallet = params.wallet as string;
 
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Check if presentation card mode is active
+  const showPresentationCard = searchParams.get('card') === 'presentation';
+
+  // Close presentation card by removing query param
+  const handleClosePresentationCard = () => {
+    router.push(`/user/${wallet}`, { scroll: false });
+  };
 
   useEffect(() => {
     async function fetchProfile() {
@@ -345,6 +360,30 @@ export default function PublicProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Presentation Card Modal - shown when ?card=presentation */}
+      {showPresentationCard && profile && (
+        <ProfileCardProvider wallet={wallet}>
+          <ProfileMiniCard
+            standalone
+            standaloneProfile={{
+              wallet_address: profile.wallet_address,
+              username: profile.username,
+              display_name: profile.display_name,
+              avatar_url: profile.avatar_url,
+              tier: profile.tier,
+              tier_color: profile.tier_color,
+              reputation_score: profile.reputation_score,
+              total_tasks_completed: profile.total_tasks_completed,
+              twitter_handle: profile.twitter_handle,
+              telegram_handle: profile.telegram_handle,
+              discord_handle: profile.discord_handle,
+              website_url: profile.website_url,
+            }}
+            onClose={handleClosePresentationCard}
+          />
+        </ProfileCardProvider>
+      )}
     </>
   );
 }

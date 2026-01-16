@@ -34,6 +34,7 @@ import {
   Target,
   ExternalLink,
 } from 'lucide-react';
+import { ShareButton } from './ShareButton';
 
 // =====================================================
 // SOCIAL SLOT COMPONENT
@@ -341,6 +342,8 @@ export function ProfileFullCard() {
               <SocialSlot network="telegram" handle={profile.telegram_handle} t={t} />
               <SocialSlot network="discord" handle={profile.discord_handle} t={t} />
               <SocialSlot network="website" handle={profile.website_url} t={t} />
+              {/* Share Profile Button - Copy link + QR + NFC */}
+              <ShareButton walletAddress={profile.wallet_address} />
             </div>
           </div>
 

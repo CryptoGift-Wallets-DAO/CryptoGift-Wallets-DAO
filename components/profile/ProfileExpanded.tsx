@@ -1,16 +1,14 @@
 'use client';
 
 /**
- * ProfileExpanded - Level 2 of ProfileCard system
+ * ProfileExpanded - Level 2 of ProfileCard system (Share Flow)
  *
- * "Hover Expand" design pattern:
+ * NOW PART OF SHARE FLOW ONLY (not hover-expand anymore):
  * - Shows large Apple Watch squircle avatar positioned over thumbnail
  * - NO backdrop (page stays interactive)
- * - Mouse enter thumbnail → expand
- * - Mouse leave expanded → collapse (unless locked)
- * - Click on expanded → lock in place
- * - Click anywhere on image → go to Level 3
- * - Click outside when locked → collapse
+ * - Only opens from Share button in L4 (via openShareFlow)
+ * - Click on avatar → go to Level 3 (Presentation Card)
+ * - Click outside or mouse leave → return to L4
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -75,10 +73,11 @@ export function ProfileExpanded() {
     profile,
     currentLevel,
     isLocked,
+    isShareFlowActive,
     thumbnailRef,
     closeLevel,
+    closeShareFlow,
     goToLevel,
-    lockLevel,
   } = useProfileCard();
   const { chainId } = useNetwork();
 
@@ -116,9 +115,9 @@ export function ProfileExpanded() {
     return () => window.removeEventListener('resize', handleResize);
   }, [currentLevel, thumbnailRef]);
 
-  // Handle click outside when locked
+  // Handle click outside when in share flow
   useEffect(() => {
-    if (currentLevel !== 2 || !isLocked) return;
+    if (currentLevel !== 2 || !isShareFlowActive) return;
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -132,11 +131,12 @@ export function ProfileExpanded() {
         thumbnailEl &&
         !thumbnailEl.contains(target)
       ) {
-        closeLevel();
+        // Return to L4 when clicking outside during share flow
+        closeShareFlow();
       }
     };
 
-    // Delay to prevent immediate close from the locking click
+    // Delay to prevent immediate close from the opening click
     const timeoutId = setTimeout(() => {
       document.addEventListener('click', handleClickOutside);
     }, 100);
@@ -145,35 +145,36 @@ export function ProfileExpanded() {
       clearTimeout(timeoutId);
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [currentLevel, isLocked, closeLevel, thumbnailRef]);
+  }, [currentLevel, isShareFlowActive, closeShareFlow, thumbnailRef]);
 
-  // Handle escape key
+  // Handle escape key - return to L4 during share flow
   useEffect(() => {
-    if (currentLevel !== 2) return;
+    if (currentLevel !== 2 || !isShareFlowActive) return;
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        closeLevel();
+        closeShareFlow();
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [currentLevel, closeLevel]);
+  }, [currentLevel, isShareFlowActive, closeShareFlow]);
 
-  // Handle mouse leave - close if not locked
+  // Handle mouse leave - return to L4 during share flow
   const handleMouseLeave = useCallback(() => {
-    if (!isLocked) {
-      closeLevel();
+    if (isShareFlowActive) {
+      closeShareFlow();
     }
-  }, [isLocked, closeLevel]);
+  }, [isShareFlowActive, closeShareFlow]);
 
   // Handle click on avatar - go to Level 3
   const handleClick = useCallback(() => {
     goToLevel(3);
   }, [goToLevel]);
 
-  if (!mounted || currentLevel !== 2 || !profile) return null;
+  // Only render during share flow when at level 2
+  if (!mounted || currentLevel !== 2 || !isShareFlowActive || !profile) return null;
 
   // Get network indicator based on chainId
   const getNetworkIndicator = () => {

@@ -3,10 +3,9 @@
 /**
  * ProfileThumbnail - Level 1 of ProfileCard system
  *
- * Small thumbnail avatar (48px default) with hover-to-expand behavior:
- * - Hover → Opens Level 2 (expanded avatar)
- * - Click → Locks Level 2 in place
- * - Mouse out → Closes if not locked
+ * Small thumbnail avatar (48px default):
+ * - Click → Opens Level 4 (Full Card) directly
+ * - No hover expand (L2/L3 are now part of Share flow only)
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -31,31 +30,18 @@ export function ProfileThumbnail({
   enableFloat = false,
   className = '',
 }: ProfileThumbnailProps) {
-  const { profile, currentLevel, openLevel, lockLevel, thumbnailRef } = useProfileCard();
+  const { profile, currentLevel, goToLevel, thumbnailRef } = useProfileCard();
 
-  // Hover → Open Level 2
-  const handleMouseEnter = () => {
-    if (currentLevel === 1) {
-      openLevel(2);
-    }
-  };
-
-  // Click → Lock Level 2
+  // Click → Open Level 4 directly (skip L2/L3 which are now share flow only)
   const handleClick = () => {
-    if (currentLevel === 2) {
-      lockLevel();
-    } else {
-      openLevel(2);
-      lockLevel();
-    }
+    goToLevel(4);
   };
 
   return (
     <div
       ref={thumbnailRef as React.RefObject<HTMLDivElement>}
-      onMouseEnter={handleMouseEnter}
       onClick={handleClick}
-      className="relative"
+      className="relative cursor-pointer"
     >
       <ApexAvatar
         size={size}

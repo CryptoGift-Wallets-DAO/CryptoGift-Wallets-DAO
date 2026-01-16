@@ -58,6 +58,7 @@ interface ProfileCardContextValue {
   isLoading: boolean;
   isError: boolean;
   isLocked: boolean; // Click-to-lock state
+  isShareFlowActive: boolean; // True when Share flow is active (L4→L2→L3)
   thumbnailRef: RefObject<HTMLDivElement | null>; // Ref for positioning
 
   // Actions
@@ -68,6 +69,8 @@ interface ProfileCardContextValue {
   prevLevel: () => void;
   lockLevel: () => void;
   unlockLevel: () => void;
+  openShareFlow: () => void; // Opens L2 as start of share flow
+  closeShareFlow: () => void; // Closes share flow and returns to L4
 }
 
 // =====================================================
@@ -115,6 +118,9 @@ export function ProfileCardProvider({
 
   // Click-to-lock state (when user clicks, it stays open until click outside)
   const [isLocked, setIsLocked] = useState(false);
+
+  // Share flow state (L4 → L2 → L3 flow when sharing profile)
+  const [isShareFlowActive, setIsShareFlowActive] = useState(false);
 
   // Ref for thumbnail positioning
   const thumbnailRef = useRef<HTMLDivElement | null>(null);
@@ -195,6 +201,22 @@ export function ProfileCardProvider({
     setIsLocked(false);
   }, []);
 
+  // Share flow: Opens L2 as the start of the share flow (L4 → L2 → L3)
+  const openShareFlow = useCallback(() => {
+    setIsShareFlowActive(true);
+    setCurrentLevel(2);
+    setIsLocked(true);
+    onLevelChange?.(2);
+  }, [onLevelChange]);
+
+  // Close share flow and return to L4
+  const closeShareFlow = useCallback(() => {
+    setIsShareFlowActive(false);
+    setCurrentLevel(4);
+    setIsLocked(true);
+    onLevelChange?.(4);
+  }, [onLevelChange]);
+
   // Context value
   const value = useMemo<ProfileCardContextValue>(
     () => ({
@@ -204,6 +226,7 @@ export function ProfileCardProvider({
       isLoading,
       isError,
       isLocked,
+      isShareFlowActive,
       thumbnailRef,
       openLevel,
       closeLevel,
@@ -212,8 +235,10 @@ export function ProfileCardProvider({
       prevLevel,
       lockLevel,
       unlockLevel,
+      openShareFlow,
+      closeShareFlow,
     }),
-    [currentLevel, profile, isOwnProfile, isLoading, isError, isLocked, openLevel, closeLevel, goToLevel, nextLevel, prevLevel, lockLevel, unlockLevel]
+    [currentLevel, profile, isOwnProfile, isLoading, isError, isLocked, isShareFlowActive, openLevel, closeLevel, goToLevel, nextLevel, prevLevel, lockLevel, unlockLevel, openShareFlow, closeShareFlow]
   );
 
   return (

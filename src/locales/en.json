@@ -2419,6 +2419,20 @@
       "contributions": "Contributions",
       "referrals": "Referrals",
       "earned": "CGC Earned"
+    },
+    "share": {
+      "button": "Share Profile",
+      "copied": "Link copied!",
+      "copyLink": "Copy Link",
+      "qrTitle": "Profile QR Code",
+      "qrDescription": "Scan to view this profile",
+      "downloadQR": "Download",
+      "shareButton": "Share",
+      "shareMessage": "Check out my CryptoGift DAO profile!",
+      "nfcReady": "Tap phones to share",
+      "nfcNotSupported": "NFC not available",
+      "nfcError": "NFC error - try again",
+      "activateNfc": "Tap to activate NFC"
     }
   }
 }
