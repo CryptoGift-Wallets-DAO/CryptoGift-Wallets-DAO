@@ -58,40 +58,56 @@ export function ProfileMiniCard() {
   const t = useTranslations('profile');
 
   const [mounted, setMounted] = useState(false);
-  const [position, setPosition] = useState({ top: 0, right: 0 });
+  // Position can be left-aligned or right-aligned based on nearest edge
+  const [position, setPosition] = useState<{
+    top: number;
+    left?: number;
+    right?: number;
+  }>({ top: 0, right: 0 });
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   // Calculate position ONCE when opening - FIXED to screen, not page
-  // The navbar is sticky top-0, so thumbnail position is constant relative to viewport
+  // Automatically detect which edge is nearest and stick to it
   useEffect(() => {
     if (currentLevel !== 3 || !thumbnailRef.current) return;
 
-    // Calculate position ONCE - this is FIXED to the screen
-    const rect = thumbnailRef.current.getBoundingClientRect();
-    const rightOffset = window.innerWidth - rect.right;
+    const calculatePosition = () => {
+      const rect = thumbnailRef.current?.getBoundingClientRect();
+      if (!rect) return;
 
-    setPosition({
-      top: rect.bottom + 8, // 8px below the thumbnail
-      right: Math.max(16, rightOffset), // Maintain right alignment
-    });
+      const viewportWidth = window.innerWidth;
+      const thumbnailCenterX = rect.left + rect.width / 2;
 
-    // Only update on resize (responsive), NOT on scroll
-    const handleResize = () => {
-      const newRect = thumbnailRef.current?.getBoundingClientRect();
-      if (newRect) {
-        const newRightOffset = window.innerWidth - newRect.right;
+      // Determine which edge is closer
+      const distanceToLeft = rect.left;
+      const distanceToRight = viewportWidth - rect.right;
+
+      // Card should stick to the nearest edge
+      if (distanceToRight <= distanceToLeft) {
+        // Closer to right edge - align right
         setPosition({
-          top: newRect.bottom + 8,
-          right: Math.max(16, newRightOffset),
+          top: rect.bottom + 8,
+          right: Math.max(16, distanceToRight),
+          left: undefined,
+        });
+      } else {
+        // Closer to left edge - align left
+        setPosition({
+          top: rect.bottom + 8,
+          left: Math.max(16, distanceToLeft),
+          right: undefined,
         });
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    calculatePosition();
+
+    // Only update on resize (responsive), NOT on scroll
+    window.addEventListener('resize', calculatePosition);
+    return () => window.removeEventListener('resize', calculatePosition);
   }, [currentLevel, thumbnailRef]);
 
   // Handle escape key
@@ -160,7 +176,8 @@ export function ProfileMiniCard() {
       className="fixed z-[99999] animate-scaleIn"
       style={{
         top: position.top,
-        right: position.right,
+        ...(position.right !== undefined ? { right: position.right } : {}),
+        ...(position.left !== undefined ? { left: position.left } : {}),
         width: CARD_WIDTH,
         maxWidth: 'calc(100vw - 32px)',
         pointerEvents: 'auto',

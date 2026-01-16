@@ -210,7 +210,14 @@ export function ProfileExpanded() {
       }}
     >
       {/* Large VideoAvatar - Apple Watch squircle */}
-      <div className="relative">
+      {/* When locked, show subtle amber border glow instead of emoji */}
+      <div
+        className={`relative transition-all duration-300 ${
+          isLocked
+            ? 'ring-2 ring-amber-400/60 ring-offset-2 ring-offset-transparent rounded-[22%]'
+            : ''
+        }`}
+      >
         <VideoAvatar
           imageSrc={profile.avatar_url || undefined}
           alt={profile.display_name || 'Profile'}
@@ -225,13 +232,6 @@ export function ProfileExpanded() {
         >
           {getNetworkIndicator()}
         </div>
-
-        {/* Lock indicator */}
-        {isLocked && (
-          <div className="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-amber-500 shadow-lg flex items-center justify-center">
-            <span className="text-white text-[8px]">🔒</span>
-          </div>
-        )}
       </div>
     </div>
   );

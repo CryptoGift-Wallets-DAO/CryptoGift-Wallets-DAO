@@ -314,29 +314,41 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
           <ProfileCard size="sm" />
         </div>
 
-        {/* Clickable area for dropdown */}
-        <button
-          onClick={() => setShowDropdown(!showDropdown)}
-          className="flex items-center space-x-2 flex-1"
-        >
-          {/* Wallet Info */}
+        {/* Wallet Info - Address is clickable to copy */}
+        <div className="flex items-center space-x-2 flex-1">
           <div className="flex-1 text-left">
-            <div className="font-medium text-gray-900 dark:text-white text-xs">
-              {displayAddress}
-            </div>
+            {/* Clickable address with copy feedback */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCopy();
+              }}
+              className="font-medium text-gray-900 dark:text-white text-xs hover:text-amber-500 dark:hover:text-amber-400 transition-colors flex items-center gap-1"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3 h-3 text-emerald-500" />
+                  <span className="text-emerald-500">{tCommon('copied')}</span>
+                </>
+              ) : (
+                displayAddress
+              )}
+            </button>
             <div className="text-xs text-gray-500 dark:text-gray-400">
               {formattedBalance} CGC
             </div>
           </div>
 
-          {/* Network indicator */}
-          <div className={`w-2 h-2 rounded-full ${isSupported ? 'bg-green-500' : 'bg-red-500'}`}></div>
-
-          {/* Dropdown Arrow */}
-          <ChevronDown
-            className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`}
-          />
-        </button>
+          {/* Dropdown toggle button */}
+          <button
+            onClick={() => setShowDropdown(!showDropdown)}
+            className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors"
+          >
+            <ChevronDown
+              className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Dropdown Menu */}

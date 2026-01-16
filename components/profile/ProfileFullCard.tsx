@@ -173,17 +173,8 @@ export function ProfileFullCard() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [currentLevel, closeLevel]);
 
-  // Lock body scroll when open
-  useEffect(() => {
-    if (currentLevel === 4) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [currentLevel]);
+  // NOTE: We do NOT lock body scroll - this preserves navbar sticky behavior
+  // and allows page content to flow underneath the modal
 
   if (!mounted || currentLevel !== 4 || !profile) return null;
 
@@ -202,14 +193,14 @@ export function ProfileFullCard() {
 
   const modalContent = (
     <>
-      {/* Backdrop */}
+      {/* Backdrop - high z-index to be above navbar */}
       <div
-        className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm animate-fadeIn"
+        className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-sm animate-fadeIn"
         onClick={closeLevel}
       />
 
-      {/* Modal */}
-      <div className="fixed z-[70] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-64px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-scaleIn">
+      {/* Modal - highest z-index, positioned near top-right to avoid blocking content */}
+      <div className="fixed z-[99999] top-20 right-4 w-[420px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-scaleIn">
 
         {/* Header with gradient */}
         <div className="relative bg-gradient-to-br from-purple-600/10 via-indigo-600/10 to-cyan-600/10 dark:from-purple-600/20 dark:via-indigo-600/20 dark:to-cyan-600/20 p-6 pb-4">
