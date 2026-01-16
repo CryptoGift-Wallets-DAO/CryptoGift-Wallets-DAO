@@ -1,6 +1,5 @@
 'use client';
 import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 
 function ThemeColorUpdater({ children }: { children: React.ReactNode }) {
@@ -45,18 +44,12 @@ function ThemeColorUpdater({ children }: { children: React.ReactNode }) {
     }
   }, [theme, systemTheme]);
 
+  // NOTE: Using plain div instead of motion.div to preserve CSS sticky positioning
+  // framer-motion can add will-change/transform which breaks position: sticky
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-        className="min-h-screen bg-background text-foreground"
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <div className="min-h-screen bg-background text-foreground">
+      {children}
+    </div>
   );
 }
 
