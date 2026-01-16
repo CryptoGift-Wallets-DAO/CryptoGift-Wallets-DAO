@@ -89,30 +89,31 @@ export function ProfileExpanded() {
     setMounted(true);
   }, []);
 
-  // Calculate position based on thumbnail ref
+  // Calculate position ONCE when opening - FIXED to screen, not page
+  // The navbar is sticky top-0, so thumbnail position is constant relative to viewport
   useEffect(() => {
     if (currentLevel !== 2 || !thumbnailRef.current) return;
 
-    const updatePosition = () => {
-      const rect = thumbnailRef.current?.getBoundingClientRect();
-      if (rect) {
-        // Position: align top-left of expanded with top-left of thumbnail
-        // The expanded avatar overlays starting from the same corner
+    // Calculate position ONCE - this is FIXED to the screen
+    const rect = thumbnailRef.current.getBoundingClientRect();
+    setPosition({
+      top: rect.top,
+      left: rect.left,
+    });
+
+    // Only update on resize (responsive), NOT on scroll
+    const handleResize = () => {
+      const newRect = thumbnailRef.current?.getBoundingClientRect();
+      if (newRect) {
         setPosition({
-          top: rect.top,
-          left: rect.left,
+          top: newRect.top,
+          left: newRect.left,
         });
       }
     };
 
-    updatePosition();
-    window.addEventListener('scroll', updatePosition);
-    window.addEventListener('resize', updatePosition);
-
-    return () => {
-      window.removeEventListener('scroll', updatePosition);
-      window.removeEventListener('resize', updatePosition);
-    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [currentLevel, thumbnailRef]);
 
   // Handle click outside when locked

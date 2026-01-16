@@ -64,32 +64,34 @@ export function ProfileMiniCard() {
     setMounted(true);
   }, []);
 
-  // Calculate position based on thumbnail ref - position near navbar panel
+  // Calculate position ONCE when opening - FIXED to screen, not page
+  // The navbar is sticky top-0, so thumbnail position is constant relative to viewport
   useEffect(() => {
     if (currentLevel !== 3 || !thumbnailRef.current) return;
 
-    const updatePosition = () => {
-      const rect = thumbnailRef.current?.getBoundingClientRect();
-      if (rect) {
-        // Position: align to the right edge of the viewport, below the navbar
-        // The card should appear near the profile panel area
-        const rightOffset = window.innerWidth - rect.right;
+    // Calculate position ONCE - this is FIXED to the screen
+    const rect = thumbnailRef.current.getBoundingClientRect();
+    const rightOffset = window.innerWidth - rect.right;
 
+    setPosition({
+      top: rect.bottom + 8, // 8px below the thumbnail
+      right: Math.max(16, rightOffset), // Maintain right alignment
+    });
+
+    // Only update on resize (responsive), NOT on scroll
+    const handleResize = () => {
+      const newRect = thumbnailRef.current?.getBoundingClientRect();
+      if (newRect) {
+        const newRightOffset = window.innerWidth - newRect.right;
         setPosition({
-          top: rect.bottom + 8, // 8px below the thumbnail
-          right: Math.max(16, rightOffset), // Maintain right alignment
+          top: newRect.bottom + 8,
+          right: Math.max(16, newRightOffset),
         });
       }
     };
 
-    updatePosition();
-    window.addEventListener('scroll', updatePosition);
-    window.addEventListener('resize', updatePosition);
-
-    return () => {
-      window.removeEventListener('scroll', updatePosition);
-      window.removeEventListener('resize', updatePosition);
-    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [currentLevel, thumbnailRef]);
 
   // Handle escape key
