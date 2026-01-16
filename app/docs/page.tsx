@@ -218,28 +218,28 @@ export default function DocsPage() {
 
           {/* Navigation Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <TabsList className="glass-panel p-1 grid w-full grid-cols-6">
-              <TabsTrigger value="whitepaper" className="data-[state=active]:glass-bubble">
+            <TabsList className="glass-panel p-1 flex w-full overflow-x-auto scrollbar-hide gap-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <TabsTrigger value="whitepaper" className="data-[state=active]:glass-bubble flex-shrink-0 whitespace-nowrap">
                 <FileText className="h-4 w-4 mr-2" />
                 {t('nav.whitepaper')}
               </TabsTrigger>
-              <TabsTrigger value="tokenomics" className="data-[state=active]:glass-bubble">
+              <TabsTrigger value="tokenomics" className="data-[state=active]:glass-bubble flex-shrink-0 whitespace-nowrap">
                 <Coins className="h-4 w-4 mr-2" />
                 {t('nav.tokenomics')}
               </TabsTrigger>
-              <TabsTrigger value="contracts" className="data-[state=active]:glass-bubble">
+              <TabsTrigger value="contracts" className="data-[state=active]:glass-bubble flex-shrink-0 whitespace-nowrap">
                 <Code className="h-4 w-4 mr-2" />
                 {t('nav.contracts')}
               </TabsTrigger>
-              <TabsTrigger value="governance" className="data-[state=active]:glass-bubble">
+              <TabsTrigger value="governance" className="data-[state=active]:glass-bubble flex-shrink-0 whitespace-nowrap">
                 <Vote className="h-4 w-4 mr-2" />
                 {t('nav.governance')}
               </TabsTrigger>
-              <TabsTrigger value="roadmap" className="data-[state=active]:glass-bubble">
+              <TabsTrigger value="roadmap" className="data-[state=active]:glass-bubble flex-shrink-0 whitespace-nowrap">
                 <Map className="h-4 w-4 mr-2" />
                 {t('nav.roadmap')}
               </TabsTrigger>
-              <TabsTrigger value="verification" className="data-[state=active]:glass-bubble">
+              <TabsTrigger value="verification" className="data-[state=active]:glass-bubble flex-shrink-0 whitespace-nowrap">
                 <Shield className="h-4 w-4 mr-2" />
                 {t('nav.verification')}
               </TabsTrigger>
