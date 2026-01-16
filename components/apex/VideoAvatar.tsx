@@ -28,6 +28,8 @@ interface VideoAvatarProps {
   enableSound?: boolean;
   enableFloat?: boolean;
   onClick?: () => void;
+  /** When true, shows amber "locked" border instead of default */
+  isLocked?: boolean;
 }
 
 const sizeMap = {
@@ -46,6 +48,7 @@ export function VideoAvatar({
   enableSound = false,
   enableFloat = false,
   onClick,
+  isLocked = false,
 }: VideoAvatarProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -117,7 +120,11 @@ export function VideoAvatar({
 
       {/* Main container with squircle shape */}
       <div
-        className="relative w-full h-full rounded-[22%] overflow-hidden border-2 border-white/20 dark:border-white/10 bg-gradient-to-br from-slate-700 to-slate-900"
+        className={`relative w-full h-full rounded-[22%] overflow-hidden border-2 bg-gradient-to-br from-slate-700 to-slate-900 transition-colors duration-300 ${
+          isLocked
+            ? 'border-amber-400/70 shadow-[0_0_8px_rgba(251,191,36,0.3)]'
+            : 'border-white/20 dark:border-white/10'
+        }`}
       >
         {/* Video content */}
         {showVideo && (

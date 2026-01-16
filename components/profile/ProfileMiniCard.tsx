@@ -70,7 +70,7 @@ export function ProfileMiniCard() {
   }, []);
 
   // Calculate position ONCE when opening - FIXED to screen, not page
-  // Automatically detect which edge is nearest and stick to it
+  // ALWAYS stick to the RIGHT edge of the screen, below the thumbnail
   useEffect(() => {
     if (currentLevel !== 3 || !thumbnailRef.current) return;
 
@@ -78,29 +78,13 @@ export function ProfileMiniCard() {
       const rect = thumbnailRef.current?.getBoundingClientRect();
       if (!rect) return;
 
-      const viewportWidth = window.innerWidth;
-      const thumbnailCenterX = rect.left + rect.width / 2;
-
-      // Determine which edge is closer
-      const distanceToLeft = rect.left;
-      const distanceToRight = viewportWidth - rect.right;
-
-      // Card should stick to the nearest edge
-      if (distanceToRight <= distanceToLeft) {
-        // Closer to right edge - align right
-        setPosition({
-          top: rect.bottom + 8,
-          right: Math.max(16, distanceToRight),
-          left: undefined,
-        });
-      } else {
-        // Closer to left edge - align left
-        setPosition({
-          top: rect.bottom + 8,
-          left: Math.max(16, distanceToLeft),
-          right: undefined,
-        });
-      }
+      // Always position at right edge of screen with 16px margin
+      // Top aligned just below the thumbnail
+      setPosition({
+        top: rect.bottom + 8,
+        right: 16,
+        left: undefined,
+      });
     };
 
     calculatePosition();

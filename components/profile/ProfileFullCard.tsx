@@ -149,7 +149,7 @@ function SocialSlot({ network, handle, t }: SocialSlotProps) {
 // =====================================================
 
 export function ProfileFullCard() {
-  const { profile, currentLevel, closeLevel, isOwnProfile } = useProfileCard();
+  const { profile, currentLevel, closeLevel, isOwnProfile, thumbnailRef } = useProfileCard();
   const t = useTranslations('profile');
 
   const [mounted, setMounted] = useState(false);
@@ -173,8 +173,37 @@ export function ProfileFullCard() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [currentLevel, closeLevel]);
 
-  // NOTE: We do NOT lock body scroll - this preserves navbar sticky behavior
-  // and allows page content to flow underneath the modal
+  // Handle click outside - close modal when clicking outside
+  useEffect(() => {
+    if (currentLevel !== 4) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const modalEl = document.getElementById('profile-full-card');
+      const thumbnailEl = thumbnailRef.current;
+
+      if (
+        modalEl &&
+        !modalEl.contains(target) &&
+        thumbnailEl &&
+        !thumbnailEl.contains(target)
+      ) {
+        closeLevel();
+      }
+    };
+
+    // Delay to prevent immediate close from the opening click
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [currentLevel, closeLevel, thumbnailRef]);
+
+  // NOTE: No backdrop, no body scroll lock - page stays interactive
 
   if (!mounted || currentLevel !== 4 || !profile) return null;
 
@@ -192,15 +221,11 @@ export function ProfileFullCard() {
     : 'https://discord.gg/XzmKkrvhHc';
 
   const modalContent = (
-    <>
-      {/* Backdrop - high z-index to be above navbar */}
-      <div
-        className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-sm animate-fadeIn"
-        onClick={closeLevel}
-      />
-
-      {/* Modal - highest z-index, positioned near top-right to avoid blocking content */}
-      <div className="fixed z-[99999] top-20 right-4 w-[420px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-expandIn origin-top-right">
+    // No backdrop - page stays fully interactive
+    <div
+      id="profile-full-card"
+      className="fixed z-[99999] top-20 right-4 w-[420px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-expandIn origin-top-right"
+    >
 
         {/* Header with gradient */}
         <div className="relative bg-gradient-to-br from-purple-600/10 via-indigo-600/10 to-cyan-600/10 dark:from-purple-600/20 dark:via-indigo-600/20 dark:to-cyan-600/20 p-6 pb-4">
@@ -353,14 +378,13 @@ export function ProfileFullCard() {
           </button>
         </div>
 
-        {/* Footer */}
-        <div className="p-3 border-t border-gray-200/50 dark:border-slate-700/50 text-center">
-          <p className="text-[10px] text-gray-400 dark:text-gray-500">
-            apeX Profile System • CryptoGift DAO
-          </p>
-        </div>
+      {/* Footer */}
+      <div className="p-3 border-t border-gray-200/50 dark:border-slate-700/50 text-center">
+        <p className="text-[10px] text-gray-400 dark:text-gray-500">
+          apeX Profile System • CryptoGift DAO
+        </p>
       </div>
-    </>
+    </div>
   );
 
   return createPortal(modalContent, document.body);

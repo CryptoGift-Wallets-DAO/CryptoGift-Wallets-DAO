@@ -216,15 +216,8 @@ export function ProfileExpanded() {
           alt={profile.display_name || 'Profile'}
           size="xl"
           className="!w-[160px] !h-[160px]"
+          isLocked={isLocked}
         />
-
-        {/* Lock indicator - subtle amber border overlay (same size, no offset) */}
-        {isLocked && (
-          <div
-            className="absolute inset-0 rounded-[22%] pointer-events-none border-2 border-amber-400/70 transition-all duration-300"
-            style={{ boxShadow: '0 0 8px rgba(251, 191, 36, 0.3)' }}
-          />
-        )}
 
         {/* Network Indicator - bottom right corner */}
         <div
