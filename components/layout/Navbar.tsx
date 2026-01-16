@@ -48,7 +48,7 @@ import {
   Users,
   User
 } from 'lucide-react';
-import { ApexAvatar } from '@/components/apex';
+import { ProfileCard } from '@/components/profile';
 
 export const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -305,38 +305,39 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
   return (
     <div className={`relative ${fullWidth ? 'w-full' : ''}`}>
       {/* Main Wallet Button */}
-      <button
-        onClick={() => setShowDropdown(!showDropdown)}
+      <div
         className={`flex items-center space-x-2 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 px-3 py-2
                  hover:border-amber-400 dark:hover:border-slate-500 transition-all duration-300 ${fullWidth ? 'w-full' : ''}`}
       >
-        {/* ApexAvatar - Apple Watch style, shows user profile photo */}
-        <ApexAvatar
-          size="sm"
-          showBadge={false}
-          enableFloat={false}
-          useUserProfile={true}
-          className="flex-shrink-0"
-        />
-
-        {/* Wallet Info */}
-        <div className="flex-1 text-left">
-          <div className="font-medium text-gray-900 dark:text-white text-xs">
-            {displayAddress}
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            {formattedBalance} CGC
-          </div>
+        {/* ProfileCard - 4-level profile system (click avatar for full profile) */}
+        <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
+          <ProfileCard size="sm" />
         </div>
 
-        {/* Network indicator */}
-        <div className={`w-2 h-2 rounded-full ${isSupported ? 'bg-green-500' : 'bg-red-500'}`}></div>
+        {/* Clickable area for dropdown */}
+        <button
+          onClick={() => setShowDropdown(!showDropdown)}
+          className="flex items-center space-x-2 flex-1"
+        >
+          {/* Wallet Info */}
+          <div className="flex-1 text-left">
+            <div className="font-medium text-gray-900 dark:text-white text-xs">
+              {displayAddress}
+            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              {formattedBalance} CGC
+            </div>
+          </div>
 
-        {/* Dropdown Arrow */}
-        <ChevronDown
-          className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`}
-        />
-      </button>
+          {/* Network indicator */}
+          <div className={`w-2 h-2 rounded-full ${isSupported ? 'bg-green-500' : 'bg-red-500'}`}></div>
+
+          {/* Dropdown Arrow */}
+          <ChevronDown
+            className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`}
+          />
+        </button>
+      </div>
 
       {/* Dropdown Menu */}
       {showDropdown && (
@@ -353,13 +354,8 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
               {/* Wallet Header */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  {/* ApexAvatar - Larger in dropdown, shows user profile photo */}
-                  <ApexAvatar
-                    size="md"
-                    showBadge={false}
-                    enableFloat={false}
-                    useUserProfile={true}
-                  />
+                  {/* ProfileCard - Click to open full profile system */}
+                  <ProfileCard size="md" />
                   <div>
                     <div className="font-medium text-gray-900 dark:text-white">{displayAddress}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">

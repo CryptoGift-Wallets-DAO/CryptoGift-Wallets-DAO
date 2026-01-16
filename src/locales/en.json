@@ -2400,5 +2400,25 @@
       "invalidType": "Invalid file type. Please upload a video or image.",
       "uploadFailed": "Upload failed. Please try again."
     }
+  },
+  "profile": {
+    "viewFullProfile": "View full profile",
+    "sendMessage": "Send Message",
+    "copyWallet": "Copy wallet address",
+    "copied": "Copied!",
+    "about": "About",
+    "networks": "Networks",
+    "wallet": "Wallet",
+    "tier": "Tier",
+    "clickToExpand": "Click to view full profile",
+    "notLinked": "not linked",
+    "stats": {
+      "reputation": "Reputation",
+      "respect": "Respect",
+      "tasks": "Tasks",
+      "contributions": "Contributions",
+      "referrals": "Referrals",
+      "earned": "CGC Earned"
+    }
   }
 }

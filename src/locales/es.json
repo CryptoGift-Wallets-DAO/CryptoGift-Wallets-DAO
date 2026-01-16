@@ -2400,5 +2400,25 @@
       "invalidType": "Tipo de archivo inválido. Por favor sube un video o imagen.",
       "uploadFailed": "Error al subir. Por favor intenta de nuevo."
     }
+  },
+  "profile": {
+    "viewFullProfile": "Ver perfil completo",
+    "sendMessage": "Enviar Mensaje",
+    "copyWallet": "Copiar dirección de wallet",
+    "copied": "¡Copiado!",
+    "about": "Acerca de",
+    "networks": "Redes",
+    "wallet": "Wallet",
+    "tier": "Nivel",
+    "clickToExpand": "Clic para ver perfil completo",
+    "notLinked": "no vinculado",
+    "stats": {
+      "reputation": "Reputación",
+      "respect": "Respeto",
+      "tasks": "Tareas",
+      "contributions": "Contribuciones",
+      "referrals": "Referidos",
+      "earned": "CGC Ganados"
+    }
   }
 }
