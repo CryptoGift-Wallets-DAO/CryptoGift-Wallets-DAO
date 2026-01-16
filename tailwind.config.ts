@@ -61,11 +61,17 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translate(-50%, -50%) scale(0.95)' },
           '100%': { opacity: '1', transform: 'translate(-50%, -50%) scale(1)' },
         },
+        // Scale from origin (no translate) - for positioned elements
+        expandIn: {
+          '0%': { opacity: '0', transform: 'scale(0.5)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
       },
       animation: {
         apexFloat: 'apexFloat 4s ease-in-out infinite',
         fadeIn: 'fadeIn 0.2s ease-out',
         scaleIn: 'scaleIn 0.25s ease-out',
+        expandIn: 'expandIn 0.2s ease-out',
       },
     },
   },

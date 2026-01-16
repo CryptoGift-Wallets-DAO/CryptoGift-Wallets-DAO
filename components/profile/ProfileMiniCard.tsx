@@ -170,10 +170,13 @@ export function ProfileMiniCard() {
     linkedSocials.push({ key: 'website', url: profile.website_url });
   }
 
+  // Determine transform origin based on alignment
+  const transformOrigin = position.right !== undefined ? 'top right' : 'top left';
+
   const cardContent = (
     <div
       id="profile-mini-card"
-      className="fixed z-[99999] animate-scaleIn"
+      className="fixed z-[99999] animate-expandIn"
       style={{
         top: position.top,
         ...(position.right !== undefined ? { right: position.right } : {}),
@@ -181,6 +184,7 @@ export function ProfileMiniCard() {
         width: CARD_WIDTH,
         maxWidth: 'calc(100vw - 32px)',
         pointerEvents: 'auto',
+        transformOrigin,
       }}
     >
       {/* Card */}

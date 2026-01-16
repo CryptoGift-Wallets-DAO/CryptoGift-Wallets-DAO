@@ -192,7 +192,7 @@ export function ProfileExpanded() {
   const expandedContent = (
     <div
       id="profile-expanded-avatar"
-      className="fixed z-[99999] animate-scaleIn cursor-pointer"
+      className="fixed z-[99999] animate-expandIn origin-top-left cursor-pointer"
       style={{
         top: position.top,
         left: position.left,
@@ -210,20 +210,21 @@ export function ProfileExpanded() {
       }}
     >
       {/* Large VideoAvatar - Apple Watch squircle */}
-      {/* When locked, show subtle amber border glow instead of emoji */}
-      <div
-        className={`relative transition-all duration-300 ${
-          isLocked
-            ? 'ring-2 ring-amber-400/60 ring-offset-2 ring-offset-transparent rounded-[22%]'
-            : ''
-        }`}
-      >
+      <div className="relative">
         <VideoAvatar
           imageSrc={profile.avatar_url || undefined}
           alt={profile.display_name || 'Profile'}
           size="xl"
           className="!w-[160px] !h-[160px]"
         />
+
+        {/* Lock indicator - subtle amber border overlay (same size, no offset) */}
+        {isLocked && (
+          <div
+            className="absolute inset-0 rounded-[22%] pointer-events-none border-2 border-amber-400/70 transition-all duration-300"
+            style={{ boxShadow: '0 0 8px rgba(251, 191, 36, 0.3)' }}
+          />
+        )}
 
         {/* Network Indicator - bottom right corner */}
         <div

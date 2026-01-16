@@ -200,7 +200,7 @@ export function ProfileFullCard() {
       />
 
       {/* Modal - highest z-index, positioned near top-right to avoid blocking content */}
-      <div className="fixed z-[99999] top-20 right-4 w-[420px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-scaleIn">
+      <div className="fixed z-[99999] top-20 right-4 w-[420px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-expandIn origin-top-right">
 
         {/* Header with gradient */}
         <div className="relative bg-gradient-to-br from-purple-600/10 via-indigo-600/10 to-cyan-600/10 dark:from-purple-600/20 dark:via-indigo-600/20 dark:to-cyan-600/20 p-6 pb-4">
