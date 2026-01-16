@@ -3,11 +3,11 @@
 /**
  * ProfileMiniCard - Level 3 of ProfileCard system
  *
- * Card view showing:
+ * Card view positioned near the navbar panel showing:
  * - Large avatar (112px)
  * - Name + Role/Tier
  * - Stats preview (Reputation + Tasks)
- * - Bio preview
+ * - Username
  * - Social icons preview
  * - Click → opens Level 4 (full modal)
  *
@@ -50,15 +50,47 @@ const SocialIcons = {
 
 type SocialKey = keyof typeof SocialIcons;
 
+// Card dimensions
+const CARD_WIDTH = 320;
+
 export function ProfileMiniCard() {
-  const { profile, currentLevel, closeLevel, goToLevel } = useProfileCard();
+  const { profile, currentLevel, thumbnailRef, closeLevel, goToLevel } = useProfileCard();
   const t = useTranslations('profile');
 
   const [mounted, setMounted] = useState(false);
+  const [position, setPosition] = useState({ top: 0, right: 0 });
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Calculate position based on thumbnail ref - position near navbar panel
+  useEffect(() => {
+    if (currentLevel !== 3 || !thumbnailRef.current) return;
+
+    const updatePosition = () => {
+      const rect = thumbnailRef.current?.getBoundingClientRect();
+      if (rect) {
+        // Position: align to the right edge of the viewport, below the navbar
+        // The card should appear near the profile panel area
+        const rightOffset = window.innerWidth - rect.right;
+
+        setPosition({
+          top: rect.bottom + 8, // 8px below the thumbnail
+          right: Math.max(16, rightOffset), // Maintain right alignment
+        });
+      }
+    };
+
+    updatePosition();
+    window.addEventListener('scroll', updatePosition);
+    window.addEventListener('resize', updatePosition);
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [currentLevel, thumbnailRef]);
 
   // Handle escape key
   useEffect(() => {
@@ -74,17 +106,34 @@ export function ProfileMiniCard() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [currentLevel, closeLevel]);
 
-  // Lock body scroll when open
+  // Handle click outside
   useEffect(() => {
-    if (currentLevel === 3) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
+    if (currentLevel !== 3) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const cardEl = document.getElementById('profile-mini-card');
+      const thumbnailEl = thumbnailRef.current;
+
+      if (
+        cardEl &&
+        !cardEl.contains(target) &&
+        thumbnailEl &&
+        !thumbnailEl.contains(target)
+      ) {
+        closeLevel();
+      }
     };
-  }, [currentLevel]);
+
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [currentLevel, closeLevel, thumbnailRef]);
 
   if (!mounted || currentLevel !== 3 || !profile) return null;
 
@@ -103,24 +152,21 @@ export function ProfileMiniCard() {
     linkedSocials.push({ key: 'website', url: profile.website_url });
   }
 
-  // Bio preview
-  const bioPreview = profile.bio
-    ? profile.bio.length > 150
-      ? `${profile.bio.slice(0, 150)}...`
-      : profile.bio
-    : null;
-
   const cardContent = (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-[60] bg-black/50 dark:bg-black/70 backdrop-blur-sm animate-fadeIn"
-        onClick={closeLevel}
-      />
-
+    <div
+      id="profile-mini-card"
+      className="fixed z-[9999] animate-scaleIn"
+      style={{
+        top: position.top,
+        right: position.right,
+        width: CARD_WIDTH,
+        maxWidth: 'calc(100vw - 32px)',
+        pointerEvents: 'auto',
+      }}
+    >
       {/* Card */}
       <div
-        className="fixed z-[70] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] max-w-[calc(100vw-32px)] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-scaleIn cursor-pointer group"
+        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 cursor-pointer group overflow-hidden"
         onClick={() => goToLevel(4)}
         role="button"
         tabIndex={0}
@@ -175,10 +221,10 @@ export function ProfileMiniCard() {
             </div>
           </div>
 
-          {/* Bio */}
-          {bioPreview && (
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-              {bioPreview}
+          {/* Username */}
+          {profile.username && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              {profile.username}
             </p>
           )}
 
@@ -206,7 +252,7 @@ export function ProfileMiniCard() {
           </p>
         </div>
       </div>
-    </>
+    </div>
   );
 
   return createPortal(cardContent, document.body);
