@@ -155,7 +155,7 @@ export function ProfileMiniCard() {
   const cardContent = (
     <div
       id="profile-mini-card"
-      className="fixed z-[9999] animate-scaleIn"
+      className="fixed z-[99999] animate-scaleIn"
       style={{
         top: position.top,
         right: position.right,

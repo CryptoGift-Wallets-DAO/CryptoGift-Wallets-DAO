@@ -191,7 +191,7 @@ export function ProfileExpanded() {
   const expandedContent = (
     <div
       id="profile-expanded-avatar"
-      className="fixed z-[9999] animate-scaleIn cursor-pointer"
+      className="fixed z-[99999] animate-scaleIn cursor-pointer"
       style={{
         top: position.top,
         left: position.left,
