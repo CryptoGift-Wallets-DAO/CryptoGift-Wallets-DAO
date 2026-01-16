@@ -67,7 +67,7 @@ export const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-lg sticky top-0 z-40 transition-colors duration-300 border-b border-gray-200/50 dark:border-slate-700/50">
+    <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-lg sticky top-0 z-[10000] transition-colors duration-300 border-b border-gray-200/50 dark:border-slate-700/50">
       <div className="container mx-auto px-2">
         <div className="flex justify-between items-center py-4">
           {/* Logo and Brand */}
@@ -176,7 +176,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 dark:border-slate-700 py-4 bg-white dark:bg-slate-900">
+          <div className="md:hidden border-t border-gray-200 dark:border-slate-700 py-4 bg-white dark:bg-slate-900 relative z-[10001]">
             <div className="space-y-4">
               <Link
                 href="/dashboard"
@@ -342,12 +342,12 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-10"
+            className="fixed inset-0 z-[10000]"
             onClick={() => setShowDropdown(false)}
           />
 
           {/* Dropdown Content */}
-          <div className={`absolute top-full ${fullWidth ? 'left-0 right-0' : 'right-0 min-w-[280px]'} mt-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-200 dark:border-slate-600 z-20`}>
+          <div className={`absolute top-full ${fullWidth ? 'left-0 right-0' : 'right-0 min-w-[280px]'} mt-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-200 dark:border-slate-600 z-[10001]`}>
             <div className="p-4">
               {/* Wallet Header */}
               <div className="flex items-center justify-between mb-4">
