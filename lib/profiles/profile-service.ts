@@ -506,20 +506,25 @@ export async function updateProfile(
     throw new Error('Profile not found');
   }
 
-  // Validate username if provided
+  // Convert empty username to null (optional field)
   if (updates.username !== undefined) {
-    if (updates.username && !isValidUsername(updates.username)) {
+    if (updates.username === '' || updates.username?.trim() === '') {
+      updates.username = null;
+    }
+  }
+
+  // Validate username if provided and not null
+  if (updates.username !== undefined && updates.username !== null) {
+    if (!isValidUsername(updates.username)) {
       throw new Error('Invalid username format. Use 3-50 alphanumeric characters or underscores.');
     }
 
     // Check uniqueness
-    if (updates.username) {
-      const existing = await getProfileByUsername(updates.username);
-      if (existing && existing.id !== profile.id) {
-        throw new Error('Username already taken');
-      }
-      updates.username = updates.username.toLowerCase();
+    const existing = await getProfileByUsername(updates.username);
+    if (existing && existing.id !== profile.id) {
+      throw new Error('Username already taken');
     }
+    updates.username = updates.username.toLowerCase();
   }
 
   // Remove sensitive fields from updates

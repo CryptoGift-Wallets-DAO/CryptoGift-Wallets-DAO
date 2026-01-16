@@ -310,11 +310,12 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
         className={`flex items-center space-x-2 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 px-3 py-2
                  hover:border-amber-400 dark:hover:border-slate-500 transition-all duration-300 ${fullWidth ? 'w-full' : ''}`}
       >
-        {/* ApexAvatar - Apple Watch style */}
+        {/* ApexAvatar - Apple Watch style, shows user profile photo */}
         <ApexAvatar
           size="sm"
           showBadge={false}
           enableFloat={false}
+          useUserProfile={true}
           className="flex-shrink-0"
         />
 
@@ -352,11 +353,12 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
               {/* Wallet Header */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  {/* ApexAvatar - Larger in dropdown */}
+                  {/* ApexAvatar - Larger in dropdown, shows user profile photo */}
                   <ApexAvatar
                     size="md"
                     showBadge={false}
                     enableFloat={false}
+                    useUserProfile={true}
                   />
                   <div>
                     <div className="font-medium text-gray-900 dark:text-white">{displayAddress}</div>

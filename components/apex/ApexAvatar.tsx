@@ -8,6 +8,7 @@
  * - Floating animation (gentle oscillation)
  * - Notification badge
  * - Sticky positioning on scroll
+ * - Auto-loads user profile avatar when connected
  * - Tap to expand panel (Phase 2)
  *
  * Made by mbxarts.com The Moon in a Box property
@@ -16,6 +17,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAccount } from '@/lib/thirdweb';
+import { useProfile } from '@/hooks/useProfile';
 import { AvatarBadge } from './AvatarBadge';
 import { Bell } from 'lucide-react';
 
@@ -29,6 +31,8 @@ interface ApexAvatarProps {
   enableSticky?: boolean;
   videoSrc?: string;
   imageSrc?: string;
+  /** When true, automatically fetches and shows the user's profile avatar */
+  useUserProfile?: boolean;
 }
 
 const SIZE_MAP = {
@@ -47,6 +51,7 @@ export function ApexAvatar({
   enableSticky = false,
   videoSrc,
   imageSrc = '/apeX22.PNG',
+  useUserProfile = false,
 }: ApexAvatarProps) {
   const { address, isConnected } = useAccount();
   const [isHovered, setIsHovered] = useState(false);
@@ -54,6 +59,12 @@ export function ApexAvatar({
   const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const initialTopRef = useRef<number | null>(null);
+
+  // Fetch user profile for avatar when useUserProfile is enabled
+  const { profile } = useProfile(useUserProfile && isConnected ? address : undefined);
+
+  // Determine final image source: user profile avatar > prop imageSrc > default
+  const finalImageSrc = (useUserProfile && profile?.avatar_url) || imageSrc;
 
   const dimensions = SIZE_MAP[size];
 
@@ -170,12 +181,12 @@ export function ApexAvatar({
             className="absolute inset-0 w-full h-full object-cover"
             style={squircleStyle}
           />
-        ) : imageSrc ? (
+        ) : finalImageSrc ? (
           <div
             className="absolute inset-0 w-full h-full bg-cover bg-center"
             style={{
               ...squircleStyle,
-              backgroundImage: `url(${imageSrc})`,
+              backgroundImage: `url(${finalImageSrc})`,
             }}
           />
         ) : (
