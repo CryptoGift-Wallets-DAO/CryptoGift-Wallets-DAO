@@ -28,7 +28,7 @@
       "badge2": "Convierte Cualquier Regalo en una Web3 Wallet",
       "title1": "Regala el Futuro.",
       "title2": "Transforma Vidas.",
-      "subtitle": "Regala una foto, un recuerdo, un NFT — y convierte a tu amigo que 'no entiende crypto' en holder, contribuidor DAO y protagonista de su libertad financiera. Sin seed phrases. Sin gas. Sin confusión.",
+      "subtitle": "Regala una foto, un recuerdo, un NFT... y convierte a tu amigo que 'no entiende crypto' en holder, contribuidor DAO y protagonista de su libertad financiera. Sin seed phrases. Sin gas. Sin confusión.",
       "cta1": "Comienza Ahora",
       "cta2": "Ver Cómo Funciona",
       "trust1": "Contratos Verificados",
@@ -713,7 +713,7 @@
       "title": "Solo Miembros de la Comunidad",
       "description": "La sección de Tareas está reservada para miembros de la comunidad CryptoGift Wallets DAO.",
       "whatAreTasksTitle": "¿Qué son las Tareas?",
-      "whatAreTasksDesc": "Las Tareas son oportunidades reales para contribuir a construir el ecosistema CryptoGift. Cada tarea es un trabajo pagado—complétala, recibe validación y obtén tokens CGC directamente en tu wallet.",
+      "whatAreTasksDesc": "Las Tareas son oportunidades reales para contribuir a construir el ecosistema CryptoGift. Cada tarea es un trabajo pagado: complétala, recibe validación y obtén tokens CGC directamente en tu wallet.",
       "features": {
         "title": "¿Por qué unirte al Equipo de Tareas?",
         "item1": "Gana tokens CGC por cada tarea completada",
@@ -729,7 +729,7 @@
       },
       "cta": {
         "title": "¿Aún no tienes CGC?",
-        "description": "Únete a nuestra comunidad a través de una invitación especial de referido y recibe 200 tokens CGC al instante—suficiente para desbloquear Tareas y empezar a ganar!",
+        "description": "Únete a nuestra comunidad a través de una invitación especial de referido y recibe 200 tokens CGC al instante, suficiente para desbloquear Tareas y empezar a ganar!",
         "buttonText": "Obtén 200 CGC Gratis",
         "rewardBadge": "+200 CGC Bono"
       }

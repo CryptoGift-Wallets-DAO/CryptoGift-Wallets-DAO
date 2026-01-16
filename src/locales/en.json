@@ -28,7 +28,7 @@
       "badge2": "Turn Any Gift Into a Web3 Wallet",
       "title1": "Gift the Future.",
       "title2": "Transform Lives.",
-      "subtitle": "Give a photo, a memory, an NFT — and turn your friend who 'doesn't get crypto' into a holder, DAO contributor, and protagonist of their financial freedom. No seed phrases. No gas fees. No confusion.",
+      "subtitle": "Give a photo, a memory, an NFT... and turn your friend who 'doesn't get crypto' into a holder, DAO contributor, and protagonist of their financial freedom. No seed phrases. No gas fees. No confusion.",
       "cta1": "Start Now",
       "cta2": "See How It Works",
       "trust1": "Verified Contracts",
@@ -713,7 +713,7 @@
       "title": "Community Members Only",
       "description": "The Tasks section is reserved for CryptoGift Wallets DAO community members.",
       "whatAreTasksTitle": "What are Tasks?",
-      "whatAreTasksDesc": "Tasks are real opportunities to contribute to building the CryptoGift ecosystem. Each task is a paid gig—complete it, get validated, and receive CGC tokens directly to your wallet.",
+      "whatAreTasksDesc": "Tasks are real opportunities to contribute to building the CryptoGift ecosystem. Each task is a paid gig: complete it, get validated, and receive CGC tokens directly to your wallet.",
       "features": {
         "title": "Why Join the Task Force?",
         "item1": "Earn CGC tokens for every completed task",
@@ -729,7 +729,7 @@
       },
       "cta": {
         "title": "Don't have CGC yet?",
-        "description": "Join our community through a special referral invite and receive 200 CGC tokens instantly—enough to unlock Tasks and start earning!",
+        "description": "Join our community through a special referral invite and receive 200 CGC tokens instantly, enough to unlock Tasks and start earning!",
         "buttonText": "Get 200 CGC Free",
         "rewardBadge": "+200 CGC Bonus"
       }
