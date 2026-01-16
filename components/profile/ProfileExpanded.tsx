@@ -96,18 +96,11 @@ export function ProfileExpanded() {
     const updatePosition = () => {
       const rect = thumbnailRef.current?.getBoundingClientRect();
       if (rect) {
-        // Position so the expanded avatar overlays the thumbnail
-        // Center horizontally over the thumbnail, align tops
-        const thumbCenterX = rect.left + rect.width / 2;
-        const expandedLeft = thumbCenterX - EXPANDED_SIZE / 2;
-
-        // Ensure it doesn't go off-screen
-        const maxLeft = window.innerWidth - EXPANDED_SIZE - 16;
-        const clampedLeft = Math.min(Math.max(16, expandedLeft), maxLeft);
-
+        // Position: align top-left of expanded with top-left of thumbnail
+        // The expanded avatar overlays starting from the same corner
         setPosition({
           top: rect.top,
-          left: clampedLeft,
+          left: rect.left,
         });
       }
     };
@@ -198,7 +191,7 @@ export function ProfileExpanded() {
   const expandedContent = (
     <div
       id="profile-expanded-avatar"
-      className="fixed z-[100] animate-scaleIn cursor-pointer"
+      className="fixed z-[9999] animate-scaleIn cursor-pointer"
       style={{
         top: position.top,
         left: position.left,
