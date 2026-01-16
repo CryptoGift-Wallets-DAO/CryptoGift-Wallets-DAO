@@ -6,6 +6,7 @@
  * Small thumbnail avatar (48px default):
  * - Click → Opens Level 4 (Full Card) directly
  * - No hover expand (L2/L3 are now part of Share flow only)
+ * - When card is open (L2+), shows "traveling" emoji instead of avatar
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -23,6 +24,13 @@ interface ProfileThumbnailProps {
   className?: string;
 }
 
+// Size mapping for the "traveling" placeholder
+const sizeMap = {
+  sm: { container: 'w-12 h-12', emoji: 'text-2xl' },
+  md: { container: 'w-16 h-16', emoji: 'text-3xl' },
+  lg: { container: 'w-20 h-20', emoji: 'text-4xl' },
+};
+
 export function ProfileThumbnail({
   size = 'sm',
   showBadge = false,
@@ -37,20 +45,39 @@ export function ProfileThumbnail({
     goToLevel(4);
   };
 
+  // When any card level is open (L2, L3, L4), show "traveling" emoji
+  const isCardOpen = currentLevel > 1;
+
   return (
     <div
       ref={thumbnailRef as React.RefObject<HTMLDivElement>}
       onClick={handleClick}
       className="relative cursor-pointer"
     >
-      <ApexAvatar
-        size={size}
-        showBadge={showBadge}
-        badgeCount={badgeCount}
-        enableFloat={enableFloat && currentLevel === 1}
-        imageSrc={profile?.avatar_url || undefined}
-        className={className}
-      />
+      {isCardOpen ? (
+        // "Traveling" placeholder - avatar is away exploring the card!
+        <div
+          className={`${sizeMap[size].container} rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 border-2 border-dashed border-amber-400/50 dark:border-amber-500/50 flex items-center justify-center transition-all duration-300 ${className}`}
+          title="Exploring profile..."
+        >
+          <span
+            className={`${sizeMap[size].emoji} animate-bounce`}
+            role="img"
+            aria-label="Traveling"
+          >
+            🚀
+          </span>
+        </div>
+      ) : (
+        <ApexAvatar
+          size={size}
+          showBadge={showBadge}
+          badgeCount={badgeCount}
+          enableFloat={enableFloat}
+          imageSrc={profile?.avatar_url || undefined}
+          className={className}
+        />
+      )}
     </div>
   );
 }
