@@ -3,14 +3,20 @@
 /**
  * ProfileExpanded - Level 2 of ProfileCard system
  *
- * SIMPLIFIED: Shows ONLY a large Apple Watch squircle avatar
- * with network indicator. Click anywhere to go to Level 3.
+ * "Hover Expand" design pattern:
+ * - Shows large Apple Watch squircle avatar positioned over thumbnail
+ * - NO backdrop (page stays interactive)
+ * - Mouse enter thumbnail → expand
+ * - Mouse leave expanded → collapse (unless locked)
+ * - Click on expanded → lock in place
+ * - Click anywhere on image → go to Level 3
+ * - Click outside when locked → collapse
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useProfileCard } from './ProfileCardProvider';
 import { VideoAvatar } from '@/components/apex/VideoAvatar';
@@ -61,15 +67,91 @@ const UnknownNetworkIndicator = ({ size = 20 }: { size?: number }) => (
   </div>
 );
 
+// Size of expanded avatar
+const EXPANDED_SIZE = 160;
+
 export function ProfileExpanded() {
-  const { profile, currentLevel, closeLevel, goToLevel } = useProfileCard();
+  const {
+    profile,
+    currentLevel,
+    isLocked,
+    thumbnailRef,
+    closeLevel,
+    goToLevel,
+    lockLevel,
+  } = useProfileCard();
   const { chainId } = useNetwork();
 
   const [mounted, setMounted] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Calculate position based on thumbnail ref
+  useEffect(() => {
+    if (currentLevel !== 2 || !thumbnailRef.current) return;
+
+    const updatePosition = () => {
+      const rect = thumbnailRef.current?.getBoundingClientRect();
+      if (rect) {
+        // Position so the expanded avatar overlays the thumbnail
+        // Center horizontally over the thumbnail, align tops
+        const thumbCenterX = rect.left + rect.width / 2;
+        const expandedLeft = thumbCenterX - EXPANDED_SIZE / 2;
+
+        // Ensure it doesn't go off-screen
+        const maxLeft = window.innerWidth - EXPANDED_SIZE - 16;
+        const clampedLeft = Math.min(Math.max(16, expandedLeft), maxLeft);
+
+        setPosition({
+          top: rect.top,
+          left: clampedLeft,
+        });
+      }
+    };
+
+    updatePosition();
+    window.addEventListener('scroll', updatePosition);
+    window.addEventListener('resize', updatePosition);
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [currentLevel, thumbnailRef]);
+
+  // Handle click outside when locked
+  useEffect(() => {
+    if (currentLevel !== 2 || !isLocked) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Check if click is outside the expanded avatar
+      const expandedEl = document.getElementById('profile-expanded-avatar');
+      const thumbnailEl = thumbnailRef.current;
+
+      if (
+        expandedEl &&
+        !expandedEl.contains(target) &&
+        thumbnailEl &&
+        !thumbnailEl.contains(target)
+      ) {
+        closeLevel();
+      }
+    };
+
+    // Delay to prevent immediate close from the locking click
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [currentLevel, isLocked, closeLevel, thumbnailRef]);
 
   // Handle escape key
   useEffect(() => {
@@ -84,6 +166,18 @@ export function ProfileExpanded() {
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [currentLevel, closeLevel]);
+
+  // Handle mouse leave - close if not locked
+  const handleMouseLeave = useCallback(() => {
+    if (!isLocked) {
+      closeLevel();
+    }
+  }, [isLocked, closeLevel]);
+
+  // Handle click on avatar - go to Level 3
+  const handleClick = useCallback(() => {
+    goToLevel(3);
+  }, [goToLevel]);
 
   if (!mounted || currentLevel !== 2 || !profile) return null;
 
@@ -102,46 +196,50 @@ export function ProfileExpanded() {
   };
 
   const expandedContent = (
-    <>
-      {/* Backdrop - click to close */}
-      <div
-        className="fixed inset-0 z-[60] bg-black/40 dark:bg-black/60 backdrop-blur-sm transition-opacity duration-300"
-        onClick={closeLevel}
-      />
+    <div
+      id="profile-expanded-avatar"
+      className="fixed z-[100] animate-scaleIn cursor-pointer"
+      style={{
+        top: position.top,
+        left: position.left,
+        pointerEvents: 'auto',
+      }}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
+      role="button"
+      aria-label="View full profile"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          handleClick();
+        }
+      }}
+    >
+      {/* Large VideoAvatar - Apple Watch squircle */}
+      <div className="relative">
+        <VideoAvatar
+          imageSrc={profile.avatar_url || undefined}
+          alt={profile.display_name || 'Profile'}
+          size="xl"
+          className="!w-[160px] !h-[160px]"
+        />
 
-      {/* Large Avatar Container - click to go to Level 3 */}
-      <div
-        className="fixed z-[70] animate-scaleIn cursor-pointer"
-        style={{ top: '88px', right: '16px' }}
-        onClick={() => goToLevel(3)}
-        role="button"
-        aria-label="View full profile"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            goToLevel(3);
-          }
-        }}
-      >
-        {/* Large VideoAvatar - Apple Watch squircle */}
-        <div className="relative">
-          <VideoAvatar
-            imageSrc={profile.avatar_url || undefined}
-            alt={profile.display_name || 'Profile'}
-            size="xl"
-            className="!w-[160px] !h-[160px]"
-          />
-
-          {/* Network Indicator - bottom right corner */}
-          <div
-            className="absolute -bottom-1 -right-1 p-1 rounded-full bg-white dark:bg-slate-900 shadow-lg border-2 border-white dark:border-slate-800"
-            title={chainId === 8453 ? 'Base' : chainId === 1 ? 'Ethereum' : 'Network'}
-          >
-            {getNetworkIndicator()}
-          </div>
+        {/* Network Indicator - bottom right corner */}
+        <div
+          className="absolute -bottom-1 -right-1 p-1 rounded-full bg-white dark:bg-slate-900 shadow-lg border-2 border-white dark:border-slate-800"
+          title={chainId === 8453 ? 'Base' : chainId === 1 ? 'Ethereum' : 'Network'}
+        >
+          {getNetworkIndicator()}
         </div>
+
+        {/* Lock indicator */}
+        {isLocked && (
+          <div className="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-amber-500 shadow-lg flex items-center justify-center">
+            <span className="text-white text-[8px]">🔒</span>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 
   return createPortal(expandedContent, document.body);

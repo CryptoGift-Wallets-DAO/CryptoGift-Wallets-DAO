@@ -7,6 +7,7 @@
  * - Current display level (1-4)
  * - Profile data loading (own vs public)
  * - Level transitions
+ * - Hover expand with click-to-lock behavior
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -18,11 +19,12 @@ import {
   useState,
   useCallback,
   useMemo,
+  useRef,
   type ReactNode,
+  type RefObject,
 } from 'react';
 import { useAccount } from '@/lib/thirdweb';
-import { useProfile, usePublicProfile, type ProfileWithTier } from '@/hooks/useProfile';
-import type { PublicProfile } from '@/lib/supabase/types';
+import { useProfile, usePublicProfile } from '@/hooks/useProfile';
 
 // =====================================================
 // TYPES
@@ -55,6 +57,8 @@ interface ProfileCardContextValue {
   isOwnProfile: boolean;
   isLoading: boolean;
   isError: boolean;
+  isLocked: boolean; // Click-to-lock state
+  thumbnailRef: RefObject<HTMLDivElement | null>; // Ref for positioning
 
   // Actions
   openLevel: (level: ProfileLevel) => void;
@@ -62,6 +66,8 @@ interface ProfileCardContextValue {
   goToLevel: (level: ProfileLevel) => void;
   nextLevel: () => void;
   prevLevel: () => void;
+  lockLevel: () => void;
+  unlockLevel: () => void;
 }
 
 // =====================================================
@@ -107,6 +113,12 @@ export function ProfileCardProvider({
   // Current display level
   const [currentLevel, setCurrentLevel] = useState<ProfileLevel>(initialLevel);
 
+  // Click-to-lock state (when user clicks, it stays open until click outside)
+  const [isLocked, setIsLocked] = useState(false);
+
+  // Ref for thumbnail positioning
+  const thumbnailRef = useRef<HTMLDivElement | null>(null);
+
   // Load profile data
   // Use useProfile for own profile (allows mutations), usePublicProfile for others
   const ownProfile = useProfile(isOwnProfile ? targetWallet : undefined);
@@ -146,12 +158,14 @@ export function ProfileCardProvider({
   }, [onLevelChange]);
 
   const closeLevel = useCallback(() => {
-    setCurrentLevel(null);
-    onLevelChange?.(null);
+    setCurrentLevel(1); // Return to thumbnail
+    setIsLocked(false);
+    onLevelChange?.(1);
   }, [onLevelChange]);
 
   const goToLevel = useCallback((level: ProfileLevel) => {
     setCurrentLevel(level);
+    setIsLocked(true); // Lock when navigating to higher levels
     onLevelChange?.(level);
   }, [onLevelChange]);
 
@@ -173,6 +187,14 @@ export function ProfileCardProvider({
     });
   }, [onLevelChange]);
 
+  const lockLevel = useCallback(() => {
+    setIsLocked(true);
+  }, []);
+
+  const unlockLevel = useCallback(() => {
+    setIsLocked(false);
+  }, []);
+
   // Context value
   const value = useMemo<ProfileCardContextValue>(
     () => ({
@@ -181,13 +203,17 @@ export function ProfileCardProvider({
       isOwnProfile,
       isLoading,
       isError,
+      isLocked,
+      thumbnailRef,
       openLevel,
       closeLevel,
       goToLevel,
       nextLevel,
       prevLevel,
+      lockLevel,
+      unlockLevel,
     }),
-    [currentLevel, profile, isOwnProfile, isLoading, isError, openLevel, closeLevel, goToLevel, nextLevel, prevLevel]
+    [currentLevel, profile, isOwnProfile, isLoading, isError, isLocked, openLevel, closeLevel, goToLevel, nextLevel, prevLevel, lockLevel, unlockLevel]
   );
 
   return (
