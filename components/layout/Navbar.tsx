@@ -354,9 +354,9 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
       {/* Dropdown Menu */}
       {showDropdown && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop - z-index below navbar to not block it */}
           <div
-            className="fixed inset-0 z-[10000]"
+            className="fixed inset-0 z-[9999]"
             onClick={() => setShowDropdown(false)}
           />
 
