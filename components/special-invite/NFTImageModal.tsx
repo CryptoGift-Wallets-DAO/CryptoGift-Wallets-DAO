@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
@@ -55,6 +56,14 @@ export function NFTImageModal({
   const [touchStartY, setTouchStartY] = useState(0);
   const [touchStartTime, setTouchStartTime] = useState(0);
   const [minDragDistance, setMinDragDistance] = useState(0);
+
+  // Portal state - renders to document.body to escape stacking context issues
+  const [portalReady, setPortalReady] = useState(false);
+
+  // Enable portal after mount (client-side only)
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   // Detect image aspect ratio for adaptive layout
   useEffect(() => {
@@ -159,7 +168,8 @@ export function NFTImageModal({
     };
   }, [isOpen, onClose]);
 
-  return (
+  // Modal content - will be rendered via portal
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -429,4 +439,14 @@ export function NFTImageModal({
       )}
     </AnimatePresence>
   );
+
+  // CRITICAL: Use Portal to render directly to document.body
+  // This escapes any parent stacking context and ensures z-index works correctly
+  // against other portaled elements (like the video player with z-index: 9999)
+  if (portalReady && typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  // Fallback for SSR
+  return modalContent;
 }
