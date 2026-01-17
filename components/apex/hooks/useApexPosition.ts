@@ -33,11 +33,11 @@ interface ApexPositionState {
 }
 
 const DEFAULT_CONFIG: ApexPositionConfig = {
-  navbarHeight: 72,
+  navbarHeight: 56,
   stickyThreshold: 200,
   mobileBreakpoint: 768,
   rightOffset: 16,
-  topOffset: 88,
+  topOffset: 72,
 };
 
 export function useApexPosition(
@@ -51,7 +51,7 @@ export function useApexPosition(
     isSticky: false,
     isMobile: false,
     position: {
-      top: mergedConfig.topOffset || 88,
+      top: mergedConfig.topOffset || 72,
       right: mergedConfig.rightOffset || 16,
     },
   });
@@ -73,13 +73,13 @@ export function useApexPosition(
     }
 
     const scrollY = window.scrollY;
-    const threshold = initialTopRef.current - (mergedConfig.topOffset || 88);
+    const threshold = initialTopRef.current - (mergedConfig.topOffset || 72);
 
     const isSticky = scrollY > threshold;
 
     // Calculate position
     const position = {
-      top: mergedConfig.topOffset || 88,
+      top: mergedConfig.topOffset || 72,
       right: isMobile ? 8 : (mergedConfig.rightOffset || 16),
     };
 
