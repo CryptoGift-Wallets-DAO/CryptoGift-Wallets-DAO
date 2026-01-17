@@ -23,7 +23,9 @@ export { VideoAvatar } from './VideoAvatar';
 export { VideoAvatarUpload } from './VideoAvatarUpload';
 
 // Team Member apeX
-export { TeamMemberApex, TEAM_MEMBERS } from './TeamMemberApex';
+export { TeamMemberApex } from './TeamMemberApex';
+export { TeamSection } from './TeamSection';
+export { useTeamMembers } from './useTeamMembers';
 
 // Hooks
 export { useApexPosition } from './hooks/useApexPosition';

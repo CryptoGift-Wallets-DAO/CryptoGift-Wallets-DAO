@@ -14,9 +14,11 @@
  * Co-Author: Godez22
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { VideoAvatar } from './VideoAvatar';
+import type { TeamMember, TeamSocialKey } from '@/lib/team/types';
+import { useAccount } from '@/lib/thirdweb';
 import {
   X,
   Copy,
@@ -26,12 +28,16 @@ import {
   Zap,
   MessageCircle,
   TrendingUp,
-  Award,
   Target,
+  Camera,
+  Save,
+  Loader2,
 } from 'lucide-react';
 
+const DEPLOYER_WALLET = '0xc655bf2bd9afa997c757bef290a9bb6ca41c5de6';
+
 // Social Network Icons with brand colors
-const SocialIcons = {
+const SocialIcons: Record<TeamSocialKey, { icon: JSX.Element; color: string; darkColor: string; name: string }> = {
   twitter: {
     icon: (
       <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -94,27 +100,9 @@ const SocialIcons = {
   },
 };
 
-type SocialKey = keyof typeof SocialIcons;
-
-interface TeamMember {
-  name: string;
-  role: string;
-  description: string;
-  wallet: string;
-  imageSrc: string;
-  videoSrc?: string;
-  socials: Partial<Record<SocialKey, string>>;
-  stats: {
-    tasksCompleted: number;
-    reputation: number;
-    respect: number;
-    rank: string;
-    contributions: number;
-  };
-}
-
 interface TeamMemberApexProps {
   member: TeamMember;
+  onMemberUpdated?: (member: TeamMember) => void;
 }
 
 // Social Slot Component - elegant hollow design that illuminates when linked
@@ -123,7 +111,7 @@ function SocialSlot({
   url,
   isDark = false
 }: {
-  network: SocialKey;
+  network: TeamSocialKey;
   url?: string;
   isDark?: boolean;
 }) {
@@ -181,10 +169,29 @@ function SocialSlot({
   return <div title={`${social.name} not linked`}>{slot}</div>;
 }
 
-export function TeamMemberApex({ member }: TeamMemberApexProps) {
+export function TeamMemberApex({ member, onMemberUpdated }: TeamMemberApexProps) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [formState, setFormState] = useState<TeamMember>(member);
   const cardRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { address } = useAccount();
+
+  const isAdmin = useMemo(() => {
+    if (!address) return false;
+    return address.toLowerCase() === DEPLOYER_WALLET;
+  }, [address]);
+
+  useEffect(() => {
+    if (!isEditing) {
+      setFormState(member);
+    }
+  }, [isEditing, member]);
 
   const handleCopyWallet = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -197,6 +204,128 @@ export function TeamMemberApex({ member }: TeamMemberApexProps) {
 
   // Get linked socials for preview
   const linkedSocials = Object.entries(member.socials).filter(([_, url]) => url);
+
+  const handleEditOpen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFormState(member);
+    setSaveError(null);
+    setSaveSuccess(false);
+    setIsEditing(true);
+  };
+
+  const handleEditClose = () => {
+    setIsEditing(false);
+    setSaveError(null);
+  };
+
+  const updateField = (field: keyof TeamMember, value: string) => {
+    setFormState((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const updateSocial = (network: TeamSocialKey, value: string) => {
+    setFormState((prev) => ({
+      ...prev,
+      socials: {
+        ...prev.socials,
+        [network]: value,
+      },
+    }));
+  };
+
+  const updateStat = (field: keyof TeamMember['stats'], value: string) => {
+    const numericFields: Array<keyof TeamMember['stats']> = [
+      'tasksCompleted',
+      'reputation',
+      'respect',
+      'contributions',
+    ];
+    setFormState((prev) => ({
+      ...prev,
+      stats: {
+        ...prev.stats,
+        [field]: numericFields.includes(field) ? Number(value) || 0 : value,
+      },
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!address) return;
+    setIsSaving(true);
+    setSaveError(null);
+    setSaveSuccess(false);
+
+    try {
+      const response = await fetch('/api/team', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-wallet-address': address,
+        },
+        body: JSON.stringify({ member: formState }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to update team member');
+      }
+
+      onMemberUpdated?.(data.data || formState);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+      setIsEditing(false);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Failed to save changes');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !address) return;
+
+    setIsUploading(true);
+    setSaveError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('wallet', formState.wallet);
+
+      const response = await fetch('/api/team/avatar', {
+        method: 'POST',
+        headers: {
+          'x-wallet-address': address,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to upload image');
+      }
+
+      const imageUrl = data.data?.image_url || formState.imageSrc;
+      setFormState((prev) => ({
+        ...prev,
+        imageSrc: imageUrl,
+      }));
+      onMemberUpdated?.({
+        ...member,
+        imageSrc: imageUrl,
+      });
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Failed to upload image');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   return (
     <>
@@ -254,10 +383,10 @@ export function TeamMemberApex({ member }: TeamMemberApexProps) {
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="p-1.5 rounded-md hover:bg-white/10 transition-colors"
-              style={{ color: SocialIcons[network as SocialKey].color }}
+              style={{ color: SocialIcons[network as TeamSocialKey].color }}
             >
               <div className="w-4 h-4">
-                {SocialIcons[network as SocialKey].icon}
+                {SocialIcons[network as TeamSocialKey].icon}
               </div>
             </a>
           ))}
@@ -304,6 +433,16 @@ export function TeamMemberApex({ member }: TeamMemberApexProps) {
                   enableSound
                   className="!w-[120px] !h-[120px]"
                 />
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={handleEditOpen}
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-600 text-white text-xs shadow-lg hover:bg-purple-700 transition-colors"
+                  >
+                    <Camera className="w-3 h-3" />
+                    Edit
+                  </button>
+                )}
               </div>
 
               {/* Name & Role */}
@@ -325,85 +464,244 @@ export function TeamMemberApex({ member }: TeamMemberApexProps) {
               </div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-4 gap-2 p-4 border-b border-gray-200/50 dark:border-slate-700/50">
-              <div className="text-center p-2 rounded-lg bg-emerald-500/10">
-                <Star className="w-4 h-4 mx-auto mb-1 text-emerald-500" />
-                <div className="text-lg font-bold text-gray-900 dark:text-white">{member.stats.reputation}</div>
-                <div className="text-[10px] text-gray-500 dark:text-gray-400">Reputation</div>
-              </div>
-              <div className="text-center p-2 rounded-lg bg-purple-500/10">
-                <Zap className="w-4 h-4 mx-auto mb-1 text-purple-500" />
-                <div className="text-lg font-bold text-gray-900 dark:text-white">{member.stats.respect}</div>
-                <div className="text-[10px] text-gray-500 dark:text-gray-400">Respect</div>
-              </div>
-              <div className="text-center p-2 rounded-lg bg-blue-500/10">
-                <Target className="w-4 h-4 mx-auto mb-1 text-blue-500" />
-                <div className="text-lg font-bold text-gray-900 dark:text-white">{member.stats.tasksCompleted}</div>
-                <div className="text-[10px] text-gray-500 dark:text-gray-400">Tasks</div>
-              </div>
-              <div className="text-center p-2 rounded-lg bg-cyan-500/10">
-                <TrendingUp className="w-4 h-4 mx-auto mb-1 text-cyan-500" />
-                <div className="text-lg font-bold text-gray-900 dark:text-white">{member.stats.contributions}</div>
-                <div className="text-[10px] text-gray-500 dark:text-gray-400">Contribs</div>
-              </div>
-            </div>
+            {isEditing ? (
+              <div className="p-4 space-y-4">
+                <div className="rounded-xl bg-gray-50 dark:bg-slate-800/50 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Edit Team Card
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={handleEditClose}
+                      className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
+                      Cancel
+                    </button>
+                  </div>
 
-            {/* Content */}
-            <div className="p-4 space-y-4">
-              {/* About */}
-              <div className="rounded-xl bg-gray-50 dark:bg-slate-800/50 p-4">
-                <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                  About
-                </h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {member.description}
-                </p>
-              </div>
-
-              {/* Social Networks - Elegant Slots */}
-              <div className="rounded-xl bg-gray-50 dark:bg-slate-800/50 p-4">
-                <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
-                  Networks
-                </h4>
-                <div className="flex flex-wrap justify-center gap-3">
-                  {(['twitter', 'linkedin', 'discord', 'github', 'telegram', 'youtube'] as SocialKey[]).map((network) => (
-                    <SocialSlot
-                      key={network}
-                      network={network}
-                      url={member.socials[network]}
+                  <div className="space-y-3">
+                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400">
+                      Photo
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-600 text-white text-xs hover:bg-purple-700 transition-colors"
+                      >
+                        <Camera className="w-3.5 h-3.5" />
+                        {isUploading ? 'Uploading...' : 'Upload Photo'}
+                      </button>
+                      <span className="text-[11px] text-gray-400">
+                        {formState.imageSrc ? 'Custom image set' : 'Using default image'}
+                      </span>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={handleImageUpload}
                     />
+                  </div>
+
+                  <div className="grid gap-3">
+                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      Name
+                      <input
+                        value={formState.name}
+                        onChange={(e) => updateField('name', e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      Role
+                      <input
+                        value={formState.role}
+                        onChange={(e) => updateField('role', e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      Description
+                      <textarea
+                        value={formState.description}
+                        onChange={(e) => updateField('description', e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                        rows={3}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-gray-50 dark:bg-slate-800/50 p-4 space-y-3">
+                  <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Social Links
+                  </h4>
+                  {(['twitter', 'linkedin', 'discord', 'github', 'telegram', 'youtube'] as TeamSocialKey[]).map((network) => (
+                    <label key={network} className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      {SocialIcons[network].name}
+                      <input
+                        value={formState.socials[network] || ''}
+                        onChange={(e) => updateSocial(network, e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                      />
+                    </label>
                   ))}
                 </div>
-              </div>
 
-              {/* Chat Button */}
-              <a
-                href={member.socials.twitter || '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full p-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium transition-all hover:shadow-lg hover:shadow-purple-500/25"
-              >
-                <MessageCircle className="w-5 h-5" />
-                <span>Send Message</span>
-              </a>
-
-              {/* Wallet - Compact, copyable */}
-              <button
-                onClick={handleCopyWallet}
-                className="flex items-center justify-between w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors group/wallet"
-              >
-                <span className="text-xs text-gray-500 dark:text-gray-400">Wallet</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-sm text-gray-700 dark:text-gray-300">{shortWallet}</span>
-                  {copied ? (
-                    <Check className="w-4 h-4 text-emerald-500" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-gray-400 group-hover/wallet:text-gray-600 dark:group-hover/wallet:text-gray-300" />
-                  )}
+                <div className="rounded-xl bg-gray-50 dark:bg-slate-800/50 p-4 space-y-3">
+                  <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Stats
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      Rank
+                      <input
+                        value={formState.stats.rank}
+                        onChange={(e) => updateStat('rank', e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      Reputation
+                      <input
+                        type="number"
+                        value={formState.stats.reputation}
+                        onChange={(e) => updateStat('reputation', e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      Respect
+                      <input
+                        type="number"
+                        value={formState.stats.respect}
+                        onChange={(e) => updateStat('respect', e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      Tasks Completed
+                      <input
+                        type="number"
+                        value={formState.stats.tasksCompleted}
+                        onChange={(e) => updateStat('tasksCompleted', e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      Contributions
+                      <input
+                        type="number"
+                        value={formState.stats.contributions}
+                        onChange={(e) => updateStat('contributions', e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                      />
+                    </label>
+                  </div>
                 </div>
-              </button>
-            </div>
+
+                {saveError && (
+                  <div className="text-xs text-red-500">{saveError}</div>
+                )}
+                {saveSuccess && (
+                  <div className="text-xs text-emerald-500">Saved!</div>
+                )}
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={isSaving || isUploading}
+                  className="flex items-center justify-center gap-2 w-full p-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium transition-all hover:shadow-lg disabled:opacity-60"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save changes
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Stats Grid */}
+                <div className="grid grid-cols-4 gap-2 p-4 border-b border-gray-200/50 dark:border-slate-700/50">
+                  <div className="text-center p-2 rounded-lg bg-emerald-500/10">
+                    <Star className="w-4 h-4 mx-auto mb-1 text-emerald-500" />
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">{member.stats.reputation}</div>
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400">Reputation</div>
+                  </div>
+                  <div className="text-center p-2 rounded-lg bg-purple-500/10">
+                    <Zap className="w-4 h-4 mx-auto mb-1 text-purple-500" />
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">{member.stats.respect}</div>
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400">Respect</div>
+                  </div>
+                  <div className="text-center p-2 rounded-lg bg-blue-500/10">
+                    <Target className="w-4 h-4 mx-auto mb-1 text-blue-500" />
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">{member.stats.tasksCompleted}</div>
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400">Tasks</div>
+                  </div>
+                  <div className="text-center p-2 rounded-lg bg-cyan-500/10">
+                    <TrendingUp className="w-4 h-4 mx-auto mb-1 text-cyan-500" />
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">{member.stats.contributions}</div>
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400">Contribs</div>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-4 space-y-4">
+                  {/* About */}
+                  <div className="rounded-xl bg-gray-50 dark:bg-slate-800/50 p-4">
+                    <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                      About
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {member.description}
+                    </p>
+                  </div>
+
+                  {/* Social Networks - Elegant Slots */}
+                  <div className="rounded-xl bg-gray-50 dark:bg-slate-800/50 p-4">
+                    <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                      Networks
+                    </h4>
+                    <div className="flex flex-wrap justify-center gap-3">
+                      {(['twitter', 'linkedin', 'discord', 'github', 'telegram', 'youtube'] as TeamSocialKey[]).map((network) => (
+                        <SocialSlot
+                          key={network}
+                          network={network}
+                          url={member.socials[network]}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Chat Button */}
+                  <a
+                    href={member.socials.twitter || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full p-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium transition-all hover:shadow-lg hover:shadow-purple-500/25"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    <span>Send Message</span>
+                  </a>
+
+                  {/* Wallet - Compact, copyable */}
+                  <button
+                    onClick={handleCopyWallet}
+                    className="flex items-center justify-between w-full p-3 rounded-xl bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors group/wallet"
+                  >
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Wallet</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm text-gray-700 dark:text-gray-300">{shortWallet}</span>
+                      {copied ? (
+                        <Check className="w-4 h-4 text-emerald-500" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-gray-400 group-hover/wallet:text-gray-600 dark:group-hover/wallet:text-gray-300" />
+                      )}
+                    </div>
+                  </button>
+                </div>
+              </>
+            )}
 
             {/* Footer */}
             <div className="p-3 border-t border-gray-200/50 dark:border-slate-700/50 text-center">
@@ -418,68 +716,5 @@ export function TeamMemberApex({ member }: TeamMemberApexProps) {
     </>
   );
 }
-
-// Team data with stats and multiple social networks
-export const TEAM_MEMBERS: TeamMember[] = [
-  {
-    name: 'Rafael Gonzalez',
-    role: 'Founder & Product / Engineering Lead',
-    description: 'Web3 dev, youth educator, built CryptoGift Wallets end-to-end on Base. Passionate about creating tools that make crypto accessible to everyone.',
-    wallet: '0xc655BF2Bd9AfA997c757Bef290A9Bb6ca41c5dE6',
-    imageSrc: '/team-rafael.png',
-    socials: {
-      twitter: 'https://x.com/godezr10894',
-      linkedin: 'https://www.linkedin.com/in/rafael-gonzalez-cgc-mbxarts',
-      github: 'https://github.com/godez22',
-      discord: 'https://discord.gg/XzmKkrvhHc',
-    },
-    stats: {
-      tasksCompleted: 147,
-      reputation: 4850,
-      respect: 312,
-      rank: 'Founder',
-      contributions: 892,
-    },
-  },
-  {
-    name: 'Roberto Legrá',
-    role: 'Head of Community & Growth / Marketing Advisor',
-    description: '6 years Community strategy designer & Crypto community builder. Expert in managing moderators, ambassadors, and content creators.',
-    wallet: '0xB5a639149dF81c673131F9082b9429ad00842420',
-    imageSrc: '/team-roberto.png',
-    socials: {
-      twitter: 'https://x.com/doctortips_5',
-      linkedin: 'https://www.linkedin.com/in/roberto-legra-7746993a1',
-      telegram: 'https://t.me/doctortips',
-      discord: 'https://discord.gg/XzmKkrvhHc',
-    },
-    stats: {
-      tasksCompleted: 89,
-      reputation: 3200,
-      respect: 245,
-      rank: 'Core Team',
-      contributions: 534,
-    },
-  },
-  {
-    name: 'Leodanni Avila',
-    role: 'Business Development & Operations / Marketing Advisor',
-    description: '3+ years in sales & digital marketing. Experienced Head of Strategy & Business Operations. 5+ years in Web3 ecosystem.',
-    wallet: '0x3514433534c281D546B3c3b913c908Bd90689D29',
-    imageSrc: '/team-leodanni.png',
-    socials: {
-      twitter: 'https://x.com/0xdr_leo',
-      linkedin: 'https://www.linkedin.com/in/leodanni-avila-a85199146',
-      discord: 'https://discord.gg/XzmKkrvhHc',
-    },
-    stats: {
-      tasksCompleted: 72,
-      reputation: 2800,
-      respect: 198,
-      rank: 'Core Team',
-      contributions: 421,
-    },
-  },
-];
 
 export default TeamMemberApex;
