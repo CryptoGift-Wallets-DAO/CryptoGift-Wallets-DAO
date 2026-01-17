@@ -609,8 +609,8 @@ export function EmbeddedVideoDevice({
 
   // Calculate sticky width for centering
   const computedStickyWidth = Math.min(stickyWidth, windowWidth - 32);
-  const isMobile = windowWidth < 768;
-  const stickyTopOffset = NAVBAR_HEIGHT + (isMobile ? 24 : 0);
+  const isViewportMobile = windowWidth < 768;
+  const stickyTopOffset = NAVBAR_HEIGHT + (isViewportMobile ? 24 : 0);
 
   // Determine which animation to use
   const getStickyAnimation = () => {
