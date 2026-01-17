@@ -225,7 +225,7 @@ export function ProfileFullCard() {
     // No backdrop - page stays fully interactive
     <div
       id="profile-full-card"
-      className="fixed z-[99999] top-20 right-0 w-[420px] max-w-[calc(100vw-16px)] max-h-[calc(100vh-100px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-expandIn origin-top-right"
+      className="fixed z-[99999] top-20 right-0 w-[420px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-expandIn origin-top-right"
     >
 
         {/* Header with gradient */}
@@ -378,6 +378,13 @@ export function ProfileFullCard() {
                 <Copy className="w-4 h-4 text-gray-400 group-hover/wallet:text-gray-600 dark:group-hover/wallet:text-gray-300" />
               )}
             </div>
+          </button>
+
+          <button
+            onClick={closeLevel}
+            className="w-full rounded-full border border-gray-200/70 dark:border-slate-700/70 bg-white/80 dark:bg-slate-800/80 px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-700 transition-colors"
+          >
+            Close
           </button>
         </div>
 

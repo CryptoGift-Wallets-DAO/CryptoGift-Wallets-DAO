@@ -56,7 +56,7 @@ const SocialIcons = {
 type SocialKey = keyof typeof SocialIcons;
 
 // Card dimensions
-const CARD_WIDTH = 320;
+const CARD_WIDTH = 316;
 
 interface ProfileMiniCardProps {
   /** Standalone mode for public viewing via URL */
@@ -326,6 +326,14 @@ export function ProfileMiniCard({
             {t('clickToExpand')}
           </p>
         )}
+
+        {/* Bottom close button */}
+        <button
+          onClick={handleClose}
+          className="mt-4 w-full rounded-full border border-gray-200/70 dark:border-slate-700/70 bg-white/80 dark:bg-slate-800/80 px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-700 transition-colors"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
@@ -344,7 +352,7 @@ export function ProfileMiniCard({
         className="relative animate-in fade-in zoom-in-95 duration-200"
         style={{
           width: CARD_WIDTH,
-          maxWidth: 'calc(100vw - 32px)',
+          maxWidth: 'calc(100vw - 48px)',
         }}
       >
         {cardInner}
@@ -359,7 +367,7 @@ export function ProfileMiniCard({
         ...(position.right !== undefined ? { right: position.right } : {}),
         ...(position.left !== undefined ? { left: position.left } : {}),
         width: CARD_WIDTH,
-        maxWidth: 'calc(100vw - 32px)',
+        maxWidth: 'calc(100vw - 48px)',
         pointerEvents: 'auto',
         transformOrigin,
       }}

@@ -553,9 +553,9 @@ export default function LandingPage() {
       </section>
 
       <TeamSection
-        badge={t('team.badge')}
-        title={t('team.title')}
-        subtitle={t('team.subtitle')}
+        badge="Top Holders"
+        title="Top Holders"
+        subtitle="Leading CGC holders powering the ecosystem today. Early supporters aligned with the CryptoGift DAO vision."
       />
 
       <Footer />
