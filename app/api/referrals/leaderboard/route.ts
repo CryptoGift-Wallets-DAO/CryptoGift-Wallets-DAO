@@ -9,6 +9,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLeaderboard, getReferralStats } from '@/lib/referrals/referral-service';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/referrals/leaderboard?sortBy=earnings&limit=50&offset=0&wallet=0x...
 export async function GET(request: NextRequest) {
   try {

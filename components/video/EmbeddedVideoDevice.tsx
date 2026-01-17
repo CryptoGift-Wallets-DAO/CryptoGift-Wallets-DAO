@@ -58,7 +58,7 @@ const STICKY_THRESHOLD = 0.50; // Go sticky when <50% visible (>50% hidden)
 const RETURN_THRESHOLD = 0.70; // Return to normal when >70% visible
 
 // Navbar height in pixels
-const NAVBAR_HEIGHT = 72;
+const NAVBAR_HEIGHT = 56;
 
 // CSS Keyframes
 const animationStyles = `
@@ -609,6 +609,8 @@ export function EmbeddedVideoDevice({
 
   // Calculate sticky width for centering
   const computedStickyWidth = Math.min(stickyWidth, windowWidth - 32);
+  const isMobile = windowWidth < 768;
+  const stickyTopOffset = NAVBAR_HEIGHT + (isMobile ? 24 : 0);
 
   // Determine which animation to use
   const getStickyAnimation = () => {
@@ -633,7 +635,7 @@ export function EmbeddedVideoDevice({
     ? {
         // STICKY: Fixed below navbar - centered with calc to avoid transform conflict
         position: 'fixed',
-        top: NAVBAR_HEIGHT,
+        top: stickyTopOffset,
         left: `calc(50% - ${computedStickyWidth / 2}px)`,
         width: computedStickyWidth,
         zIndex: 9999,

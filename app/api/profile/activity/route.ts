@@ -9,6 +9,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+export const dynamic = 'force-dynamic';
+
 // Activity types
 type ActivityType = 'task_completed' | 'reward_received' | 'referral_signup' | 'login' | 'profile_update';
 
