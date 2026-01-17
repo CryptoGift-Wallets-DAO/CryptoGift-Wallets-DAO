@@ -8,6 +8,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/client'
 import { GRANT_TRACKER_AUTHORIZED_WALLETS } from '@/lib/supabase/types'
 
+export const dynamic = 'force-dynamic'
+
 // Verify if wallet is authorized
 function isAuthorized(walletAddress: string | null): boolean {
   if (!walletAddress) return false

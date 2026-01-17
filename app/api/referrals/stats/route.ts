@@ -14,6 +14,8 @@ import {
   MILESTONE_BONUSES,
 } from '@/lib/referrals/referral-service';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/referrals/stats?wallet=0x...
 export async function GET(request: NextRequest) {
   try {

@@ -10,6 +10,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+export const dynamic = 'force-dynamic';
+
 // Lazy Supabase initialization
 let supabase: ReturnType<typeof createClient> | null = null;
 

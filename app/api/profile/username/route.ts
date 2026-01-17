@@ -9,6 +9,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isUsernameAvailable } from '@/lib/profiles/profile-service';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/profile/username?username=test&wallet=0x...
 export async function GET(request: NextRequest) {
   try {
