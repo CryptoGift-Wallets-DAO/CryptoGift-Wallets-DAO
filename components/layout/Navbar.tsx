@@ -69,16 +69,16 @@ export const Navbar: React.FC = () => {
   return (
     <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-lg fixed top-0 left-0 right-0 z-[10000] transition-colors duration-300 border-b border-gray-200/50 dark:border-slate-700/50">
       <div className="container mx-auto px-2">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex justify-between items-center py-2.5">
           {/* Logo and Brand */}
           <div className="flex items-center space-x-2">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="relative w-12 h-12">
+              <div className="relative w-9 h-9">
                 <Image
                   src="/apeX.png"
                   alt="CryptoGift DAO Logo"
-                  width={48}
-                  height={48}
+                  width={36}
+                  height={36}
                   className="rounded-xl object-cover shadow-lg"
                   priority
                   onError={(e) => {
@@ -88,8 +88,8 @@ export const Navbar: React.FC = () => {
                 />
               </div>
               <div>
-                <div className="font-bold text-xl text-gray-900 dark:text-white">CryptoGift</div>
-                <div className="text-xs font-medium -mt-1 text-amber-500 dark:text-slate-400">DAO</div>
+                <div className="font-bold text-base text-gray-900 dark:text-white">CryptoGift</div>
+                <div className="text-[10px] font-medium -mt-0.5 text-amber-500 dark:text-slate-400">DAO</div>
               </div>
             </Link>
           </div>
@@ -261,7 +261,7 @@ export const Navbar: React.FC = () => {
 // Spacer component to compensate for fixed navbar height
 // Use this after <Navbar /> in pages to prevent content from being hidden
 export const NavbarSpacer: React.FC = () => (
-  <div className="h-[72px]" aria-hidden="true" />
+  <div className="h-[56px]" aria-hidden="true" />
 );
 
 // Compact wallet badge for mobile
@@ -312,7 +312,7 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
     <div className={`relative ${fullWidth ? 'w-full' : ''}`}>
       {/* Main Wallet Button */}
       <div
-        className={`flex items-center space-x-2 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 px-3 py-2
+        className={`flex items-center space-x-2 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 px-3 py-1
                  hover:border-amber-400 dark:hover:border-slate-500 transition-all duration-300 ${fullWidth ? 'w-full' : ''}`}
       >
         {/* ProfileCard - 4-level profile system (click avatar for full profile) */}

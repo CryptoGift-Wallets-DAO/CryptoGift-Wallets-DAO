@@ -235,18 +235,18 @@ const VIDEOS = {
 // Floating words
 const FLOATING_WORDS = {
   right: [
-    { text: 'Open', color: 'purple', top: -24, offset: -80, delay: 0.5, duration: 4 },
-    { text: 'Secure', color: 'blue', top: 16, offset: -112, delay: 1, duration: 5 },
-    { text: 'Human', color: 'rose', top: 80, offset: -96, delay: 0.2, duration: 4.5 },
-    { text: 'Gift in 5 min', color: 'cyan', top: 144, offset: -128, delay: 1.5, duration: 5.5 },
+    { text: 'Open', color: 'purple', top: 40, offset: -80, delay: 0.5, duration: 4 },
+    { text: 'Secure', color: 'blue', top: 80, offset: -112, delay: 1, duration: 5 },
+    { text: 'Human', color: 'rose', top: 144, offset: -96, delay: 0.2, duration: 4.5 },
+    { text: 'Gift in 5 min', color: 'cyan', top: 208, offset: -128, delay: 1.5, duration: 5.5 },
     { text: 'Easy claim', color: 'teal', bottom: 48, offset: -80, delay: 0.7, duration: 4.3 },
     { text: 'Base L2', color: 'sky', bottom: 112, offset: -144, delay: 1.8, duration: 5.8 },
   ],
   left: [
-    { text: 'No gas', color: 'emerald', top: -32, offset: -96, delay: 0.8, duration: 5 },
-    { text: 'No complications', color: 'amber', top: 24, offset: -128, delay: 0.3, duration: 4.2 },
-    { text: 'No fear', color: 'green', top: 96, offset: -112, delay: 1.2, duration: 5.2 },
-    { text: '100% yours', color: 'indigo', top: 160, offset: -144, delay: 0.6, duration: 4.8 },
+    { text: 'No gas', color: 'emerald', top: 32, offset: -96, delay: 0.8, duration: 5 },
+    { text: 'No complications', color: 'amber', top: 88, offset: -128, delay: 0.3, duration: 4.2 },
+    { text: 'No fear', color: 'green', top: 160, offset: -112, delay: 1.2, duration: 5.2 },
+    { text: '100% yours', color: 'indigo', top: 224, offset: -144, delay: 0.6, duration: 4.8 },
     { text: 'Web3 simple', color: 'fuchsia', bottom: 80, offset: -96, delay: 1.4, duration: 4.6 },
     { text: 'Intuitive UX', color: 'orange', bottom: 16, offset: -128, delay: 0.9, duration: 5.4 },
   ],
@@ -754,10 +754,14 @@ export function VideoCarousel() {
   // CRITICAL: In normal mode, 'top' is calculated from initialDocTop (no getBoundingClientRect lag)
   // The scroll listener in useEffect updates 'top' directly in DOM for real-time positioning
   const currentScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+  const stickyTop = isMobile
+    ? `calc(${NAVBAR_HEIGHT}px + 28px + env(safe-area-inset-top))`
+    : `calc(${NAVBAR_HEIGHT}px + 8px + env(safe-area-inset-top))`;
+
   const videoStyles: React.CSSProperties = isSticky
     ? {
         position: 'fixed',
-        top: NAVBAR_HEIGHT,
+        top: stickyTop,
         left: `calc(50% - ${stickyWidth / 2}px)`,
         width: stickyWidth,
         zIndex: 9999,

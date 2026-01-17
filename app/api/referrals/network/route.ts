@@ -10,6 +10,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getReferralNetwork } from '@/lib/referrals/referral-service';
 import type { ReferralStatus } from '@/lib/supabase/types';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/referrals/network?wallet=0x...&level=1&status=active&limit=50&offset=0
 export async function GET(request: NextRequest) {
   try {
