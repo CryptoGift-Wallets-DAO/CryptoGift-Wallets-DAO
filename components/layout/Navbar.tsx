@@ -73,12 +73,12 @@ export const Navbar: React.FC = () => {
           {/* Logo and Brand */}
           <div className="flex items-center space-x-2">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="relative w-10 h-10">
+              <div className="relative w-12 h-12">
                 <Image
                   src="/apeX.png"
                   alt="CryptoGift DAO Logo"
-                  width={40}
-                  height={40}
+                  width={48}
+                  height={48}
                   className="rounded-xl object-cover shadow-lg"
                   priority
                   onError={(e) => {
@@ -88,8 +88,8 @@ export const Navbar: React.FC = () => {
                 />
               </div>
               <div>
-                <div className="font-bold text-lg text-gray-900 dark:text-white">CryptoGift</div>
-                <div className="text-[10px] font-medium -mt-1 text-amber-500 dark:text-slate-400">DAO</div>
+                <div className="font-bold text-xl text-gray-900 dark:text-white">CryptoGift</div>
+                <div className="text-xs font-medium -mt-1 text-amber-500 dark:text-slate-400">DAO</div>
               </div>
             </Link>
           </div>
