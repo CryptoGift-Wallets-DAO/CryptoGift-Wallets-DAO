@@ -126,7 +126,7 @@ export function ProfileMiniCard({
       // Always position at right edge of screen with NO margin - flush to edge
       // Top aligned just below the thumbnail
       setPosition({
-        top: rect.bottom + 8,
+        top: rect.bottom + 38,
         right: 0,
         left: undefined,
       });
