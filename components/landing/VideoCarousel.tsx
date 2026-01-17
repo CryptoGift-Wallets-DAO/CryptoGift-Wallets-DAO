@@ -755,8 +755,8 @@ export function VideoCarousel() {
   // The scroll listener in useEffect updates 'top' directly in DOM for real-time positioning
   const currentScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
   const stickyTop = isMobile
-    ? `calc(${NAVBAR_HEIGHT}px + 12px + env(safe-area-inset-top))`
-    : `calc(${NAVBAR_HEIGHT}px + env(safe-area-inset-top))`;
+    ? `calc(${NAVBAR_HEIGHT}px + 28px + env(safe-area-inset-top))`
+    : `calc(${NAVBAR_HEIGHT}px + 8px + env(safe-area-inset-top))`;
 
   const videoStyles: React.CSSProperties = isSticky
     ? {

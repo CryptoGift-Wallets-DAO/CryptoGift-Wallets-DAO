@@ -333,7 +333,7 @@ export function ProfileMiniCard({
   // Standalone mode: centered modal without backdrop (page stays interactive)
   // Normal mode: positioned near thumbnail
   const cardContent = standalone ? (
-    <div className="fixed inset-0 z-[99999] flex items-start justify-center px-4 pb-6 pt-[calc(11rem+env(safe-area-inset-top))] md:pt-[calc(8rem+env(safe-area-inset-top))]">
+    <div className="fixed inset-0 z-[99999] flex items-start justify-center px-4 pb-6 pt-[calc(13rem+env(safe-area-inset-top))] md:pt-[calc(10rem+env(safe-area-inset-top))]">
       <div
         id="profile-mini-card"
         className="relative animate-in fade-in zoom-in-95 duration-200"
