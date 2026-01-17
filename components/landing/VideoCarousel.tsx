@@ -25,7 +25,7 @@ const AUTO_PLAY_VOLUME = 0.15;
 const STICKY_THRESHOLD = 0.50;
 const RETURN_THRESHOLD = 0.70;
 const NAVBAR_HEIGHT = 54;
-const STICKY_TOP_OFFSET = 20;
+const STICKY_TOP_OFFSET = 60;
 
 // CSS Keyframes
 const animationStyles = `
