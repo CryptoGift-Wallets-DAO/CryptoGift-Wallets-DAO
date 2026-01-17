@@ -78,6 +78,7 @@ const VALID_TABS = ['whitepaper', 'tokenomics', 'contracts', 'governance', 'road
 
 export default function DocsPage() {
   const t = useTranslations('docs');
+  const tLanding = useTranslations('landing');
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
   const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'whitepaper';
@@ -1233,7 +1234,11 @@ export default function DocsPage() {
                 </CardContent>
               </Card>
 
-              <TeamSection translationKeyPrefix="team" />
+              <TeamSection
+                badge={tLanding('team.badge')}
+                title={tLanding('team.title')}
+                subtitle={tLanding('team.subtitle')}
+              />
             </TabsContent>
           </Tabs>
 
