@@ -23,19 +23,16 @@ const config: HardhatUserConfig = {
   
   networks: {
     hardhat: {
-      type: "edr-simulated" as const,
       chainId: 31337
     },
     
     base: {
-      type: "http" as const,
       url: BASE_RPC_URL,
       chainId: 8453,
       accounts: [PRIVATE_KEY_DAO_DEPLOYER]
     },
     
     baseSepolia: {
-      type: "http" as const,
       url: BASE_SEPOLIA_RPC_URL,
       chainId: 84532,
       accounts: [PRIVATE_KEY_DAO_DEPLOYER]
