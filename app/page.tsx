@@ -188,7 +188,7 @@ export default function LandingPage() {
             </div>
 
             {/* Right: Video Carousel */}
-            <div className={`relative transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
+            <div className={`relative mt-6 lg:mt-8 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
               <VideoCarousel />
             </div>
           </div>
