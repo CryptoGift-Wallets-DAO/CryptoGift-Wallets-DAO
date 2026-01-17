@@ -630,11 +630,12 @@ export function EmbeddedVideoDevice({
     return 'floatVideo 4s ease-in-out infinite';
   };
 
+  const stickyTopOffset = isMobile ? STICKY_TOP_OFFSET + 10 : STICKY_TOP_OFFSET;
   const videoStyles: React.CSSProperties = isSticky
     ? {
         // STICKY: Fixed below navbar - centered with calc to avoid transform conflict
         position: 'fixed',
-        top: NAVBAR_HEIGHT + STICKY_TOP_OFFSET,
+        top: NAVBAR_HEIGHT + stickyTopOffset,
         left: `calc(50% - ${computedStickyWidth / 2}px)`,
         width: computedStickyWidth,
         zIndex: 9999,
