@@ -754,10 +754,14 @@ export function VideoCarousel() {
   // CRITICAL: In normal mode, 'top' is calculated from initialDocTop (no getBoundingClientRect lag)
   // The scroll listener in useEffect updates 'top' directly in DOM for real-time positioning
   const currentScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+  const stickyTop = isMobile
+    ? `calc(${NAVBAR_HEIGHT}px + 12px + env(safe-area-inset-top))`
+    : `calc(${NAVBAR_HEIGHT}px + env(safe-area-inset-top))`;
+
   const videoStyles: React.CSSProperties = isSticky
     ? {
         position: 'fixed',
-        top: NAVBAR_HEIGHT,
+        top: stickyTop,
         left: `calc(50% - ${stickyWidth / 2}px)`,
         width: stickyWidth,
         zIndex: 9999,
