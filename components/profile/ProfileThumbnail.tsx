@@ -46,7 +46,7 @@ export function ProfileThumbnail({
   };
 
   // When any card level is open (L2, L3, L4), show "traveling" emoji
-  const isCardOpen = currentLevel > 1;
+  const isCardOpen = (currentLevel ?? 0) > 1;
 
   return (
     <div
