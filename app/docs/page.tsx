@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
+import { TeamSection } from '@/components/apex';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -77,6 +78,7 @@ const VALID_TABS = ['whitepaper', 'tokenomics', 'contracts', 'governance', 'road
 
 export default function DocsPage() {
   const t = useTranslations('docs');
+  const tLanding = useTranslations('landing');
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
   const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'whitepaper';
@@ -1232,157 +1234,11 @@ export default function DocsPage() {
                 </CardContent>
               </Card>
 
-              {/* Team Card - Required by BaseScan */}
-              <Card className="glass-panel border-l-4 border-l-purple-500">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-white">
-                    <Users className="h-5 w-5 text-purple-500" />
-                    <span>The Team</span>
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-gray-400">
-                    Lean, founder-led team combining product, Web3 dev and growth. 104 days of closed beta with 0 critical bugs and 85.7% claim rate. Ready to scale with funding &amp; partners.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-3 gap-6">
-                    {/* Rafael Gonzalez */}
-                    <div className="text-center">
-                      <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-200 dark:border-purple-700">
-                        <Image
-                          src="/team/C3C8D6AE-5738-4BF9-873C-39EE8847C3F2.png"
-                          alt="Rafael Gonzalez"
-                          width={96}
-                          height={96}
-                          className="object-cover w-full h-full"
-                        />
-                      </div>
-                      <h4 className="font-bold text-gray-900 dark:text-white">Rafael Gonzalez</h4>
-                      <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
-                        Founder &amp; Product / Engineering Lead
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                        Web3 dev, youth educator, built CryptoGift Wallets end-to-end on Base.
-                      </p>
-                      <div className="flex items-center justify-center gap-3">
-                        <a
-                          href="http://www.linkedin.com/in/rafael-gonzalez-cgc-mbxarts"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                          <span>LinkedIn</span>
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                        <a
-                          href="https://x.com/godezr10894?s=21"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center space-x-1 text-xs text-gray-700 dark:text-gray-300 hover:underline"
-                        >
-                          <span>X/Twitter</span>
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Roberto Legrá */}
-                    <div className="text-center">
-                      <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-200 dark:border-purple-700">
-                        <Image
-                          src="/team/IMG_6757.PNG"
-                          alt="Roberto Legrá"
-                          width={96}
-                          height={96}
-                          className="object-cover w-full h-full"
-                        />
-                      </div>
-                      <h4 className="font-bold text-gray-900 dark:text-white">Roberto Legrá</h4>
-                      <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
-                        Head of Community &amp; Growth / Marketing Advisor
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                        6 years Community strategy designer &amp; Crypto community builder. Management of moderators, ambassadors, and content creators.
-                      </p>
-                      <div className="flex items-center justify-center gap-3">
-                        <a
-                          href="https://www.linkedin.com/in/roberto-legra-7746993a1"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                          <span>LinkedIn</span>
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                        <a
-                          href="https://x.com/doctortips_5?s=21"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center space-x-1 text-xs text-gray-700 dark:text-gray-300 hover:underline"
-                        >
-                          <span>X/Twitter</span>
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Leodanni Avila */}
-                    <div className="text-center">
-                      <div className="w-24 h-24 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-purple-200 dark:border-purple-700">
-                        <Image
-                          src="/team/IMG_6773.PNG"
-                          alt="Leodanni Avila"
-                          width={96}
-                          height={96}
-                          className="object-cover w-full h-full"
-                        />
-                      </div>
-                      <h4 className="font-bold text-gray-900 dark:text-white">Leodanni Avila</h4>
-                      <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
-                        Business Development &amp; Operations / Marketing Advisor
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                        3+ years in sales &amp; digital marketing; Experienced Head of Strategy &amp; Business Operations. 5+ years in Web3.
-                      </p>
-                      <div className="flex items-center justify-center gap-3">
-                        <a
-                          href="http://www.linkedin.com/in/leodanni-avila-dev-mbxarts"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                          <span>LinkedIn</span>
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                        <a
-                          href="https://x.com/0xdr_leo?s=21"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center space-x-1 text-xs text-gray-700 dark:text-gray-300 hover:underline"
-                        >
-                          <span>X/Twitter</span>
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Contact Email */}
-                  <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Mail className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                        <span className="text-sm font-medium text-purple-900 dark:text-purple-100">Official Contact:</span>
-                      </div>
-                      <a
-                        href="mailto:admin@mbxarts.com"
-                        className="text-sm text-purple-700 dark:text-purple-300 hover:underline font-mono"
-                      >
-                        admin@mbxarts.com
-                      </a>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <TeamSection
+                badge={tLanding('team.badge')}
+                title={tLanding('team.title')}
+                subtitle={tLanding('team.subtitle')}
+              />
             </TabsContent>
           </Tabs>
 
