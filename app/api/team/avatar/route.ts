@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authHelpers } from '@/lib/auth/middleware';
 import { DEFAULT_TEAM_MEMBERS } from '@/lib/team/default-team';
+import {
+  getTeamMemberFromStorage,
+  isMissingTeamTableError,
+  upsertTeamMemberInStorage,
+} from '@/lib/team/storage';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -92,11 +97,30 @@ export const POST = authHelpers.admin(async (request: NextRequest) => {
     const { data: urlData } = db.storage.from(AVATAR_BUCKET).getPublicUrl(fileName);
     const imageUrl = urlData.publicUrl;
 
-    const { data: existing } = await db
+    const { data: existing, error: existingError } = await db
       .from('team_members')
       .select('name, role, description, socials, stats, sort_order')
       .eq('wallet_address', normalizedWallet)
       .maybeSingle();
+
+    if (existingError && isMissingTeamTableError(existingError)) {
+      const storedMember = await getTeamMemberFromStorage(db, normalizedWallet);
+      const fallback = DEFAULT_TEAM_MEMBERS.find(
+        (member) => member.wallet.toLowerCase() === normalizedWallet
+      );
+      const updatedMember = await upsertTeamMemberInStorage(db, {
+        ...(storedMember || fallback || { wallet: normalizedWallet }),
+        wallet: normalizedWallet,
+        imageSrc: imageUrl,
+      });
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          image_url: updatedMember.imageSrc,
+        },
+      });
+    }
 
     const fallback = DEFAULT_TEAM_MEMBERS.find(
       (member) => member.wallet.toLowerCase() === normalizedWallet

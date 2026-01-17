@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { TeamMember } from '@/lib/team/types';
 import { DEFAULT_TEAM_MEMBERS } from '@/lib/team/default-team';
+import {
+  isMissingTeamTableError,
+  readTeamMembersFromStorage,
+  upsertTeamMemberInStorage,
+} from '@/lib/team/storage';
 import { authHelpers } from '@/lib/auth/middleware';
 
 type TeamMemberRow = {
@@ -71,11 +76,23 @@ export async function GET() {
       .order('sort_order', { ascending: true });
 
     if (error) {
+      if (isMissingTeamTableError(error)) {
+        const storedMembers = await readTeamMembersFromStorage(db);
+        if (storedMembers?.length) {
+          return NextResponse.json({ success: true, data: storedMembers });
+        }
+      }
+
       console.error('Team fetch error:', error);
       return NextResponse.json({ success: true, data: DEFAULT_TEAM_MEMBERS });
     }
 
     if (!data || data.length === 0) {
+      const storedMembers = await readTeamMembersFromStorage(db);
+      if (storedMembers?.length) {
+        return NextResponse.json({ success: true, data: storedMembers });
+      }
+
       return NextResponse.json({ success: true, data: DEFAULT_TEAM_MEMBERS });
     }
 
@@ -119,6 +136,14 @@ export const PATCH = authHelpers.admin(async (request: NextRequest) => {
       .single();
 
     if (error) {
+      if (isMissingTeamTableError(error)) {
+        const storedMember = await upsertTeamMemberInStorage(db, member);
+        return NextResponse.json({
+          success: true,
+          data: storedMember,
+        });
+      }
+
       console.error('Team update error:', error);
       return NextResponse.json({ error: 'Failed to update team member' }, { status: 500 });
     }
