@@ -7,4 +7,7 @@
  */
 
 // Re-export everything from opengraph-image
-export { default, alt, size, contentType, runtime } from './opengraph-image';
+export { default, alt, size, contentType } from './opengraph-image';
+
+// Keep runtime as a string literal for Next.js inference
+export const runtime = 'edge';
