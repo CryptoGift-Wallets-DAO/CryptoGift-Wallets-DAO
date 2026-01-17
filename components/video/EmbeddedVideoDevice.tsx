@@ -59,6 +59,7 @@ const RETURN_THRESHOLD = 0.70; // Return to normal when >70% visible
 
 // Navbar height in pixels
 const NAVBAR_HEIGHT = 54;
+const STICKY_TOP_OFFSET = 20;
 
 // CSS Keyframes
 const animationStyles = `
@@ -633,7 +634,7 @@ export function EmbeddedVideoDevice({
     ? {
         // STICKY: Fixed below navbar - centered with calc to avoid transform conflict
         position: 'fixed',
-        top: NAVBAR_HEIGHT,
+        top: NAVBAR_HEIGHT + STICKY_TOP_OFFSET,
         left: `calc(50% - ${computedStickyWidth / 2}px)`,
         width: computedStickyWidth,
         zIndex: 9999,

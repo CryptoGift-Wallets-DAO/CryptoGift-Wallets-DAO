@@ -37,7 +37,7 @@ const DEFAULT_CONFIG: ApexPositionConfig = {
   stickyThreshold: 200,
   mobileBreakpoint: 768,
   rightOffset: 16,
-  topOffset: 66,
+  topOffset: 96,
 };
 
 export function useApexPosition(
