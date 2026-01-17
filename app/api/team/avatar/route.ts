@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authHelpers } from '@/lib/auth/middleware';
 import { DEFAULT_TEAM_MEMBERS } from '@/lib/team/default-team';
+import type { TeamMember } from '@/lib/team/types';
 import {
   getTeamMemberFromStorage,
   isMissingTeamTableError,
@@ -11,6 +12,13 @@ import {
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const AVATAR_BUCKET = 'avatars';
+const DEFAULT_STATS = {
+  tasksCompleted: 0,
+  reputation: 0,
+  respect: 0,
+  rank: 'Team',
+  contributions: 0,
+};
 
 let supabase: ReturnType<typeof createClient> | null = null;
 
@@ -26,6 +34,32 @@ function getSupabase() {
 
   supabase = createClient(url, key);
   return supabase;
+}
+
+function buildMemberFallback({
+  wallet,
+  storedMember,
+  fallback,
+}: {
+  wallet: string;
+  storedMember: TeamMember | null;
+  fallback: TeamMember | undefined;
+}): TeamMember {
+  return {
+    name: storedMember?.name || fallback?.name || 'Team Member',
+    role: storedMember?.role || fallback?.role || '',
+    description: storedMember?.description || fallback?.description || '',
+    wallet,
+    imageSrc: storedMember?.imageSrc || fallback?.imageSrc,
+    socials: {
+      ...(fallback?.socials || {}),
+      ...(storedMember?.socials || {}),
+    },
+    stats: {
+      ...(fallback?.stats || DEFAULT_STATS),
+      ...(storedMember?.stats || {}),
+    },
+  };
 }
 
 export const POST = authHelpers.admin(async (request: NextRequest) => {
@@ -108,9 +142,13 @@ export const POST = authHelpers.admin(async (request: NextRequest) => {
       const fallback = DEFAULT_TEAM_MEMBERS.find(
         (member) => member.wallet.toLowerCase() === normalizedWallet
       );
-      const updatedMember = await upsertTeamMemberInStorage(db, {
-        ...(storedMember || fallback || { wallet: normalizedWallet }),
+      const baseMember = buildMemberFallback({
         wallet: normalizedWallet,
+        storedMember,
+        fallback,
+      });
+      const updatedMember = await upsertTeamMemberInStorage(db, {
+        ...baseMember,
         imageSrc: imageUrl,
       });
 
