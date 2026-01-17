@@ -58,7 +58,7 @@ const STICKY_THRESHOLD = 0.50; // Go sticky when <50% visible (>50% hidden)
 const RETURN_THRESHOLD = 0.70; // Return to normal when >70% visible
 
 // Navbar height in pixels
-const NAVBAR_HEIGHT = 72;
+const NAVBAR_HEIGHT = 54;
 
 // CSS Keyframes
 const animationStyles = `

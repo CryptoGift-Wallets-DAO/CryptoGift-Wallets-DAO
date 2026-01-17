@@ -33,11 +33,11 @@ interface ApexPositionState {
 }
 
 const DEFAULT_CONFIG: ApexPositionConfig = {
-  navbarHeight: 72,
+  navbarHeight: 54,
   stickyThreshold: 200,
   mobileBreakpoint: 768,
   rightOffset: 16,
-  topOffset: 88,
+  topOffset: 66,
 };
 
 export function useApexPosition(
