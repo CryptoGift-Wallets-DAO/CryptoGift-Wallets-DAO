@@ -552,11 +552,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <TeamSection
-        badge={t('topHolders.badge')}
-        title={t('topHolders.title')}
-        subtitle={t('topHolders.subtitle')}
-      />
+      <TeamSection translationKeyPrefix="topHolders" />
 
       <Footer />
     </div>

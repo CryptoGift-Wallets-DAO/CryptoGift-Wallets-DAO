@@ -1,13 +1,15 @@
 'use client';
 
 import { Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { TeamMemberApex } from './TeamMemberApex';
 import { useTeamMembers } from './useTeamMembers';
 
 interface TeamSectionProps {
-  badge: string;
-  title: string;
-  subtitle: string;
+  badge?: string;
+  title?: string;
+  subtitle?: string;
+  translationKeyPrefix?: 'team' | 'topHolders';
   contactEmail?: string;
 }
 
@@ -15,9 +17,14 @@ export function TeamSection({
   badge,
   title,
   subtitle,
+  translationKeyPrefix = 'team',
   contactEmail = 'admin@mbxarts.com',
 }: TeamSectionProps) {
+  const t = useTranslations('landing');
   const { members, updateMember } = useTeamMembers();
+  const resolvedBadge = badge ?? t(`${translationKeyPrefix}.badge`);
+  const resolvedTitle = title ?? t(`${translationKeyPrefix}.title`);
+  const resolvedSubtitle = subtitle ?? t(`${translationKeyPrefix}.subtitle`);
 
   return (
     <section className="relative py-12 px-4">
@@ -27,14 +34,14 @@ export function TeamSection({
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 rounded-full mb-4">
               <Users className="w-3.5 h-3.5 text-purple-500" />
               <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                {badge}
+                {resolvedBadge}
               </span>
             </div>
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              {title}
+              {resolvedTitle}
             </h2>
             <p className="text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              {subtitle}
+              {resolvedSubtitle}
             </p>
           </div>
 
