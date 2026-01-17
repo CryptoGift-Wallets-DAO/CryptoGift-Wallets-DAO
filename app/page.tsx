@@ -42,6 +42,12 @@ import {
 
 // Permanent invite link for new users (OFFICIAL CAMPAIGN LINK)
 const INVITE_LINK = '/permanent-invite/PI-MK29MMCI-E6284EC943D54CA3';
+const TOP_HOLDERS_COPY = {
+  badge: 'Top Holders',
+  title: 'Top Holders',
+  subtitle:
+    'Leading CGC holders powering the ecosystem today. Early supporters aligned with the CryptoGift DAO vision.',
+};
 
 // Animations: float + holographic shimmer
 const animations = `
@@ -553,9 +559,9 @@ export default function LandingPage() {
       </section>
 
       <TeamSection
-        badge="Top Holders"
-        title="Top Holders"
-        subtitle="Leading CGC holders powering the ecosystem today. Early supporters aligned with the CryptoGift DAO vision."
+        badge={TOP_HOLDERS_COPY.badge}
+        title={TOP_HOLDERS_COPY.title}
+        subtitle={TOP_HOLDERS_COPY.subtitle}
       />
 
       <Footer />
