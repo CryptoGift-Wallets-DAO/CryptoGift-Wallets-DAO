@@ -20,7 +20,7 @@ import { Footer } from '@/components/layout/Footer';
 import { VideoCarousel } from '@/components/landing/VideoCarousel';
 import { useDashboardStats } from '@/lib/web3/hooks';
 import { useAccount } from '@/lib/thirdweb';
-import { TeamMemberApex, TEAM_MEMBERS } from '@/components/apex';
+import { TeamSection } from '@/components/apex';
 import {
   Wallet,
   Gift,
@@ -552,44 +552,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* TEAM SECTION */}
-      <section className="relative py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="rounded-2xl p-6 lg:p-8 glass-crystal border-l-4 border-l-purple-500">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 rounded-full mb-4">
-                <Users className="w-3.5 h-3.5 text-purple-500" />
-                <span className="text-xs font-medium text-purple-600 dark:text-purple-400">{t('team.badge')}</span>
-              </div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                {t('team.title')}
-              </h2>
-              <p className="text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                {t('team.subtitle')}
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {TEAM_MEMBERS.map((member) => (
-                <TeamMemberApex key={member.wallet} member={member} />
-              ))}
-            </div>
-
-            {/* Contact Email */}
-            <div className="mt-6 p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-                <span className="text-sm font-medium text-purple-600 dark:text-purple-400">Official Contact:</span>
-                <a
-                  href="mailto:admin@mbxarts.com"
-                  className="text-sm text-purple-700 dark:text-purple-300 hover:underline font-mono"
-                >
-                  admin@mbxarts.com
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <TeamSection
+        badge={t('team.badge')}
+        title={t('team.title')}
+        subtitle={t('team.subtitle')}
+      />
 
       <Footer />
     </div>
