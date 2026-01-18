@@ -16,6 +16,7 @@ import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
 import { ProfileCardProvider } from '@/components/profile/ProfileCardProvider';
 import { ProfileMiniCard } from '@/components/profile/ProfileMiniCard';
 import { ProfileFullCard } from '@/components/profile/ProfileFullCard';
+import { useTrackReferralClick } from '@/hooks/useReferrals';
 import {
   User,
   MessageCircle,
@@ -64,6 +65,29 @@ export default function PublicProfilePage() {
 
   // Check if presentation card mode is active
   const showPresentationCard = searchParams.get('card') === 'presentation';
+
+  // Check for referral code in URL (for tracking)
+  const referralCode = searchParams.get('ref');
+
+  // Track referral click when user arrives with a referral code
+  const { trackClick } = useTrackReferralClick();
+  const [referralTracked, setReferralTracked] = useState(false);
+
+  useEffect(() => {
+    // Track the referral click only once when page loads with ref param
+    if (referralCode && !referralTracked) {
+      trackClick({
+        code: referralCode,
+        metadata: {
+          source: 'profile_share',
+          medium: 'social',
+          campaign: 'presentation_card',
+          landing_page: `/user/${wallet}`,
+        },
+      });
+      setReferralTracked(true);
+    }
+  }, [referralCode, referralTracked, trackClick, wallet]);
 
   // Close presentation card by removing query param
   const handleClosePresentationCard = () => {
