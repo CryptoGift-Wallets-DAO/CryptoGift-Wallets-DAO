@@ -190,13 +190,14 @@ export function ProfileExpanded() {
     }
   };
 
-  // Border: thin dark gray/slate ring - same for both hover and locked
-  const borderClass = 'ring-2 ring-slate-600 dark:ring-slate-400';
+  // Border: thin dark gray/slate ring - same for ALL states (hover, focus, active, locked)
+  // No additional rings or outlines in any state
+  const borderClass = 'ring-2 ring-slate-600 dark:ring-slate-400 focus:ring-2 focus:ring-slate-600 dark:focus:ring-slate-400 hover:ring-2 hover:ring-slate-600 dark:hover:ring-slate-400';
 
   const expandedContent = (
     <div
       id="profile-expanded-avatar"
-      className="fixed z-[99999] animate-expandIn origin-top-left cursor-pointer"
+      className="fixed z-[99999] animate-expandIn origin-top-left cursor-pointer outline-none focus:outline-none"
       style={{
         top: position.top,
         left: position.left,
@@ -213,13 +214,15 @@ export function ProfileExpanded() {
         }
       }}
     >
-      {/* Large VideoAvatar - Apple Watch squircle with dynamic border */}
-      <div className={`relative rounded-[32px] ${borderClass} transition-all duration-200`}>
+      {/* Large VideoAvatar - Apple Watch squircle with consistent border */}
+      {/* No hover/focus/active changes - always same ring */}
+      <div className={`relative rounded-[32px] ${borderClass} origin-top-left`}>
         <VideoAvatar
           imageSrc={profile.avatar_url || undefined}
           alt={profile.display_name || 'Profile'}
           size="xl"
           className="!w-[160px] !h-[160px]"
+          disableHoverEffects
         />
 
         {/* Network Indicator - bottom right corner */}

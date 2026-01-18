@@ -30,6 +30,8 @@ interface VideoAvatarProps {
   onClick?: () => void;
   /** When true, shows amber "locked" border instead of default */
   isLocked?: boolean;
+  /** When true, disables hover/active scale effects */
+  disableHoverEffects?: boolean;
 }
 
 const sizeMap = {
@@ -49,6 +51,7 @@ export function VideoAvatar({
   enableFloat = false,
   onClick,
   isLocked = false,
+  disableHoverEffects = false,
 }: VideoAvatarProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -97,8 +100,7 @@ export function VideoAvatar({
       className={`
         relative overflow-visible
         cursor-pointer
-        transition-transform duration-300 ease-out
-        hover:scale-105
+        ${disableHoverEffects ? '' : 'transition-transform duration-300 ease-out hover:scale-105'}
         ${enableFloat ? 'animate-apexFloat' : ''}
         ${className}
       `}
