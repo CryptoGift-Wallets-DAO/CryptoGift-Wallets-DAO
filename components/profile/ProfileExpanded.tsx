@@ -7,7 +7,8 @@
  * - Shows large Apple Watch squircle avatar positioned over thumbnail
  * - NO backdrop (page stays interactive)
  * - Click on avatar → go to Level 4 (Full Card)
- * - Click outside or mouse leave → close
+ * - Mouse leave → close ONLY if not locked (hover mode)
+ * - If locked (click mode) → stays open until click outside
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -74,6 +75,7 @@ export function ProfileExpanded() {
     thumbnailRef,
     closeLevel,
     goToLevel,
+    isLocked,
   } = useProfileCard();
   const { chainId } = useNetwork();
 
@@ -156,10 +158,14 @@ export function ProfileExpanded() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [currentLevel, closeLevel]);
 
-  // Handle mouse leave - always close level
+  // Handle mouse leave - only close if NOT locked (hover mode)
+  // If locked (click mode), stay open until click outside
   const handleMouseLeave = useCallback(() => {
-    closeLevel();
-  }, [closeLevel]);
+    if (!isLocked) {
+      closeLevel();
+    }
+    // If locked, do nothing - will close on click outside
+  }, [closeLevel, isLocked]);
 
   // Handle click on avatar - go to Level 4 (Full Card)
   const handleClick = useCallback(() => {
