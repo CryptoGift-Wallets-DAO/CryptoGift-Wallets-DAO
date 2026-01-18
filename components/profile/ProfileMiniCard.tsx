@@ -210,9 +210,6 @@ export function ProfileMiniCard({
     linkedSocials.push({ key: 'website', url: profile.website_url });
   }
 
-  // Determine transform origin based on alignment
-  const transformOrigin = standalone ? 'center' : (position.right !== undefined ? 'top right' : 'top left');
-
   // Handle card click - go to L4 (Full Card)
   // In standalone mode, this opens the full profile modal
   const handleCardClick = () => {
@@ -317,38 +314,18 @@ export function ProfileMiniCard({
     </div>
   );
 
-  // Standalone mode: centered modal with backdrop
-  // Normal mode: positioned near thumbnail
-  const cardContent = standalone ? (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
-        onClick={onClose}
-      />
-      <div
-        id="profile-mini-card"
-        className="relative animate-in fade-in zoom-in-95 duration-200"
-        style={{
-          width: CARD_WIDTH,
-          maxWidth: 'calc(100vw - 32px)',
-        }}
-      >
-        {cardInner}
-      </div>
-    </div>
-  ) : (
+  // Both standalone and normal mode: positioned at right edge, no backdrop
+  // Page stays fully interactive - only the card receives events
+  const cardContent = (
     <div
       id="profile-mini-card"
-      className="fixed z-[99999] animate-expandIn"
+      className="fixed z-[99999] animate-expandIn origin-top-right"
       style={{
-        top: position.top,
-        ...(position.right !== undefined ? { right: position.right } : {}),
-        ...(position.left !== undefined ? { left: position.left } : {}),
+        top: standalone ? 80 : position.top, // Standalone: below navbar, Normal: below thumbnail
+        right: 0, // Always flush to right edge
         width: CARD_WIDTH,
         maxWidth: 'calc(100vw - 32px)',
         pointerEvents: 'auto',
-        transformOrigin,
       }}
     >
       {cardInner}
