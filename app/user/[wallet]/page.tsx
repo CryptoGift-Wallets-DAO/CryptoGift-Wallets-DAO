@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
 import { ProfileCardProvider } from '@/components/profile/ProfileCardProvider';
 import { ProfileMiniCard } from '@/components/profile/ProfileMiniCard';
+import { ProfileFullCard } from '@/components/profile/ProfileFullCard';
 import {
   User,
   MessageCircle,
@@ -361,9 +362,10 @@ export default function PublicProfilePage() {
         </div>
       </div>
 
-      {/* Presentation Card Modal - shown when ?card=presentation */}
+      {/* Presentation Card - shown when ?card=presentation */}
+      {/* L3 (MiniCard) at right edge, click opens L4 (FullCard) at same position */}
       {showPresentationCard && profile && (
-        <ProfileCardProvider wallet={wallet}>
+        <ProfileCardProvider wallet={wallet} initialLevel={3}>
           <ProfileMiniCard
             standalone
             standaloneProfile={{
@@ -382,6 +384,8 @@ export default function PublicProfilePage() {
             }}
             onClose={handleClosePresentationCard}
           />
+          {/* L4 renders when user clicks on L3 */}
+          <ProfileFullCard />
         </ProfileCardProvider>
       )}
     </>
