@@ -3,13 +3,17 @@
 /**
  * ProfileFullCard - Level 4 of ProfileCard system (Full Modal)
  *
+ * Main destination of the profile flow:
+ * - Owner flow: L1 → L2 → L4
+ * - Receiver flow (shared link): L3 → L4
+ *
  * Complete profile view with:
  * - Header with gradient
  * - Large avatar (120px)
  * - Name, tier badge
  * - Stats grid (Reputation, Respect, Tasks, Contributions)
  * - About section
- * - Social Networks with SocialSlot pattern
+ * - Social Networks with SocialSlot pattern + ShareButton
  * - Send Message button
  * - Copy wallet address
  *

@@ -3,6 +3,11 @@
 /**
  * ProfileMiniCard - Level 3 of ProfileCard system (Presentation Card)
  *
+ * STANDALONE ONLY - Not part of main flow (L1 → L2 → L4)
+ * This component is exclusively for:
+ * - Public sharing via link (/user/[wallet]?card=presentation)
+ * - Recipients of shared links see this as their entry point
+ *
  * Card view showing:
  * - Large avatar (112px)
  * - Name + Role/Tier
@@ -10,11 +15,6 @@
  * - Username
  * - Social icons preview
  * - Click → opens Level 4 (full modal)
- *
- * NOW PART OF SHARE FLOW:
- * - Opens from L2 in share flow
- * - Can also be opened standalone via public link (?card=presentation)
- * - Click outside returns to L4 if in share flow, or closes if standalone
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -89,9 +89,7 @@ export function ProfileMiniCard({
     profile: contextProfile,
     currentLevel,
     thumbnailRef,
-    isShareFlowActive,
     closeLevel,
-    closeShareFlow,
     goToLevel,
   } = useProfileCard();
   const t = useTranslations('profile');
@@ -148,9 +146,6 @@ export function ProfileMiniCard({
       if (e.key === 'Escape') {
         if (standalone && onClose) {
           onClose();
-        } else if (isShareFlowActive) {
-          // Return to L4 when in share flow
-          closeShareFlow();
         } else {
           closeLevel();
         }
@@ -159,7 +154,7 @@ export function ProfileMiniCard({
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [standalone, currentLevel, isShareFlowActive, closeLevel, closeShareFlow, onClose]);
+  }, [standalone, currentLevel, closeLevel, onClose]);
 
   // Handle click outside
   useEffect(() => {
@@ -178,9 +173,6 @@ export function ProfileMiniCard({
       ) {
         if (standalone && onClose) {
           onClose();
-        } else if (isShareFlowActive) {
-          // Return to L4 when in share flow
-          closeShareFlow();
         } else {
           closeLevel();
         }
@@ -195,11 +187,11 @@ export function ProfileMiniCard({
       clearTimeout(timeoutId);
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [standalone, currentLevel, isShareFlowActive, closeLevel, closeShareFlow, thumbnailRef, onClose]);
+  }, [standalone, currentLevel, closeLevel, thumbnailRef, onClose]);
 
   // Render conditions
-  // - Standalone mode: always show if profile exists
-  // - Context mode: show only when at level 3
+  // - Standalone mode (public link): always show if profile exists
+  // - Non-standalone: only show when at level 3 (rare, since main flow is L1→L2→L4)
   if (!mounted || !profile) return null;
   if (!standalone && currentLevel !== 3) return null;
 
@@ -218,14 +210,10 @@ export function ProfileMiniCard({
     linkedSocials.push({ key: 'website', url: profile.website_url });
   }
 
-  // Determine transform origin based on alignment
-  const transformOrigin = standalone ? 'center' : (position.right !== undefined ? 'top right' : 'top left');
-
-  // Handle card click - go to L4 if not standalone
+  // Handle card click - go to L4 (Full Card)
+  // In standalone mode, this opens the full profile modal
   const handleCardClick = () => {
-    if (!standalone) {
-      goToLevel(4);
-    }
+    goToLevel(4);
   };
 
   // Handle close button
@@ -233,8 +221,6 @@ export function ProfileMiniCard({
     e.stopPropagation();
     if (standalone && onClose) {
       onClose();
-    } else if (isShareFlowActive) {
-      closeShareFlow();
     } else {
       closeLevel();
     }
@@ -340,6 +326,7 @@ export function ProfileMiniCard({
 
   // Standalone mode: centered modal with backdrop
   // Normal mode: positioned near thumbnail
+  const transformOrigin = position.right !== undefined ? 'top right' : 'top left';
   const cardContent = standalone ? (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
       {/* Backdrop */}

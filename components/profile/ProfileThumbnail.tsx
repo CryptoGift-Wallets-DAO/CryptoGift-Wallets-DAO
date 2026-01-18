@@ -4,8 +4,8 @@
  * ProfileThumbnail - Level 1 of ProfileCard system
  *
  * Small thumbnail avatar (48px default):
- * - Click → Opens Level 4 (Full Card) directly
- * - No hover expand (L2/L3 are now part of Share flow only)
+ * - Click → Opens Level 2 (Expanded Avatar)
+ * - Flow: L1 → L2 → L4 (L3 is only for shared links)
  * - When card is open (L2+), shows "traveling" emoji instead of avatar
  *
  * Made by mbxarts.com The Moon in a Box property
@@ -38,11 +38,21 @@ export function ProfileThumbnail({
   enableFloat = false,
   className = '',
 }: ProfileThumbnailProps) {
-  const { profile, currentLevel, goToLevel, thumbnailRef } = useProfileCard();
+  const { profile, currentLevel, openLevel, thumbnailRef } = useProfileCard();
 
-  // Click → Open Level 4 directly (skip L2/L3 which are now share flow only)
+  // Hover → Open Level 2 (Expanded Avatar)
+  // Mouse leave from L2 will close it (handled in ProfileExpanded)
+  const handleMouseEnter = () => {
+    if ((currentLevel ?? 0) <= 1) {
+      openLevel(2);
+    }
+  };
+
+  // Click → Also open Level 2 (same as hover, for mobile/touch)
   const handleClick = () => {
-    goToLevel(4);
+    if ((currentLevel ?? 0) <= 1) {
+      openLevel(2);
+    }
   };
 
   // When any card level is open (L2, L3, L4), show "traveling" emoji
@@ -51,22 +61,25 @@ export function ProfileThumbnail({
   return (
     <div
       ref={thumbnailRef as React.RefObject<HTMLDivElement>}
+      onMouseEnter={handleMouseEnter}
       onClick={handleClick}
       className="relative cursor-pointer"
     >
       {isCardOpen ? (
-        // "Traveling" placeholder - avatar is away exploring the card!
+        // Glass placeholder with Farcaster icon - avatar is away exploring the card!
         <div
-          className={`${sizeMap[size].container} rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 border-2 border-dashed border-amber-400/50 dark:border-amber-500/50 flex items-center justify-center transition-all duration-300 ${className}`}
+          className={`${sizeMap[size].container} rounded-full backdrop-blur-md bg-white/20 dark:bg-slate-800/30 border border-white/40 dark:border-slate-500/40 shadow-lg shadow-slate-500/10 dark:shadow-black/20 flex items-center justify-center transition-all duration-300 ${className}`}
+          style={{
+            boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.3), 0 4px 12px rgba(0,0,0,0.15)',
+          }}
           title="Exploring profile..."
         >
-          <span
-            className={`${sizeMap[size].emoji} animate-bounce`}
-            role="img"
-            aria-label="Traveling"
-          >
-            🚀
-          </span>
+          <img
+            src="/farcaster-icon-1024.png"
+            alt="Exploring"
+            className={`${sizeMap[size].emoji} object-contain opacity-80`}
+            style={{ width: '60%', height: '60%' }}
+          />
         </div>
       ) : (
         <ApexAvatar

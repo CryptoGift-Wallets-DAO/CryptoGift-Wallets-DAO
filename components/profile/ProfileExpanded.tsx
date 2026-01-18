@@ -1,14 +1,13 @@
 'use client';
 
 /**
- * ProfileExpanded - Level 2 of ProfileCard system (Share Flow)
+ * ProfileExpanded - Level 2 of ProfileCard system
  *
- * NOW PART OF SHARE FLOW ONLY (not hover-expand anymore):
+ * Main flow: L1 → L2 → L4 (L3 is only for shared links)
  * - Shows large Apple Watch squircle avatar positioned over thumbnail
  * - NO backdrop (page stays interactive)
- * - Only opens from Share button in L4 (via openShareFlow)
- * - Click on avatar → go to Level 3 (Presentation Card)
- * - Click outside or mouse leave → return to L4
+ * - Click on avatar → go to Level 4 (Full Card)
+ * - Click outside or mouse leave → close
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -72,11 +71,8 @@ export function ProfileExpanded() {
   const {
     profile,
     currentLevel,
-    isLocked,
-    isShareFlowActive,
     thumbnailRef,
     closeLevel,
-    closeShareFlow,
     goToLevel,
   } = useProfileCard();
   const { chainId } = useNetwork();
@@ -115,9 +111,9 @@ export function ProfileExpanded() {
     return () => window.removeEventListener('resize', handleResize);
   }, [currentLevel, thumbnailRef]);
 
-  // Handle click outside when in share flow
+  // Handle click outside - close level
   useEffect(() => {
-    if (currentLevel !== 2 || !isShareFlowActive) return;
+    if (currentLevel !== 2) return;
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -131,8 +127,7 @@ export function ProfileExpanded() {
         thumbnailEl &&
         !thumbnailEl.contains(target)
       ) {
-        // Return to L4 when clicking outside during share flow
-        closeShareFlow();
+        closeLevel();
       }
     };
 
@@ -145,36 +140,34 @@ export function ProfileExpanded() {
       clearTimeout(timeoutId);
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [currentLevel, isShareFlowActive, closeShareFlow, thumbnailRef]);
+  }, [currentLevel, closeLevel, thumbnailRef]);
 
-  // Handle escape key - return to L4 during share flow
+  // Handle escape key - close level
   useEffect(() => {
-    if (currentLevel !== 2 || !isShareFlowActive) return;
+    if (currentLevel !== 2) return;
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        closeShareFlow();
+        closeLevel();
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [currentLevel, isShareFlowActive, closeShareFlow]);
+  }, [currentLevel, closeLevel]);
 
-  // Handle mouse leave - return to L4 during share flow
+  // Handle mouse leave - always close level
   const handleMouseLeave = useCallback(() => {
-    if (isShareFlowActive) {
-      closeShareFlow();
-    }
-  }, [isShareFlowActive, closeShareFlow]);
+    closeLevel();
+  }, [closeLevel]);
 
-  // Handle click on avatar - go to Level 3
+  // Handle click on avatar - go to Level 4 (Full Card)
   const handleClick = useCallback(() => {
-    goToLevel(3);
+    goToLevel(4);
   }, [goToLevel]);
 
-  // Only render during share flow when at level 2
-  if (!mounted || currentLevel !== 2 || !isShareFlowActive || !profile) return null;
+  // Only render when at level 2
+  if (!mounted || currentLevel !== 2 || !profile) return null;
 
   // Get network indicator based on chainId
   const getNetworkIndicator = () => {
@@ -189,6 +182,9 @@ export function ProfileExpanded() {
         return <UnknownNetworkIndicator size={24} />;
     }
   };
+
+  // Border: always dark gray/slate - no yellow
+  const borderClass = 'ring-4 ring-slate-600 dark:ring-slate-400';
 
   const expandedContent = (
     <div
@@ -210,14 +206,13 @@ export function ProfileExpanded() {
         }
       }}
     >
-      {/* Large VideoAvatar - Apple Watch squircle */}
-      <div className="relative">
+      {/* Large VideoAvatar - Apple Watch squircle with dynamic border */}
+      <div className={`relative rounded-[32px] ${borderClass} transition-all duration-200`}>
         <VideoAvatar
           imageSrc={profile.avatar_url || undefined}
           alt={profile.display_name || 'Profile'}
           size="xl"
           className="!w-[160px] !h-[160px]"
-          isLocked={isLocked}
         />
 
         {/* Network Indicator - bottom right corner */}

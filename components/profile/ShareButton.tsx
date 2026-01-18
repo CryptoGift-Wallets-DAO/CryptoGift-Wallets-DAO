@@ -7,7 +7,7 @@
  * - Copy profile link to clipboard with visual feedback
  * - Show QR Code inline/popover
  * - Web NFC tap-to-share (Chrome Android only)
- * - Opens Share Flow (L2 → L3)
+ * - Does NOT change profile card levels (stays in L4)
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -25,7 +25,6 @@ import {
   Download,
   Share2,
 } from 'lucide-react';
-import { useProfileCard } from './ProfileCardProvider';
 
 // Check if Web NFC is supported
 const isNFCSupported = typeof window !== 'undefined' && 'NDEFReader' in window;
@@ -37,7 +36,6 @@ interface ShareButtonProps {
 
 export function ShareButton({ walletAddress, className = '' }: ShareButtonProps) {
   const t = useTranslations('profile.share');
-  const { openShareFlow } = useProfileCard();
 
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -105,7 +103,7 @@ export function ShareButton({ walletAddress, className = '' }: ShareButtonProps)
     }
   };
 
-  // Handle main button click - Copy + Show QR + Activate NFC + Open Share Flow
+  // Handle main button click - Copy + Show QR + Activate NFC (simultaneously)
   const handleMainClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -119,9 +117,7 @@ export function ShareButton({ walletAddress, className = '' }: ShareButtonProps)
     if (isNFCSupported) {
       handleNFC();
     }
-
-    // 4. Open share flow (L2)
-    openShareFlow();
+    // Note: Does NOT change levels - stays in L4
   };
 
   // Close popover when clicking outside
