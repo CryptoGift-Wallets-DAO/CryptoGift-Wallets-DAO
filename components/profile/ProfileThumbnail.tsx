@@ -38,26 +38,20 @@ export function ProfileThumbnail({
   enableFloat = false,
   className = '',
 }: ProfileThumbnailProps) {
-  const { profile, currentLevel, openLevel, lockLevel, thumbnailRef } = useProfileCard();
+  const { profile, currentLevel, openLevel, thumbnailRef } = useProfileCard();
 
-  // Hover → Open Level 2 (Expanded Avatar) without locking
-  // Mouse leave will close it (handled in ProfileExpanded)
+  // Hover → Open Level 2 (Expanded Avatar)
+  // Mouse leave from L2 will close it (handled in ProfileExpanded)
   const handleMouseEnter = () => {
     if ((currentLevel ?? 0) <= 1) {
       openLevel(2);
     }
   };
 
-  // Click → Lock Level 2 (stays open until click outside)
-  // Flow: L1 → L2 → L4 (L3 is only for shared links)
+  // Click → Also open Level 2 (same as hover, for mobile/touch)
   const handleClick = () => {
-    if (currentLevel === 2) {
-      // Already at L2, just lock it
-      lockLevel();
-    } else {
-      // Open L2 and lock it immediately
+    if ((currentLevel ?? 0) <= 1) {
       openLevel(2);
-      lockLevel();
     }
   };
 
@@ -74,7 +68,7 @@ export function ProfileThumbnail({
       {isCardOpen ? (
         // "Traveling" placeholder - avatar is away exploring the card!
         <div
-          className={`${sizeMap[size].container} rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 border-2 border-dashed border-amber-400/50 dark:border-amber-500/50 flex items-center justify-center transition-all duration-300 ${className}`}
+          className={`${sizeMap[size].container} rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 border-2 border-dashed border-slate-400/50 dark:border-slate-500/50 flex items-center justify-center transition-all duration-300 ${className}`}
           title="Exploring profile..."
         >
           <span

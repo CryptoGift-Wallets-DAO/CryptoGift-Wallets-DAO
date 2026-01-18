@@ -71,7 +71,6 @@ export function ProfileExpanded() {
   const {
     profile,
     currentLevel,
-    isLocked,
     thumbnailRef,
     closeLevel,
     goToLevel,
@@ -112,9 +111,9 @@ export function ProfileExpanded() {
     return () => window.removeEventListener('resize', handleResize);
   }, [currentLevel, thumbnailRef]);
 
-  // Handle click outside - close level (only when locked)
+  // Handle click outside - close level
   useEffect(() => {
-    if (currentLevel !== 2 || !isLocked) return;
+    if (currentLevel !== 2) return;
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -141,7 +140,7 @@ export function ProfileExpanded() {
       clearTimeout(timeoutId);
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [currentLevel, isLocked, closeLevel, thumbnailRef]);
+  }, [currentLevel, closeLevel, thumbnailRef]);
 
   // Handle escape key - close level
   useEffect(() => {
@@ -157,13 +156,10 @@ export function ProfileExpanded() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [currentLevel, closeLevel]);
 
-  // Handle mouse leave - close level ONLY if not locked
-  // When locked (user clicked), it stays open until click outside
+  // Handle mouse leave - always close level
   const handleMouseLeave = useCallback(() => {
-    if (!isLocked) {
-      closeLevel();
-    }
-  }, [isLocked, closeLevel]);
+    closeLevel();
+  }, [closeLevel]);
 
   // Handle click on avatar - go to Level 4 (Full Card)
   const handleClick = useCallback(() => {
@@ -187,12 +183,8 @@ export function ProfileExpanded() {
     }
   };
 
-  // Border classes based on lock state:
-  // - Hover (not locked): dark gray/slate border
-  // - Locked (clicked): amber/yellow border
-  const borderClass = isLocked
-    ? 'ring-4 ring-amber-400 dark:ring-amber-500'
-    : 'ring-4 ring-slate-600 dark:ring-slate-400';
+  // Border: always dark gray/slate - no yellow
+  const borderClass = 'ring-4 ring-slate-600 dark:ring-slate-400';
 
   const expandedContent = (
     <div
@@ -221,7 +213,6 @@ export function ProfileExpanded() {
           alt={profile.display_name || 'Profile'}
           size="xl"
           className="!w-[160px] !h-[160px]"
-          isLocked={isLocked}
         />
 
         {/* Network Indicator - bottom right corner */}
