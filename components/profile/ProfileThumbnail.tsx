@@ -4,8 +4,8 @@
  * ProfileThumbnail - Level 1 of ProfileCard system
  *
  * Small thumbnail avatar (48px default):
- * - Click → Opens Level 4 (Full Card) directly
- * - No hover expand (L2/L3 are now part of Share flow only)
+ * - Click → Opens Level 2 (Expanded Avatar)
+ * - Flow: L1 → L2 → L4 (L3 is only for shared links)
  * - When card is open (L2+), shows "traveling" emoji instead of avatar
  *
  * Made by mbxarts.com The Moon in a Box property
@@ -40,9 +40,10 @@ export function ProfileThumbnail({
 }: ProfileThumbnailProps) {
   const { profile, currentLevel, goToLevel, thumbnailRef } = useProfileCard();
 
-  // Click → Open Level 4 directly (skip L2/L3 which are now share flow only)
+  // Click → Open Level 2 (Expanded Avatar)
+  // Flow: L1 → L2 → L4 (L3 is only for shared links)
   const handleClick = () => {
-    goToLevel(4);
+    goToLevel(2);
   };
 
   // When any card level is open (L2, L3, L4), show "traveling" emoji
