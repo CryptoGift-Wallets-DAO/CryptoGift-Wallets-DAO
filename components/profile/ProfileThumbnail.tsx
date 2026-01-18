@@ -38,12 +38,27 @@ export function ProfileThumbnail({
   enableFloat = false,
   className = '',
 }: ProfileThumbnailProps) {
-  const { profile, currentLevel, goToLevel, thumbnailRef } = useProfileCard();
+  const { profile, currentLevel, openLevel, lockLevel, thumbnailRef } = useProfileCard();
 
-  // Click → Open Level 2 (Expanded Avatar)
+  // Hover → Open Level 2 (Expanded Avatar) without locking
+  // Mouse leave will close it (handled in ProfileExpanded)
+  const handleMouseEnter = () => {
+    if ((currentLevel ?? 0) <= 1) {
+      openLevel(2);
+    }
+  };
+
+  // Click → Lock Level 2 (stays open until click outside)
   // Flow: L1 → L2 → L4 (L3 is only for shared links)
   const handleClick = () => {
-    goToLevel(2);
+    if (currentLevel === 2) {
+      // Already at L2, just lock it
+      lockLevel();
+    } else {
+      // Open L2 and lock it immediately
+      openLevel(2);
+      lockLevel();
+    }
   };
 
   // When any card level is open (L2, L3, L4), show "traveling" emoji
@@ -52,6 +67,7 @@ export function ProfileThumbnail({
   return (
     <div
       ref={thumbnailRef as React.RefObject<HTMLDivElement>}
+      onMouseEnter={handleMouseEnter}
       onClick={handleClick}
       className="relative cursor-pointer"
     >

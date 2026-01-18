@@ -112,9 +112,9 @@ export function ProfileExpanded() {
     return () => window.removeEventListener('resize', handleResize);
   }, [currentLevel, thumbnailRef]);
 
-  // Handle click outside - close level
+  // Handle click outside - close level (only when locked)
   useEffect(() => {
-    if (currentLevel !== 2) return;
+    if (currentLevel !== 2 || !isLocked) return;
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -141,7 +141,7 @@ export function ProfileExpanded() {
       clearTimeout(timeoutId);
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [currentLevel, closeLevel, thumbnailRef]);
+  }, [currentLevel, isLocked, closeLevel, thumbnailRef]);
 
   // Handle escape key - close level
   useEffect(() => {
@@ -157,10 +157,13 @@ export function ProfileExpanded() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [currentLevel, closeLevel]);
 
-  // Handle mouse leave - close level
+  // Handle mouse leave - close level ONLY if not locked
+  // When locked (user clicked), it stays open until click outside
   const handleMouseLeave = useCallback(() => {
-    closeLevel();
-  }, [closeLevel]);
+    if (!isLocked) {
+      closeLevel();
+    }
+  }, [isLocked, closeLevel]);
 
   // Handle click on avatar - go to Level 4 (Full Card)
   const handleClick = useCallback(() => {
@@ -184,6 +187,13 @@ export function ProfileExpanded() {
     }
   };
 
+  // Border classes based on lock state:
+  // - Hover (not locked): dark gray/slate border
+  // - Locked (clicked): amber/yellow border
+  const borderClass = isLocked
+    ? 'ring-4 ring-amber-400 dark:ring-amber-500'
+    : 'ring-4 ring-slate-600 dark:ring-slate-400';
+
   const expandedContent = (
     <div
       id="profile-expanded-avatar"
@@ -204,8 +214,8 @@ export function ProfileExpanded() {
         }
       }}
     >
-      {/* Large VideoAvatar - Apple Watch squircle */}
-      <div className="relative">
+      {/* Large VideoAvatar - Apple Watch squircle with dynamic border */}
+      <div className={`relative rounded-[32px] ${borderClass} transition-all duration-200`}>
         <VideoAvatar
           imageSrc={profile.avatar_url || undefined}
           alt={profile.display_name || 'Profile'}
