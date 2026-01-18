@@ -44,7 +44,7 @@ function normalizeMember(member: TeamMember): TeamMember {
 async function ensureTeamDataBucket(db: SupabaseClient) {
   const { data: buckets, error } = await db.storage.listBuckets();
   if (error) {
-    return;
+    throw new Error(`Failed to list storage buckets: ${error.message}`);
   }
 
   const bucketExists = buckets?.some((bucket) => bucket.name === TEAM_DATA_BUCKET);
@@ -52,11 +52,15 @@ async function ensureTeamDataBucket(db: SupabaseClient) {
     return;
   }
 
-  await db.storage.createBucket(TEAM_DATA_BUCKET, {
+  const { error: createError } = await db.storage.createBucket(TEAM_DATA_BUCKET, {
     public: false,
     fileSizeLimit: MAX_TEAM_JSON_SIZE,
     allowedMimeTypes: ['application/json'],
   });
+
+  if (createError) {
+    throw new Error(`Failed to create team data bucket: ${createError.message}`);
+  }
 }
 
 export function isMissingTeamTableError(error: unknown) {
@@ -114,10 +118,14 @@ export async function writeTeamMembersToStorage(
 
   const buffer = Buffer.from(JSON.stringify(payload));
 
-  await db.storage.from(TEAM_DATA_BUCKET).upload(TEAM_DATA_PATH, buffer, {
+  const { error: uploadError } = await db.storage.from(TEAM_DATA_BUCKET).upload(TEAM_DATA_PATH, buffer, {
     contentType: 'application/json',
     upsert: true,
   });
+
+  if (uploadError) {
+    throw new Error(`Failed to upload team data: ${uploadError.message}`);
+  }
 
   return normalized;
 }

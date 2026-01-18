@@ -14,11 +14,11 @@
  * Co-Author: Godez22
  */
 
-import { useState, useRef, useMemo, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { VideoAvatar } from './VideoAvatar';
 import type { TeamMember, TeamSocialKey } from '@/lib/team/types';
-import { useAccount } from '@/lib/thirdweb';
+import { useIsAdmin } from '@/components/auth/RoleGate';
 import {
   X,
   Copy,
@@ -33,8 +33,6 @@ import {
   Save,
   Loader2,
 } from 'lucide-react';
-
-const DEPLOYER_WALLET = '0xc655bf2bd9afa997c757bef290a9bb6ca41c5de6';
 
 // Social Network Icons with brand colors
 const SocialIcons: Record<TeamSocialKey, { icon: JSX.Element; color: string; darkColor: string; name: string }> = {
@@ -180,12 +178,7 @@ export function TeamMemberApex({ member, onMemberUpdated }: TeamMemberApexProps)
   const [formState, setFormState] = useState<TeamMember>(member);
   const cardRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { address } = useAccount();
-
-  const isAdmin = useMemo(() => {
-    if (!address) return false;
-    return address.toLowerCase() === DEPLOYER_WALLET;
-  }, [address]);
+  const isAdmin = useIsAdmin();
 
   useEffect(() => {
     if (!isEditing) {
