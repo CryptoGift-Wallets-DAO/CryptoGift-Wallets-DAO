@@ -42,7 +42,7 @@ export function ProfileThumbnail({
   const { profile, currentLevel, openLevel, lockLevel, thumbnailRef } = useProfileCard();
 
   // Hover → Open Level 2 (Expanded Avatar) - TEMPORARY
-  // Mouse leave from L2 will close it if not locked (handled in ProfileExpanded)
+  // Only works when at L1 (not when card is already open)
   const handleMouseEnter = () => {
     if ((currentLevel ?? 0) <= 1) {
       openLevel(2);
@@ -51,11 +51,11 @@ export function ProfileThumbnail({
   };
 
   // Click → Open Level 2 AND LOCK IT - stays open until click outside
+  // Works from L1 (normal) AND from Farcaster icon when card is open (L2, L3, L4)
   const handleClick = () => {
-    if ((currentLevel ?? 0) <= 1) {
-      openLevel(2);
-      lockLevel(); // Lock so it doesn't close on mouse leave
-    }
+    // Always open L2 locked - whether from L1 or from Farcaster icon
+    openLevel(2);
+    lockLevel();
   };
 
   // When any card level is open (L2, L3, L4), show "traveling" emoji
