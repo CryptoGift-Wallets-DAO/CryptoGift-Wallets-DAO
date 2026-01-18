@@ -76,7 +76,6 @@ export function ProfileExpanded() {
     closeLevel,
     goToLevel,
     isLocked,
-    lockLevel,
   } = useProfileCard();
   const { chainId } = useNetwork();
 
@@ -168,18 +167,11 @@ export function ProfileExpanded() {
     // If locked, do nothing - will close on click outside
   }, [closeLevel, isLocked]);
 
-  // Handle click on avatar
-  // - If NOT locked (hover mode): lock it first (don't go to L4 yet)
-  // - If already locked (click mode): go to Level 4 (Full Card)
+  // Handle click on avatar - ALWAYS go to Level 4 (Full Card)
+  // Simple and direct - no extra logic
   const handleClick = useCallback(() => {
-    if (!isLocked) {
-      // First click after hover: just lock it
-      lockLevel();
-    } else {
-      // Already locked: go to full card
-      goToLevel(4);
-    }
-  }, [goToLevel, isLocked, lockLevel]);
+    goToLevel(4);
+  }, [goToLevel]);
 
   // Only render when at level 2
   if (!mounted || currentLevel !== 2 || !profile) return null;
@@ -198,8 +190,8 @@ export function ProfileExpanded() {
     }
   };
 
-  // Border: always dark gray/slate - no yellow
-  const borderClass = 'ring-4 ring-slate-600 dark:ring-slate-400';
+  // Border: thin dark gray/slate ring - same for both hover and locked
+  const borderClass = 'ring-2 ring-slate-600 dark:ring-slate-400';
 
   const expandedContent = (
     <div
