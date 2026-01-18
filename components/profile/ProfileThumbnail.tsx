@@ -66,18 +66,20 @@ export function ProfileThumbnail({
       className="relative cursor-pointer"
     >
       {isCardOpen ? (
-        // "Traveling" placeholder - avatar is away exploring the card!
+        // Glass placeholder with Farcaster icon - avatar is away exploring the card!
         <div
-          className={`${sizeMap[size].container} rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 border-2 border-dashed border-slate-400/50 dark:border-slate-500/50 flex items-center justify-center transition-all duration-300 ${className}`}
+          className={`${sizeMap[size].container} rounded-full backdrop-blur-md bg-white/20 dark:bg-slate-800/30 border border-white/40 dark:border-slate-500/40 shadow-lg shadow-slate-500/10 dark:shadow-black/20 flex items-center justify-center transition-all duration-300 ${className}`}
+          style={{
+            boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.3), 0 4px 12px rgba(0,0,0,0.15)',
+          }}
           title="Exploring profile..."
         >
-          <span
-            className={`${sizeMap[size].emoji} animate-bounce`}
-            role="img"
-            aria-label="Traveling"
-          >
-            🚀
-          </span>
+          <img
+            src="/farcaster-icon-1024.png"
+            alt="Exploring"
+            className={`${sizeMap[size].emoji} object-contain opacity-80`}
+            style={{ width: '60%', height: '60%' }}
+          />
         </div>
       ) : (
         <ApexAvatar
