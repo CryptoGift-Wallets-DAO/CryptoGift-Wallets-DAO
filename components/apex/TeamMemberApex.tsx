@@ -19,6 +19,7 @@ import { createPortal } from 'react-dom';
 import { VideoAvatar } from './VideoAvatar';
 import type { TeamMember, TeamSocialKey } from '@/lib/team/types';
 import { useIsAdmin } from '@/components/auth/RoleGate';
+import { useAccount } from '@/lib/thirdweb';
 import {
   X,
   Copy,
@@ -179,6 +180,7 @@ export function TeamMemberApex({ member, onMemberUpdated }: TeamMemberApexProps)
   const cardRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isAdmin = useIsAdmin();
+  const { address } = useAccount();
 
   useEffect(() => {
     if (!isEditing) {
