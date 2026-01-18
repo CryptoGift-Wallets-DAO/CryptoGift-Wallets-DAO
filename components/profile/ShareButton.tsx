@@ -25,6 +25,8 @@ import {
   Download,
   Share2,
 } from 'lucide-react';
+import { useReferralCode } from '@/hooks/useReferrals';
+import { useAccount } from '@/lib/thirdweb';
 
 // Check if Web NFC is supported
 const isNFCSupported = typeof window !== 'undefined' && 'NDEFReader' in window;
@@ -36,6 +38,10 @@ interface ShareButtonProps {
 
 export function ShareButton({ walletAddress, className = '' }: ShareButtonProps) {
   const t = useTranslations('profile.share');
+  const { address } = useAccount();
+
+  // Get current user's referral code to include in shared links
+  const { code: referralCode } = useReferralCode(address);
 
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -45,10 +51,11 @@ export function ShareButton({ walletAddress, className = '' }: ShareButtonProps)
   const qrRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  // Generate profile URL with presentation card query param
+  // Generate profile URL with presentation card AND referral code
+  // This allows tracking referrals when someone views the shared profile
   const profileUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/user/${walletAddress}?card=presentation`
-    : `/user/${walletAddress}?card=presentation`;
+    ? `${window.location.origin}/user/${walletAddress}?card=presentation${referralCode ? `&ref=${referralCode}` : ''}`
+    : `/user/${walletAddress}?card=presentation${referralCode ? `&ref=${referralCode}` : ''}`;
 
   // Handle copy to clipboard
   const handleCopy = async () => {

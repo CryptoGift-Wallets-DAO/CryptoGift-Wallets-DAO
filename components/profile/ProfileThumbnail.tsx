@@ -4,9 +4,10 @@
  * ProfileThumbnail - Level 1 of ProfileCard system
  *
  * Small thumbnail avatar (48px default):
- * - Click → Opens Level 2 (Expanded Avatar)
+ * - Hover → Opens Level 2 (Expanded Avatar) - temporary, closes on mouse leave
+ * - Click → Opens Level 2 AND locks it - stays open until click outside
  * - Flow: L1 → L2 → L4 (L3 is only for shared links)
- * - When card is open (L2+), shows "traveling" emoji instead of avatar
+ * - When card is open (L2+), shows Farcaster icon in glass circle
  *
  * Made by mbxarts.com The Moon in a Box property
  * Co-Author: Godez22
@@ -38,20 +39,22 @@ export function ProfileThumbnail({
   enableFloat = false,
   className = '',
 }: ProfileThumbnailProps) {
-  const { profile, currentLevel, openLevel, thumbnailRef } = useProfileCard();
+  const { profile, currentLevel, openLevel, lockLevel, thumbnailRef } = useProfileCard();
 
-  // Hover → Open Level 2 (Expanded Avatar)
-  // Mouse leave from L2 will close it (handled in ProfileExpanded)
+  // Hover → Open Level 2 (Expanded Avatar) - TEMPORARY
+  // Mouse leave from L2 will close it if not locked (handled in ProfileExpanded)
   const handleMouseEnter = () => {
     if ((currentLevel ?? 0) <= 1) {
       openLevel(2);
+      // Don't lock - this is just hover, will close on mouse leave
     }
   };
 
-  // Click → Also open Level 2 (same as hover, for mobile/touch)
+  // Click → Open Level 2 AND LOCK IT - stays open until click outside
   const handleClick = () => {
     if ((currentLevel ?? 0) <= 1) {
       openLevel(2);
+      lockLevel(); // Lock so it doesn't close on mouse leave
     }
   };
 

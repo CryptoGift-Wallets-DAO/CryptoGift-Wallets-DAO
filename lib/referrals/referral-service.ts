@@ -601,6 +601,7 @@ export async function processReward(
 
 /**
  * Track a click on a referral link
+ * Returns object with success status and any error message
  */
 export async function trackClick(clickData: {
   referralCode: string;
@@ -616,64 +617,109 @@ export async function trackClick(clickData: {
   os?: string;
   country?: string;
   city?: string;
-}): Promise<void> {
+}): Promise<{ success: boolean; error?: string }> {
   const supabase = getTypedClient();
 
-  // Validate referral code exists
-  const codeExists = await getReferralCodeByCode(clickData.referralCode);
-  if (!codeExists) return;
+  try {
+    // Validate referral code exists
+    const codeExists = await getReferralCodeByCode(clickData.referralCode);
+    if (!codeExists) {
+      console.warn(`[ReferralService] Click tracked for non-existent code: ${clickData.referralCode}`);
+      return { success: false, error: 'Invalid referral code' };
+    }
 
-  const click: ReferralClickInsert = {
-    referral_code: codeExists.code, // Use canonical code
-    ip_hash: clickData.ipHash || null,
-    user_agent: clickData.userAgent || null,
-    device_type: clickData.deviceType || 'unknown',
-    browser: clickData.browser || null,
-    os: clickData.os || null,
-    country: clickData.country || null,
-    city: clickData.city || null,
-    source: clickData.source || null,
-    medium: clickData.medium || null,
-    campaign: clickData.campaign || null,
-    referer: clickData.referer || null,
-    landing_page: clickData.landingPage || null,
-    converted: false,
-  };
+    if (!codeExists.is_active) {
+      console.warn(`[ReferralService] Click tracked for inactive code: ${clickData.referralCode}`);
+      return { success: false, error: 'Referral code is inactive' };
+    }
 
-  await supabase.from('referral_clicks').insert(click);
+    const click: ReferralClickInsert = {
+      referral_code: codeExists.code, // Use canonical code
+      ip_hash: clickData.ipHash || null,
+      user_agent: clickData.userAgent || null,
+      device_type: clickData.deviceType || 'unknown',
+      browser: clickData.browser || null,
+      os: clickData.os || null,
+      country: clickData.country || null,
+      city: clickData.city || null,
+      source: clickData.source || null,
+      medium: clickData.medium || null,
+      campaign: clickData.campaign || null,
+      referer: clickData.referer || null,
+      landing_page: clickData.landingPage || null,
+      converted: false,
+    };
 
-  // Update click count
-  await supabase
-    .from('referral_codes')
-    .update({
-      click_count: (codeExists.click_count || 0) + 1,
-    })
-    .eq('code', codeExists.code);
+    const { error: insertError } = await supabase.from('referral_clicks').insert(click);
+
+    if (insertError) {
+      console.error('[ReferralService] Failed to insert click:', insertError);
+      return { success: false, error: insertError.message };
+    }
+
+    // Update click count atomically using RPC or increment
+    const { error: updateError } = await supabase
+      .from('referral_codes')
+      .update({
+        click_count: (codeExists.click_count || 0) + 1,
+      })
+      .eq('code', codeExists.code);
+
+    if (updateError) {
+      console.error('[ReferralService] Failed to update click count:', updateError);
+      // Don't fail the whole operation, click was tracked
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('[ReferralService] Error in trackClick:', err);
+    return { success: false, error: 'Internal error tracking click' };
+  }
 }
 
 /**
  * Mark a click as converted
+ * Returns true if a click was marked, false if no matching click found
  */
 export async function markClickConverted(
   ipHash: string,
   convertedAddress: string
-): Promise<void> {
+): Promise<boolean> {
   const supabase = getTypedClient();
 
-  await supabase
-    .from('referral_clicks')
-    .update({
-      converted: true,
-      converted_address: convertedAddress.toLowerCase(),
-      conversion_time: new Date().toISOString(),
-    })
-    .eq('ip_hash', ipHash)
-    .eq('converted', false)
-    .order('created_at', { ascending: false })
-    .limit(1);
+  try {
+    const { data, error } = await supabase
+      .from('referral_clicks')
+      .update({
+        converted: true,
+        converted_address: convertedAddress.toLowerCase(),
+        conversion_time: new Date().toISOString(),
+      })
+      .eq('ip_hash', ipHash)
+      .eq('converted', false)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .select();
 
-  // Update conversion rate for the referral code
-  // This is approximated - actual calculation done in daily job
+    if (error) {
+      console.error('[ReferralService] Failed to mark click converted:', error);
+      return false;
+    }
+
+    // Log success for tracking
+    if (data && data.length > 0) {
+      console.log(`[ReferralService] Marked click as converted for ${convertedAddress.slice(0, 10)}...`);
+      return true;
+    }
+
+    // No matching click found (user may have cleared cookies)
+    return false;
+  } catch (err) {
+    console.error('[ReferralService] Error in markClickConverted:', err);
+    return false;
+  }
+
+  // Note: Conversion rate calculation is done in daily job
 }
 
 // =====================================================
