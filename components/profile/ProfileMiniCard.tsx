@@ -91,8 +91,12 @@ export function ProfileMiniCard({
     thumbnailRef,
     closeLevel,
     goToLevel,
+    isStandalone: contextStandalone,
   } = useProfileCard();
   const t = useTranslations('profile');
+
+  // Check standalone mode from prop or context
+  const isStandaloneMode = standalone || contextStandalone;
 
   // Use standalone profile if provided, otherwise use context profile
   const profile = standalone && standaloneProfile ? standaloneProfile : contextProfile;
@@ -110,11 +114,18 @@ export function ProfileMiniCard({
   }, []);
 
   // Calculate position ONCE when opening - FIXED to screen, not page
-  // In standalone mode, center the card on screen
-  // In normal mode, stick to the RIGHT edge of the screen, below the thumbnail
+  // Always position at RIGHT edge of screen (same for normal and standalone mode)
   useEffect(() => {
-    // Skip position calculation for standalone mode (will use CSS centering)
-    if (standalone) return;
+    // For standalone mode without thumbnailRef, position at top-right
+    if (isStandaloneMode && !thumbnailRef?.current) {
+      setPosition({
+        top: 100, // Below navbar
+        right: 0,
+        left: undefined,
+      });
+      return;
+    }
+
     if (currentLevel !== 3 || !thumbnailRef?.current) return;
 
     const calculatePosition = () => {
@@ -135,31 +146,31 @@ export function ProfileMiniCard({
     // Only update on resize (responsive), NOT on scroll
     window.addEventListener('resize', calculatePosition);
     return () => window.removeEventListener('resize', calculatePosition);
-  }, [standalone, currentLevel, thumbnailRef]);
+  }, [isStandaloneMode, currentLevel, thumbnailRef]);
 
-  // Handle escape key
+  // Handle escape key - only in non-standalone mode
+  // In standalone mode, user must click close button
   useEffect(() => {
-    // Skip if not at level 3 and not standalone
-    if (!standalone && currentLevel !== 3) return;
+    // Skip if standalone mode (only close with button)
+    if (isStandaloneMode) return;
+    if (currentLevel !== 3) return;
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (standalone && onClose) {
-          onClose();
-        } else {
-          closeLevel();
-        }
+        closeLevel();
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [standalone, currentLevel, closeLevel, onClose]);
+  }, [isStandaloneMode, currentLevel, closeLevel]);
 
-  // Handle click outside
+  // Handle click outside - only in non-standalone mode
+  // In standalone mode, card stays open until user clicks close button
   useEffect(() => {
-    // Skip if not at level 3 and not standalone
-    if (!standalone && currentLevel !== 3) return;
+    // Skip if standalone mode (only close with button)
+    if (isStandaloneMode) return;
+    if (currentLevel !== 3) return;
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -171,11 +182,7 @@ export function ProfileMiniCard({
         !cardEl.contains(target) &&
         (!thumbnailEl || !thumbnailEl.contains(target))
       ) {
-        if (standalone && onClose) {
-          onClose();
-        } else {
-          closeLevel();
-        }
+        closeLevel();
       }
     };
 
@@ -187,13 +194,13 @@ export function ProfileMiniCard({
       clearTimeout(timeoutId);
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [standalone, currentLevel, closeLevel, thumbnailRef, onClose]);
+  }, [isStandaloneMode, currentLevel, closeLevel, thumbnailRef]);
 
   // Render conditions
   // - Standalone mode (public link): always show if profile exists
   // - Non-standalone: only show when at level 3 (rare, since main flow is L1→L2→L4)
   if (!mounted || !profile) return null;
-  if (!standalone && currentLevel !== 3) return null;
+  if (!isStandaloneMode && currentLevel !== 3) return null;
 
   // Collect linked socials
   const linkedSocials: { key: SocialKey; url: string }[] = [];
@@ -219,7 +226,7 @@ export function ProfileMiniCard({
   // Handle close button
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (standalone && onClose) {
+    if (isStandaloneMode && onClose) {
       onClose();
     } else {
       closeLevel();
@@ -235,14 +242,16 @@ export function ProfileMiniCard({
       tabIndex={0}
       aria-label={t('clickToExpand')}
     >
-      {/* Close button */}
-      <button
-        onClick={handleClose}
-        className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors"
-        aria-label="Close"
-      >
-        <X className="w-4 h-4 text-white" />
-      </button>
+      {/* Close button - only visible in standalone mode */}
+      {isStandaloneMode && (
+        <button
+          onClick={handleClose}
+          className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors"
+          aria-label="Close"
+        >
+          <X className="w-4 h-4 text-white" />
+        </button>
+      )}
 
       {/* Card content */}
       <div className="text-center p-6">
@@ -307,45 +316,29 @@ export function ProfileMiniCard({
         )}
 
         {/* Click hint - only show if not standalone */}
-        {!standalone && (
+        {!isStandaloneMode && (
           <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
             {t('clickToExpand')}
           </p>
         )}
 
-        {/* Bottom close button */}
-        <button
-          onClick={handleClose}
-          className="mt-4 w-full rounded-full border border-gray-200/70 dark:border-slate-700/70 bg-white/80 dark:bg-slate-800/80 px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-700 transition-colors"
-        >
-          Close
-        </button>
+        {/* Bottom close button - only in standalone mode */}
+        {isStandaloneMode && (
+          <button
+            onClick={handleClose}
+            className="mt-4 w-full rounded-full border border-gray-200/70 dark:border-slate-700/70 bg-white/80 dark:bg-slate-800/80 px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-700 transition-colors"
+          >
+            Close
+          </button>
+        )}
       </div>
     </div>
   );
 
-  // Standalone mode: centered modal with backdrop
-  // Normal mode: positioned near thumbnail
+  // Both modes: positioned at right edge, NO backdrop
+  // The only difference is standalone shows close button
   const transformOrigin = position.right !== undefined ? 'top right' : 'top left';
-  const cardContent = standalone ? (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
-        onClick={onClose}
-      />
-      <div
-        id="profile-mini-card"
-        className="relative animate-in fade-in zoom-in-95 duration-200"
-        style={{
-          width: CARD_WIDTH,
-          maxWidth: 'calc(100vw - 48px)',
-        }}
-      >
-        {cardInner}
-      </div>
-    </div>
-  ) : (
+  const cardContent = (
     <div
       id="profile-mini-card"
       className="fixed z-[99999] animate-expandIn"

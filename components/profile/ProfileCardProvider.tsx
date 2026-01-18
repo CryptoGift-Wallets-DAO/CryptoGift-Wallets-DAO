@@ -59,6 +59,7 @@ interface ProfileCardContextValue {
   isError: boolean;
   isLocked: boolean; // Click-to-lock state
   isShareFlowActive: boolean; // True when Share flow is active (L4→L2→L3)
+  isStandalone: boolean; // True when viewing via shared link (disables click-outside-close)
   thumbnailRef: RefObject<HTMLDivElement | null>; // Ref for positioning
 
   // Actions
@@ -97,6 +98,8 @@ interface ProfileCardProviderProps {
   wallet?: string;
   /** Initial level to show (default: 1) */
   initialLevel?: ProfileLevel;
+  /** Standalone mode for shared link viewing (disables click-outside-close, no backdrop) */
+  isStandalone?: boolean;
   /** Callback when level changes */
   onLevelChange?: (level: ProfileLevel) => void;
 }
@@ -105,6 +108,7 @@ export function ProfileCardProvider({
   children,
   wallet: walletProp,
   initialLevel = 1,
+  isStandalone = false,
   onLevelChange,
 }: ProfileCardProviderProps) {
   const { address: connectedAddress, isConnected } = useAccount();
@@ -227,6 +231,7 @@ export function ProfileCardProvider({
       isError,
       isLocked,
       isShareFlowActive,
+      isStandalone,
       thumbnailRef,
       openLevel,
       closeLevel,
@@ -238,7 +243,7 @@ export function ProfileCardProvider({
       openShareFlow,
       closeShareFlow,
     }),
-    [currentLevel, profile, isOwnProfile, isLoading, isError, isLocked, isShareFlowActive, openLevel, closeLevel, goToLevel, nextLevel, prevLevel, lockLevel, unlockLevel, openShareFlow, closeShareFlow]
+    [currentLevel, profile, isOwnProfile, isLoading, isError, isLocked, isShareFlowActive, isStandalone, openLevel, closeLevel, goToLevel, nextLevel, prevLevel, lockLevel, unlockLevel, openShareFlow, closeShareFlow]
   );
 
   return (

@@ -154,7 +154,7 @@ function SocialSlot({ network, handle, t }: SocialSlotProps) {
 // =====================================================
 
 export function ProfileFullCard() {
-  const { profile, currentLevel, closeLevel, isOwnProfile, thumbnailRef } = useProfileCard();
+  const { profile, currentLevel, closeLevel, isOwnProfile, thumbnailRef, isStandalone } = useProfileCard();
   const t = useTranslations('profile');
 
   const [mounted, setMounted] = useState(false);
@@ -164,8 +164,10 @@ export function ProfileFullCard() {
     setMounted(true);
   }, []);
 
-  // Handle escape key
+  // Handle escape key - only in non-standalone mode
+  // In standalone mode, user must click close button
   useEffect(() => {
+    if (isStandalone) return;
     if (currentLevel !== 4) return;
 
     const handleEscape = (e: KeyboardEvent) => {
@@ -176,10 +178,12 @@ export function ProfileFullCard() {
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [currentLevel, closeLevel]);
+  }, [isStandalone, currentLevel, closeLevel]);
 
-  // Handle click outside - close modal when clicking outside
+  // Handle click outside - only in non-standalone mode
+  // In standalone mode, card stays open until user clicks close button
   useEffect(() => {
+    if (isStandalone) return;
     if (currentLevel !== 4) return;
 
     const handleClickOutside = (e: MouseEvent) => {
@@ -206,7 +210,7 @@ export function ProfileFullCard() {
       clearTimeout(timeoutId);
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [currentLevel, closeLevel, thumbnailRef]);
+  }, [isStandalone, currentLevel, closeLevel, thumbnailRef]);
 
   // NOTE: No backdrop, no body scroll lock - page stays interactive
 
