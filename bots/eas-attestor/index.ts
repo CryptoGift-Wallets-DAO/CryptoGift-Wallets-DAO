@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import { EAS, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
-import express from "express";
+import { EAS, SchemaEncoder, type TransactionSigner } from "@ethereum-attestation-service/eas-sdk";
+import express, { type Request, type Response } from "express";
 import cors from "cors";
 import * as dotenv from "dotenv";
 
@@ -50,7 +50,7 @@ const wallet = new ethers.Wallet(CONFIG.ATTESTOR_PRIVATE_KEY, provider);
 
 // Initialize EAS
 const eas = new EAS(CONFIG.EAS_CONTRACT);
-eas.connect(wallet);
+eas.connect(wallet as unknown as TransactionSigner);
 
 // Schema for GoalCompleted attestation
 const SCHEMA = "address recipient,uint256 goalId,uint256 score,uint256 timestamp,uint256 expirationTime";
@@ -62,7 +62,7 @@ app.use(cors());
 app.use(express.json());
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/health", (_req: Request, res: Response) => {
   res.json({
     status: "healthy",
     attestor: wallet.address,
@@ -79,7 +79,7 @@ let stats = {
   lastAttestation: null as string | null,
 };
 
-app.get("/stats", (req, res) => {
+app.get("/stats", (_req: Request, res: Response) => {
   res.json(stats);
 });
 
@@ -122,7 +122,11 @@ async function createAttestation(
     
     // Wait for transaction
     const receipt = await tx.wait();
-    const attestationUID = receipt.logs[0].topics[1]; // Extract UID from event
+    const attestationUID = (receipt as { logs?: Array<{ topics?: string[] }> }).logs?.[0]?.topics?.[1];
+
+    if (!attestationUID) {
+      throw new Error("Attestation UID not found in receipt logs");
+    }
     
     console.log(`✅ Attestation created: ${attestationUID}`);
     
@@ -199,7 +203,7 @@ async function generateReleaseOrder(
 /**
  * Wonderverse webhook endpoint
  */
-app.post("/webhook/wonderverse", async (req, res) => {
+app.post("/webhook/wonderverse", async (req: Request, res: Response) => {
   try {
     // Verify API key
     if (req.headers["x-api-key"] !== CONFIG.WONDERVERSE_API_KEY) {
@@ -232,7 +236,7 @@ app.post("/webhook/wonderverse", async (req, res) => {
 /**
  * Dework webhook endpoint
  */
-app.post("/webhook/dework", async (req, res) => {
+app.post("/webhook/dework", async (req: Request, res: Response) => {
   try {
     // Verify API key
     if (req.headers["x-api-key"] !== CONFIG.DEWORK_API_KEY) {
@@ -280,7 +284,7 @@ app.post("/webhook/dework", async (req, res) => {
 /**
  * Zealy webhook endpoint
  */
-app.post("/webhook/zealy", async (req, res) => {
+app.post("/webhook/zealy", async (req: Request, res: Response) => {
   try {
     // Verify signature (Zealy uses HMAC)
     // Implementation depends on Zealy's specific requirements
@@ -309,7 +313,7 @@ app.post("/webhook/zealy", async (req, res) => {
 /**
  * Manual attestation endpoint (for testing)
  */
-app.post("/attest", async (req, res) => {
+app.post("/attest", async (req: Request, res: Response) => {
   try {
     const { recipient, goalId, score } = req.body;
     
@@ -341,7 +345,7 @@ app.post("/attest", async (req, res) => {
 /**
  * Generate release order endpoint
  */
-app.post("/generate-order", async (req, res) => {
+app.post("/generate-order", async (req: Request, res: Response) => {
   try {
     const { beneficiary, amount, goalId, campaignId, attestationUID } = req.body;
     
@@ -389,7 +393,11 @@ async function registerSchema() {
     );
     
     const receipt = await tx.wait();
-    const schemaUID = receipt.logs[0].topics[1];
+    const schemaUID = (receipt as { logs?: Array<{ topics?: string[] }> }).logs?.[0]?.topics?.[1];
+
+    if (!schemaUID) {
+      throw new Error("Schema UID not found in receipt logs");
+    }
     
     console.log("✅ Schema registered:", schemaUID);
     console.log("Add this to your .env: SCHEMA_UID=" + schemaUID);

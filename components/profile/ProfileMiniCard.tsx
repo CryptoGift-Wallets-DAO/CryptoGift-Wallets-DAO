@@ -56,7 +56,7 @@ const SocialIcons = {
 type SocialKey = keyof typeof SocialIcons;
 
 // Card dimensions
-const CARD_WIDTH = 320;
+const CARD_WIDTH = 316;
 
 interface ProfileMiniCardProps {
   /** Standalone mode for public viewing via URL */
@@ -124,7 +124,7 @@ export function ProfileMiniCard({
       // Always position at right edge of screen with NO margin - flush to edge
       // Top aligned just below the thumbnail
       setPosition({
-        top: rect.bottom + 8,
+        top: rect.bottom + 38,
         right: 0,
         left: undefined,
       });
@@ -306,26 +306,57 @@ export function ProfileMiniCard({
           </div>
         )}
 
-        {/* Click hint - always show since click opens L4 */}
-        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-          {t('clickToExpand')}
-        </p>
+        {/* Click hint - only show if not standalone */}
+        {!standalone && (
+          <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            {t('clickToExpand')}
+          </p>
+        )}
+
+        {/* Bottom close button */}
+        <button
+          onClick={handleClose}
+          className="mt-4 w-full rounded-full border border-gray-200/70 dark:border-slate-700/70 bg-white/80 dark:bg-slate-800/80 px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-slate-700 transition-colors"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
 
-  // Both standalone and normal mode: positioned at right edge, no backdrop
-  // Page stays fully interactive - only the card receives events
-  const cardContent = (
+  // Standalone mode: centered modal with backdrop
+  // Normal mode: positioned near thumbnail
+  const transformOrigin = position.right !== undefined ? 'top right' : 'top left';
+  const cardContent = standalone ? (
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+        onClick={onClose}
+      />
+      <div
+        id="profile-mini-card"
+        className="relative animate-in fade-in zoom-in-95 duration-200"
+        style={{
+          width: CARD_WIDTH,
+          maxWidth: 'calc(100vw - 48px)',
+        }}
+      >
+        {cardInner}
+      </div>
+    </div>
+  ) : (
     <div
       id="profile-mini-card"
-      className="fixed z-[99999] animate-expandIn origin-top-right"
+      className="fixed z-[99999] animate-expandIn"
       style={{
-        top: standalone ? 80 : position.top, // Standalone: below navbar, Normal: below thumbnail
-        right: 0, // Always flush to right edge
+        top: position.top,
+        ...(position.right !== undefined ? { right: position.right } : {}),
+        ...(position.left !== undefined ? { left: position.left } : {}),
         width: CARD_WIDTH,
-        maxWidth: 'calc(100vw - 32px)',
+        maxWidth: 'calc(100vw - 48px)',
         pointerEvents: 'auto',
+        transformOrigin,
       }}
     >
       {cardInner}

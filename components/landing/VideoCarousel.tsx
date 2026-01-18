@@ -24,7 +24,8 @@ import { VideoExperienceHint } from '@/components/ui/RotatePhoneHint';
 const AUTO_PLAY_VOLUME = 0.15;
 const STICKY_THRESHOLD = 0.50;
 const RETURN_THRESHOLD = 0.70;
-const NAVBAR_HEIGHT = 72;
+const NAVBAR_HEIGHT = 54;
+const STICKY_TOP_OFFSET = 40;
 
 // CSS Keyframes
 const animationStyles = `
@@ -757,7 +758,7 @@ export function VideoCarousel() {
   const videoStyles: React.CSSProperties = isSticky
     ? {
         position: 'fixed',
-        top: NAVBAR_HEIGHT,
+        top: NAVBAR_HEIGHT + STICKY_TOP_OFFSET,
         left: `calc(50% - ${stickyWidth / 2}px)`,
         width: stickyWidth,
         zIndex: 9999,

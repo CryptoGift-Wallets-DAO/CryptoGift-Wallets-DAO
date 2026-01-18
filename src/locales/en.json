@@ -136,6 +136,11 @@
       "watch": "Watch Now",
       "quality": "HD Quality"
     },
+    "topHolders": {
+      "badge": "Top Holders",
+      "title": "Top Holders",
+      "subtitle": "Leading CGC holders powering the ecosystem today. Early supporters aligned with the CryptoGift DAO vision."
+    },
     "team": {
       "badge": "Our Team",
       "title": "The Team",
