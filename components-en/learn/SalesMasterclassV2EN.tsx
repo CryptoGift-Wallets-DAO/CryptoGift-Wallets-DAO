@@ -87,6 +87,8 @@ import { CalendarBookingModal } from '@/components/calendar/CalendarBookingModal
 import IntroVideoGate from '@/components-en/video/IntroVideoGateEN';
 import { useSocialOAuth } from '@/hooks/useSocialOAuth';
 import { VIDEO_CONFIG } from '@/config/videoConfigEN';
+import { useTranslations } from 'next-intl';
+import { TeamSection } from '@/components/apex';
 
 // =============================================================================
 // MODERN ICON SYSTEM - Lucide React icons with gradient styling
@@ -745,7 +747,10 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
     giftId,
     tokenId
   });
-  
+
+  // i18n translations for TeamSection
+  const t = useTranslations('landing');
+
   // Defensive initialization - ensure all state variables are properly initialized
   const [isComponentInitialized, setIsComponentInitialized] = useState(false);
   useEffect(() => {
@@ -4158,7 +4163,10 @@ const SuccessBlock: React.FC<{
   onShowOutroVideo?: () => void;
 }> = ({ content, leadData, metrics, educationalMode = false, onEducationComplete, onShowOutroVideo }) => {
   // Removed router dependency to avoid App Router/Pages Router conflicts
-  
+
+  // i18n translations for TeamSection
+  const t = useTranslations('landing');
+
   return (
     <div className="py-12 text-center">
       <motion.div
@@ -4232,79 +4240,15 @@ const SuccessBlock: React.FC<{
         </div>
       </motion.div>
       
+      {/* Top Contributors Section - Reusing the same component from HOME */}
+      <TeamSection
+        badge={t('team.badge')}
+        title={t('team.title')}
+        subtitle={t('team.subtitle')}
+      />
+
       {/* DAO COMMUNITY SHOWCASE - For BOTH Knowledge and Educational modes */}
       <div className="mt-12 space-y-8">
-          {/* Welcome to DAO Community */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5 }}
-            className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border border-gray-200/50 dark:border-gray-700/50 rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-[1.02] max-w-4xl mx-auto"
-          >
-            <div className="text-center mb-6">
-              <h2 className="text-4xl font-black mb-4 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent flex items-center justify-center gap-2">
-                <StyledIcon icon="sparkles" size="lg" withGlow /> Welcome to our DAO Community! <StyledIcon icon="sparkles" size="lg" withGlow />
-              </h2>
-              <p className="text-xl text-gray-700 dark:text-gray-300">
-                Has completado tu entrenamiento y ahora formas parte de algo extraordinario
-              </p>
-            </div>
-
-            {/* Team Showcase */}
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
-              {/* Apex AI Assistant */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.8 }}
-                className="text-center bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl p-6 border border-blue-500/20"
-              >
-                <img 
-                  src="/Apex.PNG" 
-                  alt="Apex AI Assistant" 
-                  className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-blue-500/50 shadow-lg"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                />
-                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 flex items-center justify-center gap-2"><StyledIcon icon="bot" /> APEX</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Our AI Assistant that will guide you through every step of the crypto ecosystem</p>
-              </motion.div>
-
-              {/* Godez22 */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 2.0 }}
-                className="text-center bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-2xl p-6 border border-emerald-500/20"
-              >
-                <img 
-                  src="/Godez22.png" 
-                  alt="Godez22 Developer" 
-                  className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-emerald-500/50 shadow-lg"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                />
-                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 flex items-center justify-center gap-2"><Gem className="w-5 h-5 text-purple-500" /> Godez22</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Pioneer developer who brought this wonderful system to life</p>
-              </motion.div>
-
-              {/* RLGra95 */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 2.2 }}
-                className="text-center bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-2xl p-6 border border-orange-500/20"
-              >
-                <img 
-                  src="/RLGra95.PNG" 
-                  alt="RLGra95 Developer" 
-                  className="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-orange-500/50 shadow-lg"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                />
-                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 flex items-center justify-center gap-2"><Rocket className="w-5 h-5 text-cyan-500" /> RLGra95</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Visionary co-founder in the project's early steps</p>
-              </motion.div>
-            </div>
-          </motion.div>
-
           {/* Features Showcase */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
