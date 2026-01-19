@@ -1721,6 +1721,11 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
             // Scroll to top when showing outro video
             window.scrollTo({ top: 0, behavior: 'instant' });
           }}
+          galleryVideoConfig={VIDEO_CONFIG.presentationCGC ? {
+            muxPlaybackId: VIDEO_CONFIG.presentationCGC.muxPlaybackId,
+            title: VIDEO_CONFIG.presentationCGC.title,
+            description: VIDEO_CONFIG.presentationCGC.description || '',
+          } : undefined}
         />;
       default:
         return null;
@@ -4161,94 +4166,171 @@ const SuccessBlock: React.FC<{
   educationalMode?: boolean;
   onEducationComplete?: () => void;
   onShowOutroVideo?: () => void;
-}> = ({ content, leadData, metrics, educationalMode = false, onEducationComplete, onShowOutroVideo }) => {
+  galleryVideoConfig?: {
+    muxPlaybackId: string;
+    title: string;
+    description: string;
+  };
+}> = ({ content, leadData, metrics, educationalMode = false, onEducationComplete, onShowOutroVideo, galleryVideoConfig }) => {
   // Removed router dependency to avoid App Router/Pages Router conflicts
 
   // i18n translations for TeamSection
   const t = useTranslations('landing');
 
-  return (
-    <div className="py-12 text-center">
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: "spring", duration: 0.5 }}
-      >
-        <Trophy className="w-32 h-32 text-yellow-400 mx-auto mb-8" />
-      </motion.div>
-      
-      <motion.h1
-        className="text-6xl font-black mb-6 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        {content.title}
-      </motion.h1>
-      
-      <motion.p
-        className="text-2xl text-gray-300 mb-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        {content.message}
-      </motion.p>
-      
-      {/* Stats */}
-      <motion.div
-        className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-      >
-        {Object.entries(content.stats).map(([key, value], idx) => (
-          <div
-            key={key}
-            className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-xl p-6"
-          >
-            <div className="text-3xl font-bold text-blue-500 dark:text-blue-400 mb-2">{String(value)}</div>
-            <div className="text-gray-400 capitalize">{key.replace('_', ' ')}</div>
-          </div>
-        ))}
-      </motion.div>
-      
-      {/* Benefits */}
-      <motion.div
-        className="max-w-2xl mx-auto mb-12"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9 }}
-      >
-        <h3 className="text-2xl font-bold mb-6">Tus Beneficios Exclusivos:</h3>
-        <div className="space-y-3">
-          {content.benefits.map((benefit: any, idx: number) => {
-            const IconComponent = benefit.icon;
-            return (
-              <motion.div
-                key={idx}
-                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border border-gray-200/50 dark:border-gray-700/50 rounded-lg p-4 text-lg shadow-xl hover:shadow-2xl hover:bg-white/90 dark:hover:bg-gray-800/90 transition-all duration-300 hover:scale-[1.02] flex items-center gap-3"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1 + idx * 0.1 }}
-              >
-                <IconComponent className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                <span className="text-gray-800 dark:text-gray-200">{benefit.text}</span>
-              </motion.div>
-            );
-          })}
-        </div>
-      </motion.div>
-      
-      {/* Top Contributors Section - Reusing the same component from HOME */}
-      <TeamSection
-        badge={t('team.badge')}
-        title={t('team.title')}
-        subtitle={t('team.subtitle')}
-      />
+  // Animation phase: 'celebration' -> 'transition' -> 'settled'
+  const [animationPhase, setAnimationPhase] = useState<'celebration' | 'transition' | 'settled'>('celebration');
 
-      {/* DAO COMMUNITY SHOWCASE - For BOTH Knowledge and Educational modes */}
-      <div className="mt-12 space-y-8">
+  // Start transition after celebration phase (2 seconds)
+  useEffect(() => {
+    const celebrationTimer = setTimeout(() => {
+      setAnimationPhase('transition');
+    }, 2000);
+
+    const settledTimer = setTimeout(() => {
+      setAnimationPhase('settled');
+    }, 3000);
+
+    return () => {
+      clearTimeout(celebrationTimer);
+      clearTimeout(settledTimer);
+    };
+  }, []);
+
+  // Header animation variants
+  const headerVariants = {
+    celebration: {
+      scale: 1,
+      y: 0,
+      opacity: 1,
+    },
+    transition: {
+      scale: 0.6,
+      y: -50,
+      opacity: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 20,
+        bounce: 0.4,
+      }
+    },
+    settled: {
+      scale: 0.6,
+      y: -50,
+      opacity: 1,
+    }
+  };
+
+  // Video container animation variants
+  const videoVariants = {
+    celebration: {
+      y: 100,
+      opacity: 0,
+      scale: 0.9,
+    },
+    transition: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 200,
+        damping: 25,
+        delay: 0.2,
+      }
+    },
+    settled: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+    }
+  };
+
+  return (
+    <div className="py-12 text-center relative overflow-hidden">
+      {/* Animated Header Section - Bounces and shrinks to top */}
+      <motion.div
+        className="relative z-10"
+        variants={headerVariants}
+        initial="celebration"
+        animate={animationPhase}
+      >
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", duration: 0.5 }}
+        >
+          <Trophy className={`mx-auto mb-4 text-yellow-400 transition-all duration-500 ${
+            animationPhase === 'celebration' ? 'w-32 h-32 mb-8' : 'w-16 h-16 mb-2'
+          }`} />
+        </motion.div>
+
+        <motion.h1
+          className={`font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent transition-all duration-500 ${
+            animationPhase === 'celebration' ? 'text-5xl md:text-6xl mb-6' : 'text-2xl md:text-3xl mb-2'
+          }`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          {content.title}
+        </motion.h1>
+
+        <motion.p
+          className={`text-gray-600 dark:text-gray-300 transition-all duration-500 ${
+            animationPhase === 'celebration' ? 'text-xl md:text-2xl mb-8' : 'text-sm md:text-base mb-4'
+          }`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          {content.message}
+        </motion.p>
+      </motion.div>
+
+      {/* Gallery Video Section - Rises from below */}
+      <motion.div
+        className="relative z-20 max-w-4xl mx-auto px-4"
+        variants={videoVariants}
+        initial="celebration"
+        animate={animationPhase}
+      >
+        {galleryVideoConfig && (
+          <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 dark:from-purple-500/20 dark:to-blue-500/20 border border-purple-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-sm">
+            <h3 className="text-xl md:text-2xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
+              {galleryVideoConfig.title}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6 text-sm md:text-base">
+              {galleryVideoConfig.description}
+            </p>
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-xl">
+              <iframe
+                src={`https://stream.mux.com/${galleryVideoConfig.muxPlaybackId}?autoplay=1&muted=0&loop=0`}
+                className="absolute inset-0 w-full h-full"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+                title={galleryVideoConfig.title}
+              />
+            </div>
+          </div>
+        )}
+      </motion.div>
+
+      {/* Rest of content appears after video is settled */}
+      <AnimatePresence>
+        {animationPhase === 'settled' && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="mt-12 space-y-8"
+          >
+            {/* Top Contributors Section */}
+            <TeamSection
+              badge={t('team.badge')}
+              title={t('team.title')}
+              subtitle={t('team.subtitle')}
+            />
           {/* Features Showcase */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -4407,7 +4489,9 @@ const SuccessBlock: React.FC<{
               </button>
             </div>
           )}
-        </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
