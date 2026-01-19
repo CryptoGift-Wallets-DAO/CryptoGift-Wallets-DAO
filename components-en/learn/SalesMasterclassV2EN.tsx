@@ -873,7 +873,6 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
   const [showEducationalValidation, setShowEducationalValidation] = useState(false);
   const [showEmailVerification, setShowEmailVerification] = useState<boolean>(false);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [showOutroVideo, setShowOutroVideo] = useState(false); // Video final después del EIP-712
 
   // Removed router dependency to avoid App Router/Pages Router conflicts
   const timerRef = useRef<NodeJS.Timeout>();
@@ -898,9 +897,9 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
     }
   }, [educationalMode]); // Remove currentBlock dependency to avoid loops
 
-  // Scroll to top when outro video shows/hides
+  // Scroll to top on state changes
   useEffect(() => {
-    // Enhanced scroll handling for outro video and any state changes
+    // Enhanced scroll handling for state changes
     const scrollToTop = () => {
       // Temporarily disable smooth scrolling
       const originalScrollBehavior = document.documentElement.style.scrollBehavior;
@@ -940,7 +939,7 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
     const timer = setTimeout(scrollToTop, 100);
 
     return () => clearTimeout(timer);
-  }, [showOutroVideo, showIntroVideo, currentBlock]); // Re-run on key state changes
+  }, [showIntroVideo, currentBlock]); // Re-run on key state changes
 
   // QR Generation
   const generateDemoGiftUrl = useCallback(() => {
@@ -1716,11 +1715,6 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
           metrics={metrics}
           educationalMode={educationalMode}
           onEducationComplete={onEducationComplete}
-          onShowOutroVideo={() => {
-            setShowOutroVideo(true);
-            // Scroll to top when showing outro video
-            window.scrollTo({ top: 0, behavior: 'instant' });
-          }}
           galleryVideoConfig={VIDEO_CONFIG.presentationCGC ? {
             muxPlaybackId: VIDEO_CONFIG.presentationCGC.muxPlaybackId,
             title: VIDEO_CONFIG.presentationCGC.title,
@@ -1872,67 +1866,8 @@ const SalesMasterclassEN: React.FC<SalesMasterclassProps> = ({
         </div>
       )}
 
-      {/* Outro Video Gate - Shows after EIP-712 completion and before final claim */}
-      {showOutroVideo && VIDEO_CONFIG.presentationCGC && (
-        <div className={educationalMode ? "min-h-screen bg-black/95 flex items-center justify-center p-4" : "pt-20 flex items-center justify-center min-h-screen px-3"}>
-          <IntroVideoGate
-            lessonId={VIDEO_CONFIG.presentationCGC.lessonId}
-            muxPlaybackId={VIDEO_CONFIG.presentationCGC.muxPlaybackId}
-            title={VIDEO_CONFIG.presentationCGC.title}
-            description={VIDEO_CONFIG.presentationCGC.description}
-            poster={VIDEO_CONFIG.presentationCGC.poster}
-            captionsVtt={VIDEO_CONFIG.presentationCGC.captionsVtt}
-            onFinish={() => {
-              console.log('📹 Outro video completed - completing education');
-              setShowOutroVideo(false);
-
-              // Force scroll to top after outro video
-              setTimeout(() => {
-                const originalScrollBehavior = document.documentElement.style.scrollBehavior;
-                document.documentElement.style.scrollBehavior = 'auto';
-
-                window.scrollTo(0, 0);
-                document.documentElement.scrollTop = 0;
-                document.body.scrollTop = 0;
-
-                const lessonContainer = document.getElementById('lesson-content-scroll-container');
-                if (lessonContainer) {
-                  lessonContainer.scrollTop = 0;
-                }
-
-                setTimeout(() => {
-                  document.documentElement.style.scrollBehavior = originalScrollBehavior;
-                }, 50);
-              }, 100);
-
-              // Now complete the education flow after the video
-              if (onEducationComplete) {
-                // CRITICAL FIX: In educational mode, DON'T pass email here
-                // The parent (LessonModalWrapper) already has it in its state
-                // Passing it from here would use outdated prop value
-                onEducationComplete({
-                  email: educationalMode ? undefined : verifiedEmail, // Only pass in knowledge mode
-                  questionsScore: {
-                    correct: leadData.questionsCorrect || 0,
-                    total: leadData.totalQuestions || 0
-                  }
-                  // TODO FASE 2: questionsAnswered array (not implemented yet in EN version)
-                });
-              } else {
-                // Fallback to postMessage if no callback provided
-                if (window.parent !== window) {
-                  window.parent.postMessage({ type: 'EDUCATION_COMPLETE' }, '*');
-                }
-              }
-            }}
-            autoSkip={false} // Don't auto-skip this important video
-            forceShow={true} // Always show even if seen before
-          />
-        </div>
-      )}
-
-      {/* Main Content - Only shows after video */}
-      {!showIntroVideo && !showOutroVideo && (
+      {/* Main Content - Only shows after intro video */}
+      {!showIntroVideo && (
         <div className={educationalMode ? "h-full flex flex-col px-3" : "pt-20 pb-10 px-3"}>
           <AnimatePresence mode="wait">
             <motion.div
@@ -4165,13 +4100,12 @@ const SuccessBlock: React.FC<{
   metrics: any;
   educationalMode?: boolean;
   onEducationComplete?: () => void;
-  onShowOutroVideo?: () => void;
   galleryVideoConfig?: {
     muxPlaybackId: string;
     title: string;
     description: string;
   };
-}> = ({ content, leadData, metrics, educationalMode = false, onEducationComplete, onShowOutroVideo, galleryVideoConfig }) => {
+}> = ({ content, leadData, metrics, educationalMode = false, onEducationComplete, galleryVideoConfig }) => {
   // Removed router dependency to avoid App Router/Pages Router conflicts
 
   // i18n translations for TeamSection
@@ -4543,23 +4477,21 @@ const SuccessBlock: React.FC<{
             )}
           </motion.div>
           {/* FASE 3: Educational mode - Fixed IR AL CLAIM button */}
-          {educationalMode && (
+          {educationalMode && onEducationComplete && (
             <div className="flex justify-center">
               <button
                 onClick={() => {
-                  console.log('🎯 IR AL CLAIM clicked - showing outro video first');
+                  console.log('🎯 IR AL CLAIM clicked - completing education directly');
 
-                  // Show the outro video before completing education
-                  if (onShowOutroVideo) {
-                    onShowOutroVideo();
-                  }
+                  // Complete education directly without outro video
+                  onEducationComplete();
                 }}
                 className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-xl hover:shadow-2xl border border-white/20 text-lg"
                 data-testid="ir-al-claim-button"
               >
                 <div className="flex items-center gap-3">
                   <Trophy className="w-6 h-6" />
-                  <span>IR AL CLAIM</span>
+                  <span>GO TO CLAIM</span>
                   <ArrowRight className="w-5 h-5" />
                 </div>
               </button>

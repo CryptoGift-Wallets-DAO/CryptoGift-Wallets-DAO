@@ -874,7 +874,6 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
   const [showEducationalValidation, setShowEducationalValidation] = useState(false);
   const [showEmailVerification, setShowEmailVerification] = useState<boolean>(false);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [showOutroVideo, setShowOutroVideo] = useState(false); // Video final después del EIP-712
   const [questionsAnswered, setQuestionsAnswered] = useState<QuestionAnswer[]>([]); // FASE 2: Detailed answer tracking
   const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now()); // FASE 2: Track time per question
 
@@ -901,9 +900,9 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
     }
   }, [educationalMode]); // Remove currentBlock dependency to avoid loops
 
-  // Scroll to top when outro video shows/hides
+  // Scroll to top on state changes
   useEffect(() => {
-    // Enhanced scroll handling for outro video and any state changes
+    // Enhanced scroll handling for state changes
     const scrollToTop = () => {
       // Temporarily disable smooth scrolling
       const originalScrollBehavior = document.documentElement.style.scrollBehavior;
@@ -943,7 +942,7 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
     const timer = setTimeout(scrollToTop, 100);
 
     return () => clearTimeout(timer);
-  }, [showOutroVideo, showIntroVideo, currentBlock]); // Re-run on key state changes
+  }, [showIntroVideo, currentBlock]); // Re-run on key state changes
 
   // QR Generation
   const generateDemoGiftUrl = useCallback(() => {
@@ -1734,11 +1733,6 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
           metrics={metrics}
           educationalMode={educationalMode}
           onEducationComplete={onEducationComplete}
-          onShowOutroVideo={() => {
-            setShowOutroVideo(true);
-            // Scroll to top when showing outro video
-            window.scrollTo({ top: 0, behavior: 'instant' });
-          }}
           verifiedEmail={verifiedEmail}
           galleryVideoConfig={{
             muxPlaybackId: outroVideoConfig.muxPlaybackId,
@@ -1891,58 +1885,8 @@ const SalesMasterclass: React.FC<SalesMasterclassProps> = ({
         />
       )}
 
-      {/* Outro Video Gate - Shows after EIP-712 completion and before final claim (i18n supported) */}
-      {showOutroVideo && (
-        <IntroVideoGate
-          lessonId={outroVideoConfig.lessonId}
-          muxPlaybackId={outroVideoConfig.muxPlaybackId}
-          title={outroVideoConfig.title}
-          description={outroVideoConfig.description}
-          onFinish={() => {
-            console.log('📹 Outro video completed - completing education');
-            setShowOutroVideo(false);
-
-            // Force scroll to top after outro video
-            setTimeout(() => {
-              const originalScrollBehavior = document.documentElement.style.scrollBehavior;
-              document.documentElement.style.scrollBehavior = 'auto';
-
-              window.scrollTo(0, 0);
-              document.documentElement.scrollTop = 0;
-              document.body.scrollTop = 0;
-
-              const lessonContainer = document.getElementById('lesson-content-scroll-container');
-              if (lessonContainer) {
-                lessonContainer.scrollTop = 0;
-              }
-
-              setTimeout(() => {
-                document.documentElement.style.scrollBehavior = originalScrollBehavior;
-              }, 50);
-            }, 100);
-
-            // Now complete the education flow after the video
-            if (onEducationComplete) {
-              onEducationComplete({
-                email: educationalMode ? undefined : verifiedEmail,
-                questionsScore: {
-                  correct: leadData.questionsCorrect || 0,
-                  total: leadData.totalQuestions || 0
-                },
-                questionsAnswered
-              });
-            } else {
-              if (window.parent !== window) {
-                window.parent.postMessage({ type: 'EDUCATION_COMPLETE' }, '*');
-              }
-            }
-          }}
-          forceShow={true}
-        />
-      )}
-
-      {/* Main Content - Only shows after video */}
-      {!showIntroVideo && !showOutroVideo && (
+      {/* Main Content - Only shows after intro video */}
+      {!showIntroVideo && (
         <div className={educationalMode ? "h-full flex flex-col px-3" : "pt-20 pb-10 px-3"}>
           <AnimatePresence mode="wait">
             <motion.div
@@ -4287,15 +4231,15 @@ const SuccessBlock: React.FC<{
   onEducationComplete?: (data?: {
     email?: string;
     questionsScore?: { correct: number; total: number };
+    questionsAnswered?: any[];
   }) => void;
-  onShowOutroVideo?: () => void;
   verifiedEmail?: string;
   galleryVideoConfig?: {
     muxPlaybackId: string;
     title: string;
     description: string;
   };
-}> = ({ content, leadData, metrics, educationalMode = false, onEducationComplete, onShowOutroVideo, verifiedEmail, galleryVideoConfig }) => {
+}> = ({ content, leadData, metrics, educationalMode = false, onEducationComplete, verifiedEmail, galleryVideoConfig }) => {
   // Removed router dependency to avoid App Router/Pages Router conflicts
 
   // i18n translations for TeamSection
@@ -4668,16 +4612,21 @@ const SuccessBlock: React.FC<{
             )}
           </motion.div>
           {/* FASE 3: Educational mode - Fixed IR AL CLAIM button */}
-          {educationalMode && (
+          {educationalMode && onEducationComplete && (
             <div className="flex justify-center">
               <button
                 onClick={() => {
-                  console.log('🎯 IR AL CLAIM clicked - showing outro video first');
+                  console.log('🎯 IR AL CLAIM clicked - completing education directly');
 
-                  // Show the outro video before completing education
-                  if (onShowOutroVideo) {
-                    onShowOutroVideo();
-                  }
+                  // Complete education directly without outro video
+                  onEducationComplete({
+                    email: undefined,
+                    questionsScore: {
+                      correct: 0,
+                      total: 0
+                    },
+                    questionsAnswered: []
+                  });
                 }}
                 className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-xl hover:shadow-2xl border border-white/20 text-lg"
                 data-testid="ir-al-claim-button"
