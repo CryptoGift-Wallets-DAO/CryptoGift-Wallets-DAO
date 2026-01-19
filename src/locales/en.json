@@ -144,7 +144,21 @@
     "team": {
       "badge": "Top Contributors",
       "title": "Top Contributors",
-      "subtitle": "The builders shaping CryptoGift DAO. Every contribution counts. Every voice matters. Your name could be here next."
+      "subtitle": "The builders shaping CryptoGift DAO. Every contribution counts. Every voice matters. Your name could be here next.",
+      "members": {
+        "rafael": {
+          "role": "Founder & Product / Engineering Lead",
+          "description": "Web3 dev, youth educator, built CryptoGift Wallets end-to-end on Base. Passionate about creating tools that make crypto accessible to everyone."
+        },
+        "roberto": {
+          "role": "Head of Community & Growth / Marketing Advisor",
+          "description": "6 years Community strategy designer & Crypto community builder. Expert in managing moderators, ambassadors, and content creators."
+        },
+        "leodanni": {
+          "role": "Business Development & Operations / Marketing Advisor",
+          "description": "3+ years in sales & digital marketing. Experienced Head of Strategy & Business Operations. 5+ years in Web3 ecosystem."
+        }
+      }
     }
   },
   "invite": {

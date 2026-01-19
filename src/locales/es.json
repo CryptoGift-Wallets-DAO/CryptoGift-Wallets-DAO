@@ -142,9 +142,23 @@
       "subtitle": "Principales holders de CGC impulsando el ecosistema hoy. Early supporters alineados con la visión de CryptoGift DAO."
     },
     "team": {
-      "badge": "Top Contributors",
-      "title": "Top Contributors",
-      "subtitle": "Los builders que están construyendo CryptoGift DAO. Cada contribución cuenta. Cada voz importa. Tu nombre podría estar aquí."
+      "badge": "Contribuidores Destacados",
+      "title": "Contribuidores Destacados",
+      "subtitle": "Los builders que están construyendo CryptoGift DAO. Cada contribución cuenta. Cada voz importa. Tu nombre podría estar aquí.",
+      "members": {
+        "rafael": {
+          "role": "Fundador & Producto / Líder de Ingeniería",
+          "description": "Desarrollador Web3, educador juvenil, construyó CryptoGift Wallets de principio a fin en Base. Apasionado por crear herramientas que hagan cripto accesible para todos."
+        },
+        "roberto": {
+          "role": "Director de Comunidad & Crecimiento / Asesor de Marketing",
+          "description": "6 años como diseñador de estrategia comunitaria y constructor de comunidades cripto. Experto en gestión de moderadores, embajadores y creadores de contenido."
+        },
+        "leodanni": {
+          "role": "Desarrollo de Negocios & Operaciones / Asesor de Marketing",
+          "description": "3+ años en ventas y marketing digital. Director de Estrategia y Operaciones con experiencia. 5+ años en el ecosistema Web3."
+        }
+      }
     }
   },
   "invite": {

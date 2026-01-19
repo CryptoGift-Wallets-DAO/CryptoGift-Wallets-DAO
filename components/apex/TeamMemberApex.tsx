@@ -16,10 +16,18 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslations } from 'next-intl';
 import { VideoAvatar } from './VideoAvatar';
 import type { TeamMember, TeamSocialKey } from '@/lib/team/types';
 import { useIsAdmin } from '@/components/auth/RoleGate';
 import { useAccount } from '@/lib/thirdweb';
+
+// Map member names to translation keys
+const MEMBER_TRANSLATION_KEYS: Record<string, string> = {
+  'Rafael Gonzalez': 'rafael',
+  'Roberto Legrá': 'roberto',
+  'Leodanni Avila': 'leodanni',
+};
 import {
   X,
   Copy,
@@ -181,6 +189,12 @@ export function TeamMemberApex({ member, onMemberUpdated }: TeamMemberApexProps)
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isAdmin = useIsAdmin();
   const { address } = useAccount();
+  const t = useTranslations('landing.team');
+
+  // Get translated role and description (fallback to member data if no translation)
+  const memberKey = MEMBER_TRANSLATION_KEYS[member.name];
+  const translatedRole = memberKey ? t(`members.${memberKey}.role`) : member.role;
+  const translatedDescription = memberKey ? t(`members.${memberKey}.description`) : member.description;
 
   useEffect(() => {
     if (!isEditing) {
@@ -348,7 +362,7 @@ export function TeamMemberApex({ member, onMemberUpdated }: TeamMemberApexProps)
 
         {/* Role */}
         <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mb-2">
-          {member.role}
+          {translatedRole}
         </p>
 
         {/* Quick Stats */}
@@ -365,7 +379,7 @@ export function TeamMemberApex({ member, onMemberUpdated }: TeamMemberApexProps)
 
         {/* Description */}
         <p className="text-xs text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-          {member.description}
+          {translatedDescription}
         </p>
 
         {/* Social Preview - Small icons */}
@@ -445,7 +459,7 @@ export function TeamMemberApex({ member, onMemberUpdated }: TeamMemberApexProps)
                 {member.name}
               </h3>
               <p className="text-sm text-center text-purple-600 dark:text-purple-400 font-medium mb-3">
-                {member.role}
+                {translatedRole}
               </p>
 
               {/* Rank Badge */}
@@ -648,7 +662,7 @@ export function TeamMemberApex({ member, onMemberUpdated }: TeamMemberApexProps)
                       About
                     </h4>
                     <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                      {member.description}
+                      {translatedDescription}
                     </p>
                   </div>
 
