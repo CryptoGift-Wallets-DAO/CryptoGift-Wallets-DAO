@@ -65,8 +65,8 @@ const UnknownNetworkIndicator = ({ size = 20 }: { size?: number }) => (
   </div>
 );
 
-// Size of expanded avatar
-const EXPANDED_SIZE = 160;
+// Size of expanded avatar - matches the hover:scale-105 size (160 * 1.05 = 168)
+const EXPANDED_SIZE = 168;
 
 export function ProfileExpanded() {
   const {
@@ -213,12 +213,12 @@ export function ProfileExpanded() {
       {/* Large VideoAvatar - Apple Watch squircle */}
       {/* NO extra ring - VideoAvatar already has its own subtle border */}
       {/* NO hover/focus/active effects - always same appearance */}
-      <div className="relative rounded-[32px] origin-top-left">
+      <div className="relative rounded-[34px] origin-top-left">
         <VideoAvatar
           imageSrc={profile.avatar_url || undefined}
           alt={profile.display_name || 'Profile'}
           size="xl"
-          className="!w-[160px] !h-[160px]"
+          className="!w-[168px] !h-[168px]"
           disableHoverEffects
         />
 
