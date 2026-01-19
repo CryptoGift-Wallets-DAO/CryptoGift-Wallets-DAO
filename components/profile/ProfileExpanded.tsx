@@ -190,10 +190,6 @@ export function ProfileExpanded() {
     }
   };
 
-  // Border: thin dark gray/slate ring - same for ALL states (hover, focus, active, locked)
-  // No additional rings or outlines in any state
-  const borderClass = 'ring-2 ring-slate-600 dark:ring-slate-400 focus:ring-2 focus:ring-slate-600 dark:focus:ring-slate-400 hover:ring-2 hover:ring-slate-600 dark:hover:ring-slate-400';
-
   const expandedContent = (
     <div
       id="profile-expanded-avatar"
@@ -214,9 +210,10 @@ export function ProfileExpanded() {
         }
       }}
     >
-      {/* Large VideoAvatar - Apple Watch squircle with consistent border */}
-      {/* No hover/focus/active changes - always same ring */}
-      <div className={`relative rounded-[32px] ${borderClass} origin-top-left`}>
+      {/* Large VideoAvatar - Apple Watch squircle */}
+      {/* NO extra ring - VideoAvatar already has its own subtle border */}
+      {/* NO hover/focus/active effects - always same appearance */}
+      <div className="relative rounded-[32px] origin-top-left">
         <VideoAvatar
           imageSrc={profile.avatar_url || undefined}
           alt={profile.display_name || 'Profile'}

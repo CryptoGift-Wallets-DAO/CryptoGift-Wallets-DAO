@@ -13,13 +13,18 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { VideoCarousel } from '@/components/landing/VideoCarousel';
+import { ProfileCardProvider } from '@/components/profile/ProfileCardProvider';
+import { ProfileMiniCard } from '@/components/profile/ProfileMiniCard';
+import { ProfileFullCard } from '@/components/profile/ProfileFullCard';
 import { useDashboardStats } from '@/lib/web3/hooks';
 import { useAccount } from '@/lib/thirdweb';
+import { useTrackReferralClick } from '@/hooks/useReferrals';
 import { TeamSection } from '@/components/apex';
 import {
   Wallet,
@@ -42,6 +47,22 @@ import {
 
 // Permanent invite link for new users (OFFICIAL CAMPAIGN LINK)
 const INVITE_LINK = '/permanent-invite/PI-MK29MMCI-E6284EC943D54CA3';
+
+// Interface for profile data when showing presentation card overlay
+interface PublicProfile {
+  wallet_address: string;
+  username: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+  tier: string;
+  tier_color: string;
+  reputation_score: number;
+  total_tasks_completed: number;
+  twitter_handle: string | null;
+  telegram_handle: string | null;
+  discord_handle: string | null;
+  website_url: string | null;
+}
 
 // Animations: float + holographic shimmer
 const animations = `
@@ -86,13 +107,65 @@ const animations = `
 
 export default function LandingPage() {
   const t = useTranslations('landing');
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const { totalSupply, holdersCount, questsCompleted, milestonesReleased } = useDashboardStats();
 
   const [isVisible, setIsVisible] = useState(false);
+  const [profileData, setProfileData] = useState<PublicProfile | null>(null);
+  const [referralTracked, setReferralTracked] = useState(false);
+
+  // Check URL params for profile overlay
+  const profileWallet = searchParams.get('profile');
+  const showPresentationCard = searchParams.get('card') === 'presentation';
+  const referralCode = searchParams.get('ref');
+
+  // Track referral click when user arrives with a referral code
+  const { trackClick } = useTrackReferralClick();
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  // Track referral click only once when page loads with ref param
+  useEffect(() => {
+    if (referralCode && !referralTracked) {
+      trackClick({
+        code: referralCode,
+        metadata: {
+          source: 'profile_share',
+          medium: 'social',
+          campaign: 'presentation_card',
+          landing_page: '/',
+        },
+      });
+      setReferralTracked(true);
+    }
+  }, [referralCode, referralTracked, trackClick]);
+
+  // Fetch profile data when profile wallet is in URL
+  useEffect(() => {
+    async function fetchProfile() {
+      if (!profileWallet || !showPresentationCard) return;
+
+      try {
+        const res = await fetch(`/api/profile?wallet=${profileWallet}&public=true`);
+        if (res.ok) {
+          const data = await res.json();
+          setProfileData(data.data);
+        }
+      } catch {
+        // Silently fail - just don't show the card
+      }
+    }
+
+    fetchProfile();
+  }, [profileWallet, showPresentationCard]);
+
+  // Close presentation card by removing query params
+  const handleClosePresentationCard = () => {
+    router.push('/', { scroll: false });
+  };
 
   // Format large numbers
   const formatNumber = (num: string | number | undefined) => {
@@ -559,6 +632,34 @@ export default function LandingPage() {
       />
 
       <Footer />
+
+      {/* Presentation Card Overlay - shown when ?profile=WALLET&card=presentation */}
+      {/* L3 (MiniCard) at right edge, click opens L4 (FullCard) at same position */}
+      {/* isStandalone=true: no backdrop, no click-outside-close, close buttons visible */}
+      {showPresentationCard && profileWallet && profileData && (
+        <ProfileCardProvider wallet={profileWallet} initialLevel={3} isStandalone={true}>
+          <ProfileMiniCard
+            standalone
+            standaloneProfile={{
+              wallet_address: profileData.wallet_address,
+              username: profileData.username,
+              display_name: profileData.display_name,
+              avatar_url: profileData.avatar_url,
+              tier: profileData.tier,
+              tier_color: profileData.tier_color,
+              reputation_score: profileData.reputation_score,
+              total_tasks_completed: profileData.total_tasks_completed,
+              twitter_handle: profileData.twitter_handle,
+              telegram_handle: profileData.telegram_handle,
+              discord_handle: profileData.discord_handle,
+              website_url: profileData.website_url,
+            }}
+            onClose={handleClosePresentationCard}
+          />
+          {/* L4 renders when user clicks on L3 */}
+          <ProfileFullCard />
+        </ProfileCardProvider>
+      )}
     </div>
   );
 }

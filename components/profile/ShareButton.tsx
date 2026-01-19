@@ -51,11 +51,12 @@ export function ShareButton({ walletAddress, className = '' }: ShareButtonProps)
   const qrRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  // Generate profile URL with presentation card AND referral code
-  // This allows tracking referrals when someone views the shared profile
+  // Generate profile URL pointing to HOME with profile overlay
+  // This keeps users on the main page while showing the presentation card
+  // URL format: /?profile=WALLET&card=presentation&ref=CODE
   const profileUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/user/${walletAddress}?card=presentation${referralCode ? `&ref=${referralCode}` : ''}`
-    : `/user/${walletAddress}?card=presentation${referralCode ? `&ref=${referralCode}` : ''}`;
+    ? `${window.location.origin}/?profile=${walletAddress}&card=presentation${referralCode ? `&ref=${referralCode}` : ''}`
+    : `/?profile=${walletAddress}&card=presentation${referralCode ? `&ref=${referralCode}` : ''}`;
 
   // Handle copy to clipboard
   const handleCopy = async () => {
