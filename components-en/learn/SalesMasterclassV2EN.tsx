@@ -4219,7 +4219,7 @@ const SuccessBlock: React.FC<{
     };
   }, []);
 
-  // Header animation variants
+  // Header animation variants - less shrinkage to keep prominence
   const headerVariants = {
     celebration: {
       scale: 1,
@@ -4227,8 +4227,8 @@ const SuccessBlock: React.FC<{
       opacity: 1,
     },
     transition: {
-      scale: 0.6,
-      y: -50,
+      scale: 0.85,
+      y: -20,
       opacity: 1,
       transition: {
         type: "spring" as const,
@@ -4238,8 +4238,8 @@ const SuccessBlock: React.FC<{
       }
     },
     settled: {
-      scale: 0.6,
-      y: -50,
+      scale: 0.85,
+      y: -20,
       opacity: 1,
     }
   };
@@ -4284,13 +4284,13 @@ const SuccessBlock: React.FC<{
           transition={{ type: "spring", duration: 0.5 }}
         >
           <Trophy className={`mx-auto mb-4 text-yellow-400 transition-all duration-500 ${
-            animationPhase === 'celebration' ? 'w-32 h-32 mb-8' : 'w-16 h-16 mb-2'
+            animationPhase === 'celebration' ? 'w-32 h-32 mb-8' : 'w-20 h-20 md:w-24 md:h-24 mb-3'
           }`} />
         </motion.div>
 
         <motion.h1
           className={`font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent transition-all duration-500 ${
-            animationPhase === 'celebration' ? 'text-5xl md:text-6xl mb-6' : 'text-2xl md:text-3xl mb-2'
+            animationPhase === 'celebration' ? 'text-5xl md:text-6xl mb-6' : 'text-3xl md:text-4xl lg:text-5xl mb-3'
           }`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -4301,7 +4301,7 @@ const SuccessBlock: React.FC<{
 
         <motion.p
           className={`text-gray-600 dark:text-gray-300 transition-all duration-500 ${
-            animationPhase === 'celebration' ? 'text-xl md:text-2xl mb-8' : 'text-sm md:text-base mb-4'
+            animationPhase === 'celebration' ? 'text-xl md:text-2xl mb-8' : 'text-lg md:text-xl mb-4'
           }`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -4327,10 +4327,12 @@ const SuccessBlock: React.FC<{
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-wider
+              <h2
+                className="text-3xl md:text-4xl lg:text-5xl font-black tracking-wider
                 bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent
-                drop-shadow-[0_0_30px_rgba(168,85,247,0.5)]
-                animate-pulse">
+                drop-shadow-[0_0_30px_rgba(168,85,247,0.5)]"
+                style={{ animation: 'float 4s ease-in-out infinite' }}
+              >
                 CRYPTOGIFT DAO GALLERY
               </h2>
             </motion.div>
