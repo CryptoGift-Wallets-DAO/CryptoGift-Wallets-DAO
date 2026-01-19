@@ -27,19 +27,19 @@ const RETURN_THRESHOLD = 0.70;
 const NAVBAR_HEIGHT = 54;
 const STICKY_TOP_OFFSET = 40;
 
-// CSS Keyframes
+// CSS Keyframes - CRITICAL: Dismiss animations use CSS custom properties for dynamic start position
 const animationStyles = `
   @keyframes dismissUp {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-150px) scale(0.8); }
+    0% { opacity: 1; transform: translate(var(--swipe-x, 0px), var(--swipe-y, 0px)) scale(1); }
+    100% { opacity: 0; transform: translate(var(--swipe-x, 0px), -100vh) scale(0.85); }
   }
   @keyframes dismissLeft {
-    0% { opacity: 1; transform: translateX(0) scale(1); }
-    100% { opacity: 0; transform: translateX(-120%) scale(0.9); }
+    0% { opacity: 1; transform: translate(var(--swipe-x, 0px), var(--swipe-y, 0px)) scale(1); }
+    100% { opacity: 0; transform: translate(-100vw, var(--swipe-y, 0px)) scale(0.85); }
   }
   @keyframes dismissRight {
-    0% { opacity: 1; transform: translateX(0) scale(1); }
-    100% { opacity: 0; transform: translateX(120%) scale(0.9); }
+    0% { opacity: 1; transform: translate(var(--swipe-x, 0px), var(--swipe-y, 0px)) scale(1); }
+    100% { opacity: 0; transform: translate(100vw, var(--swipe-y, 0px)) scale(0.85); }
   }
   @keyframes floatVideoSticky {
     0%, 100% { margin-top: 0px; }
@@ -650,7 +650,8 @@ export function VideoCarousel() {
     }
   }, [isMobile, isSticky]);
 
-  // CRITICAL: Update position in real-time as finger moves
+  // CRITICAL: Update position in real-time as finger moves - NO RESISTANCE
+  // Video follows finger 1:1 for natural, responsive feel
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!isMobile || !touchStartRef.current) return;
 
@@ -658,24 +659,10 @@ export function VideoCarousel() {
     const deltaX = touch.clientX - touchStartRef.current.x;
     const deltaY = touch.clientY - touchStartRef.current.y;
 
-    // In sticky mode: apply visual offset with resistance
+    // In sticky mode: video follows finger directly (1:1 movement)
     if (isSticky && isSwipingVideo) {
-      // Resistance factor - more resistance as you drag further
-      const resistance = 0.6;
-      const resistedX = deltaX * resistance;
-      const resistedY = deltaY * resistance;
-
-      // Determine dominant direction and apply appropriate resistance
-      const absX = Math.abs(deltaX);
-      const absY = Math.abs(deltaY);
-
-      if (absX > absY) {
-        // Horizontal swipe - allow full horizontal, minimal vertical
-        setSwipeOffset({ x: resistedX, y: resistedY * 0.3 });
-      } else {
-        // Vertical swipe - allow full vertical, minimal horizontal
-        setSwipeOffset({ x: resistedX * 0.3, y: resistedY });
-      }
+      // NO resistance - direct 1:1 mapping for responsive feel
+      setSwipeOffset({ x: deltaX, y: deltaY });
     }
   }, [isMobile, isSticky, isSwipingVideo]);
 
@@ -719,8 +706,8 @@ export function VideoCarousel() {
 
     // Swipe gestures in sticky mode
     if (isSticky) {
-      // Swipe DOWN → enter fullscreen
-      if (absY > 80 && deltaY > 0 && absY > absX) {
+      // Swipe DOWN → enter fullscreen (threshold: 60px)
+      if (absY > 60 && deltaY > 0 && absY > absX) {
         setSwipeOffset({ x: 0, y: 0 });
         handleDoubleClick(); // This toggles fullscreen
         touchStartRef.current = null;
@@ -728,31 +715,32 @@ export function VideoCarousel() {
       }
 
       // Swipe UP/LEFT/RIGHT → dismiss (minimize) with animation
+      // SENSITIVE threshold: 40px is enough to trigger dismiss
       let direction: 'up' | 'left' | 'right' | null = null;
-      const dismissThreshold = 60; // pixels needed to trigger dismiss
+      const dismissThreshold = 40;
 
       if (absY > dismissThreshold && deltaY < 0 && absY > absX) direction = 'up';
       else if (absX > dismissThreshold && deltaX < 0) direction = 'left';
       else if (absX > dismissThreshold && deltaX > 0) direction = 'right';
 
       if (direction) {
-        // CRITICAL: Reset swipe offset IMMEDIATELY so CSS dismiss animation isn't blocked
-        // by inline transform. The dismiss animation has its own transform (scale + translate)
-        setSwipeOffset({ x: 0, y: 0 });
+        // CRITICAL: Keep swipeOffset as-is so CSS animation starts from current position
+        // The CSS keyframes use CSS custom properties (--swipe-x, --swipe-y) to start
+        // from the current finger position and animate to off-screen
 
         // Complete the dismiss animation in the direction of swipe
         setDismissDirection(direction);
         stickyLocked.current = true;
 
-        // Let CSS animation play, then hide
+        // Let CSS animation play (200ms fast animation), then hide
         setTimeout(() => {
           setIsSticky(false);
           setDismissDirection('none');
+          setSwipeOffset({ x: 0, y: 0 }); // Reset only after animation completes
           setTimeout(() => { stickyLocked.current = false; }, 1500);
-        }, 300);
+        }, 200);
       } else {
         // Swipe wasn't far enough - spring back to center with smooth transition
-        // The CSS transition (set when isTouching=false) will animate this
         setSwipeOffset({ x: 0, y: 0 });
       }
     } else {
@@ -769,10 +757,15 @@ export function VideoCarousel() {
     touchStartRef.current = null;
   }, []);
 
-  // Animation for sticky
+  // Animation for sticky - FAST 200ms dismiss animation
   const getStickyAnimation = useCallback(() => {
     if (dismissDirection !== 'none') {
-      const map = { up: 'dismissUp 0.3s ease-out forwards', left: 'dismissLeft 0.3s ease-out forwards', right: 'dismissRight 0.3s ease-out forwards' };
+      // Fast 200ms animation for snappy dismiss
+      const map = {
+        up: 'dismissUp 0.2s ease-out forwards',
+        left: 'dismissLeft 0.2s ease-out forwards',
+        right: 'dismissRight 0.2s ease-out forwards'
+      };
       return map[dismissDirection];
     }
     if (isTouching) return 'none';
@@ -844,6 +837,9 @@ export function VideoCarousel() {
   // Determine if we should show swipe offset (during active swipe OR during spring-back)
   const showSwipeTransform = swipeOffset.x !== 0 || swipeOffset.y !== 0;
 
+  // Check if dismiss animation is playing
+  const isDismissing = dismissDirection !== 'none';
+
   const videoStyles: React.CSSProperties = isSticky
     ? {
         position: 'fixed',
@@ -851,29 +847,33 @@ export function VideoCarousel() {
         left: `calc(50% - ${stickyWidth / 2}px)`,
         width: stickyWidth,
         zIndex: 9999,
-        // CRITICAL: Apply swipe offset as transform for visual feedback during swipe
-        // When swiping, video follows finger; when released, either dismisses or springs back
-        // Always apply offset if non-zero so spring-back animation works
-        transform: showSwipeTransform
-          ? `translate(${swipeOffset.x}px, ${swipeOffset.y}px)`
-          : undefined,
-        opacity: swipeOpacity,
-        // Disable floating animation while swiping, but allow dismiss animations
-        // dismissDirection !== 'none' means user triggered a dismiss - play the CSS animation
-        animation: dismissDirection !== 'none'
+        // CSS custom properties for dismiss animation to start from current position
+        // The @keyframes use var(--swipe-x) and var(--swipe-y) to continue from finger position
+        '--swipe-x': `${swipeOffset.x}px`,
+        '--swipe-y': `${swipeOffset.y}px`,
+        // CRITICAL: During dismiss, let CSS animation handle transform (uses custom properties)
+        // During swipe, apply transform directly for real-time finger tracking
+        // During spring-back, transition animates back to 0
+        transform: isDismissing
+          ? undefined  // Let CSS animation handle it with custom properties
+          : showSwipeTransform
+            ? `translate(${swipeOffset.x}px, ${swipeOffset.y}px)`
+            : undefined,
+        opacity: isDismissing ? undefined : swipeOpacity,  // Let CSS animation handle opacity during dismiss
+        // Animation priority: dismiss > none (during swipe) > float
+        animation: isDismissing
           ? getStickyAnimation()  // Play dismiss animation
           : (isSwipingVideo || showSwipeTransform)
             ? 'none'              // Disable float animation during swipe/spring-back
             : getStickyAnimation(),  // Normal floating animation
-        // Spring-back transition when not actively swiping (user released finger)
-        // isTouching = finger on screen, so when false but offset exists = spring-back time
-        transition: isTouching
-          ? 'none' // No transition while finger is down (instant response)
-          : 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease',
+        // Fast spring-back transition (0.2s) when user releases finger without triggering dismiss
+        transition: isTouching || isDismissing
+          ? 'none' // No transition while finger is down or during dismiss animation
+          : 'transform 0.2s ease-out, opacity 0.2s ease-out',
         boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 16px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)',
         borderRadius: '1rem',
         overflow: 'hidden',
-      }
+      } as React.CSSProperties
     : placeholderRect
     ? {
         position: 'fixed',
