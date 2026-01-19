@@ -10,7 +10,26 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 // Removed useRouter import to avoid App Router/Pages Router conflicts
 // Using window.location.href for navigation instead
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Lazy load MUX Player to avoid SSR issues and prevent download triggering
+const MuxPlayer = dynamic(
+  () => import('@mux/mux-player-react').then(mod => mod.default),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="relative aspect-video w-full flex items-center justify-center
+        bg-gradient-to-br from-gray-900/95 to-black/95 rounded-3xl">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent
+            rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/80 text-lg">Loading video...</p>
+        </div>
+      </div>
+    )
+  }
+);
 import { RotatePhoneHintCompact } from '@/components/ui/RotatePhoneHint';
 import { QRCodeSVG } from 'qrcode.react';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
@@ -4262,19 +4281,28 @@ const SuccessBlock: React.FC<{
               }}
             />
 
-            {/* Full-width Video Container */}
+            {/* Full-width Video Container - Using MuxPlayer to prevent download issues */}
             <div className="relative aspect-video w-full
               bg-gradient-to-br from-gray-900/95 to-black/95
               backdrop-blur-xl backdrop-saturate-150
               rounded-3xl overflow-hidden
               border border-white/10 dark:border-gray-800/50
               shadow-2xl shadow-purple-500/20">
-              <iframe
-                src={`https://stream.mux.com/${galleryVideoConfig.muxPlaybackId}?autoplay=1&muted=0&loop=0`}
+              <MuxPlayer
+                playbackId={galleryVideoConfig.muxPlaybackId}
+                streamType="on-demand"
+                autoPlay={true}
+                muted={true}
+                playsInline
+                style={{
+                  width: '100%',
+                  height: '100%',
+                } as any}
                 className="absolute inset-0 w-full h-full"
-                allow="autoplay; fullscreen; picture-in-picture"
-                allowFullScreen
-                title={galleryVideoConfig.title}
+                metadata={{
+                  video_title: galleryVideoConfig.title,
+                  video_series: "CryptoGift Educational"
+                }}
               />
             </div>
           </div>
