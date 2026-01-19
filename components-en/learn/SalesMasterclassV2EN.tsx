@@ -4356,81 +4356,48 @@ const SuccessBlock: React.FC<{
             transition={{ delay: 0.3, duration: 0.5 }}
             className="mt-12 space-y-8"
           >
-            {/* DAO Community Welcome Section */}
+            {/* Stats */}
             <motion.div
+              className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-center max-w-4xl mx-auto px-4"
+              transition={{ delay: 0.7 }}
             >
-              {/* Welcome Title with Sparkles */}
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Sparkles className="w-8 h-8 text-pink-500 animate-pulse" />
-                <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                  Welcome to our DAO Community!
-                </h2>
-                <Sparkles className="w-8 h-8 text-pink-500 animate-pulse" />
-              </div>
-
-              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8">
-                You have completed your training and are now part of something extraordinary
-              </p>
-
-              {/* Feature Cards - APEX, Godez22, RLGra95 */}
-              <div className="grid md:grid-cols-3 gap-4">
-                {/* APEX Card */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.7 }}
-                  className="bg-gradient-to-br from-cyan-900/40 to-blue-900/40 dark:from-cyan-800/30 dark:to-blue-800/30
-                    border border-cyan-500/30 rounded-2xl p-6
-                    backdrop-blur-sm hover:scale-[1.02] transition-transform"
+              {Object.entries(content.stats).map(([key, value], idx) => (
+                <div
+                  key={key}
+                  className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-xl p-6"
                 >
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <Bot className="w-6 h-6 text-cyan-400" />
-                    <h3 className="text-xl font-bold text-cyan-400">APEX</h3>
-                  </div>
-                  <p className="text-gray-300 text-sm">
-                    Our AI Assistant that will guide you through every step of the crypto ecosystem
-                  </p>
-                </motion.div>
+                  <div className="text-3xl font-bold text-blue-500 dark:text-blue-400 mb-2">{String(value)}</div>
+                  <div className="text-gray-400 capitalize">{key.replace('_', ' ')}</div>
+                </div>
+              ))}
+            </motion.div>
 
-                {/* Godez22 Card */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.9 }}
-                  className="bg-gradient-to-br from-purple-900/40 to-violet-900/40 dark:from-purple-800/30 dark:to-violet-800/30
-                    border border-purple-500/30 rounded-2xl p-6
-                    backdrop-blur-sm hover:scale-[1.02] transition-transform"
-                >
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <Gem className="w-6 h-6 text-purple-400" />
-                    <h3 className="text-xl font-bold text-purple-400">Godez22</h3>
-                  </div>
-                  <p className="text-gray-300 text-sm">
-                    Pioneer developer who gave life to this wonderful system
-                  </p>
-                </motion.div>
-
-                {/* RLGra95 Card */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1.1 }}
-                  className="bg-gradient-to-br from-amber-900/40 to-orange-900/40 dark:from-amber-800/30 dark:to-orange-800/30
-                    border border-amber-500/30 rounded-2xl p-6
-                    backdrop-blur-sm hover:scale-[1.02] transition-transform"
-                >
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <Rocket className="w-6 h-6 text-amber-400" />
-                    <h3 className="text-xl font-bold text-amber-400">RLGra95</h3>
-                  </div>
-                  <p className="text-gray-300 text-sm">
-                    Visionary co-founder in the first steps of the project
-                  </p>
-                </motion.div>
+            {/* Benefits */}
+            <motion.div
+              className="max-w-2xl mx-auto mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9 }}
+            >
+              <h3 className="text-2xl font-bold mb-6">Your Exclusive Benefits:</h3>
+              <div className="space-y-3">
+                {content.benefits.map((benefit: any, idx: number) => {
+                  const IconComponent = benefit.icon;
+                  return (
+                    <motion.div
+                      key={idx}
+                      className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border border-gray-200/50 dark:border-gray-700/50 rounded-lg p-4 text-lg shadow-xl hover:shadow-2xl hover:bg-white/90 dark:hover:bg-gray-800/90 transition-all duration-300 hover:scale-[1.02] flex items-center gap-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 1 + idx * 0.1 }}
+                    >
+                      <IconComponent className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                      <span className="text-gray-800 dark:text-gray-200">{benefit.text}</span>
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
 
