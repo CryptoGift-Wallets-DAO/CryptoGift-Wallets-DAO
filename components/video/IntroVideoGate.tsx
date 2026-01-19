@@ -96,6 +96,8 @@ export default function IntroVideoGate({
   }, [muxPlayerId]);
 
   // Attempt to play video with audio
+  // Mobile: Always tries with audio, falls back to muted
+  // PC: Only tries with audio if audioUnlocked, otherwise fails silently (waits for interaction)
   const attemptPlay = useCallback(() => {
     if (hasAutoPlayed.current) return;
 
@@ -115,17 +117,23 @@ export default function IntroVideoGate({
       setIsPlaying(true);
       console.log('[Video] ▶️ Playing with audio');
     }).catch(() => {
-      // Try muted as fallback (mobile without interaction)
-      player.muted = true;
-      player.play()?.then(() => {
-        hasAutoPlayed.current = true;
-        setIsPlaying(true);
-        console.log('[Video] ▶️ Playing muted (fallback)');
-      }).catch(() => {
-        console.log('[Video] ❌ Autoplay blocked, waiting for interaction');
-      });
+      // On mobile: Try muted as fallback
+      // On PC without interaction: Wait for user interaction (don't fallback to muted)
+      if (isMobile) {
+        player.muted = true;
+        player.play()?.then(() => {
+          hasAutoPlayed.current = true;
+          setIsPlaying(true);
+          console.log('[Video] ▶️ Playing muted (mobile fallback)');
+        }).catch(() => {
+          console.log('[Video] ❌ Autoplay blocked, waiting for interaction');
+        });
+      } else {
+        // PC: Don't fallback to muted, wait for user interaction
+        console.log('[Video] ⏳ PC waiting for user interaction to play with audio');
+      }
     });
-  }, [getMuxPlayer]);
+  }, [getMuxPlayer, isMobile]);
 
   // MOBILE: Auto-play immediately when visible
   // PC: Wait for user interaction
@@ -147,24 +155,58 @@ export default function IntroVideoGate({
   }, [attemptPlay]);
 
   // PC: Click anywhere on page triggers play with audio
+  // Similar pattern to VideoCarousel for consistency
   useEffect(() => {
     if (typeof document === 'undefined') return;
+
+    const attemptAutoplayWithAudio = () => {
+      if (hasAutoPlayed.current) return;
+
+      const player = getMuxPlayer();
+      if (!player) return;
+
+      player.volume = AUTO_PLAY_VOLUME;
+      player.muted = false;
+
+      player.play()?.then(() => {
+        hasAutoPlayed.current = true;
+        audioUnlocked.current = true;
+        setIsPlaying(true);
+        console.log('[Video] ▶️ Started playing with audio after user interaction');
+      }).catch(() => {
+        // Even after user gesture, autoplay might fail in some browsers
+        // Try muted as last resort
+        player.muted = true;
+        player.play()?.then(() => {
+          hasAutoPlayed.current = true;
+          setIsPlaying(true);
+          console.log('[Video] ▶️ Playing muted (fallback after interaction)');
+        }).catch(() => {
+          console.log('[Video] ❌ Play failed even after user interaction');
+        });
+      });
+    };
 
     const handleUserInteraction = () => {
       if (audioUnlocked.current) return;
       audioUnlocked.current = true;
 
       const player = getMuxPlayer();
-      if (player && player.paused && !hasAutoPlayed.current) {
-        player.volume = AUTO_PLAY_VOLUME;
-        player.muted = false;
-        player.play()?.then(() => {
-          hasAutoPlayed.current = true;
-          setIsPlaying(true);
-          console.log('[Video] ▶️ Started playing after user interaction');
-        }).catch(() => {});
-      } else if (player && player.paused === false && player.muted) {
-        // Already playing muted, unmute it
+
+      // Case 1: Video not started yet - start with audio
+      if (!hasAutoPlayed.current) {
+        // Check if video is visible before playing
+        if (containerRef.current) {
+          const rect = containerRef.current.getBoundingClientRect();
+          const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+          if (isVisible) {
+            // Small delay to ensure gesture is registered by browser
+            setTimeout(attemptAutoplayWithAudio, 50);
+          }
+        }
+      }
+      // Case 2: Video already playing but muted - unmute it
+      else if (player && !player.paused && player.muted) {
         player.muted = false;
         player.volume = AUTO_PLAY_VOLUME;
         console.log('[Video] 🔊 Unmuted after user interaction');
