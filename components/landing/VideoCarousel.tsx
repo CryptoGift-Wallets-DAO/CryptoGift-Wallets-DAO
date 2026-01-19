@@ -269,6 +269,8 @@ export function VideoCarousel() {
   // Animation states
   const [dismissDirection, setDismissDirection] = useState<'none' | 'up' | 'left' | 'right'>('none');
   const [isTouching, setIsTouching] = useState(false);
+  const [swipeOffset, setSwipeOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isSwipingVideo, setIsSwipingVideo] = useState(false);
 
   // Refs
   const placeholderRef = useRef<HTMLDivElement>(null);
@@ -634,17 +636,53 @@ export function VideoCarousel() {
   }, [videos.length, isPlaying]);
 
   // Touch handlers for sticky mode and fullscreen swipe gestures
+  // CRITICAL: Visual feedback during swipe - video follows finger
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (!isMobile) return;
     setIsTouching(true);
     const touch = e.touches[0];
-    // Always capture touch start for swipe detection (sticky or fullscreen)
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
-  }, [isMobile]);
+
+    // Only enable visual swipe tracking in sticky mode
+    if (isSticky) {
+      setIsSwipingVideo(true);
+      setSwipeOffset({ x: 0, y: 0 });
+    }
+  }, [isMobile, isSticky]);
+
+  // CRITICAL: Update position in real-time as finger moves
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isMobile || !touchStartRef.current) return;
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+
+    // In sticky mode: apply visual offset with resistance
+    if (isSticky && isSwipingVideo) {
+      // Resistance factor - more resistance as you drag further
+      const resistance = 0.6;
+      const resistedX = deltaX * resistance;
+      const resistedY = deltaY * resistance;
+
+      // Determine dominant direction and apply appropriate resistance
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
+
+      if (absX > absY) {
+        // Horizontal swipe - allow full horizontal, minimal vertical
+        setSwipeOffset({ x: resistedX, y: resistedY * 0.3 });
+      } else {
+        // Vertical swipe - allow full vertical, minimal horizontal
+        setSwipeOffset({ x: resistedX * 0.3, y: resistedY });
+      }
+    }
+  }, [isMobile, isSticky, isSwipingVideo]);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (!isMobile) return;
     setIsTouching(false);
+    setIsSwipingVideo(false);
 
     const touch = e.changedTouches[0];
     const now = Date.now();
@@ -652,6 +690,7 @@ export function VideoCarousel() {
 
     // Double tap for fullscreen (only when not already in fullscreen)
     if (!isFullscreen && now - lastTapRef.current < 300) {
+      setSwipeOffset({ x: 0, y: 0 });
       handleDoubleClick();
       lastTapRef.current = 0;
       touchStartRef.current = null;
@@ -660,6 +699,7 @@ export function VideoCarousel() {
     lastTapRef.current = now;
 
     if (!touchStartRef.current) {
+      setSwipeOffset({ x: 0, y: 0 });
       touchStartRef.current = null;
       return;
     }
@@ -671,6 +711,7 @@ export function VideoCarousel() {
 
     // Swipe DOWN in fullscreen → exit fullscreen (return to sticky)
     if (isFullscreen && absY > 80 && deltaY > 0 && absY > absX) {
+      setSwipeOffset({ x: 0, y: 0 });
       document.exitFullscreen?.();
       touchStartRef.current = null;
       return;
@@ -680,26 +721,42 @@ export function VideoCarousel() {
     if (isSticky) {
       // Swipe DOWN → enter fullscreen
       if (absY > 80 && deltaY > 0 && absY > absX) {
+        setSwipeOffset({ x: 0, y: 0 });
         handleDoubleClick(); // This toggles fullscreen
         touchStartRef.current = null;
         return;
       }
 
-      // Swipe UP/LEFT/RIGHT → dismiss (minimize)
+      // Swipe UP/LEFT/RIGHT → dismiss (minimize) with animation
       let direction: 'up' | 'left' | 'right' | null = null;
-      if (absY > 50 && deltaY < 0 && absY > absX) direction = 'up';
-      else if (absX > 80 && deltaX < 0) direction = 'left';
-      else if (absX > 80 && deltaX > 0) direction = 'right';
+      const dismissThreshold = 60; // pixels needed to trigger dismiss
+
+      if (absY > dismissThreshold && deltaY < 0 && absY > absX) direction = 'up';
+      else if (absX > dismissThreshold && deltaX < 0) direction = 'left';
+      else if (absX > dismissThreshold && deltaX > 0) direction = 'right';
 
       if (direction) {
+        // CRITICAL: Reset swipe offset IMMEDIATELY so CSS dismiss animation isn't blocked
+        // by inline transform. The dismiss animation has its own transform (scale + translate)
+        setSwipeOffset({ x: 0, y: 0 });
+
+        // Complete the dismiss animation in the direction of swipe
         setDismissDirection(direction);
         stickyLocked.current = true;
+
+        // Let CSS animation play, then hide
         setTimeout(() => {
           setIsSticky(false);
           setDismissDirection('none');
           setTimeout(() => { stickyLocked.current = false; }, 1500);
         }, 300);
+      } else {
+        // Swipe wasn't far enough - spring back to center with smooth transition
+        // The CSS transition (set when isTouching=false) will animate this
+        setSwipeOffset({ x: 0, y: 0 });
       }
+    } else {
+      setSwipeOffset({ x: 0, y: 0 });
     }
 
     touchStartRef.current = null;
@@ -707,6 +764,8 @@ export function VideoCarousel() {
 
   const handleTouchCancel = useCallback(() => {
     setIsTouching(false);
+    setIsSwipingVideo(false);
+    setSwipeOffset({ x: 0, y: 0 });
     touchStartRef.current = null;
   }, []);
 
@@ -777,6 +836,14 @@ export function VideoCarousel() {
   // CRITICAL: In normal mode, 'top' is calculated from initialDocTop (no getBoundingClientRect lag)
   // The scroll listener in useEffect updates 'top' directly in DOM for real-time positioning
   const currentScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+
+  // Calculate opacity based on swipe distance (fade out as user swipes away)
+  const swipeDistance = Math.abs(swipeOffset.x) + Math.abs(swipeOffset.y);
+  const swipeOpacity = isSwipingVideo ? Math.max(0.3, 1 - swipeDistance / 200) : 1;
+
+  // Determine if we should show swipe offset (during active swipe OR during spring-back)
+  const showSwipeTransform = swipeOffset.x !== 0 || swipeOffset.y !== 0;
+
   const videoStyles: React.CSSProperties = isSticky
     ? {
         position: 'fixed',
@@ -784,7 +851,25 @@ export function VideoCarousel() {
         left: `calc(50% - ${stickyWidth / 2}px)`,
         width: stickyWidth,
         zIndex: 9999,
-        animation: getStickyAnimation(),
+        // CRITICAL: Apply swipe offset as transform for visual feedback during swipe
+        // When swiping, video follows finger; when released, either dismisses or springs back
+        // Always apply offset if non-zero so spring-back animation works
+        transform: showSwipeTransform
+          ? `translate(${swipeOffset.x}px, ${swipeOffset.y}px)`
+          : undefined,
+        opacity: swipeOpacity,
+        // Disable floating animation while swiping, but allow dismiss animations
+        // dismissDirection !== 'none' means user triggered a dismiss - play the CSS animation
+        animation: dismissDirection !== 'none'
+          ? getStickyAnimation()  // Play dismiss animation
+          : (isSwipingVideo || showSwipeTransform)
+            ? 'none'              // Disable float animation during swipe/spring-back
+            : getStickyAnimation(),  // Normal floating animation
+        // Spring-back transition when not actively swiping (user released finger)
+        // isTouching = finger on screen, so when false but offset exists = spring-back time
+        transition: isTouching
+          ? 'none' // No transition while finger is down (instant response)
+          : 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease',
         boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 16px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)',
         borderRadius: '1rem',
         overflow: 'hidden',
@@ -829,6 +914,7 @@ export function VideoCarousel() {
       ref={videoContainerRef}
       style={videoStyles}
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchCancel}
     >
