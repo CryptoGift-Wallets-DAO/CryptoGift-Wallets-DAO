@@ -3,9 +3,9 @@
  * Componente ESTÁTICO (sin oscilación) para SalesMasterclass
  *
  * FEATURES:
- * - MOBILE: Auto-play with audio immediately
- * - PC: Click anywhere on page triggers play with audio
- * - Click to play/pause, double-click for fullscreen
+ * - MOBILE: Auto-play with audio immediately when visible
+ * - PC: Click ANYWHERE on page triggers play with audio
+ * - Click on video to play/pause, double-click for fullscreen
  * - NO portal rendering, NO position tracking = ZERO wobble
  *
  * Made by mbxarts.com The Moon in a Box property
@@ -70,24 +70,23 @@ export default function IntroVideoGate({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Refs
+  // Refs - CRITICAL for tracking state across renders
   const containerRef = useRef<HTMLDivElement>(null);
   const hasAutoPlayed = useRef(false);
   const audioUnlocked = useRef(false);
+  const retryCount = useRef(0);
+  const maxRetries = 20; // 20 retries * 100ms = 2 seconds max wait
 
-  // Detect mobile
+  // Detect mobile ONCE on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const checkMobile = () => {
-        const isSmallScreen = window.innerWidth < 768;
-        const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        return isSmallScreen || mobileUA;
-      };
-      setIsMobile(checkMobile());
+      const isSmallScreen = window.innerWidth < 768;
+      const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(isSmallScreen || mobileUA);
     }
   }, []);
 
-  // Get MuxPlayer element - CRITICAL: Use the mux-player directly, not the video inside shadow DOM
+  // Get MuxPlayer element - searches for the mux-player in the wrapper
   const getMuxPlayer = useCallback((): any => {
     if (typeof document === 'undefined') return null;
     const wrapper = document.getElementById(muxPlayerId);
@@ -95,16 +94,17 @@ export default function IntroVideoGate({
     return wrapper.querySelector('mux-player');
   }, [muxPlayerId]);
 
-  // Attempt to play video with audio
-  // Mobile: Always tries with audio, falls back to muted
-  // PC: Only tries with audio if audioUnlocked, otherwise fails silently (waits for interaction)
-  const attemptPlay = useCallback(() => {
+  // CORE: Attempt to play with audio, with retry logic
+  const attemptPlayWithAudio = useCallback(() => {
     if (hasAutoPlayed.current) return;
 
     const player = getMuxPlayer();
     if (!player) {
-      // Player not ready yet, retry in 100ms
-      setTimeout(() => attemptPlay(), 100);
+      // Player not ready, retry up to maxRetries times
+      if (retryCount.current < maxRetries) {
+        retryCount.current++;
+        setTimeout(attemptPlayWithAudio, 100);
+      }
       return;
     }
 
@@ -115,36 +115,34 @@ export default function IntroVideoGate({
       hasAutoPlayed.current = true;
       audioUnlocked.current = true;
       setIsPlaying(true);
-      console.log('[Video] ▶️ Playing with audio');
+      console.log('[IntroVideo] ▶️ Playing with audio');
     }).catch(() => {
-      // On mobile: Try muted as fallback
-      // On PC without interaction: Wait for user interaction (don't fallback to muted)
+      // Mobile fallback: try muted
       if (isMobile) {
         player.muted = true;
         player.play()?.then(() => {
           hasAutoPlayed.current = true;
           setIsPlaying(true);
-          console.log('[Video] ▶️ Playing muted (mobile fallback)');
+          console.log('[IntroVideo] ▶️ Playing muted (mobile fallback)');
         }).catch(() => {
-          console.log('[Video] ❌ Autoplay blocked, waiting for interaction');
+          console.log('[IntroVideo] ❌ Autoplay completely blocked');
         });
       } else {
-        // PC: Don't fallback to muted, wait for user interaction
-        console.log('[Video] ⏳ PC waiting for user interaction to play with audio');
+        // PC: Don't fallback to muted, wait for click anywhere
+        console.log('[IntroVideo] ⏳ PC: Waiting for click anywhere to play with audio');
       }
     });
   }, [getMuxPlayer, isMobile]);
 
-  // MOBILE: Auto-play immediately when visible
-  // PC: Wait for user interaction
+  // VISIBILITY: Auto-play when video becomes visible
   useEffect(() => {
     if (!containerRef.current || hasAutoPlayed.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !hasAutoPlayed.current) {
-          // Small delay to ensure MuxPlayer is mounted
-          setTimeout(() => attemptPlay(), 300);
+          retryCount.current = 0;
+          setTimeout(attemptPlayWithAudio, 300);
         }
       },
       { threshold: 0.5 }
@@ -152,75 +150,92 @@ export default function IntroVideoGate({
 
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [attemptPlay]);
+  }, [attemptPlayWithAudio]);
 
-  // PC: Click anywhere on page triggers play with audio
-  // Similar pattern to VideoCarousel for consistency
+  // CLICK ANYWHERE: Listen for ANY user interaction on the entire document
+  // This is the KEY feature - clicking anywhere on the page starts the video
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
-    const attemptAutoplayWithAudio = () => {
-      if (hasAutoPlayed.current) return;
+    const handleDocumentInteraction = (e: Event) => {
+      // If audio already unlocked or video already playing, skip
+      if (audioUnlocked.current || hasAutoPlayed.current) return;
 
-      const player = getMuxPlayer();
-      if (!player) return;
+      // Mark audio as unlocked (user has interacted)
+      audioUnlocked.current = true;
+      console.log('[IntroVideo] 🖱️ User interaction detected, attempting play');
 
-      player.volume = AUTO_PLAY_VOLUME;
-      player.muted = false;
+      // Check if our video container is visible
+      if (!containerRef.current) return;
 
-      player.play()?.then(() => {
-        hasAutoPlayed.current = true;
-        audioUnlocked.current = true;
-        setIsPlaying(true);
-        console.log('[Video] ▶️ Started playing with audio after user interaction');
-      }).catch(() => {
-        // Even after user gesture, autoplay might fail in some browsers
-        // Try muted as last resort
-        player.muted = true;
+      const rect = containerRef.current.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+
+      if (!isVisible) return;
+
+      // Reset retry counter and attempt to play
+      retryCount.current = 0;
+
+      // Use setTimeout to ensure the gesture is registered by the browser
+      setTimeout(() => {
+        const player = getMuxPlayer();
+        if (!player || hasAutoPlayed.current) return;
+
+        player.volume = AUTO_PLAY_VOLUME;
+        player.muted = false;
+
         player.play()?.then(() => {
           hasAutoPlayed.current = true;
           setIsPlaying(true);
-          console.log('[Video] ▶️ Playing muted (fallback after interaction)');
+          console.log('[IntroVideo] ▶️ Started playing with audio after click anywhere');
         }).catch(() => {
-          console.log('[Video] ❌ Play failed even after user interaction');
+          // Last resort: try muted even on PC
+          player.muted = true;
+          player.play()?.then(() => {
+            hasAutoPlayed.current = true;
+            setIsPlaying(true);
+            console.log('[IntroVideo] ▶️ Playing muted after click (fallback)');
+          }).catch(() => {
+            console.log('[IntroVideo] ❌ Play failed even after user interaction');
+          });
         });
-      });
+      }, 50);
     };
 
-    const handleUserInteraction = () => {
-      if (audioUnlocked.current) return;
-      audioUnlocked.current = true;
+    // Register listeners on document with CAPTURE phase to catch ALL clicks
+    document.addEventListener('click', handleDocumentInteraction, { capture: true, passive: true });
+    document.addEventListener('touchstart', handleDocumentInteraction, { capture: true, passive: true });
+    document.addEventListener('keydown', handleDocumentInteraction, { capture: true, passive: true });
 
-      const player = getMuxPlayer();
-
-      // Case 1: Video not started yet - start with audio
-      if (!hasAutoPlayed.current) {
-        // Check if video is visible before playing
-        if (containerRef.current) {
-          const rect = containerRef.current.getBoundingClientRect();
-          const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-          if (isVisible) {
-            // Small delay to ensure gesture is registered by browser
-            setTimeout(attemptAutoplayWithAudio, 50);
-          }
-        }
-      }
-      // Case 2: Video already playing but muted - unmute it
-      else if (player && !player.paused && player.muted) {
-        player.muted = false;
-        player.volume = AUTO_PLAY_VOLUME;
-        console.log('[Video] 🔊 Unmuted after user interaction');
-      }
-    };
-
-    document.addEventListener('click', handleUserInteraction, { capture: true, passive: true });
-    document.addEventListener('touchstart', handleUserInteraction, { capture: true, passive: true });
-    document.addEventListener('keydown', handleUserInteraction, { capture: true, passive: true });
+    console.log('[IntroVideo] 📡 Document listeners registered for click-anywhere');
 
     return () => {
-      document.removeEventListener('click', handleUserInteraction, { capture: true });
-      document.removeEventListener('touchstart', handleUserInteraction, { capture: true });
-      document.removeEventListener('keydown', handleUserInteraction, { capture: true });
+      document.removeEventListener('click', handleDocumentInteraction, { capture: true });
+      document.removeEventListener('touchstart', handleDocumentInteraction, { capture: true });
+      document.removeEventListener('keydown', handleDocumentInteraction, { capture: true });
+      console.log('[IntroVideo] 📡 Document listeners removed');
+    };
+  }, [getMuxPlayer]);
+
+  // UNMUTE: If video is playing muted and user interacts, unmute it
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const handleUnmute = () => {
+      const player = getMuxPlayer();
+      if (player && !player.paused && player.muted) {
+        player.muted = false;
+        player.volume = AUTO_PLAY_VOLUME;
+        console.log('[IntroVideo] 🔊 Unmuted after user interaction');
+      }
+    };
+
+    document.addEventListener('click', handleUnmute, { passive: true });
+    document.addEventListener('touchstart', handleUnmute, { passive: true });
+
+    return () => {
+      document.removeEventListener('click', handleUnmute);
+      document.removeEventListener('touchstart', handleUnmute);
     };
   }, [getMuxPlayer]);
 
