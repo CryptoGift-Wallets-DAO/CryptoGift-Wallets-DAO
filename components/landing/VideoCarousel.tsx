@@ -633,14 +633,14 @@ export function VideoCarousel() {
     hasAutoPlayed.current = false;
   }, [videos.length, isPlaying]);
 
-  // Touch handlers for sticky mode
+  // Touch handlers for sticky mode and fullscreen swipe gestures
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (!isMobile) return;
     setIsTouching(true);
-    if (!isSticky) return;
     const touch = e.touches[0];
+    // Always capture touch start for swipe detection (sticky or fullscreen)
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
-  }, [isMobile, isSticky]);
+  }, [isMobile]);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (!isMobile) return;
@@ -648,22 +648,44 @@ export function VideoCarousel() {
 
     const touch = e.changedTouches[0];
     const now = Date.now();
+    const isFullscreen = !!document.fullscreenElement;
 
-    // Double tap for fullscreen
-    if (now - lastTapRef.current < 300) {
+    // Double tap for fullscreen (only when not already in fullscreen)
+    if (!isFullscreen && now - lastTapRef.current < 300) {
       handleDoubleClick();
       lastTapRef.current = 0;
+      touchStartRef.current = null;
       return;
     }
     lastTapRef.current = now;
 
-    // Swipe to dismiss (sticky only)
-    if (isSticky && touchStartRef.current) {
-      const deltaX = touch.clientX - touchStartRef.current.x;
-      const deltaY = touch.clientY - touchStartRef.current.y;
-      const absX = Math.abs(deltaX);
-      const absY = Math.abs(deltaY);
+    if (!touchStartRef.current) {
+      touchStartRef.current = null;
+      return;
+    }
 
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+
+    // Swipe DOWN in fullscreen → exit fullscreen (return to sticky)
+    if (isFullscreen && absY > 80 && deltaY > 0 && absY > absX) {
+      document.exitFullscreen?.();
+      touchStartRef.current = null;
+      return;
+    }
+
+    // Swipe gestures in sticky mode
+    if (isSticky) {
+      // Swipe DOWN → enter fullscreen
+      if (absY > 80 && deltaY > 0 && absY > absX) {
+        handleDoubleClick(); // This toggles fullscreen
+        touchStartRef.current = null;
+        return;
+      }
+
+      // Swipe UP/LEFT/RIGHT → dismiss (minimize)
       let direction: 'up' | 'left' | 'right' | null = null;
       if (absY > 50 && deltaY < 0 && absY > absX) direction = 'up';
       else if (absX > 80 && deltaX < 0) direction = 'left';
