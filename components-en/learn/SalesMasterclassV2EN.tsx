@@ -4288,22 +4288,53 @@ const SuccessBlock: React.FC<{
         </motion.p>
       </motion.div>
 
-      {/* Gallery Video Section - Rises from below */}
+      {/* Gallery Video Section - Full Width with Floating Title */}
       <motion.div
-        className="relative z-20 max-w-4xl mx-auto px-4"
+        className="relative z-20 w-full"
         variants={videoVariants}
         initial="celebration"
         animate={animationPhase}
       >
         {galleryVideoConfig && (
-          <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 dark:from-purple-500/20 dark:to-blue-500/20 border border-purple-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-sm">
-            <h3 className="text-xl md:text-2xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
-              {galleryVideoConfig.title}
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6 text-sm md:text-base">
-              {galleryVideoConfig.description}
-            </p>
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-xl">
+          <div className="relative">
+            {/* Floating Title - CRYPTOGIFT DAO GALLERY */}
+            <motion.div
+              className="text-center mb-6"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-wider
+                bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent
+                drop-shadow-[0_0_30px_rgba(168,85,247,0.5)]
+                animate-pulse">
+                CRYPTOGIFT DAO GALLERY
+              </h2>
+            </motion.div>
+
+            {/* Static glow background - like IntroVideoGate */}
+            <div
+              className="absolute inset-0 -z-10 pointer-events-none"
+              style={{
+                background: `
+                  radial-gradient(ellipse 120% 100% at 50% 0%, rgba(6, 182, 212, 0.25) 0%, transparent 60%),
+                  radial-gradient(ellipse 100% 120% at 0% 50%, rgba(139, 92, 246, 0.35) 0%, transparent 55%),
+                  radial-gradient(ellipse 100% 120% at 100% 50%, rgba(168, 85, 247, 0.3) 0%, transparent 55%),
+                  radial-gradient(ellipse 120% 100% at 50% 100%, rgba(139, 92, 246, 0.35) 0%, transparent 60%)
+                `,
+                filter: 'blur(80px)',
+                opacity: 0.5,
+                transform: 'scale(1.18)',
+              }}
+            />
+
+            {/* Full-width Video Container */}
+            <div className="relative aspect-video w-full
+              bg-gradient-to-br from-gray-900/95 to-black/95
+              backdrop-blur-xl backdrop-saturate-150
+              rounded-3xl overflow-hidden
+              border border-white/10 dark:border-gray-800/50
+              shadow-2xl shadow-purple-500/20">
               <iframe
                 src={`https://stream.mux.com/${galleryVideoConfig.muxPlaybackId}?autoplay=1&muted=0&loop=0`}
                 className="absolute inset-0 w-full h-full"
@@ -4325,6 +4356,84 @@ const SuccessBlock: React.FC<{
             transition={{ delay: 0.3, duration: 0.5 }}
             className="mt-12 space-y-8"
           >
+            {/* DAO Community Welcome Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-center max-w-4xl mx-auto px-4"
+            >
+              {/* Welcome Title with Sparkles */}
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Sparkles className="w-8 h-8 text-pink-500 animate-pulse" />
+                <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  Welcome to our DAO Community!
+                </h2>
+                <Sparkles className="w-8 h-8 text-pink-500 animate-pulse" />
+              </div>
+
+              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8">
+                You have completed your training and are now part of something extraordinary
+              </p>
+
+              {/* Feature Cards - APEX, Godez22, RLGra95 */}
+              <div className="grid md:grid-cols-3 gap-4">
+                {/* APEX Card */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="bg-gradient-to-br from-cyan-900/40 to-blue-900/40 dark:from-cyan-800/30 dark:to-blue-800/30
+                    border border-cyan-500/30 rounded-2xl p-6
+                    backdrop-blur-sm hover:scale-[1.02] transition-transform"
+                >
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Bot className="w-6 h-6 text-cyan-400" />
+                    <h3 className="text-xl font-bold text-cyan-400">APEX</h3>
+                  </div>
+                  <p className="text-gray-300 text-sm">
+                    Our AI Assistant that will guide you through every step of the crypto ecosystem
+                  </p>
+                </motion.div>
+
+                {/* Godez22 Card */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.9 }}
+                  className="bg-gradient-to-br from-purple-900/40 to-violet-900/40 dark:from-purple-800/30 dark:to-violet-800/30
+                    border border-purple-500/30 rounded-2xl p-6
+                    backdrop-blur-sm hover:scale-[1.02] transition-transform"
+                >
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Gem className="w-6 h-6 text-purple-400" />
+                    <h3 className="text-xl font-bold text-purple-400">Godez22</h3>
+                  </div>
+                  <p className="text-gray-300 text-sm">
+                    Pioneer developer who gave life to this wonderful system
+                  </p>
+                </motion.div>
+
+                {/* RLGra95 Card */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.1 }}
+                  className="bg-gradient-to-br from-amber-900/40 to-orange-900/40 dark:from-amber-800/30 dark:to-orange-800/30
+                    border border-amber-500/30 rounded-2xl p-6
+                    backdrop-blur-sm hover:scale-[1.02] transition-transform"
+                >
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Rocket className="w-6 h-6 text-amber-400" />
+                    <h3 className="text-xl font-bold text-amber-400">RLGra95</h3>
+                  </div>
+                  <p className="text-gray-300 text-sm">
+                    Visionary co-founder in the first steps of the project
+                  </p>
+                </motion.div>
+              </div>
+            </motion.div>
+
             {/* Top Contributors Section */}
             <TeamSection
               badge={t('team.badge')}
