@@ -87,16 +87,15 @@ export function ProfileExpanded() {
   }, []);
 
   // Calculate position ONCE when opening - FIXED to screen, not page
-  // Position adjusted to cover the navbar corner (moves up and right from thumbnail)
+  // L2 top-left corner aligns with thumbnail's top-left corner
   useEffect(() => {
     if (currentLevel !== 2 || !thumbnailRef.current) return;
 
-    // Calculate position - offset to cover corner better
+    // Align L2's top-left corner with thumbnail's top-left corner
     const rect = thumbnailRef.current.getBoundingClientRect();
-    // Move up by 8px and right by 8px to cover the corner
     setPosition({
-      top: rect.top - 8,
-      left: rect.left + 8,
+      top: rect.top,
+      left: rect.left,
     });
 
     // Only update on resize (responsive), NOT on scroll
@@ -104,8 +103,8 @@ export function ProfileExpanded() {
       const newRect = thumbnailRef.current?.getBoundingClientRect();
       if (newRect) {
         setPosition({
-          top: newRect.top - 8,
-          left: newRect.left + 8,
+          top: newRect.top,
+          left: newRect.left,
         });
       }
     };
