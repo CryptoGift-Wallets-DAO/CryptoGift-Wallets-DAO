@@ -405,8 +405,8 @@ export function TeamMemberApex({ member, onMemberUpdated }: TeamMemberApexProps)
             onClick={() => setIsPanelOpen(false)}
           />
 
-          {/* Panel */}
-          <div className="fixed z-[70] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-64px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-scaleIn">
+          {/* Panel - mobile: centered, PC: below navbar */}
+          <div className="fixed z-[70] top-1/2 -translate-y-1/2 md:top-20 md:translate-y-0 left-1/2 -translate-x-1/2 w-[420px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-64px)] md:max-h-[calc(100vh-96px)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-700/50 animate-scaleIn">
 
             {/* Header with gradient */}
             <div className="relative bg-gradient-to-br from-purple-600/10 via-indigo-600/10 to-cyan-600/10 dark:from-purple-600/20 dark:via-indigo-600/20 dark:to-cyan-600/20 p-6 pb-4">
