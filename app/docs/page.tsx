@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Navbar, NavbarSpacer } from '@/components/layout/Navbar';
@@ -115,6 +115,73 @@ export default function DocsPage() {
       setTimeout(() => setFocusIndex(totalItems - 1), 0);
     }
   }, [focusIndex, totalItems]);
+
+  // Touch/swipe and wheel handlers for carousel
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const isScrolling = useRef<boolean | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    isScrolling.current = null;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+
+    const deltaX = e.touches[0].clientX - touchStartX.current;
+    const deltaY = e.touches[0].clientY - touchStartY.current;
+
+    // Determine if user is scrolling vertically or horizontally
+    if (isScrolling.current === null) {
+      isScrolling.current = Math.abs(deltaY) > Math.abs(deltaX);
+    }
+
+    // Prevent default only if horizontal swipe
+    if (!isScrolling.current) {
+      e.preventDefault();
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || isScrolling.current) {
+      touchStartX.current = null;
+      touchStartY.current = null;
+      isScrolling.current = null;
+      return;
+    }
+
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const threshold = 50; // Minimum swipe distance
+
+    if (deltaX > threshold) {
+      prevFocus();
+    } else if (deltaX < -threshold) {
+      nextFocus();
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+    isScrolling.current = null;
+  };
+
+  const lastWheelTime = useRef<number>(0);
+  const handleWheel = (e: React.WheelEvent) => {
+    // Horizontal scroll with trackpad/mouse (throttled)
+    const now = Date.now();
+    if (now - lastWheelTime.current < 300) return; // Throttle: 300ms between changes
+
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
+      e.preventDefault();
+      lastWheelTime.current = now;
+      if (e.deltaX > 0) {
+        nextFocus();
+      } else {
+        prevFocus();
+      }
+    }
+  };
 
   // Update tab when URL query param changes
   useEffect(() => {
@@ -382,9 +449,15 @@ export default function DocsPage() {
                   </button>
 
                   {/* Carousel container - shows 3 cards at a time */}
-                  <div className="overflow-hidden mx-8 md:mx-12">
+                  <div
+                    className="overflow-hidden mx-8 md:mx-12 cursor-grab active:cursor-grabbing touch-pan-y"
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    onWheel={handleWheel}
+                  >
                     <div
-                      className="flex transition-transform duration-500 ease-out"
+                      className="flex transition-transform duration-500 ease-out select-none"
                       style={{ transform: `translateX(-${(focusIndex + totalItems) * (100 / 3)}%)` }}
                     >
                       {extendedFocusAreas.map((area, idx) => {
