@@ -89,8 +89,6 @@ export default function DocsPage() {
   const tabParam = searchParams.get('tab');
   const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'aboutus';
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [focusIndex, setFocusIndex] = useState(5); // Start at middle for infinite loop (totalItems = 5)
-
   // Focus areas data (5 areas)
   const focusAreas = [
     { key: 'emotional', icon: Heart, gradient: 'from-red-400 to-pink-500' },
@@ -100,21 +98,43 @@ export default function DocsPage() {
     { key: 'competitions', icon: Trophy, gradient: 'from-yellow-400 to-amber-500' },
   ];
 
-  // Infinite carousel: duplicate items for seamless loop
-  const extendedFocusAreas = [...focusAreas, ...focusAreas, ...focusAreas];
   const totalItems = focusAreas.length;
+
+  // Infinite carousel: 3 copies for seamless loop (items 0-4, 5-9, 10-14)
+  // Start at index 5 (first item of middle copy)
+  const extendedFocusAreas = [...focusAreas, ...focusAreas, ...focusAreas];
+  const [focusIndex, setFocusIndex] = useState(totalItems); // Start at middle copy
+  const [isTransitionEnabled, setIsTransitionEnabled] = useState(true);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const nextFocus = () => setFocusIndex((prev) => prev + 1);
   const prevFocus = () => setFocusIndex((prev) => prev - 1);
 
-  // Reset to middle when reaching edges (for infinite loop effect)
-  useEffect(() => {
+  // Handle seamless infinite loop via onTransitionEnd
+  const handleTransitionEnd = () => {
+    // If we've scrolled to the third copy, jump back to middle copy (no transition)
     if (focusIndex >= totalItems * 2) {
-      setTimeout(() => setFocusIndex(totalItems), 0);
-    } else if (focusIndex < 0) {
-      setTimeout(() => setFocusIndex(totalItems - 1), 0);
+      setIsTransitionEnabled(false);
+      setFocusIndex(focusIndex - totalItems);
     }
-  }, [focusIndex, totalItems]);
+    // If we've scrolled before first copy, jump to middle copy (no transition)
+    else if (focusIndex < totalItems) {
+      setIsTransitionEnabled(false);
+      setFocusIndex(focusIndex + totalItems);
+    }
+  };
+
+  // Re-enable transition after instant jump
+  useEffect(() => {
+    if (!isTransitionEnabled) {
+      // Use requestAnimationFrame to ensure the instant jump renders first
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsTransitionEnabled(true);
+        });
+      });
+    }
+  }, [isTransitionEnabled]);
 
   // Touch/swipe and wheel handlers for carousel
   const touchStartX = useRef<number | null>(null);
@@ -512,8 +532,12 @@ export default function DocsPage() {
                     onWheel={handleWheel}
                   >
                     <div
-                      className="flex transition-transform duration-500 ease-out select-none"
-                      style={{ transform: `translateX(-${(focusIndex + totalItems) * (100 / 3)}%)` }}
+                      ref={carouselRef}
+                      className={`flex select-none will-change-transform ${
+                        isTransitionEnabled ? 'transition-transform duration-500 ease-out' : ''
+                      }`}
+                      style={{ transform: `translateX(-${focusIndex * (100 / 3)}%)` }}
+                      onTransitionEnd={handleTransitionEnd}
                     >
                       {extendedFocusAreas.map((area, idx) => {
                         const Icon = area.icon;
@@ -522,8 +546,8 @@ export default function DocsPage() {
                             key={`${area.key}-${idx}`}
                             className="w-1/3 flex-shrink-0 px-2 md:px-4"
                           >
-                            {/* Vertical oval card - aspect ratio for tall oval shape */}
-                            <div className="glass-bubble rounded-[50%] aspect-[3/4] p-4 md:p-6 text-center flex flex-col items-center justify-center">
+                            {/* Vertical oval card - NO borders, clean glass effect */}
+                            <div className="bg-white/10 dark:bg-slate-800/50 backdrop-blur-md rounded-[50%] aspect-[3/4] p-4 md:p-6 text-center flex flex-col items-center justify-center shadow-lg shadow-purple-500/10 dark:shadow-purple-500/5 hover:shadow-xl hover:shadow-purple-500/20 transition-shadow duration-300">
                               <div className="flex justify-center mb-3 md:mb-4">
                                 <div className={`p-3 md:p-4 rounded-full bg-gradient-to-br ${area.gradient} shadow-lg`}>
                                   <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
@@ -544,22 +568,28 @@ export default function DocsPage() {
 
                   {/* Dots indicator */}
                   <div className="flex justify-center gap-2 mt-6">
-                    {focusAreas.map((area, index) => (
-                      <button
-                        key={area.key}
-                        onClick={() => {
-                          setFocusIndex(index);
-                          setIsCarouselPaused(true);
-                          setTimeout(() => setIsCarouselPaused(false), 2000);
-                        }}
-                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                          (focusIndex % totalItems + totalItems) % totalItems === index
-                            ? 'bg-purple-500 w-8'
-                            : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
-                        }`}
-                        aria-label={`Go to slide ${index + 1}`}
-                      />
-                    ))}
+                    {focusAreas.map((area, index) => {
+                      // Calculate which dot should be active (normalize to 0-4 range)
+                      const normalizedIndex = ((focusIndex % totalItems) + totalItems) % totalItems;
+                      const isActive = normalizedIndex === index;
+                      return (
+                        <button
+                          key={area.key}
+                          onClick={() => {
+                            // Set to middle copy position for the clicked index
+                            setFocusIndex(totalItems + index);
+                            setIsCarouselPaused(true);
+                            setTimeout(() => setIsCarouselPaused(false), 2000);
+                          }}
+                          className={`h-2.5 rounded-full transition-all duration-300 ${
+                            isActive
+                              ? 'bg-purple-500 w-8'
+                              : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 w-2.5'
+                          }`}
+                          aria-label={`Go to slide ${index + 1}`}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
               </div>
