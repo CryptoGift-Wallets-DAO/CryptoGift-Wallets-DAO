@@ -260,9 +260,34 @@ export const Navbar: React.FC = () => {
 
 // Spacer component to compensate for fixed navbar height
 // Use this after <Navbar /> in pages to prevent content from being hidden
-export const NavbarSpacer: React.FC = () => (
-  <div className="h-[54px]" aria-hidden="true" />
-);
+// Dynamic: adds extra padding when wallet is connected (navbar is taller with avatar/balance)
+export const NavbarSpacer: React.FC = () => {
+  const { isConnected } = useAccount();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Base height: 54px
+  // When wallet connected: navbar shows avatar + address + balance = taller
+  // Add 16px extra on mobile when connected to compensate
+  const heightClass = mounted && isConnected
+    ? 'h-[54px] md:h-[54px]' // Desktop stays same (dropdown doesn't add height)
+    : 'h-[54px]';
+
+  // Mobile-only extra padding when connected (navbar badge adds height)
+  const mobileExtraPadding = mounted && isConnected
+    ? 'pt-4 md:pt-0' // 16px extra padding on mobile only
+    : '';
+
+  return (
+    <div
+      className={`${heightClass} ${mobileExtraPadding}`}
+      aria-hidden="true"
+    />
+  );
+};
 
 // Compact wallet badge for mobile
 function MobileWalletBadge({ address }: { address: string }) {
