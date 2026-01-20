@@ -195,18 +195,25 @@ export default function DocsPage() {
     if (!container) return;
 
     const handleWheel = (e: WheelEvent) => {
-      // Horizontal scroll with trackpad/mouse (reduced throttle for smoother feel)
-      const now = Date.now();
-      if (now - lastWheelTime.current < 150) return; // 150ms throttle (was 300ms)
+      // CRITICAL: Check if this is horizontal scroll FIRST
+      const isHorizontalScroll = Math.abs(e.deltaX) > Math.abs(e.deltaY);
 
-      // Lower threshold for better sensitivity (15px instead of 30px)
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 15) {
-        e.preventDefault(); // This works because passive: false
-        lastWheelTime.current = now;
-        if (e.deltaX > 0) {
-          setFocusIndex((prev) => prev + 1);
-        } else {
-          setFocusIndex((prev) => prev - 1);
+      if (isHorizontalScroll) {
+        // IMMEDIATELY prevent browser's swipe-back gesture (before threshold check)
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Now check throttle and threshold for carousel movement
+        const now = Date.now();
+        if (now - lastWheelTime.current < 120) return; // 120ms throttle
+
+        if (Math.abs(e.deltaX) > 10) { // 10px threshold for movement
+          lastWheelTime.current = now;
+          if (e.deltaX > 0) {
+            setFocusIndex((prev) => prev + 1);
+          } else {
+            setFocusIndex((prev) => prev - 1);
+          }
         }
       }
     };
@@ -537,6 +544,7 @@ export default function DocsPage() {
                   <div
                     ref={wheelContainerRef}
                     className="overflow-hidden cursor-grab active:cursor-grabbing touch-pan-y"
+                    style={{ overscrollBehaviorX: 'contain' }}
                     onTouchStart={(e) => {
                       handleTouchStart(e);
                       handleCarouselTouchStart();
@@ -549,7 +557,7 @@ export default function DocsPage() {
                   >
                     <div
                       ref={carouselRef}
-                      className={`flex select-none will-change-transform ${
+                      className={`flex select-none will-change-transform py-4 ${
                         isTransitionEnabled ? 'transition-transform duration-500 ease-out' : ''
                       }`}
                       style={{ transform: `translateX(-${focusIndex * (100 / 3)}%)` }}
