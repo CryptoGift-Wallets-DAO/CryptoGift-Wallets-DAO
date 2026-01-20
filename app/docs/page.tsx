@@ -89,9 +89,15 @@ export default function DocsPage() {
   const tabParam = searchParams.get('tab');
   const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'aboutus';
   const [activeTab, setActiveTab] = useState(initialTab);
-  // Focus areas data (5 areas)
+  // Focus areas data (5 areas) - with optional background images and custom stickers
   const focusAreas = [
-    { key: 'emotional', icon: Heart, gradient: 'from-red-400 to-pink-500' },
+    {
+      key: 'emotional',
+      icon: Heart,
+      gradient: 'from-red-400 to-pink-500',
+      bgImage: '/Áreas de enfoque/emocional.PNG',
+      stickerImage: '/Áreas de enfoque/corazon.png',
+    },
     { key: 'artistic', icon: Gift, gradient: 'from-amber-400 to-orange-500' },
     { key: 'community', icon: Users, gradient: 'from-purple-400 to-indigo-500' },
     { key: 'laboratory', icon: Lightbulb, gradient: 'from-green-400 to-emerald-500' },
@@ -565,25 +571,93 @@ export default function DocsPage() {
                     >
                       {extendedFocusAreas.map((area, idx) => {
                         const Icon = area.icon;
+                        const hasBgImage = 'bgImage' in area && area.bgImage;
+                        const hasSticker = 'stickerImage' in area && area.stickerImage;
+
                         return (
                           <div
                             key={`${area.key}-${idx}`}
                             className="w-1/3 flex-shrink-0 px-2 md:px-4"
                           >
-                            {/* Perfect circle card - NO borders, clean glass effect */}
-                            <div className="bg-white/10 dark:bg-slate-800/50 backdrop-blur-md rounded-full aspect-square p-4 md:p-6 text-center flex flex-col items-center justify-center shadow-lg shadow-purple-500/10 dark:shadow-purple-500/5 hover:shadow-xl hover:shadow-purple-500/20 transition-shadow duration-300">
-                              <div className="flex justify-center mb-3 md:mb-4">
-                                <div className={`p-3 md:p-4 rounded-full bg-gradient-to-br ${area.gradient} shadow-lg`}>
-                                  <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
+                            {hasBgImage ? (
+                              /* ✨ ARTISTIC CARD with background image + sticker */
+                              <div className="relative rounded-full aspect-square overflow-hidden shadow-2xl shadow-purple-500/20 dark:shadow-purple-500/10 group">
+                                {/* Background image */}
+                                <Image
+                                  src={area.bgImage as string}
+                                  alt=""
+                                  fill
+                                  className="object-cover"
+                                  sizes="(max-width: 768px) 33vw, 25vw"
+                                />
+
+                                {/* Glass overlay with gradient for readability */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10 backdrop-blur-[1px]" />
+
+                                {/* Inner glass circle effect */}
+                                <div className="absolute inset-[8%] rounded-full border border-white/20 bg-white/5 backdrop-blur-sm" />
+
+                                {/* Content container */}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 md:p-6 text-center">
+                                  {/* Sticker - floating 3D effect */}
+                                  {hasSticker ? (
+                                    <div className="relative -mt-2 mb-2 md:mb-3 transform group-hover:scale-110 transition-transform duration-300">
+                                      <div className="relative w-14 h-14 md:w-20 md:h-20 drop-shadow-[0_8px_16px_rgba(0,0,0,0.4)]">
+                                        <Image
+                                          src={area.stickerImage as string}
+                                          alt=""
+                                          fill
+                                          className="object-contain"
+                                          sizes="80px"
+                                        />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="flex justify-center mb-3 md:mb-4">
+                                      <div className={`p-3 md:p-4 rounded-full bg-gradient-to-br ${area.gradient} shadow-lg`}>
+                                        <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Title with text shadow for readability */}
+                                  <h3
+                                    className="text-xs md:text-base font-bold text-white mb-1 md:mb-2 leading-tight"
+                                    style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.9)' }}
+                                  >
+                                    {t(`aboutus.focus.${area.key}.title`)}
+                                  </h3>
+
+                                  {/* Description with subtle background pill */}
+                                  <div className="bg-black/40 backdrop-blur-sm rounded-xl px-2 py-1 md:px-3 md:py-1.5">
+                                    <p
+                                      className="text-[9px] md:text-xs text-white/90 leading-snug line-clamp-4"
+                                      style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
+                                    >
+                                      {t(`aboutus.focus.${area.key}.description`)}
+                                    </p>
+                                  </div>
                                 </div>
+
+                                {/* Subtle light reflection on top */}
+                                <div className="absolute top-[5%] left-[15%] w-[30%] h-[15%] bg-white/10 rounded-full blur-xl pointer-events-none" />
                               </div>
-                              <h3 className="text-xs md:text-base font-bold text-gray-900 dark:text-white mb-1 md:mb-2 leading-tight">
-                                {t(`aboutus.focus.${area.key}.title`)}
-                              </h3>
-                              <p className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400 leading-snug line-clamp-5">
-                                {t(`aboutus.focus.${area.key}.description`)}
-                              </p>
-                            </div>
+                            ) : (
+                              /* Standard glass card */
+                              <div className="bg-white/10 dark:bg-slate-800/50 backdrop-blur-md rounded-full aspect-square p-4 md:p-6 text-center flex flex-col items-center justify-center shadow-lg shadow-purple-500/10 dark:shadow-purple-500/5 hover:shadow-xl hover:shadow-purple-500/20 transition-shadow duration-300">
+                                <div className="flex justify-center mb-3 md:mb-4">
+                                  <div className={`p-3 md:p-4 rounded-full bg-gradient-to-br ${area.gradient} shadow-lg`}>
+                                    <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
+                                  </div>
+                                </div>
+                                <h3 className="text-xs md:text-base font-bold text-gray-900 dark:text-white mb-1 md:mb-2 leading-tight">
+                                  {t(`aboutus.focus.${area.key}.title`)}
+                                </h3>
+                                <p className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400 leading-snug line-clamp-5">
+                                  {t(`aboutus.focus.${area.key}.description`)}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         );
                       })}
