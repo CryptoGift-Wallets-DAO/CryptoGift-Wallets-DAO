@@ -183,6 +183,29 @@ export default function DocsPage() {
     }
   };
 
+  // Auto-scroll carousel (pauses on hover/touch)
+  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
+
+  useEffect(() => {
+    if (isCarouselPaused) return;
+
+    const autoScrollInterval = setInterval(() => {
+      setFocusIndex((prev) => prev + 1);
+    }, 3500); // Auto-scroll every 3.5 seconds
+
+    return () => clearInterval(autoScrollInterval);
+  }, [isCarouselPaused]);
+
+  const handleCarouselMouseEnter = () => setIsCarouselPaused(true);
+  const handleCarouselMouseLeave = () => setIsCarouselPaused(false);
+  const handleCarouselTouchStart = () => setIsCarouselPaused(true);
+  const handleCarouselTouchEnd = () => {
+    // Delay resume to allow swipe to complete
+    setTimeout(() => setIsCarouselPaused(false), 1000);
+  };
+
   // Update tab when URL query param changes
   useEffect(() => {
     if (tabParam && VALID_TABS.includes(tabParam)) {
@@ -431,29 +454,61 @@ export default function DocsPage() {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center">
                   {t('aboutus.focus.title')}
                 </h2>
-                <div className="relative">
-                  {/* Carousel navigation buttons */}
-                  <button
-                    onClick={prevFocus}
-                    className="absolute -left-4 md:left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 backdrop-blur-sm"
-                    aria-label="Previous"
+                <div
+                  className="relative"
+                  onMouseEnter={handleCarouselMouseEnter}
+                  onMouseLeave={() => {
+                    handleCarouselMouseLeave();
+                    setShowLeftArrow(false);
+                    setShowRightArrow(false);
+                  }}
+                >
+                  {/* Left hover zone for arrow */}
+                  <div
+                    className="absolute left-0 top-0 bottom-0 w-16 z-20"
+                    onMouseEnter={() => setShowLeftArrow(true)}
+                    onMouseLeave={() => setShowLeftArrow(false)}
                   >
-                    <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                  </button>
-                  <button
-                    onClick={nextFocus}
-                    className="absolute -right-4 md:right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 backdrop-blur-sm"
-                    aria-label="Next"
+                    <button
+                      onClick={prevFocus}
+                      className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-all duration-300 backdrop-blur-sm ${
+                        showLeftArrow ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
+                      }`}
+                      aria-label="Previous"
+                    >
+                      <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                    </button>
+                  </div>
+
+                  {/* Right hover zone for arrow */}
+                  <div
+                    className="absolute right-0 top-0 bottom-0 w-16 z-20"
+                    onMouseEnter={() => setShowRightArrow(true)}
+                    onMouseLeave={() => setShowRightArrow(false)}
                   >
-                    <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                  </button>
+                    <button
+                      onClick={nextFocus}
+                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-all duration-300 backdrop-blur-sm ${
+                        showRightArrow ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                      }`}
+                      aria-label="Next"
+                    >
+                      <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                    </button>
+                  </div>
 
                   {/* Carousel container - shows 3 cards at a time */}
                   <div
-                    className="overflow-hidden mx-8 md:mx-12 cursor-grab active:cursor-grabbing touch-pan-y"
-                    onTouchStart={handleTouchStart}
+                    className="overflow-hidden cursor-grab active:cursor-grabbing touch-pan-y"
+                    onTouchStart={(e) => {
+                      handleTouchStart(e);
+                      handleCarouselTouchStart();
+                    }}
                     onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
+                    onTouchEnd={(e) => {
+                      handleTouchEnd(e);
+                      handleCarouselTouchEnd();
+                    }}
                     onWheel={handleWheel}
                   >
                     <div
@@ -465,18 +520,19 @@ export default function DocsPage() {
                         return (
                           <div
                             key={`${area.key}-${idx}`}
-                            className="w-1/3 flex-shrink-0 px-2 md:px-3"
+                            className="w-1/3 flex-shrink-0 px-2 md:px-4"
                           >
-                            <div className="glass-bubble rounded-[2rem] p-6 md:p-8 text-center h-full flex flex-col items-center justify-start">
-                              <div className="flex justify-center mb-4">
+                            {/* Vertical oval card - aspect ratio for tall oval shape */}
+                            <div className="glass-bubble rounded-[50%] aspect-[3/4] p-4 md:p-6 text-center flex flex-col items-center justify-center">
+                              <div className="flex justify-center mb-3 md:mb-4">
                                 <div className={`p-3 md:p-4 rounded-full bg-gradient-to-br ${area.gradient} shadow-lg`}>
                                   <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
                                 </div>
                               </div>
-                              <h3 className="text-sm md:text-lg font-bold text-gray-900 dark:text-white mb-2">
+                              <h3 className="text-xs md:text-base font-bold text-gray-900 dark:text-white mb-1 md:mb-2 leading-tight">
                                 {t(`aboutus.focus.${area.key}.title`)}
                               </h3>
-                              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                              <p className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400 leading-snug line-clamp-5">
                                 {t(`aboutus.focus.${area.key}.description`)}
                               </p>
                             </div>
@@ -491,7 +547,11 @@ export default function DocsPage() {
                     {focusAreas.map((area, index) => (
                       <button
                         key={area.key}
-                        onClick={() => setFocusIndex(index)}
+                        onClick={() => {
+                          setFocusIndex(index);
+                          setIsCarouselPaused(true);
+                          setTimeout(() => setIsCarouselPaused(false), 2000);
+                        }}
                         className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                           (focusIndex % totalItems + totalItems) % totalItems === index
                             ? 'bg-purple-500 w-8'
