@@ -191,11 +191,13 @@ export default function GalleryVideoPlayer({
   }, []);
 
   // Update video Y position using RAF
+  // CRITICAL: Force initial transform update when RAF starts
   useEffect(() => {
     if (isSticky) return;
 
     let rafId: number;
-    let lastScroll = window.scrollY;
+    // Initialize to -1 to force first update (ensures correct position on mount/return from sticky)
+    let lastScroll = -1;
 
     const updateVideoPosition = () => {
       if (window.scrollY !== lastScroll) {
