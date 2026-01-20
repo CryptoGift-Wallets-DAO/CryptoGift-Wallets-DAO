@@ -390,7 +390,12 @@ export default function PublicProfilePage() {
       {/* L3 (MiniCard) at right edge, click opens L4 (FullCard) at same position */}
       {/* isStandalone=true: no backdrop, no click-outside-close, close buttons visible */}
       {showPresentationCard && profile && (
-        <ProfileCardProvider wallet={wallet} initialLevel={3} isStandalone={true}>
+        <ProfileCardProvider
+          wallet={wallet}
+          initialLevel={3}
+          isStandalone={true}
+          onStandaloneClose={handleClosePresentationCard}
+        >
           <ProfileMiniCard
             standalone
             standaloneProfile={{

@@ -102,6 +102,8 @@ interface ProfileCardProviderProps {
   isStandalone?: boolean;
   /** Callback when level changes */
   onLevelChange?: (level: ProfileLevel) => void;
+  /** Callback when standalone card is closed (e.g., to remove query param) */
+  onStandaloneClose?: () => void;
 }
 
 export function ProfileCardProvider({
@@ -110,6 +112,7 @@ export function ProfileCardProvider({
   initialLevel = 1,
   isStandalone = false,
   onLevelChange,
+  onStandaloneClose,
 }: ProfileCardProviderProps) {
   const { address: connectedAddress, isConnected } = useAccount();
 
@@ -168,10 +171,15 @@ export function ProfileCardProvider({
   }, [onLevelChange]);
 
   const closeLevel = useCallback(() => {
+    // In standalone mode, call the standalone close callback (e.g., to remove query param)
+    if (isStandalone && onStandaloneClose) {
+      onStandaloneClose();
+      return;
+    }
     setCurrentLevel(1); // Return to thumbnail
     setIsLocked(false);
     onLevelChange?.(1);
-  }, [onLevelChange]);
+  }, [isStandalone, onStandaloneClose, onLevelChange]);
 
   const goToLevel = useCallback((level: ProfileLevel) => {
     setCurrentLevel(level);
