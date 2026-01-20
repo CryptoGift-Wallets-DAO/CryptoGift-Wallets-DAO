@@ -186,22 +186,38 @@ export default function DocsPage() {
     isScrolling.current = null;
   };
 
+  // Wheel scroll handler - needs native event listener for passive: false
   const lastWheelTime = useRef<number>(0);
-  const handleWheel = (e: React.WheelEvent) => {
-    // Horizontal scroll with trackpad/mouse (throttled)
-    const now = Date.now();
-    if (now - lastWheelTime.current < 300) return; // Throttle: 300ms between changes
+  const wheelContainerRef = useRef<HTMLDivElement>(null);
 
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
-      e.preventDefault();
-      lastWheelTime.current = now;
-      if (e.deltaX > 0) {
-        nextFocus();
-      } else {
-        prevFocus();
+  useEffect(() => {
+    const container = wheelContainerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Horizontal scroll with trackpad/mouse (reduced throttle for smoother feel)
+      const now = Date.now();
+      if (now - lastWheelTime.current < 150) return; // 150ms throttle (was 300ms)
+
+      // Lower threshold for better sensitivity (15px instead of 30px)
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 15) {
+        e.preventDefault(); // This works because passive: false
+        lastWheelTime.current = now;
+        if (e.deltaX > 0) {
+          setFocusIndex((prev) => prev + 1);
+        } else {
+          setFocusIndex((prev) => prev - 1);
+        }
       }
-    }
-  };
+    };
+
+    // Add event listener with passive: false to allow preventDefault
+    container.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
 
   // Auto-scroll carousel (pauses on hover/touch)
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
@@ -519,6 +535,7 @@ export default function DocsPage() {
 
                   {/* Carousel container - shows 3 cards at a time */}
                   <div
+                    ref={wheelContainerRef}
                     className="overflow-hidden cursor-grab active:cursor-grabbing touch-pan-y"
                     onTouchStart={(e) => {
                       handleTouchStart(e);
@@ -529,7 +546,6 @@ export default function DocsPage() {
                       handleTouchEnd(e);
                       handleCarouselTouchEnd();
                     }}
-                    onWheel={handleWheel}
                   >
                     <div
                       ref={carouselRef}
@@ -546,8 +562,8 @@ export default function DocsPage() {
                             key={`${area.key}-${idx}`}
                             className="w-1/3 flex-shrink-0 px-2 md:px-4"
                           >
-                            {/* Vertical oval card - NO borders, clean glass effect */}
-                            <div className="bg-white/10 dark:bg-slate-800/50 backdrop-blur-md rounded-[50%] aspect-[3/4] p-4 md:p-6 text-center flex flex-col items-center justify-center shadow-lg shadow-purple-500/10 dark:shadow-purple-500/5 hover:shadow-xl hover:shadow-purple-500/20 transition-shadow duration-300">
+                            {/* Perfect circle card - NO borders, clean glass effect */}
+                            <div className="bg-white/10 dark:bg-slate-800/50 backdrop-blur-md rounded-full aspect-square p-4 md:p-6 text-center flex flex-col items-center justify-center shadow-lg shadow-purple-500/10 dark:shadow-purple-500/5 hover:shadow-xl hover:shadow-purple-500/20 transition-shadow duration-300">
                               <div className="flex justify-center mb-3 md:mb-4">
                                 <div className={`p-3 md:p-4 rounded-full bg-gradient-to-br ${area.gradient} shadow-lg`}>
                                   <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
