@@ -31,6 +31,7 @@ const MuxPlayer = dynamic(
   }
 );
 import { RotatePhoneHintCompact } from '@/components/ui/RotatePhoneHint';
+import GalleryVideoPlayerEN from '@/components-en/video/GalleryVideoPlayerEN';
 import { QRCodeSVG } from 'qrcode.react';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
 import { client } from '@/lib/thirdweb/client';
@@ -4133,75 +4134,7 @@ const SuccessBlock: React.FC<{
   // Animation phase: 'celebration' -> 'transition' -> 'settled'
   const [animationPhase, setAnimationPhase] = useState<'celebration' | 'transition' | 'settled'>('celebration');
 
-  // ========== CLICK ANYWHERE TO PLAY (for PC) ==========
-  const galleryVideoRef = useRef<HTMLDivElement>(null);
-  const hasVideoPlayed = useRef(false);
-  const AUTO_PLAY_VOLUME = 0.15;
-
-  // Get MuxPlayer element from the container
-  const getGalleryMuxPlayer = useCallback((): any => {
-    if (typeof document === 'undefined' || !galleryVideoRef.current) return null;
-    return galleryVideoRef.current.querySelector('mux-player');
-  }, []);
-
-  // Attempt to play video with audio
-  const attemptGalleryPlay = useCallback(() => {
-    if (hasVideoPlayed.current) return;
-    const player = getGalleryMuxPlayer();
-    if (!player) return;
-
-    player.volume = AUTO_PLAY_VOLUME;
-    player.muted = false;
-
-    player.play()?.then(() => {
-      hasVideoPlayed.current = true;
-      console.log('[SuccessBlock Gallery] ▶️ Playing with audio');
-    }).catch(() => {
-      console.log('[SuccessBlock Gallery] ⏳ Waiting for user interaction');
-    });
-  }, [getGalleryMuxPlayer]);
-
-  // CLICK ANYWHERE on document to trigger play (PC feature)
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-
-    const handleDocumentInteraction = () => {
-      if (hasVideoPlayed.current) return;
-
-      const player = getGalleryMuxPlayer();
-      if (!player) return;
-
-      player.volume = AUTO_PLAY_VOLUME;
-      player.muted = false;
-
-      player.play()?.then(() => {
-        hasVideoPlayed.current = true;
-        console.log('[SuccessBlock Gallery] ▶️ Playing after click anywhere');
-      }).catch(() => {
-        console.log('[SuccessBlock Gallery] ❌ Play failed');
-      });
-    };
-
-    document.addEventListener('click', handleDocumentInteraction, { capture: true, passive: true });
-    document.addEventListener('touchstart', handleDocumentInteraction, { capture: true, passive: true });
-    document.addEventListener('keydown', handleDocumentInteraction, { capture: true, passive: true });
-
-    return () => {
-      document.removeEventListener('click', handleDocumentInteraction, { capture: true });
-      document.removeEventListener('touchstart', handleDocumentInteraction, { capture: true });
-      document.removeEventListener('keydown', handleDocumentInteraction, { capture: true });
-    };
-  }, [getGalleryMuxPlayer]);
-
-  // Auto-play attempt when video becomes visible (transition phase)
-  useEffect(() => {
-    if (animationPhase === 'transition' && galleryVideoConfig) {
-      // Small delay to let MuxPlayer mount
-      const timer = setTimeout(attemptGalleryPlay, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [animationPhase, galleryVideoConfig, attemptGalleryPlay]);
-  // ========== END CLICK ANYWHERE ==========
+  // Video playback now handled by GalleryVideoPlayer component
 
   // Start transition after celebration phase (2 seconds)
   useEffect(() => {
@@ -4353,32 +4286,11 @@ const SuccessBlock: React.FC<{
               }}
             />
 
-            {/* Full-width Video Container - Using MuxPlayer to prevent download issues */}
-            <div
-              ref={galleryVideoRef}
-              className="relative aspect-video w-full
-              bg-gradient-to-br from-gray-900/95 to-black/95
-              backdrop-blur-xl backdrop-saturate-150
-              rounded-3xl overflow-hidden
-              border border-white/10 dark:border-gray-800/50
-              shadow-2xl shadow-purple-500/20">
-              <MuxPlayer
-                playbackId={galleryVideoConfig.muxPlaybackId}
-                streamType="on-demand"
-                autoPlay={true}
-                muted={false}
-                playsInline
-                style={{
-                  width: '100%',
-                  height: '100%',
-                } as any}
-                className="absolute inset-0 w-full h-full"
-                metadata={{
-                  video_title: galleryVideoConfig.title,
-                  video_series: "CryptoGift Educational"
-                }}
-              />
-            </div>
+            {/* Full-featured Video Player with sticky mode, gestures, and controls */}
+            <GalleryVideoPlayerEN
+              muxPlaybackId={galleryVideoConfig.muxPlaybackId}
+              title={galleryVideoConfig.title}
+            />
           </div>
         )}
       </motion.div>
