@@ -1413,17 +1413,13 @@
           "title": "Community Driven",
           "description": "Governed entirely by our community. 1 CGC = 1 Vote. Your participation shapes the future of CryptoGift."
         },
-        "predictions": {
-          "title": "Prediction Markets",
-          "description": "Harness collective intelligence with our CPMM-powered markets. Predict outcomes, win rewards, all secured by Gnosis Safe custody."
-        },
         "laboratory": {
           "title": "Innovation Laboratory",
           "description": "A factory of useful products. Dozens of tools in continuous development that will complete the ecosystem into something extraordinary."
         },
         "competitions": {
           "title": "Gamified Competitions",
-          "description": "6 types of competitions that transform everyday life: tournaments, challenges, milestones, rankings, pools and more. Compete, have fun, earn."
+          "description": "32 models that will be incorporated into the system, transforming everyday life: tournaments, challenges, milestones, rankings, pools and more. Compete, have fun, earn."
         }
       },
       "stats": {

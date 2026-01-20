@@ -89,20 +89,32 @@ export default function DocsPage() {
   const tabParam = searchParams.get('tab');
   const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'aboutus';
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [focusIndex, setFocusIndex] = useState(0);
+  const [focusIndex, setFocusIndex] = useState(5); // Start at middle for infinite loop (totalItems = 5)
 
-  // Focus areas data
+  // Focus areas data (5 areas)
   const focusAreas = [
     { key: 'emotional', icon: Heart, gradient: 'from-red-400 to-pink-500' },
     { key: 'artistic', icon: Gift, gradient: 'from-amber-400 to-orange-500' },
     { key: 'community', icon: Users, gradient: 'from-purple-400 to-indigo-500' },
-    { key: 'predictions', icon: TrendingUp, gradient: 'from-blue-400 to-cyan-500' },
     { key: 'laboratory', icon: Lightbulb, gradient: 'from-green-400 to-emerald-500' },
     { key: 'competitions', icon: Trophy, gradient: 'from-yellow-400 to-amber-500' },
   ];
 
-  const nextFocus = () => setFocusIndex((prev) => (prev + 1) % focusAreas.length);
-  const prevFocus = () => setFocusIndex((prev) => (prev - 1 + focusAreas.length) % focusAreas.length);
+  // Infinite carousel: duplicate items for seamless loop
+  const extendedFocusAreas = [...focusAreas, ...focusAreas, ...focusAreas];
+  const totalItems = focusAreas.length;
+
+  const nextFocus = () => setFocusIndex((prev) => prev + 1);
+  const prevFocus = () => setFocusIndex((prev) => prev - 1);
+
+  // Reset to middle when reaching edges (for infinite loop effect)
+  useEffect(() => {
+    if (focusIndex >= totalItems * 2) {
+      setTimeout(() => setFocusIndex(totalItems), 0);
+    } else if (focusIndex < 0) {
+      setTimeout(() => setFocusIndex(totalItems - 1), 0);
+    }
+  }, [focusIndex, totalItems]);
 
   // Update tab when URL query param changes
   useEffect(() => {
@@ -347,81 +359,77 @@ export default function DocsPage() {
                 </Card>
               </div>
 
-              {/* Focus Areas - Carousel */}
-              <Card className="glass-panel overflow-hidden">
-                <CardHeader className="text-center pb-2">
-                  <CardTitle className="text-2xl text-gray-900 dark:text-white">
-                    {t('aboutus.focus.title')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="relative">
-                    {/* Carousel navigation buttons */}
-                    <button
-                      onClick={prevFocus}
-                      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 backdrop-blur-sm"
-                      aria-label="Previous"
-                    >
-                      <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                    </button>
-                    <button
-                      onClick={nextFocus}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 backdrop-blur-sm"
-                      aria-label="Next"
-                    >
-                      <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                    </button>
+              {/* Focus Areas - Infinite Carousel showing 3 cards */}
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center">
+                  {t('aboutus.focus.title')}
+                </h2>
+                <div className="relative">
+                  {/* Carousel navigation buttons */}
+                  <button
+                    onClick={prevFocus}
+                    className="absolute -left-4 md:left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 backdrop-blur-sm"
+                    aria-label="Previous"
+                  >
+                    <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                  </button>
+                  <button
+                    onClick={nextFocus}
+                    className="absolute -right-4 md:right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 backdrop-blur-sm"
+                    aria-label="Next"
+                  >
+                    <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                  </button>
 
-                    {/* Carousel container */}
-                    <div className="overflow-hidden px-8">
-                      <div
-                        className="flex transition-transform duration-500 ease-out"
-                        style={{ transform: `translateX(-${focusIndex * 100}%)` }}
-                      >
-                        {focusAreas.map((area) => {
-                          const Icon = area.icon;
-                          return (
-                            <div
-                              key={area.key}
-                              className="w-full flex-shrink-0 px-4"
-                            >
-                              <div className="glass-bubble rounded-xl p-8 text-center shadow-2xl shadow-black/20 dark:shadow-black/40 hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1">
-                                <div className="flex justify-center mb-6">
-                                  <div className={`p-4 rounded-full bg-gradient-to-br ${area.gradient} shadow-lg`}>
-                                    <Icon className="h-10 w-10 text-white" />
-                                  </div>
+                  {/* Carousel container - shows 3 cards at a time */}
+                  <div className="overflow-hidden mx-8 md:mx-12">
+                    <div
+                      className="flex transition-transform duration-500 ease-out"
+                      style={{ transform: `translateX(-${(focusIndex + totalItems) * (100 / 3)}%)` }}
+                    >
+                      {extendedFocusAreas.map((area, idx) => {
+                        const Icon = area.icon;
+                        return (
+                          <div
+                            key={`${area.key}-${idx}`}
+                            className="w-1/3 flex-shrink-0 px-2 md:px-3"
+                          >
+                            <div className="glass-bubble rounded-[2rem] p-6 md:p-8 text-center h-full flex flex-col items-center justify-start">
+                              <div className="flex justify-center mb-4">
+                                <div className={`p-3 md:p-4 rounded-full bg-gradient-to-br ${area.gradient} shadow-lg`}>
+                                  <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                                  {t(`aboutus.focus.${area.key}.title`)}
-                                </h3>
-                                <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                                  {t(`aboutus.focus.${area.key}.description`)}
-                                </p>
                               </div>
+                              <h3 className="text-sm md:text-lg font-bold text-gray-900 dark:text-white mb-2">
+                                {t(`aboutus.focus.${area.key}.title`)}
+                              </h3>
+                              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                {t(`aboutus.focus.${area.key}.description`)}
+                              </p>
                             </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Dots indicator */}
-                    <div className="flex justify-center gap-2 mt-6">
-                      {focusAreas.map((area, index) => (
-                        <button
-                          key={area.key}
-                          onClick={() => setFocusIndex(index)}
-                          className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                            index === focusIndex
-                              ? 'bg-purple-500 w-8'
-                              : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
-                          }`}
-                          aria-label={`Go to slide ${index + 1}`}
-                        />
-                      ))}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+
+                  {/* Dots indicator */}
+                  <div className="flex justify-center gap-2 mt-6">
+                    {focusAreas.map((area, index) => (
+                      <button
+                        key={area.key}
+                        onClick={() => setFocusIndex(index)}
+                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                          (focusIndex % totalItems + totalItems) % totalItems === index
+                            ? 'bg-purple-500 w-8'
+                            : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                        }`}
+                        aria-label={`Go to slide ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
 
               {/* Journey Stats */}
               <Card className="glass-crystal border border-emerald-500/20">

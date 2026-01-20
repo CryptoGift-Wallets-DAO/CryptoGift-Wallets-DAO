@@ -1522,17 +1522,13 @@
           "title": "Impulsado por la Comunidad",
           "description": "Gobernado completamente por nuestra comunidad. 1 CGC = 1 Voto. Tu participación moldea el futuro de CryptoGift."
         },
-        "predictions": {
-          "title": "Mercados Predictivos",
-          "description": "Aprovecha la inteligencia colectiva con mercados CPMM. Predice resultados, gana recompensas, todo asegurado por custodia Gnosis Safe."
-        },
         "laboratory": {
           "title": "Laboratorio de Innovación",
           "description": "Una fábrica de productos útiles. Decenas de herramientas en desarrollo continuo que completarán el ecosistema en algo extraordinario."
         },
         "competitions": {
           "title": "Competencias Gamificadas",
-          "description": "6 tipos de competencias que transforman la vida diaria: torneos, desafíos, milestones, rankings, pools y más. Compite, diviértete, gana."
+          "description": "32 modelos que se irán incorporando al sistema, transformando la vida diaria: torneos, desafíos, milestones, rankings, pools y más. Compite, diviértete, gana."
         }
       },
       "stats": {
