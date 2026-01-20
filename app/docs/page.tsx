@@ -37,13 +37,16 @@ import {
   Mail,
   Twitter,
   ChevronRight,
+  ChevronLeft,
   Copy,
   Download,
   TrendingUp,
   Link2,
   Heart,
   Sparkles,
-  Gift
+  Gift,
+  Lightbulb,
+  Trophy
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -86,6 +89,20 @@ export default function DocsPage() {
   const tabParam = searchParams.get('tab');
   const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'aboutus';
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [focusIndex, setFocusIndex] = useState(0);
+
+  // Focus areas data
+  const focusAreas = [
+    { key: 'emotional', icon: Heart, gradient: 'from-red-400 to-pink-500' },
+    { key: 'artistic', icon: Gift, gradient: 'from-amber-400 to-orange-500' },
+    { key: 'community', icon: Users, gradient: 'from-purple-400 to-indigo-500' },
+    { key: 'predictions', icon: TrendingUp, gradient: 'from-blue-400 to-cyan-500' },
+    { key: 'laboratory', icon: Lightbulb, gradient: 'from-green-400 to-emerald-500' },
+    { key: 'competitions', icon: Trophy, gradient: 'from-yellow-400 to-amber-500' },
+  ];
+
+  const nextFocus = () => setFocusIndex((prev) => (prev + 1) % focusAreas.length);
+  const prevFocus = () => setFocusIndex((prev) => (prev - 1 + focusAreas.length) % focusAreas.length);
 
   // Update tab when URL query param changes
   useEffect(() => {
@@ -330,58 +347,77 @@ export default function DocsPage() {
                 </Card>
               </div>
 
-              {/* Focus Areas */}
-              <Card className="glass-panel">
+              {/* Focus Areas - Carousel */}
+              <Card className="glass-panel overflow-hidden">
                 <CardHeader className="text-center pb-2">
                   <CardTitle className="text-2xl text-gray-900 dark:text-white">
                     {t('aboutus.focus.title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-3 gap-6">
-                    {/* Emotional Onboarding */}
-                    <div className="glass-bubble rounded-xl p-6 text-center hover:scale-105 transition-transform duration-300">
-                      <div className="flex justify-center mb-4">
-                        <div className="p-3 rounded-full bg-gradient-to-br from-red-400 to-pink-500">
-                          <Heart className="h-8 w-8 text-white" />
-                        </div>
+                  <div className="relative">
+                    {/* Carousel navigation buttons */}
+                    <button
+                      onClick={prevFocus}
+                      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 backdrop-blur-sm"
+                      aria-label="Previous"
+                    >
+                      <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                    </button>
+                    <button
+                      onClick={nextFocus}
+                      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 backdrop-blur-sm"
+                      aria-label="Next"
+                    >
+                      <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                    </button>
+
+                    {/* Carousel container */}
+                    <div className="overflow-hidden px-8">
+                      <div
+                        className="flex transition-transform duration-500 ease-out"
+                        style={{ transform: `translateX(-${focusIndex * 100}%)` }}
+                      >
+                        {focusAreas.map((area) => {
+                          const Icon = area.icon;
+                          return (
+                            <div
+                              key={area.key}
+                              className="w-full flex-shrink-0 px-4"
+                            >
+                              <div className="glass-bubble rounded-xl p-8 text-center shadow-2xl shadow-black/20 dark:shadow-black/40 hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1">
+                                <div className="flex justify-center mb-6">
+                                  <div className={`p-4 rounded-full bg-gradient-to-br ${area.gradient} shadow-lg`}>
+                                    <Icon className="h-10 w-10 text-white" />
+                                  </div>
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                                  {t(`aboutus.focus.${area.key}.title`)}
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                                  {t(`aboutus.focus.${area.key}.description`)}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                        {t('aboutus.focus.emotional.title')}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {t('aboutus.focus.emotional.description')}
-                      </p>
                     </div>
 
-                    {/* Artistic Gifts */}
-                    <div className="glass-bubble rounded-xl p-6 text-center hover:scale-105 transition-transform duration-300">
-                      <div className="flex justify-center mb-4">
-                        <div className="p-3 rounded-full bg-gradient-to-br from-amber-400 to-orange-500">
-                          <Gift className="h-8 w-8 text-white" />
-                        </div>
-                      </div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                        {t('aboutus.focus.artistic.title')}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {t('aboutus.focus.artistic.description')}
-                      </p>
-                    </div>
-
-                    {/* Community Driven */}
-                    <div className="glass-bubble rounded-xl p-6 text-center hover:scale-105 transition-transform duration-300">
-                      <div className="flex justify-center mb-4">
-                        <div className="p-3 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500">
-                          <Users className="h-8 w-8 text-white" />
-                        </div>
-                      </div>
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                        {t('aboutus.focus.community.title')}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {t('aboutus.focus.community.description')}
-                      </p>
+                    {/* Dots indicator */}
+                    <div className="flex justify-center gap-2 mt-6">
+                      {focusAreas.map((area, index) => (
+                        <button
+                          key={area.key}
+                          onClick={() => setFocusIndex(index)}
+                          className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                            index === focusIndex
+                              ? 'bg-purple-500 w-8'
+                              : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                          }`}
+                          aria-label={`Go to slide ${index + 1}`}
+                        />
+                      ))}
                     </div>
                   </div>
                 </CardContent>
@@ -397,19 +433,19 @@ export default function DocsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
+                    <div className="text-center p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 shadow-lg shadow-emerald-500/20 dark:shadow-emerald-500/10 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-1 transition-all duration-300 border border-emerald-200/50 dark:border-emerald-500/20">
                       <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">104+</div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">{t('aboutus.stats.daysActive')}</div>
                     </div>
-                    <div className="text-center p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+                    <div className="text-center p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 shadow-lg shadow-blue-500/20 dark:shadow-blue-500/10 hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-1 transition-all duration-300 border border-blue-200/50 dark:border-blue-500/20">
                       <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">85.7%</div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">{t('aboutus.stats.claimRate')}</div>
                     </div>
-                    <div className="text-center p-4 rounded-xl bg-purple-50 dark:bg-purple-900/20">
+                    <div className="text-center p-4 rounded-xl bg-purple-50 dark:bg-purple-900/20 shadow-lg shadow-purple-500/20 dark:shadow-purple-500/10 hover:shadow-xl hover:shadow-purple-500/30 hover:-translate-y-1 transition-all duration-300 border border-purple-200/50 dark:border-purple-500/20">
                       <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">0</div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">{t('aboutus.stats.criticalBugs')}</div>
                     </div>
-                    <div className="text-center p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 col-span-2 md:col-span-1">
+                    <div className="text-center p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 col-span-2 md:col-span-1 shadow-lg shadow-amber-500/20 dark:shadow-amber-500/10 hover:shadow-xl hover:shadow-amber-500/30 hover:-translate-y-1 transition-all duration-300 border border-amber-200/50 dark:border-amber-500/20">
                       <div className="text-xl font-bold text-amber-600 dark:text-amber-400">Base L2</div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">{t('aboutus.stats.network')}</div>
                     </div>
