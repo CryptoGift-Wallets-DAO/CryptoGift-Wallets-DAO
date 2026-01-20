@@ -596,7 +596,7 @@ export default function LandingPage() {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              href="#video-section"
+              href="/docs"
               className="inline-flex items-center gap-2 px-8 py-3.5 bg-white/70 dark:bg-white/10 backdrop-blur-sm rounded-lg font-semibold text-gray-700 dark:text-white border border-gray-200 dark:border-white/20 hover:bg-white dark:hover:bg-white/20 transition-all hover:scale-105"
             >
               <BookOpen className="w-5 h-5" />
