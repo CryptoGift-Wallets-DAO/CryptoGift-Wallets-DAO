@@ -25,7 +25,6 @@ import { ProfileFullCard } from '@/components/profile/ProfileFullCard';
 import { useDashboardStats } from '@/lib/web3/hooks';
 import { useAccount } from '@/lib/thirdweb';
 import { useTrackReferralClick } from '@/hooks/useReferrals';
-import { TeamSection } from '@/components/apex';
 import {
   Wallet,
   Gift,
@@ -624,12 +623,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      <TeamSection
-        badge={t('team.badge')}
-        title={t('team.title')}
-        subtitle={t('team.subtitle')}
-      />
 
       <Footer />
 
