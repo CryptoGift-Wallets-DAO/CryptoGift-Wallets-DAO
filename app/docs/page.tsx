@@ -40,7 +40,10 @@ import {
   Copy,
   Download,
   TrendingUp,
-  Link2
+  Link2,
+  Heart,
+  Sparkles,
+  Gift
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -74,14 +77,14 @@ const CAPS = [
 ];
 
 // Valid tab values for URL query params
-const VALID_TABS = ['whitepaper', 'tokenomics', 'contracts', 'governance', 'roadmap', 'verification'];
+const VALID_TABS = ['aboutus', 'whitepaper', 'tokenomics', 'contracts', 'governance', 'roadmap', 'verification'];
 
 export default function DocsPage() {
   const t = useTranslations('docs');
   const tLanding = useTranslations('landing');
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'whitepaper';
+  const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'aboutus';
   const [activeTab, setActiveTab] = useState(initialTab);
 
   // Update tab when URL query param changes
@@ -222,6 +225,10 @@ export default function DocsPage() {
           {/* Navigation Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
             <TabsList className="glass-panel p-1 flex w-full overflow-x-auto scrollbar-hide gap-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <TabsTrigger value="aboutus" className="data-[state=active]:glass-bubble flex-shrink-0 whitespace-nowrap">
+                <Heart className="h-4 w-4 mr-2" />
+                {t('nav.aboutus')}
+              </TabsTrigger>
               <TabsTrigger value="whitepaper" className="data-[state=active]:glass-bubble flex-shrink-0 whitespace-nowrap">
                 <FileText className="h-4 w-4 mr-2" />
                 {t('nav.whitepaper')}
@@ -247,6 +254,176 @@ export default function DocsPage() {
                 {t('nav.verification')}
               </TabsTrigger>
             </TabsList>
+
+            {/* About Us Tab */}
+            <TabsContent value="aboutus" className="space-y-8">
+              {/* Hero Section */}
+              <div className="glass-crystal rounded-2xl p-8 md:p-12 border border-purple-500/20 relative overflow-hidden">
+                {/* Decorative background elements */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5" />
+                <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl" />
+
+                <div className="relative z-10 text-center max-w-4xl mx-auto">
+                  <div className="flex justify-center mb-6">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30">
+                      <Sparkles className="h-12 w-12 text-purple-500 dark:text-purple-400" />
+                    </div>
+                  </div>
+
+                  <Badge className="mb-4 bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30 hover:bg-purple-500/20">
+                    {t('aboutus.subtitle')}
+                  </Badge>
+
+                  <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 bg-gradient-to-r from-purple-600 via-pink-500 to-amber-500 bg-clip-text text-transparent">
+                    {t('aboutus.title')}
+                  </h1>
+
+                  <p className="text-xl md:text-2xl text-purple-700 dark:text-purple-300 font-semibold mb-6">
+                    {t('aboutus.hero.tagline')}
+                  </p>
+
+                  <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                    {t('aboutus.hero.description')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Mission & Vision */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Mission */}
+                <Card className="glass-panel border-l-4 border-l-purple-500 hover:shadow-lg transition-all duration-300">
+                  <CardHeader>
+                    <div className="flex items-center space-x-3 mb-2">
+                      <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                        <Target className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <CardTitle className="text-xl text-gray-900 dark:text-white">
+                        {t('aboutus.mission.title')}
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                      {t('aboutus.mission.content')}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Vision */}
+                <Card className="glass-panel border-l-4 border-l-pink-500 hover:shadow-lg transition-all duration-300">
+                  <CardHeader>
+                    <div className="flex items-center space-x-3 mb-2">
+                      <div className="p-2 rounded-lg bg-pink-100 dark:bg-pink-900/30">
+                        <Globe className="h-6 w-6 text-pink-600 dark:text-pink-400" />
+                      </div>
+                      <CardTitle className="text-xl text-gray-900 dark:text-white">
+                        {t('aboutus.vision.title')}
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                      {t('aboutus.vision.content')}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Focus Areas */}
+              <Card className="glass-panel">
+                <CardHeader className="text-center pb-2">
+                  <CardTitle className="text-2xl text-gray-900 dark:text-white">
+                    {t('aboutus.focus.title')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {/* Emotional Onboarding */}
+                    <div className="glass-bubble rounded-xl p-6 text-center hover:scale-105 transition-transform duration-300">
+                      <div className="flex justify-center mb-4">
+                        <div className="p-3 rounded-full bg-gradient-to-br from-red-400 to-pink-500">
+                          <Heart className="h-8 w-8 text-white" />
+                        </div>
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                        {t('aboutus.focus.emotional.title')}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {t('aboutus.focus.emotional.description')}
+                      </p>
+                    </div>
+
+                    {/* Artistic Gifts */}
+                    <div className="glass-bubble rounded-xl p-6 text-center hover:scale-105 transition-transform duration-300">
+                      <div className="flex justify-center mb-4">
+                        <div className="p-3 rounded-full bg-gradient-to-br from-amber-400 to-orange-500">
+                          <Gift className="h-8 w-8 text-white" />
+                        </div>
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                        {t('aboutus.focus.artistic.title')}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {t('aboutus.focus.artistic.description')}
+                      </p>
+                    </div>
+
+                    {/* Community Driven */}
+                    <div className="glass-bubble rounded-xl p-6 text-center hover:scale-105 transition-transform duration-300">
+                      <div className="flex justify-center mb-4">
+                        <div className="p-3 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500">
+                          <Users className="h-8 w-8 text-white" />
+                        </div>
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                        {t('aboutus.focus.community.title')}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {t('aboutus.focus.community.description')}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Journey Stats */}
+              <Card className="glass-crystal border border-emerald-500/20">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl text-gray-900 dark:text-white flex items-center justify-center gap-2">
+                    <TrendingUp className="h-6 w-6 text-emerald-500" />
+                    {t('aboutus.stats.title')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
+                      <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">104+</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">{t('aboutus.stats.daysActive')}</div>
+                    </div>
+                    <div className="text-center p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+                      <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">85.7%</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">{t('aboutus.stats.claimRate')}</div>
+                    </div>
+                    <div className="text-center p-4 rounded-xl bg-purple-50 dark:bg-purple-900/20">
+                      <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">0</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">{t('aboutus.stats.criticalBugs')}</div>
+                    </div>
+                    <div className="text-center p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 col-span-2 md:col-span-1">
+                      <div className="text-xl font-bold text-amber-600 dark:text-amber-400">Base L2</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">{t('aboutus.stats.network')}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Top Contributors */}
+              <TeamSection
+                badge={t('aboutus.team.badge')}
+                title={t('aboutus.team.title')}
+                subtitle={t('aboutus.team.subtitle')}
+              />
+            </TabsContent>
 
             {/* Whitepaper Tab */}
             <TabsContent value="whitepaper" className="space-y-6">

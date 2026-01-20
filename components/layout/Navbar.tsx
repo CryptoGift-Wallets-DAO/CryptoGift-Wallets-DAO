@@ -130,7 +130,7 @@ export const Navbar: React.FC = () => {
               href="/docs"
               className="text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors text-sm font-bold px-2"
             >
-              {t('docs')}
+              {t('aboutUs')}
             </Link>
 
             {/* Separator */}
@@ -227,7 +227,7 @@ export const Navbar: React.FC = () => {
                 className="block text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-slate-300 transition-colors px-4 py-3 font-bold text-base"
                 onClick={() => setIsMenuOpen(false)}
               >
-                {t('docs')}
+                {t('aboutUs')}
               </Link>
 
               {/* Mobile Separator */}

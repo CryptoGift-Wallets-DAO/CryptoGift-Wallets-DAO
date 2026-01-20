@@ -198,7 +198,7 @@
     "apex": "apeX",
     "apexAssistant": "Asistente apeX",
     "funding": "Financiamiento",
-    "docs": "Docs",
+    "aboutUs": "Nosotros",
     "admin": "Admin",
     "settings": "Configuración"
   },
@@ -1485,12 +1485,56 @@
     "title": "Documentación",
     "subtitle": "Documentación técnica completa del ecosistema CryptoGift Wallets DAO",
     "nav": {
+      "aboutus": "Nosotros",
       "whitepaper": "Whitepaper",
       "tokenomics": "Tokenomics",
       "contracts": "Smart Contracts",
       "governance": "Gobernanza",
       "roadmap": "Roadmap",
       "verification": "Verificación del Token"
+    },
+    "aboutus": {
+      "title": "Sobre CryptoGift DAO",
+      "subtitle": "Un Laboratorio de Creación Web3",
+      "hero": {
+        "tagline": "De Cero a Web3 — Juntos",
+        "description": "Somos una organización autónoma descentralizada dedicada a hacer Web3 accesible a través de experiencias emocionales y regalos artísticos."
+      },
+      "mission": {
+        "title": "Nuestra Misión",
+        "content": "Democratizar el acceso a Web3 mediante un sistema donde completar quests educativos genera tokens de gobernanza, convirtiendo el esfuerzo de aprendizaje en voz y voto en el futuro del protocolo."
+      },
+      "vision": {
+        "title": "Nuestra Visión",
+        "content": "Convertirnos en la puerta de entrada principal para Web3, donde cada nuevo miembro comienza su viaje a través de experiencias significativas y emocionales que transforman tecnología compleja en hermosos regalos."
+      },
+      "focus": {
+        "title": "Nuestras Áreas de Enfoque",
+        "emotional": {
+          "title": "Onboarding Emocional",
+          "description": "Creemos que la primera experiencia con Web3 debe ser emocional, no técnica. Nuestras NFT-wallets se sienten como regalos, no como software complejo."
+        },
+        "artistic": {
+          "title": "Regalos Artísticos",
+          "description": "Cada interacción está diseñada con intención artística. Desde avatares personalizados hasta experiencias únicas, la belleza guía nuestra creación."
+        },
+        "community": {
+          "title": "Impulsado por la Comunidad",
+          "description": "Gobernado completamente por nuestra comunidad. 1 CGC = 1 Voto. Tu participación moldea el futuro de CryptoGift."
+        }
+      },
+      "stats": {
+        "title": "Nuestro Viaje",
+        "daysActive": "Días Activos",
+        "claimRate": "Tasa de Éxito",
+        "criticalBugs": "Bugs Críticos",
+        "network": "Construido en Base (Ethereum L2)"
+      },
+      "team": {
+        "badge": "Nuestro Equipo",
+        "title": "Top Contributors",
+        "subtitle": "Los visionarios construyendo el futuro de los regalos Web3"
+      }
     },
     "whitepaper": {
       "title": "Whitepaper v1.2",
