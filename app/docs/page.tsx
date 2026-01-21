@@ -165,6 +165,10 @@ export default function DocsPage() {
   const touchStartY = useRef<number | null>(null);
   const isScrolling = useRef<boolean | null>(null);
 
+  // Mouse drag handlers for PC
+  const mouseStartX = useRef<number | null>(null);
+  const isDragging = useRef<boolean>(false);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
@@ -208,6 +212,43 @@ export default function DocsPage() {
     touchStartX.current = null;
     touchStartY.current = null;
     isScrolling.current = null;
+  };
+
+  // Mouse drag handlers for PC - click and drag to move carousel
+  const handleMouseDown = (e: React.MouseEvent) => {
+    mouseStartX.current = e.clientX;
+    isDragging.current = true;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || mouseStartX.current === null) return;
+    // Visual feedback while dragging (cursor changes via CSS)
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!isDragging.current || mouseStartX.current === null) {
+      isDragging.current = false;
+      mouseStartX.current = null;
+      return;
+    }
+
+    const deltaX = e.clientX - mouseStartX.current;
+    const threshold = 50; // Minimum drag distance
+
+    if (deltaX > threshold) {
+      prevFocus();
+    } else if (deltaX < -threshold) {
+      nextFocus();
+    }
+
+    isDragging.current = false;
+    mouseStartX.current = null;
+  };
+
+  const handleMouseLeave = () => {
+    // Cancel drag if mouse leaves carousel area
+    isDragging.current = false;
+    mouseStartX.current = null;
   };
 
   // Wheel scroll handler - needs native event listener for passive: false
@@ -567,7 +608,7 @@ export default function DocsPage() {
                   {/* Carousel container - shows 3 cards at a time */}
                   <div
                     ref={wheelContainerRef}
-                    className="overflow-hidden cursor-grab active:cursor-grabbing touch-pan-y"
+                    className="overflow-x-hidden cursor-grab active:cursor-grabbing touch-pan-y"
                     style={{ overscrollBehaviorX: 'contain' }}
                     onTouchStart={(e) => {
                       handleTouchStart(e);
@@ -578,6 +619,10 @@ export default function DocsPage() {
                       handleTouchEnd(e);
                       handleCarouselTouchEnd();
                     }}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseLeave}
                   >
                     <div
                       ref={carouselRef}
