@@ -90,6 +90,7 @@ export default function DocsPage() {
   const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'aboutus';
   const [activeTab, setActiveTab] = useState(initialTab);
   // Focus areas data (5 areas) - with optional background images and custom stickers
+  // Each area has a thematic title color with UV glow effect
   const focusAreas = [
     {
       key: 'emotional',
@@ -97,6 +98,9 @@ export default function DocsPage() {
       gradient: 'from-red-400 to-pink-500',
       bgImage: '/focus-areas/emocional.jpg',
       stickerImage: '/focus-areas/corazon.png',
+      stickerScale: 1.35, // Scale up to match DAO logo visual size
+      titleColor: '#FF6B9D', // Pink/Rose - emotions, heart
+      titleGlow: 'rgba(255,107,157,0.8), rgba(255,20,147,0.5)', // Pink glow
     },
     {
       key: 'artistic',
@@ -104,6 +108,9 @@ export default function DocsPage() {
       gradient: 'from-amber-400 to-orange-500',
       bgImage: '/focus-areas/galeria.jpg',
       stickerImage: '/farcaster-icon-1024.png',
+      stickerScale: 1.45, // Scale up more (smallest original)
+      titleColor: '#00E5FF', // Cyan/Turquoise - creativity, gifts
+      titleGlow: 'rgba(0,229,255,0.8), rgba(0,188,212,0.5)', // Cyan glow
     },
     {
       key: 'community',
@@ -111,9 +118,24 @@ export default function DocsPage() {
       gradient: 'from-purple-400 to-indigo-500',
       bgImage: '/focus-areas/community.jpg',
       stickerImage: '/focus-areas/dao-logo.png',
+      stickerScale: 1.0, // Reference size (largest visual)
+      titleColor: '#A855F7', // Purple - community, DAO
+      titleGlow: 'rgba(168,85,247,0.8), rgba(139,92,246,0.5)', // Purple glow
     },
-    { key: 'laboratory', icon: Lightbulb, gradient: 'from-green-400 to-emerald-500' },
-    { key: 'competitions', icon: Trophy, gradient: 'from-yellow-400 to-amber-500' },
+    {
+      key: 'laboratory',
+      icon: Lightbulb,
+      gradient: 'from-green-400 to-emerald-500',
+      titleColor: '#22C55E', // Green - innovation, experiments
+      titleGlow: 'rgba(34,197,94,0.8), rgba(16,185,129,0.5)', // Green glow
+    },
+    {
+      key: 'competitions',
+      icon: Trophy,
+      gradient: 'from-yellow-400 to-amber-500',
+      titleColor: '#FFD700', // Gold - trophies, victories
+      titleGlow: 'rgba(255,215,0,0.8), rgba(255,165,0,0.5)', // Gold glow
+    },
   ];
 
   const totalItems = focusAreas.length;
@@ -695,7 +717,7 @@ export default function DocsPage() {
                                 {/* Layer 6: Content container - centered */}
                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-3 md:p-5 text-center">
 
-                                  {/* Sticker - LARGER with real 3D perspective */}
+                                  {/* Sticker - with dynamic scale for visual size matching */}
                                   {hasSticker && (
                                     <div
                                       className="relative mb-2 md:mb-3 transform group-hover:scale-105 transition-transform duration-300"
@@ -707,7 +729,7 @@ export default function DocsPage() {
                                       <div
                                         className="relative w-20 h-20 md:w-24 md:h-24"
                                         style={{
-                                          transform: 'rotateX(-5deg) rotateY(5deg) translateZ(10px)',
+                                          transform: `rotateX(-5deg) rotateY(5deg) translateZ(10px) scale(${'stickerScale' in area ? area.stickerScale : 1})`,
                                           filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.5))',
                                         }}
                                       >
@@ -723,12 +745,12 @@ export default function DocsPage() {
                                     </div>
                                   )}
 
-                                  {/* Title - Golden glow, artistic but clean */}
+                                  {/* Title - Thematic color with UV glow effect */}
                                   <h3
                                     className="text-sm md:text-base font-black uppercase tracking-wider mb-2 md:mb-3"
                                     style={{
-                                      color: '#FFD700',
-                                      textShadow: '0 0 10px rgba(255,215,0,0.8), 0 0 20px rgba(255,165,0,0.5), 2px 2px 4px rgba(0,0,0,0.9)',
+                                      color: 'titleColor' in area ? area.titleColor as string : '#FFD700',
+                                      textShadow: `0 0 10px ${'titleGlow' in area ? (area.titleGlow as string).split(', ')[0] : 'rgba(255,215,0,0.8)'}, 0 0 20px ${'titleGlow' in area ? (area.titleGlow as string).split(', ')[1] : 'rgba(255,165,0,0.5)'}, 2px 2px 4px rgba(0,0,0,0.9)`,
                                     }}
                                   >
                                     {t(`aboutus.focus.${area.key}.title`)}
