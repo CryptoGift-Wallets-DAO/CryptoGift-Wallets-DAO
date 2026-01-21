@@ -111,7 +111,13 @@ export default function DocsPage() {
   const extendedFocusAreas = [...focusAreas, ...focusAreas, ...focusAreas];
   const [focusIndex, setFocusIndex] = useState(totalItems); // Start at middle copy
   const [isTransitionEnabled, setIsTransitionEnabled] = useState(true);
+  const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(new Set());
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Handle image load errors - fallback to standard card design
+  const handleImageError = (areaKey: string) => {
+    setImageLoadErrors((prev) => new Set(prev).add(areaKey));
+  };
 
   const nextFocus = () => setFocusIndex((prev) => prev + 1);
   const prevFocus = () => setFocusIndex((prev) => prev - 1);
@@ -571,8 +577,9 @@ export default function DocsPage() {
                     >
                       {extendedFocusAreas.map((area, idx) => {
                         const Icon = area.icon;
-                        const hasBgImage = 'bgImage' in area && area.bgImage;
-                        const hasSticker = 'stickerImage' in area && area.stickerImage;
+                        // Check if image exists AND hasn't errored - fallback to standard if error
+                        const hasBgImage = 'bgImage' in area && area.bgImage && !imageLoadErrors.has(area.key);
+                        const hasSticker = 'stickerImage' in area && area.stickerImage && !imageLoadErrors.has(area.key);
 
                         return (
                           <div
@@ -589,6 +596,7 @@ export default function DocsPage() {
                                   fill
                                   className="object-cover"
                                   sizes="(max-width: 768px) 33vw, 25vw"
+                                  onError={() => handleImageError(area.key)}
                                 />
 
                                 {/* Glass overlay with gradient for readability */}
@@ -609,6 +617,7 @@ export default function DocsPage() {
                                           fill
                                           className="object-contain"
                                           sizes="80px"
+                                          onError={() => handleImageError(area.key)}
                                         />
                                       </div>
                                     </div>
