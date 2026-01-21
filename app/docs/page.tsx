@@ -117,8 +117,8 @@ export default function DocsPage() {
       icon: Users,
       gradient: 'from-purple-400 to-indigo-500',
       bgImage: '/focus-areas/community.jpg',
-      stickerImage: '/focus-areas/dao-logo.png',
-      stickerScale: 1.0, // Reference size (largest visual)
+      stickerImage: '/focus-areas/gift-gold-shine.png', // Gold shiny gift box
+      stickerScale: 1.35, // Match other gift stickers
       titleColor: '#A855F7', // Purple - community, DAO
       titleGlow: 'rgba(168,85,247,0.8), rgba(139,92,246,0.5)', // Purple glow
     },
@@ -127,8 +127,8 @@ export default function DocsPage() {
       icon: Lightbulb,
       gradient: 'from-green-400 to-emerald-500',
       bgImage: '/focus-areas/laboratory.jpg',
-      stickerImage: '/focus-areas/lab-logo.png',
-      stickerScale: 1.2, // Adjust for visual balance
+      stickerImage: '/focus-areas/gift-green.png', // Green gift box
+      stickerScale: 1.35, // Match other gift stickers
       titleColor: '#22C55E', // Green - innovation, experiments
       titleGlow: 'rgba(34,197,94,0.8), rgba(16,185,129,0.5)', // Green glow
     },
@@ -137,8 +137,8 @@ export default function DocsPage() {
       icon: Trophy,
       gradient: 'from-yellow-400 to-amber-500',
       bgImage: '/focus-areas/competitions.jpg',
-      stickerImage: '/focus-areas/comp-logo.png',
-      stickerScale: 1.2, // Adjust for visual balance
+      stickerImage: '/focus-areas/gift-gold.png', // Gold gift box
+      stickerScale: 1.35, // Match other gift stickers
       titleColor: '#FFD700', // Gold - trophies, victories
       titleGlow: 'rgba(255,215,0,0.8), rgba(255,165,0,0.5)', // Gold glow
     },

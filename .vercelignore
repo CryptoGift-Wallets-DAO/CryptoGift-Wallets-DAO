@@ -78,11 +78,12 @@ build
 !public/focus-areas/emocional.jpg
 !public/focus-areas/galeria.jpg
 !public/focus-areas/community.jpg
-!public/focus-areas/dao-logo.png
 !public/focus-areas/laboratory.jpg
-!public/focus-areas/lab-logo.png
 !public/focus-areas/competitions.jpg
-!public/focus-areas/comp-logo.png
+# Gift box stickers (all 5 focus areas use gift boxes now)
+!public/focus-areas/gift-gold-shine.png
+!public/focus-areas/gift-green.png
+!public/focus-areas/gift-gold.png
 
 # Contracts (not needed for runtime)
 /contracts
