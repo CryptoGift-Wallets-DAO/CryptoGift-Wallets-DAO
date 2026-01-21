@@ -654,7 +654,7 @@ export default function DocsPage() {
                   >
                     <div
                       ref={carouselRef}
-                      className={`flex select-none will-change-transform pt-4 pb-10 ${
+                      className={`flex select-none will-change-transform pt-4 pb-24 ${
                         isTransitionEnabled ? 'transition-transform duration-500 ease-out' : ''
                       }`}
                       style={{ transform: `translateX(-${focusIndex * (100 / 3)}%)` }}
@@ -809,7 +809,7 @@ export default function DocsPage() {
                   </div>
 
                   {/* Dots indicator */}
-                  <div className="flex justify-center gap-2 mt-6">
+                  <div className="flex justify-center gap-2 -mt-14">
                     {focusAreas.map((area, index) => {
                       // Calculate which dot should be active (normalize to 0-4 range)
                       const normalizedIndex = ((focusIndex % totalItems) + totalItems) % totalItems;
