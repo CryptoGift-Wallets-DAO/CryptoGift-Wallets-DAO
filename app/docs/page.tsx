@@ -587,69 +587,85 @@ export default function DocsPage() {
                             className="w-1/3 flex-shrink-0 px-2 md:px-4"
                           >
                             {hasBgImage ? (
-                              /* ✨ ARTISTIC CARD with background image + sticker */
-                              <div className="relative rounded-full aspect-square overflow-hidden shadow-2xl shadow-purple-500/20 dark:shadow-purple-500/10 group">
-                                {/* Background image */}
-                                <Image
-                                  src={area.bgImage as string}
-                                  alt=""
-                                  fill
-                                  className="object-cover"
-                                  sizes="(max-width: 768px) 33vw, 25vw"
-                                  onError={() => handleImageError(area.key)}
-                                />
+                              /* ✨ ARTISTIC CARD - Image visible, text at bottom with 3D effect */
+                              <div className="relative group">
+                                {/* Main circular card */}
+                                <div className="relative rounded-full aspect-square overflow-hidden shadow-2xl shadow-purple-500/30 dark:shadow-purple-500/20">
+                                  {/* Background image - CLEAN, no text overlay */}
+                                  <Image
+                                    src={area.bgImage as string}
+                                    alt=""
+                                    fill
+                                    className="object-cover"
+                                    sizes="(max-width: 768px) 33vw, 25vw"
+                                    onError={() => handleImageError(area.key)}
+                                  />
 
-                                {/* Glass overlay with gradient for readability */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10 backdrop-blur-[1px]" />
+                                  {/* Subtle gradient only at edges for depth */}
+                                  <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/30" />
 
-                                {/* Inner glass circle effect */}
-                                <div className="absolute inset-[8%] rounded-full border border-white/20 bg-white/5 backdrop-blur-sm" />
+                                  {/* Inner glass ring effect */}
+                                  <div className="absolute inset-[6%] rounded-full border-2 border-white/20 shadow-inner" />
 
-                                {/* Content container */}
-                                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 md:p-6 text-center">
-                                  {/* Sticker - floating 3D effect */}
-                                  {hasSticker ? (
-                                    <div className="relative -mt-2 mb-2 md:mb-3 transform group-hover:scale-110 transition-transform duration-300">
-                                      <div className="relative w-14 h-14 md:w-20 md:h-20 drop-shadow-[0_8px_16px_rgba(0,0,0,0.4)]">
+                                  {/* Sticker - TOP positioned, floating above */}
+                                  {hasSticker && (
+                                    <div className="absolute top-[8%] left-1/2 -translate-x-1/2 transform group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
+                                      <div className="relative w-12 h-12 md:w-16 md:h-16 drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
                                         <Image
                                           src={area.stickerImage as string}
                                           alt=""
                                           fill
                                           className="object-contain"
-                                          sizes="80px"
+                                          sizes="64px"
                                           onError={() => handleImageError(area.key)}
                                         />
                                       </div>
                                     </div>
-                                  ) : (
-                                    <div className="flex justify-center mb-3 md:mb-4">
-                                      <div className={`p-3 md:p-4 rounded-full bg-gradient-to-br ${area.gradient} shadow-lg`}>
-                                        <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
-                                      </div>
-                                    </div>
                                   )}
 
-                                  {/* Title with text shadow for readability */}
+                                  {/* Light reflection */}
+                                  <div className="absolute top-[5%] left-[15%] w-[35%] h-[18%] bg-white/15 rounded-full blur-xl pointer-events-none" />
+                                </div>
+
+                                {/* 🎨 TEXT BANNER - Below the circle, NOT over the image */}
+                                <div className="relative -mt-4 md:-mt-6 mx-auto w-[90%] text-center z-10">
+                                  {/* Title with 3D embossed effect */}
                                   <h3
-                                    className="text-xs md:text-base font-bold text-white mb-1 md:mb-2 leading-tight"
-                                    style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.9)' }}
+                                    className="text-sm md:text-lg font-black text-white uppercase tracking-wide"
+                                    style={{
+                                      textShadow: `
+                                        0 1px 0 #ccc,
+                                        0 2px 0 #c9c9c9,
+                                        0 3px 0 #bbb,
+                                        0 4px 0 #b9b9b9,
+                                        0 5px 0 #aaa,
+                                        0 6px 1px rgba(0,0,0,.1),
+                                        0 0 5px rgba(0,0,0,.1),
+                                        0 1px 3px rgba(0,0,0,.3),
+                                        0 3px 5px rgba(0,0,0,.2),
+                                        0 5px 10px rgba(0,0,0,.25),
+                                        0 10px 10px rgba(0,0,0,.2),
+                                        0 20px 20px rgba(0,0,0,.15)
+                                      `,
+                                    }}
                                   >
                                     {t(`aboutus.focus.${area.key}.title`)}
                                   </h3>
 
-                                  {/* Description with subtle background pill */}
-                                  <div className="bg-black/40 backdrop-blur-sm rounded-xl px-2 py-1 md:px-3 md:py-1.5">
-                                    <p
-                                      className="text-[9px] md:text-xs text-white/90 leading-snug line-clamp-4"
-                                      style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
-                                    >
-                                      {t(`aboutus.focus.${area.key}.description`)}
-                                    </p>
-                                  </div>
+                                  {/* Description with subtle 3D - NO background pill */}
+                                  <p
+                                    className="text-[10px] md:text-xs text-white/95 leading-relaxed mt-1 md:mt-2 line-clamp-3 font-medium"
+                                    style={{
+                                      textShadow: `
+                                        0 1px 2px rgba(0,0,0,0.8),
+                                        0 2px 4px rgba(0,0,0,0.6),
+                                        0 4px 8px rgba(0,0,0,0.4)
+                                      `,
+                                    }}
+                                  >
+                                    {t(`aboutus.focus.${area.key}.description`)}
+                                  </p>
                                 </div>
-
-                                {/* Subtle light reflection on top */}
-                                <div className="absolute top-[5%] left-[15%] w-[30%] h-[15%] bg-white/10 rounded-full blur-xl pointer-events-none" />
                               </div>
                             ) : (
                               /* Standard glass card */
