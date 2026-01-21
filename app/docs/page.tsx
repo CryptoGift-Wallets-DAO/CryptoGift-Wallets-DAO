@@ -98,8 +98,20 @@ export default function DocsPage() {
       bgImage: '/focus-areas/emocional.jpg',
       stickerImage: '/focus-areas/corazon.png',
     },
-    { key: 'artistic', icon: Gift, gradient: 'from-amber-400 to-orange-500' },
-    { key: 'community', icon: Users, gradient: 'from-purple-400 to-indigo-500' },
+    {
+      key: 'artistic',
+      icon: Gift,
+      gradient: 'from-amber-400 to-orange-500',
+      bgImage: '/focus-areas/galeria.jpg',
+      stickerImage: '/farcaster-icon-1024.png',
+    },
+    {
+      key: 'community',
+      icon: Users,
+      gradient: 'from-purple-400 to-indigo-500',
+      bgImage: '/focus-areas/community.jpg',
+      stickerImage: '/focus-areas/dao-logo.png',
+    },
     { key: 'laboratory', icon: Lightbulb, gradient: 'from-green-400 to-emerald-500' },
     { key: 'competitions', icon: Trophy, gradient: 'from-yellow-400 to-amber-500' },
   ];

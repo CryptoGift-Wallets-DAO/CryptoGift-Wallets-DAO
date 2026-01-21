@@ -76,6 +76,9 @@ build
 # Focus Areas Images (CRITICAL for About Us carousel)
 !public/focus-areas/corazon.png
 !public/focus-areas/emocional.jpg
+!public/focus-areas/galeria.jpg
+!public/focus-areas/community.jpg
+!public/focus-areas/dao-logo.png
 
 # Contracts (not needed for runtime)
 /contracts
