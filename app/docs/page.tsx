@@ -89,6 +89,20 @@ export default function DocsPage() {
   const tabParam = searchParams.get('tab');
   const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'aboutus';
   const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Mobile detection for responsive carousel (2 cards on mobile, 3 on desktop)
+  const [isMobile, setIsMobile] = useState(false);
+  const [expandedCard, setExpandedCard] = useState<number | null>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Cards per view based on viewport
+  const cardsPerView = isMobile ? 2 : 3;
   // Focus areas data (5 areas) - with optional background images and custom stickers
   // Each area has a thematic title color with UV glow effect
   const focusAreas = [
@@ -657,7 +671,7 @@ export default function DocsPage() {
                       className={`flex select-none will-change-transform pt-4 pb-24 ${
                         isTransitionEnabled ? 'transition-transform duration-500 ease-out' : ''
                       }`}
-                      style={{ transform: `translateX(-${focusIndex * (100 / 3)}%)` }}
+                      style={{ transform: `translateX(-${focusIndex * (100 / cardsPerView)}%)` }}
                       onTransitionEnd={handleTransitionEnd}
                     >
                       {extendedFocusAreas.map((area, idx) => {
@@ -669,11 +683,14 @@ export default function DocsPage() {
                         return (
                           <div
                             key={`${area.key}-${idx}`}
-                            className="w-1/3 flex-shrink-0 px-2 md:px-4"
+                            className={`${isMobile ? 'w-1/2' : 'w-1/3'} flex-shrink-0 px-2 md:px-4`}
                           >
                             {hasBgImage ? (
                               /* ✨ CRYSTAL DISC - Artistic masterpiece with glass effect */
-                              <div className="relative rounded-full aspect-square overflow-hidden group shadow-2xl shadow-purple-500/30 dark:shadow-purple-500/20 hover:shadow-purple-500/40 transition-shadow duration-500">
+                              <div
+                                className="relative rounded-full aspect-square overflow-hidden group shadow-2xl shadow-purple-500/30 dark:shadow-purple-500/20 hover:shadow-purple-500/40 transition-shadow duration-500 cursor-pointer"
+                                onClick={() => isMobile && setExpandedCard(idx)}
+                              >
 
                                 {/* Layer 1: Background image */}
                                 <Image
@@ -833,7 +850,164 @@ export default function DocsPage() {
                       );
                     })}
                   </div>
+
+                  {/* Mobile tap hint */}
+                  {isMobile && (
+                    <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-3 animate-pulse">
+                      {t('aboutus.focus.tapToExpand')}
+                    </p>
+                  )}
                 </div>
+
+                {/* ✨ EXPANDED CARD MODAL - Artistic fullscreen view for mobile */}
+                {expandedCard !== null && (
+                  <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300"
+                    onClick={() => setExpandedCard(null)}
+                  >
+                    {(() => {
+                      const area = extendedFocusAreas[expandedCard];
+                      const hasSticker = 'stickerImage' in area && area.stickerImage;
+                      return (
+                        <div
+                          className="relative w-[85vw] max-w-[400px] aspect-square rounded-full overflow-hidden shadow-2xl shadow-purple-500/50 animate-in zoom-in-95 duration-300"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {/* Background */}
+                          {'bgImage' in area && area.bgImage && (
+                            <Image
+                              src={area.bgImage as string}
+                              alt=""
+                              fill
+                              className="object-cover scale-110"
+                              sizes="85vw"
+                            />
+                          )}
+
+                          {/* Crystal overlay */}
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 50%, rgba(0,0,0,0.35) 100%)',
+                              backdropFilter: 'blur(2px) saturate(130%)',
+                            }}
+                          />
+
+                          {/* Vignette */}
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              background: 'radial-gradient(circle at center, transparent 35%, rgba(0,0,0,0.5) 100%)',
+                            }}
+                          />
+
+                          {/* Inner ring */}
+                          <div
+                            className="absolute inset-[4%] rounded-full pointer-events-none"
+                            style={{
+                              boxShadow: 'inset 0 0 40px rgba(255,255,255,0.15), inset 0 0 80px rgba(100,150,255,0.08)',
+                            }}
+                          />
+
+                          {/* Top reflection */}
+                          <div
+                            className="absolute top-[8%] left-[12%] w-[40%] h-[20%] rounded-full pointer-events-none"
+                            style={{
+                              background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%)',
+                              filter: 'blur(10px)',
+                            }}
+                          />
+
+                          {/* Content */}
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+                            {/* Large Sticker */}
+                            {hasSticker && (
+                              <div
+                                className="relative mb-4"
+                                style={{ perspective: '300px' }}
+                              >
+                                <div
+                                  className="relative w-32 h-32"
+                                  style={{
+                                    transform: `rotateX(-5deg) rotateY(5deg) translateZ(15px) scale(${'stickerScale' in area ? area.stickerScale : 1})`,
+                                    filter: 'drop-shadow(0 16px 30px rgba(0,0,0,0.6))',
+                                  }}
+                                >
+                                  <Image
+                                    src={area.stickerImage as string}
+                                    alt=""
+                                    fill
+                                    className="object-contain"
+                                    sizes="128px"
+                                  />
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Title with glow */}
+                            <h3
+                              className="text-xl font-black uppercase tracking-wider mb-4"
+                              style={{
+                                color: 'titleColor' in area ? area.titleColor as string : '#FFD700',
+                                textShadow: `0 0 15px ${'titleGlow' in area ? (area.titleGlow as string).split(', ')[0] : 'rgba(255,215,0,0.8)'}, 0 0 30px ${'titleGlow' in area ? (area.titleGlow as string).split(', ')[1] : 'rgba(255,165,0,0.5)'}, 2px 2px 6px rgba(0,0,0,0.9)`,
+                              }}
+                            >
+                              {t(`aboutus.focus.${area.key}.title`)}
+                            </h3>
+
+                            {/* Full description */}
+                            <p
+                              className="text-sm text-white leading-relaxed font-medium max-w-[80%]"
+                              style={{
+                                textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 15px rgba(0,0,0,0.4)',
+                              }}
+                            >
+                              {t(`aboutus.focus.${area.key}.description`)}
+                            </p>
+                          </div>
+
+                          {/* Close button */}
+                          <button
+                            className="absolute top-4 right-4 p-2 rounded-full bg-black/50 text-white/80 hover:bg-black/70 hover:text-white transition-colors"
+                            onClick={() => setExpandedCard(null)}
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+
+                          {/* Navigation arrows */}
+                          <button
+                            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white/80 hover:bg-black/70 hover:text-white transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setExpandedCard((prev) => prev !== null ? (prev - 1 + extendedFocusAreas.length) % extendedFocusAreas.length : null);
+                            }}
+                          >
+                            <ChevronLeft className="w-5 h-5" />
+                          </button>
+                          <button
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white/80 hover:bg-black/70 hover:text-white transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setExpandedCard((prev) => prev !== null ? (prev + 1) % extendedFocusAreas.length : null);
+                            }}
+                          >
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
+
+                          {/* Outer glow */}
+                          <div
+                            className="absolute inset-0 rounded-full pointer-events-none"
+                            style={{
+                              boxShadow: '0 0 60px rgba(168,85,247,0.4), 0 0 120px rgba(168,85,247,0.2)',
+                            }}
+                          />
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
 
               {/* Journey Stats */}

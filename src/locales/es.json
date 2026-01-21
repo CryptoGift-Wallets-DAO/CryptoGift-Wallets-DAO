@@ -1529,7 +1529,8 @@
         "competitions": {
           "title": "Competencias Gamificadas",
           "description": "32 modelos que se irán incorporando al sistema, transformando la vida diaria: torneos, desafíos, milestones, rankings, pools y más. Compite, diviértete, gana."
-        }
+        },
+        "tapToExpand": "Toca para ver detalles"
       },
       "stats": {
         "title": "Nuestro Viaje",

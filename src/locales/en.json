@@ -1420,7 +1420,8 @@
         "competitions": {
           "title": "Gamified Competitions",
           "description": "32 models that will be incorporated into the system, transforming everyday life: tournaments, challenges, milestones, rankings, pools and more. Compete, have fun, earn."
-        }
+        },
+        "tapToExpand": "Tap to view details"
       },
       "stats": {
         "title": "Our Journey",
