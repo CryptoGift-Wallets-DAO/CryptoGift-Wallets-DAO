@@ -587,85 +587,127 @@ export default function DocsPage() {
                             className="w-1/3 flex-shrink-0 px-2 md:px-4"
                           >
                             {hasBgImage ? (
-                              /* ✨ ARTISTIC CARD - Image visible, text at bottom with 3D effect */
-                              <div className="relative group">
-                                {/* Main circular card */}
-                                <div className="relative rounded-full aspect-square overflow-hidden shadow-2xl shadow-purple-500/30 dark:shadow-purple-500/20">
-                                  {/* Background image - CLEAN, no text overlay */}
-                                  <Image
-                                    src={area.bgImage as string}
-                                    alt=""
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 768px) 33vw, 25vw"
-                                    onError={() => handleImageError(area.key)}
-                                  />
+                              /* ✨ CRYSTAL DISC - Artistic masterpiece with glass effect */
+                              <div className="relative rounded-full aspect-square overflow-hidden group shadow-2xl shadow-purple-500/30 dark:shadow-purple-500/20 hover:shadow-purple-500/40 transition-shadow duration-500">
 
-                                  {/* Subtle gradient only at edges for depth */}
-                                  <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-black/30" />
+                                {/* Layer 1: Background image with slight blur for crystal depth */}
+                                <Image
+                                  src={area.bgImage as string}
+                                  alt=""
+                                  fill
+                                  className="object-cover scale-110"
+                                  sizes="(max-width: 768px) 33vw, 25vw"
+                                  onError={() => handleImageError(area.key)}
+                                />
 
-                                  {/* Inner glass ring effect */}
-                                  <div className="absolute inset-[6%] rounded-full border-2 border-white/20 shadow-inner" />
+                                {/* Layer 2: Crystal glass overlay - frosted effect */}
+                                <div
+                                  className="absolute inset-0"
+                                  style={{
+                                    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.2) 100%)',
+                                    backdropFilter: 'blur(1px) saturate(120%)',
+                                    WebkitBackdropFilter: 'blur(1px) saturate(120%)',
+                                  }}
+                                />
 
-                                  {/* Sticker - TOP positioned, floating above */}
+                                {/* Layer 3: Radial vignette for depth */}
+                                <div
+                                  className="absolute inset-0"
+                                  style={{
+                                    background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%)',
+                                  }}
+                                />
+
+                                {/* Layer 4: Inner crystal ring - refractive edge */}
+                                <div
+                                  className="absolute inset-[4%] rounded-full pointer-events-none"
+                                  style={{
+                                    border: '2px solid rgba(255,255,255,0.25)',
+                                    boxShadow: 'inset 0 0 30px rgba(255,255,255,0.1), inset 0 0 60px rgba(100,150,255,0.05)',
+                                  }}
+                                />
+
+                                {/* Layer 5: Top light reflection (crystal caustic) */}
+                                <div
+                                  className="absolute top-[8%] left-[12%] w-[40%] h-[20%] rounded-full pointer-events-none"
+                                  style={{
+                                    background: 'linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 100%)',
+                                    filter: 'blur(8px)',
+                                  }}
+                                />
+
+                                {/* Layer 6: Secondary reflection (bottom right) */}
+                                <div
+                                  className="absolute bottom-[15%] right-[10%] w-[25%] h-[12%] rounded-full pointer-events-none opacity-50"
+                                  style={{
+                                    background: 'linear-gradient(0deg, rgba(255,255,255,0.2) 0%, transparent 100%)',
+                                    filter: 'blur(6px)',
+                                  }}
+                                />
+
+                                {/* Layer 7: Content container - centered */}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center p-3 md:p-5 text-center">
+
+                                  {/* Sticker with 3D float effect */}
                                   {hasSticker && (
-                                    <div className="absolute top-[8%] left-1/2 -translate-x-1/2 transform group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
-                                      <div className="relative w-12 h-12 md:w-16 md:h-16 drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
+                                    <div className="relative mb-2 md:mb-3 transform group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
+                                      <div
+                                        className="relative w-14 h-14 md:w-18 md:h-18"
+                                        style={{
+                                          filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.4)) drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
+                                        }}
+                                      >
                                         <Image
                                           src={area.stickerImage as string}
                                           alt=""
                                           fill
                                           className="object-contain"
-                                          sizes="64px"
+                                          sizes="72px"
                                           onError={() => handleImageError(area.key)}
                                         />
                                       </div>
                                     </div>
                                   )}
 
-                                  {/* Light reflection */}
-                                  <div className="absolute top-[5%] left-[15%] w-[35%] h-[18%] bg-white/15 rounded-full blur-xl pointer-events-none" />
-                                </div>
-
-                                {/* 🎨 TEXT BANNER - Below the circle with HOLOGRAPHIC 3D effect */}
-                                <div
-                                  className="relative -mt-4 md:-mt-6 mx-auto w-[90%] text-center z-10"
-                                  style={{ perspective: '500px' }}
-                                >
-                                  {/* Title with holographic 3D floating effect */}
+                                  {/* Title with holographic crystal effect */}
                                   <h3
-                                    className="text-sm md:text-lg font-black uppercase tracking-widest relative"
+                                    className="text-xs md:text-sm font-black uppercase tracking-wider mb-1 md:mb-2"
                                     style={{
-                                      // Holographic gradient text
-                                      background: 'linear-gradient(135deg, #ff6b9d 0%, #c44cff 25%, #6b9dff 50%, #4cffc4 75%, #ffd54c 100%)',
+                                      background: 'linear-gradient(135deg, #fff 0%, #a5f3fc 25%, #c4b5fd 50%, #fbcfe8 75%, #fff 100%)',
                                       backgroundSize: '200% 200%',
                                       WebkitBackgroundClip: 'text',
                                       backgroundClip: 'text',
                                       color: 'transparent',
-                                      // 3D transform for depth
-                                      transform: 'rotateX(10deg) translateZ(20px)',
-                                      transformStyle: 'preserve-3d',
-                                      // Subtle animation
                                       animation: 'holographicShift 4s ease-in-out infinite',
-                                      // Clean depth shadow (not gray mess)
-                                      filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.4)) drop-shadow(0 1px 3px rgba(0,0,0,0.3))',
+                                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
                                     }}
                                   >
                                     {t(`aboutus.focus.${area.key}.title`)}
                                   </h3>
 
-                                  {/* Description with glass effect - clean and readable */}
-                                  <p
-                                    className="text-[10px] md:text-xs leading-relaxed mt-2 md:mt-3 line-clamp-3 font-semibold"
+                                  {/* Description - frosted glass pill */}
+                                  <div
+                                    className="rounded-xl px-2 py-1 md:px-3 md:py-2 max-w-[90%]"
                                     style={{
-                                      color: 'rgba(255,255,255,0.95)',
-                                      textShadow: '0 2px 8px rgba(0,0,0,0.5)',
-                                      transform: 'rotateX(5deg)',
+                                      background: 'rgba(0,0,0,0.3)',
+                                      backdropFilter: 'blur(8px) saturate(150%)',
+                                      WebkitBackdropFilter: 'blur(8px) saturate(150%)',
+                                      border: '1px solid rgba(255,255,255,0.1)',
                                     }}
                                   >
-                                    {t(`aboutus.focus.${area.key}.description`)}
-                                  </p>
+                                    <p className="text-[9px] md:text-[11px] text-white/90 leading-snug line-clamp-3 font-medium">
+                                      {t(`aboutus.focus.${area.key}.description`)}
+                                    </p>
+                                  </div>
                                 </div>
+
+                                {/* Layer 8: Outer glow on hover */}
+                                <div
+                                  className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                                  style={{
+                                    boxShadow: 'inset 0 0 40px rgba(168,85,247,0.2), 0 0 30px rgba(168,85,247,0.15)',
+                                  }}
+                                />
                               </div>
                             ) : (
                               /* Standard glass card */
