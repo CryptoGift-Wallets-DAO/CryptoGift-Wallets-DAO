@@ -569,7 +569,7 @@ export default function DocsPage() {
                   >
                     <div
                       ref={carouselRef}
-                      className={`flex select-none will-change-transform py-4 ${
+                      className={`flex select-none will-change-transform pt-4 pb-10 ${
                         isTransitionEnabled ? 'transition-transform duration-500 ease-out' : ''
                       }`}
                       style={{ transform: `translateX(-${focusIndex * (100 / 3)}%)` }}
@@ -588,7 +588,7 @@ export default function DocsPage() {
                           >
                             {hasBgImage ? (
                               /* ✨ CRYSTAL DISC - Artistic masterpiece with glass effect */
-                              <div className="relative rounded-full aspect-square overflow-hidden group shadow-xl shadow-purple-500/20 dark:shadow-purple-500/15 hover:shadow-purple-500/30 transition-shadow duration-500">
+                              <div className="relative rounded-full aspect-square overflow-hidden group shadow-2xl shadow-purple-500/30 dark:shadow-purple-500/20 hover:shadow-purple-500/40 transition-shadow duration-500">
 
                                 {/* Layer 1: Background image */}
                                 <Image
@@ -618,7 +618,15 @@ export default function DocsPage() {
                                   }}
                                 />
 
-                                {/* Layer 4: Top light reflection (crystal caustic) */}
+                                {/* Layer 4: Inner crystal ring - refractive edge */}
+                                <div
+                                  className="absolute inset-[4%] rounded-full pointer-events-none"
+                                  style={{
+                                    boxShadow: 'inset 0 0 30px rgba(255,255,255,0.1), inset 0 0 60px rgba(100,150,255,0.05)',
+                                  }}
+                                />
+
+                                {/* Layer 5: Top light reflection (crystal caustic) */}
                                 <div
                                   className="absolute top-[8%] left-[12%] w-[40%] h-[20%] rounded-full pointer-events-none"
                                   style={{
@@ -627,7 +635,7 @@ export default function DocsPage() {
                                   }}
                                 />
 
-                                {/* Layer 5: Content container - centered */}
+                                {/* Layer 6: Content container - centered */}
                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-3 md:p-5 text-center">
 
                                   {/* Sticker - LARGER with real 3D perspective */}
@@ -658,19 +666,11 @@ export default function DocsPage() {
                                     </div>
                                   )}
 
-                                  {/* Title - VIBRANT COLORS + REAL 3D with smart shadows */}
+                                  {/* Title - Simple shadow only, NO 3D effect */}
                                   <h3
-                                    className="text-sm md:text-base font-black uppercase tracking-wider mb-2 md:mb-3"
+                                    className="text-sm md:text-base font-black uppercase tracking-wider mb-2 md:mb-3 text-white"
                                     style={{
-                                      color: '#FFD700',
-                                      textShadow: `
-                                        1px 1px 0 #FFA500,
-                                        2px 2px 0 #FF8C00,
-                                        3px 3px 0 #FF6B00,
-                                        4px 4px 0 #E65C00,
-                                        5px 5px 8px rgba(0,0,0,0.4),
-                                        0 0 20px rgba(255,215,0,0.3)
-                                      `,
+                                      textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)',
                                     }}
                                   >
                                     {t(`aboutus.focus.${area.key}.title`)}
@@ -692,7 +692,7 @@ export default function DocsPage() {
                                   </p>
                                 </div>
 
-                                {/* Layer 6: Outer glow on hover */}
+                                {/* Layer 7: Outer glow on hover */}
                                 <div
                                   className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                                   style={{
