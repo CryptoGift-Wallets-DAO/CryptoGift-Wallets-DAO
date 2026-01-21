@@ -763,3 +763,60 @@ body {
     animation: none;
   }
 }
+
+/* ====================================================
+   🌈 HOLOGRAPHIC 3D TEXT EFFECTS - FOCUS AREAS CAROUSEL
+   ==================================================== */
+
+/* Holographic gradient shift animation */
+@keyframes holographicShift {
+  0%, 100% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)) drop-shadow(0 1px 3px rgba(0,0,0,0.3)) brightness(1.0);
+  }
+  25% {
+    background-position: 50% 25%;
+    filter: drop-shadow(0 5px 8px rgba(196,76,255,0.3)) drop-shadow(0 2px 4px rgba(0,0,0,0.3)) brightness(1.1);
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: drop-shadow(0 6px 10px rgba(107,157,255,0.3)) drop-shadow(0 2px 4px rgba(0,0,0,0.3)) brightness(1.15);
+  }
+  75% {
+    background-position: 50% 75%;
+    filter: drop-shadow(0 5px 8px rgba(76,255,196,0.3)) drop-shadow(0 2px 4px rgba(0,0,0,0.3)) brightness(1.1);
+  }
+}
+
+/* Holographic 3D floating text class */
+.text-holographic-3d {
+  background: linear-gradient(135deg, #ff6b9d 0%, #c44cff 25%, #6b9dff 50%, #4cffc4 75%, #ffd54c 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: holographicShift 4s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+/* Alternative: Chrome/neon glow effect */
+@keyframes neonPulse {
+  0%, 100% {
+    text-shadow:
+      0 0 5px rgba(255,255,255,0.8),
+      0 0 10px rgba(255,107,157,0.6),
+      0 0 20px rgba(196,76,255,0.5),
+      0 0 40px rgba(107,157,255,0.4);
+  }
+  50% {
+    text-shadow:
+      0 0 8px rgba(255,255,255,0.9),
+      0 0 15px rgba(76,255,196,0.7),
+      0 0 30px rgba(255,213,76,0.6),
+      0 0 60px rgba(255,107,157,0.5);
+  }
+}
+
+.text-neon-glow {
+  animation: neonPulse 3s ease-in-out infinite;
+}

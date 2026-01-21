@@ -627,40 +627,40 @@ export default function DocsPage() {
                                   <div className="absolute top-[5%] left-[15%] w-[35%] h-[18%] bg-white/15 rounded-full blur-xl pointer-events-none" />
                                 </div>
 
-                                {/* 🎨 TEXT BANNER - Below the circle, NOT over the image */}
-                                <div className="relative -mt-4 md:-mt-6 mx-auto w-[90%] text-center z-10">
-                                  {/* Title with 3D embossed effect */}
+                                {/* 🎨 TEXT BANNER - Below the circle with HOLOGRAPHIC 3D effect */}
+                                <div
+                                  className="relative -mt-4 md:-mt-6 mx-auto w-[90%] text-center z-10"
+                                  style={{ perspective: '500px' }}
+                                >
+                                  {/* Title with holographic 3D floating effect */}
                                   <h3
-                                    className="text-sm md:text-lg font-black text-white uppercase tracking-wide"
+                                    className="text-sm md:text-lg font-black uppercase tracking-widest relative"
                                     style={{
-                                      textShadow: `
-                                        0 1px 0 #ccc,
-                                        0 2px 0 #c9c9c9,
-                                        0 3px 0 #bbb,
-                                        0 4px 0 #b9b9b9,
-                                        0 5px 0 #aaa,
-                                        0 6px 1px rgba(0,0,0,.1),
-                                        0 0 5px rgba(0,0,0,.1),
-                                        0 1px 3px rgba(0,0,0,.3),
-                                        0 3px 5px rgba(0,0,0,.2),
-                                        0 5px 10px rgba(0,0,0,.25),
-                                        0 10px 10px rgba(0,0,0,.2),
-                                        0 20px 20px rgba(0,0,0,.15)
-                                      `,
+                                      // Holographic gradient text
+                                      background: 'linear-gradient(135deg, #ff6b9d 0%, #c44cff 25%, #6b9dff 50%, #4cffc4 75%, #ffd54c 100%)',
+                                      backgroundSize: '200% 200%',
+                                      WebkitBackgroundClip: 'text',
+                                      backgroundClip: 'text',
+                                      color: 'transparent',
+                                      // 3D transform for depth
+                                      transform: 'rotateX(10deg) translateZ(20px)',
+                                      transformStyle: 'preserve-3d',
+                                      // Subtle animation
+                                      animation: 'holographicShift 4s ease-in-out infinite',
+                                      // Clean depth shadow (not gray mess)
+                                      filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.4)) drop-shadow(0 1px 3px rgba(0,0,0,0.3))',
                                     }}
                                   >
                                     {t(`aboutus.focus.${area.key}.title`)}
                                   </h3>
 
-                                  {/* Description with subtle 3D - NO background pill */}
+                                  {/* Description with glass effect - clean and readable */}
                                   <p
-                                    className="text-[10px] md:text-xs text-white/95 leading-relaxed mt-1 md:mt-2 line-clamp-3 font-medium"
+                                    className="text-[10px] md:text-xs leading-relaxed mt-2 md:mt-3 line-clamp-3 font-semibold"
                                     style={{
-                                      textShadow: `
-                                        0 1px 2px rgba(0,0,0,0.8),
-                                        0 2px 4px rgba(0,0,0,0.6),
-                                        0 4px 8px rgba(0,0,0,0.4)
-                                      `,
+                                      color: 'rgba(255,255,255,0.95)',
+                                      textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                                      transform: 'rotateX(5deg)',
                                     }}
                                   >
                                     {t(`aboutus.focus.${area.key}.description`)}
