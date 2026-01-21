@@ -666,11 +666,12 @@ export default function DocsPage() {
                                     </div>
                                   )}
 
-                                  {/* Title - Simple shadow only, NO 3D effect */}
+                                  {/* Title - Golden glow, artistic but clean */}
                                   <h3
-                                    className="text-sm md:text-base font-black uppercase tracking-wider mb-2 md:mb-3 text-white"
+                                    className="text-sm md:text-base font-black uppercase tracking-wider mb-2 md:mb-3"
                                     style={{
-                                      textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5)',
+                                      color: '#FFD700',
+                                      textShadow: '0 0 10px rgba(255,215,0,0.8), 0 0 20px rgba(255,165,0,0.5), 2px 2px 4px rgba(0,0,0,0.9)',
                                     }}
                                   >
                                     {t(`aboutus.focus.${area.key}.title`)}
