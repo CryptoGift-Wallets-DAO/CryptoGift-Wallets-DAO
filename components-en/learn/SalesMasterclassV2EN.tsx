@@ -31,7 +31,7 @@ const MuxPlayer = dynamic(
   }
 );
 import { RotatePhoneHintCompact } from '@/components/ui/RotatePhoneHint';
-import GalleryVideoPlayerEN from '@/components-en/video/GalleryVideoPlayerEN';
+import StaticGalleryVideoPlayer from '@/components/video/StaticGalleryVideoPlayer';
 import { QRCodeSVG } from 'qrcode.react';
 import { ConnectButton, useActiveAccount } from 'thirdweb/react';
 import { client } from '@/lib/thirdweb/client';
@@ -4286,8 +4286,8 @@ const SuccessBlock: React.FC<{
               }}
             />
 
-            {/* Full-featured Video Player with sticky mode, gestures, and controls */}
-            <GalleryVideoPlayerEN
+            {/* Static Video Player - no portal, works inside Framer Motion containers */}
+            <StaticGalleryVideoPlayer
               muxPlaybackId={galleryVideoConfig.muxPlaybackId}
               title={galleryVideoConfig.title}
             />
