@@ -73,6 +73,9 @@ build
 !public/team/C3C8D6AE-5738-4BF9-873C-39EE8847C3F2.png
 !public/team/IMG_6757.PNG
 !public/team/IMG_6773.PNG
+# Focus Areas Images (CRITICAL for About Us carousel)
+!public/focus-areas/corazon.png
+!public/focus-areas/emocional.jpg
 
 # Contracts (not needed for runtime)
 /contracts
