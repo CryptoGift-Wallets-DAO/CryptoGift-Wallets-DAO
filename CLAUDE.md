@@ -2,12 +2,12 @@
 
 ## 🎯 INFORMACIÓN CRÍTICA DEL PROYECTO
 
-### ESTADO ACTUAL (14 ENE 2026) - VIDEO CAROUSEL PERFECCIONADO ✅
-- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **GOVERNANCE COMPLETO** + **RBAC ENTERPRISE** + **VIDEO UX PERFECTO** ✅
-- **Fase actual**: Sistema DAO completo + Video Carousel con posicionamiento y autoplay perfeccionados
-- **Último Commit**: `ea20d6d` feat(video): universal autoplay with audio on any user interaction
-- **Critical Update**: Video carousel con posicionamiento matemático + autoplay universal con audio
-- **Nuevo**: Eliminado wobble vertical, posición inicial correcta, reproducción continua con audio
+### ESTADO ACTUAL (21 ENE 2026) - FOCUS AREAS CRYSTAL DISC PERFECCIONADO ✅
+- **Progreso**: 100% Task System + i18n + Referrals + Bonos + Discord + **GOVERNANCE COMPLETO** + **RBAC ENTERPRISE** + **VIDEO UX PERFECTO** + **FOCUS AREAS** ✅
+- **Fase actual**: Sistema DAO completo + Crystal Disc artístico perfeccionado
+- **Último Commit**: `1649a0b` fix(focus-areas): restore crystal disc + simple title + fix shadow cutoff
+- **Critical Update**: Resuelto problema persistente de la RAYA en crystal disc (overflow-hidden cortaba shadow)
+- **Nuevo**: Sistema de documentación PROBLEMAS CONOCIDOS/RESUELTOS en CLAUDE.md
 
 ### 🎮 DISCORD SERVER CONFIGURADO (9 DIC 2025) ✅
 ```
@@ -525,6 +525,40 @@ tools: [MCP functions]          // ✅ Real document access
 
 // Reference: https://platform.openai.com/docs/models/gpt-5
 ```
+
+---
+
+## 🔴 PROBLEMAS CONOCIDOS (EN INVESTIGACIÓN)
+<!--
+INSTRUCCIONES: Cuando un problema persiste entre sesiones, documentarlo aquí.
+Formato:
+### [NOMBRE DEL PROBLEMA]
+- **Síntoma**: Qué se ve/qué falla
+- **Ubicación**: Archivo(s) afectado(s)
+- **Intentos fallidos**: Lista de lo que NO funcionó
+- **Hipótesis actual**: Qué creemos que causa el problema
+- **Próximo paso**: Qué intentar en la siguiente sesión
+
+Al resolver: Mover a PROBLEMAS RESUELTOS con la solución completa.
+-->
+
+*No hay problemas pendientes actualmente.*
+
+---
+
+## ✅ PROBLEMAS RESUELTOS (HISTORIAL)
+
+### RAYA/LÍNEA DEBAJO DEL CRYSTAL DISC (Focus Areas Carousel) - RESUELTO 21 ENE 2026
+- **Síntoma**: Línea horizontal visible debajo del card artístico "Emotional Onboarding", cortando la iluminación/sombra
+- **Ubicación**: `app/docs/page.tsx` - Focus Areas carousel
+- **Intentos fallidos**:
+  1. Buscar borders explícitos en el código → No había ninguno
+  2. Eliminar inner crystal ring (Layer 4) → No era la causa, empeoró el diseño
+  3. Reducir shadow-2xl a shadow-xl → No eliminó la raya
+  4. Buscar hr/divider elements → No existían
+- **Causa raíz**: El `overflow-hidden` del carousel container cortaba la sombra `shadow-2xl` del crystal disc. El padding `py-4` no daba suficiente espacio inferior para que la sombra se renderizara completa.
+- **Solución**: Cambiar `py-4` a `pt-4 pb-10` en el flex container del carousel (línea 572), dando más espacio inferior para la sombra.
+- **Commit**: `1649a0b`
 
 ---
 
