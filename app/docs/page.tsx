@@ -590,7 +590,7 @@ export default function DocsPage() {
                               /* ✨ CRYSTAL DISC - Artistic masterpiece with glass effect */
                               <div className="relative rounded-full aspect-square overflow-hidden group shadow-2xl shadow-purple-500/30 dark:shadow-purple-500/20 hover:shadow-purple-500/40 transition-shadow duration-500">
 
-                                {/* Layer 1: Background image with slight blur for crystal depth */}
+                                {/* Layer 1: Background image */}
                                 <Image
                                   src={area.bgImage as string}
                                   alt=""
@@ -600,21 +600,21 @@ export default function DocsPage() {
                                   onError={() => handleImageError(area.key)}
                                 />
 
-                                {/* Layer 2: Crystal glass overlay - frosted effect */}
+                                {/* Layer 2: Crystal glass overlay - MORE OPAQUE */}
                                 <div
                                   className="absolute inset-0"
                                   style={{
-                                    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.2) 100%)',
-                                    backdropFilter: 'blur(1px) saturate(120%)',
-                                    WebkitBackdropFilter: 'blur(1px) saturate(120%)',
+                                    background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 50%, rgba(0,0,0,0.35) 100%)',
+                                    backdropFilter: 'blur(2px) saturate(130%)',
+                                    WebkitBackdropFilter: 'blur(2px) saturate(130%)',
                                   }}
                                 />
 
-                                {/* Layer 3: Radial vignette for depth */}
+                                {/* Layer 3: Radial vignette for depth - stronger */}
                                 <div
                                   className="absolute inset-0"
                                   style={{
-                                    background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%)',
+                                    background: 'radial-gradient(circle at center, transparent 25%, rgba(0,0,0,0.5) 100%)',
                                   }}
                                 />
 
@@ -622,7 +622,6 @@ export default function DocsPage() {
                                 <div
                                   className="absolute inset-[4%] rounded-full pointer-events-none"
                                   style={{
-                                    border: '2px solid rgba(255,255,255,0.25)',
                                     boxShadow: 'inset 0 0 30px rgba(255,255,255,0.1), inset 0 0 60px rgba(100,150,255,0.05)',
                                   }}
                                 />
@@ -636,25 +635,23 @@ export default function DocsPage() {
                                   }}
                                 />
 
-                                {/* Layer 6: Secondary reflection (bottom right) */}
-                                <div
-                                  className="absolute bottom-[15%] right-[10%] w-[25%] h-[12%] rounded-full pointer-events-none opacity-50"
-                                  style={{
-                                    background: 'linear-gradient(0deg, rgba(255,255,255,0.2) 0%, transparent 100%)',
-                                    filter: 'blur(6px)',
-                                  }}
-                                />
-
-                                {/* Layer 7: Content container - centered */}
+                                {/* Layer 6: Content container - centered */}
                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-3 md:p-5 text-center">
 
-                                  {/* Sticker with 3D float effect */}
+                                  {/* Sticker - LARGER with real 3D perspective */}
                                   {hasSticker && (
-                                    <div className="relative mb-2 md:mb-3 transform group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
+                                    <div
+                                      className="relative mb-2 md:mb-3 transform group-hover:scale-105 transition-transform duration-300"
+                                      style={{
+                                        perspective: '200px',
+                                        transformStyle: 'preserve-3d',
+                                      }}
+                                    >
                                       <div
-                                        className="relative w-14 h-14 md:w-18 md:h-18"
+                                        className="relative w-20 h-20 md:w-24 md:h-24"
                                         style={{
-                                          filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.4)) drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
+                                          transform: 'rotateX(-5deg) rotateY(5deg) translateZ(10px)',
+                                          filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.5))',
                                         }}
                                       >
                                         <Image
@@ -662,14 +659,14 @@ export default function DocsPage() {
                                           alt=""
                                           fill
                                           className="object-contain"
-                                          sizes="72px"
+                                          sizes="96px"
                                           onError={() => handleImageError(area.key)}
                                         />
                                       </div>
                                     </div>
                                   )}
 
-                                  {/* Title with holographic crystal effect */}
+                                  {/* Title - ZERO SHADOW, pure holographic gradient */}
                                   <h3
                                     className="text-xs md:text-sm font-black uppercase tracking-wider mb-1 md:mb-2"
                                     style={{
@@ -679,20 +676,18 @@ export default function DocsPage() {
                                       backgroundClip: 'text',
                                       color: 'transparent',
                                       animation: 'holographicShift 4s ease-in-out infinite',
-                                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
                                     }}
                                   >
                                     {t(`aboutus.focus.${area.key}.title`)}
                                   </h3>
 
-                                  {/* Description - frosted glass pill */}
+                                  {/* Description - NO BORDER, just frosted glass */}
                                   <div
                                     className="rounded-xl px-2 py-1 md:px-3 md:py-2 max-w-[90%]"
                                     style={{
-                                      background: 'rgba(0,0,0,0.3)',
-                                      backdropFilter: 'blur(8px) saturate(150%)',
-                                      WebkitBackdropFilter: 'blur(8px) saturate(150%)',
-                                      border: '1px solid rgba(255,255,255,0.1)',
+                                      background: 'rgba(0,0,0,0.35)',
+                                      backdropFilter: 'blur(10px) saturate(150%)',
+                                      WebkitBackdropFilter: 'blur(10px) saturate(150%)',
                                     }}
                                   >
                                     <p className="text-[9px] md:text-[11px] text-white/90 leading-snug line-clamp-3 font-medium">
@@ -701,7 +696,7 @@ export default function DocsPage() {
                                   </div>
                                 </div>
 
-                                {/* Layer 8: Outer glow on hover */}
+                                {/* Layer 7: Outer glow on hover */}
                                 <div
                                   className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                                   style={{
