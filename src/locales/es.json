@@ -1520,15 +1520,15 @@
         },
         "community": {
           "title": "Comunidad DAO",
-          "description": "1 CGC = 1 Voto. Gobernanza real on-chain. Tu participación moldea el futuro de CryptoGift."
+          "description": "Gobernado completamente por nuestra comunidad. 1 CGC = 1 Voto. Tu participación moldea el futuro de CryptoGift."
         },
         "laboratory": {
           "title": "El Laboratorio",
-          "description": "Fábrica de herramientas útiles en desarrollo continuo que completarán el ecosistema."
+          "description": "Una fábrica de productos útiles. Decenas de herramientas en desarrollo continuo que completarán el ecosistema en algo extraordinario."
         },
         "competitions": {
           "title": "Competencias",
-          "description": "Torneos, desafíos, rankings, pools. 32 modelos gamificados. Compite, diviértete, gana."
+          "description": "32 modelos que se irán incorporando al sistema, transformando la vida diaria: torneos, desafíos, milestones, rankings, pools y más. Compite, diviértete, gana."
         },
         "tapToExpand": "Toca para ver detalles"
       },
