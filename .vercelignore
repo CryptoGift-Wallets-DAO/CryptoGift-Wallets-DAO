@@ -83,6 +83,7 @@ build
 # Focus area stickers (custom branded)
 !public/focus-areas/sticker-dao.png
 !public/focus-areas/sticker-lab.png
+!public/focus-areas/sticker-lab-new.png
 !public/focus-areas/sticker-comp.png
 
 # Contracts (not needed for runtime)

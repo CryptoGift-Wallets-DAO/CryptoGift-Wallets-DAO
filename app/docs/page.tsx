@@ -132,7 +132,7 @@ export default function DocsPage() {
       gradient: 'from-purple-400 to-indigo-500',
       bgImage: '/focus-areas/community.jpg',
       stickerImage: '/focus-areas/sticker-dao.png', // DAO community sticker
-      stickerScale: 1.7, // Calibrated to match emotional/artistic visually
+      stickerScale: 1.35, // Reset to match same-size stickers
       titleColor: '#A855F7', // Purple - community, DAO
       titleGlow: 'rgba(168,85,247,0.8), rgba(139,92,246,0.5)', // Purple glow
     },
@@ -141,8 +141,8 @@ export default function DocsPage() {
       icon: Lightbulb,
       gradient: 'from-green-400 to-emerald-500',
       bgImage: '/focus-areas/laboratory.jpg',
-      stickerImage: '/focus-areas/sticker-lab.png', // Innovation lab sticker
-      stickerScale: 1.7, // Calibrated to match emotional/artistic visually
+      stickerImage: '/focus-areas/sticker-lab-new.png', // NEW Innovation lab sticker
+      stickerScale: 1.35, // Reset to match same-size stickers
       titleColor: '#22C55E', // Green - innovation, experiments
       titleGlow: 'rgba(34,197,94,0.8), rgba(16,185,129,0.5)', // Green glow
     },
@@ -152,7 +152,7 @@ export default function DocsPage() {
       gradient: 'from-yellow-400 to-amber-500',
       bgImage: '/focus-areas/competitions.jpg',
       stickerImage: '/focus-areas/sticker-comp.png', // Competitions trophy sticker
-      stickerScale: 1.7, // Calibrated to match emotional/artistic visually
+      stickerScale: 1.35, // Reset to match same-size stickers
       titleColor: '#FFD700', // Gold - trophies, victories
       titleGlow: 'rgba(255,215,0,0.8), rgba(255,165,0,0.5)', // Gold glow
     },
@@ -753,7 +753,14 @@ export default function DocsPage() {
                                         className="relative w-20 h-20 md:w-24 md:h-24"
                                         style={{
                                           transform: `rotateX(-5deg) rotateY(5deg) translateZ(10px) scale(${'stickerScale' in area ? area.stickerScale : 1})`,
-                                          filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.5))',
+                                          // Epic 3D shadow - sticker "popping out of screen" effect
+                                          filter: `
+                                            drop-shadow(0 4px 6px rgba(0,0,0,0.4))
+                                            drop-shadow(0 10px 15px rgba(0,0,0,0.35))
+                                            drop-shadow(0 20px 30px rgba(0,0,0,0.25))
+                                            drop-shadow(0 35px 50px rgba(0,0,0,0.15))
+                                            drop-shadow(0 0 20px ${'titleGlow' in area ? (area.titleGlow as string).split(', ')[1] : 'rgba(168,85,247,0.3)'})
+                                          `,
                                         }}
                                       >
                                         <Image
@@ -930,7 +937,14 @@ export default function DocsPage() {
                                   className="relative w-32 h-32"
                                   style={{
                                     transform: `rotateX(-5deg) rotateY(5deg) translateZ(15px) scale(${'stickerScale' in area ? area.stickerScale : 1})`,
-                                    filter: 'drop-shadow(0 16px 30px rgba(0,0,0,0.6))',
+                                    // Epic 3D shadow - sticker "popping out of screen" effect (modal version)
+                                    filter: `
+                                      drop-shadow(0 6px 8px rgba(0,0,0,0.5))
+                                      drop-shadow(0 14px 20px rgba(0,0,0,0.4))
+                                      drop-shadow(0 28px 40px rgba(0,0,0,0.3))
+                                      drop-shadow(0 45px 65px rgba(0,0,0,0.2))
+                                      drop-shadow(0 0 30px ${'titleGlow' in area ? (area.titleGlow as string).split(', ')[1] : 'rgba(168,85,247,0.4)'})
+                                    `,
                                   }}
                                 >
                                   <Image
