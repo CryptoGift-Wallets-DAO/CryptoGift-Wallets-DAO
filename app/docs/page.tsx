@@ -126,6 +126,9 @@ export default function DocsPage() {
       key: 'laboratory',
       icon: Lightbulb,
       gradient: 'from-green-400 to-emerald-500',
+      bgImage: '/focus-areas/laboratory.jpg',
+      stickerImage: '/focus-areas/lab-logo.png',
+      stickerScale: 1.2, // Adjust for visual balance
       titleColor: '#22C55E', // Green - innovation, experiments
       titleGlow: 'rgba(34,197,94,0.8), rgba(16,185,129,0.5)', // Green glow
     },
@@ -133,6 +136,9 @@ export default function DocsPage() {
       key: 'competitions',
       icon: Trophy,
       gradient: 'from-yellow-400 to-amber-500',
+      bgImage: '/focus-areas/competitions.jpg',
+      stickerImage: '/focus-areas/comp-logo.png',
+      stickerScale: 1.2, // Adjust for visual balance
       titleColor: '#FFD700', // Gold - trophies, victories
       titleGlow: 'rgba(255,215,0,0.8), rgba(255,165,0,0.5)', // Gold glow
     },

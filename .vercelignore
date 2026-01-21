@@ -79,6 +79,10 @@ build
 !public/focus-areas/galeria.jpg
 !public/focus-areas/community.jpg
 !public/focus-areas/dao-logo.png
+!public/focus-areas/laboratory.jpg
+!public/focus-areas/lab-logo.png
+!public/focus-areas/competitions.jpg
+!public/focus-areas/comp-logo.png
 
 # Contracts (not needed for runtime)
 /contracts
