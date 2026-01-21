@@ -95,7 +95,7 @@ export default function DocsPage() {
       key: 'emotional',
       icon: Heart,
       gradient: 'from-red-400 to-pink-500',
-      bgImage: '/focus-areas/emocional.PNG',
+      bgImage: '/focus-areas/emocional.jpg',
       stickerImage: '/focus-areas/corazon.png',
     },
     { key: 'artistic', icon: Gift, gradient: 'from-amber-400 to-orange-500' },
