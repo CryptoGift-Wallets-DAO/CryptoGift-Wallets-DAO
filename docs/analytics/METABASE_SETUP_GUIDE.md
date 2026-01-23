@@ -390,18 +390,48 @@ export async function POST(request: NextRequest) {
 
 ---
 
+## 🎯 Dashboards Creados (Producción)
+
+**Instancia Metabase**: https://calm-shoal.metabaseapp.com
+
+| Dashboard | ID | Cards | URL |
+|-----------|----|----|-----|
+| 🎁 Gift Funnel Analytics | 10 | 3 | [Abrir](https://calm-shoal.metabaseapp.com/dashboard/10) |
+| ⚡ Task Operations | 11 | 3 | [Abrir](https://calm-shoal.metabaseapp.com/dashboard/11) |
+| 🔗 Referral Network | 12 | 4 | [Abrir](https://calm-shoal.metabaseapp.com/dashboard/12) |
+
+### Cards Incluidos:
+
+**Gift Funnel (ID: 10)**
+- 📊 Gift Funnel Overview (ID: 113) - Summary de últimos 30 días
+- 📈 Daily Gift Activity (ID: 114) - Tendencia diaria
+- 🔄 Conversion Rates (ID: 115) - Tasas de conversión
+
+**Task Operations (ID: 11)**
+- 📋 Task Summary (ID: 116) - Métricas agregadas
+- 🥧 Tasks by Status (ID: 117) - Pie chart de estados
+- 📈 Daily Task Activity (ID: 118) - Tendencia diaria
+
+**Referral Network (ID: 12)**
+- 📊 Referral Summary (ID: 119) - Métricas totales
+- 🎯 Referrals by Level (ID: 120) - Breakdown por nivel
+- 📈 Daily Referral Growth (ID: 121) - Tendencia diaria
+- 🏆 Top Referrers (ID: 122) - Leaderboard
+
+---
+
 ## ✅ Checklist Final
 
-- [ ] Migración SQL ejecutada en Supabase
-- [ ] Variables de entorno configuradas (CRON_SECRET)
-- [ ] Deploy realizado con nuevo vercel.json
-- [ ] Sync API funcionando (verificar con GET /api/analytics/sync)
-- [ ] Metabase instalado (Cloud o self-hosted)
-- [ ] Conexión a Supabase configurada
-- [ ] Schema sincronizado en Metabase
-- [ ] Dashboard de Gift Funnel creado
-- [ ] Dashboard de Task Operations creado
-- [ ] Dashboard de Referral Network creado
+- [x] Migración SQL ejecutada en Supabase
+- [x] Variables de entorno configuradas (CRON_SECRET)
+- [x] Deploy realizado con nuevo vercel.json
+- [x] Sync API funcionando (verificar con GET /api/analytics/sync)
+- [x] Metabase instalado (Cloud)
+- [x] Conexión a Supabase configurada
+- [x] Schema sincronizado en Metabase
+- [x] Dashboard de Gift Funnel creado
+- [x] Dashboard de Task Operations creado
+- [x] Dashboard de Referral Network creado
 - [ ] Embedding habilitado (si se requiere)
 - [ ] Cron de refresh de views configurado
 
