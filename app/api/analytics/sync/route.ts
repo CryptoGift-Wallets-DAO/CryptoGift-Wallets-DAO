@@ -111,7 +111,6 @@ function getSupabaseClient() {
 // SYNC STATE MANAGEMENT
 // ============================================================================
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getSyncState(supabase: any, syncId: string): Promise<SyncState | null> {
   const { data, error } = await supabase
     .from('sync_state')
@@ -127,7 +126,6 @@ async function getSyncState(supabase: any, syncId: string): Promise<SyncState | 
   return data as SyncState
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function updateSyncState(
   supabase: any,
   syncId: string,
@@ -150,7 +148,6 @@ async function updateSyncState(
 // MAIN SYNC LOGIC
 // ============================================================================
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function syncGiftAnalytics(redis: Redis, supabase: any): Promise<SyncResult> {
   const startTime = Date.now()
   let processed = 0
