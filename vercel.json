@@ -3,6 +3,12 @@
   "framework": "nextjs",
   "installCommand": "pnpm install",
   "devCommand": "pnpm run dev",
+  "crons": [
+    {
+      "path": "/api/analytics/sync",
+      "schedule": "*/5 * * * *"
+    }
+  ],
   "functions": {
     "app/api/**/*.ts": {
       "maxDuration": 60
