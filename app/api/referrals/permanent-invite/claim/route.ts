@@ -14,7 +14,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import type { PermanentSpecialInviteClaimInsert } from '@/lib/supabase/types';
+import type { PermanentSpecialInviteClaimInsert, Json } from '@/lib/supabase/types';
 
 // Lazy Supabase initialization
 let supabase: ReturnType<typeof createClient> | null = null;
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     // 🆕 Build metadata with user profile data
-    const metadata: Record<string, unknown> = {};
+    const metadata: { [key: string]: Json | undefined } = {};
 
     if (userProfile) {
       if (userProfile.email) {
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
       campaign: campaign || null,
       claimed_at: new Date().toISOString(),
       // 🆕 Store user profile data in metadata
-      metadata: Object.keys(metadata).length > 0 ? metadata : null,
+      metadata: Object.keys(metadata).length > 0 ? (metadata as Json) : null,
     };
 
     const { error: claimError } = await db
