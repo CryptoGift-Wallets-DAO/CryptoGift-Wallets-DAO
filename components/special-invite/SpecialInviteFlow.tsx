@@ -369,6 +369,60 @@ export function SpecialInviteFlow({
     }
   }, []);
 
+  // 🆕 Helper function to send partial activation to backend
+  // This tracks users who started but haven't connected wallet yet
+  const sendPartialActivation = useCallback(async () => {
+    if (!isPermanent) return; // Only for permanent invites
+
+    const progress = progressRef.current;
+    if (!progress) return;
+
+    // Generate or reuse session ID for this partial activation
+    const sessionId = typeof window !== 'undefined'
+      ? sessionStorage.getItem(`partial_session_${inviteData.code}`) || `PS-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+      : null;
+
+    if (sessionId && typeof window !== 'undefined') {
+      sessionStorage.setItem(`partial_session_${inviteData.code}`, sessionId);
+    }
+
+    try {
+      const response = await fetch('/api/referrals/permanent-invite/partial-activation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: inviteData.code,
+          sessionId,
+          email: progress.verifiedEmail,
+          selectedRole: progress.selectedPath,
+          twitter: progress.socialVerification?.twitter?.verified ? {
+            username: progress.socialVerification.twitter.username,
+            userId: progress.socialVerification.twitter.userId,
+            verifiedAt: progress.socialVerification.twitter.verifiedAt,
+          } : null,
+          discord: progress.socialVerification?.discord?.verified ? {
+            username: progress.socialVerification.discord.username,
+            userId: progress.socialVerification.discord.userId,
+            verifiedAt: progress.socialVerification.discord.verifiedAt,
+          } : null,
+          educationProgress: progress.educationState ? {
+            currentBlockIndex: progress.educationState.currentBlockIndex,
+            completedBlocks: progress.educationState.completedBlocks.length,
+            questionsAnswered: progress.educationState.questionsAnswered.length,
+          } : null,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('[SpecialInviteFlow] 📊 Partial activation tracked:', data.partialId || 'updated');
+      }
+    } catch (error) {
+      // Non-blocking - don't fail the flow if tracking fails
+      console.warn('[SpecialInviteFlow] Partial activation tracking failed (non-blocking):', error);
+    }
+  }, [isPermanent, inviteData.code]);
+
   // Handle wallet connection
   const handleWalletConnected = useCallback(async () => {
     if (!account?.address) return;
@@ -385,13 +439,36 @@ export function SpecialInviteFlow({
         ? '/api/referrals/permanent-invite/claim'
         : '/api/referrals/special-invite/claim';
 
-      // Claim the invite
+      // 🆕 Collect all user data from persistence to send with claim
+      const userProgressData = progressRef.current;
+      const userEmail = userProgressData?.verifiedEmail || null;
+      const selectedRole = userProgressData?.selectedPath || null;
+      const socialData = userProgressData?.socialVerification || null;
+
+      // Claim the invite with complete user data
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           code: inviteData.code,
-          claimedBy: account.address
+          claimedBy: account.address,
+          // 🆕 Include user profile data collected during the flow
+          userProfile: {
+            email: userEmail,
+            selectedRole: selectedRole,
+            twitter: socialData?.twitter?.verified ? {
+              username: socialData.twitter.username,
+              userId: socialData.twitter.userId,
+              verifiedAt: socialData.twitter.verifiedAt,
+            } : null,
+            discord: socialData?.discord?.verified ? {
+              username: socialData.discord.username,
+              userId: socialData.discord.userId,
+              verifiedAt: socialData.discord.verifiedAt,
+            } : null,
+          },
+          // Pass education score if available
+          educationScore: userProgressData?.questionsScore || null,
         })
       });
 
@@ -517,7 +594,10 @@ export function SpecialInviteFlow({
       progressRef.current = updateEmailVerified(progressRef.current, email);
       console.log('[SpecialInviteFlow] 💾 Email verified, progress saved');
     }
-  }, []);
+
+    // 🆕 Track partial activation (user verified email but may not have wallet yet)
+    sendPartialActivation();
+  }, [sendPartialActivation]);
 
   // Handle calendar booking completion
   const handleCalendarBooked = useCallback(() => {
@@ -643,7 +723,10 @@ export function SpecialInviteFlow({
     }
 
     console.log(`[SpecialInviteFlow] 💾 ${platform} verification saved`);
-  }, []);
+
+    // 🆕 Track partial activation (user verified social but may not have wallet yet)
+    sendPartialActivation();
+  }, [sendPartialActivation]);
 
   /**
    * 🆕 Handle role/path selection
@@ -660,7 +743,10 @@ export function SpecialInviteFlow({
     // 🆕 Also update useState to trigger re-render
     setSavedSelectedPath(path);
     console.log(`[SpecialInviteFlow] 💾 Selected path saved`);
-  }, []);
+
+    // 🆕 Track partial activation (user selected role but may not have wallet yet)
+    sendPartialActivation();
+  }, [sendPartialActivation]);
 
   // Render content based on current step
   const renderStepContent = () => {

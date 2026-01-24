@@ -59,6 +59,7 @@ import {
   Wallet,
   BarChart3,
   QrCode,
+  Clock,
 } from 'lucide-react';
 import { QRCodeModal } from './QRCodeModal';
 import {
@@ -109,6 +110,29 @@ interface ClaimHistoryEntry {
   completedAt: string | null;
   bonusClaimed: boolean;
   bonusAmount: number;
+  // User profile data from metadata
+  userProfile?: {
+    email: string | null;
+    selectedRole: string | null;
+    twitter: { username: string | null; userId: string | null } | null;
+    discord: { username: string | null; userId: string | null } | null;
+  };
+}
+
+// Partial activation (users who started but haven't connected wallet)
+interface PartialActivationEntry {
+  partialId: string;
+  inviteCode: string;
+  createdAt: string;
+  updatedAt: string;
+  email: string | null;
+  selectedRole: string | null;
+  twitter: { username: string | null } | null;
+  discord: { username: string | null } | null;
+  hasEmail: boolean;
+  hasRole: boolean;
+  hasTwitter: boolean;
+  hasDiscord: boolean;
 }
 
 export function PermanentReferralCard({ referralCode, walletAddress }: PermanentReferralCardProps) {
@@ -136,6 +160,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
   const [showHistory, setShowHistory] = useState(false);
   const [selectedInvite, setSelectedInvite] = useState<string | null>(null);
   const [claimHistory, setClaimHistory] = useState<Record<string, ClaimHistoryEntry[]>>({});
+  const [partialActivations, setPartialActivations] = useState<Record<string, PartialActivationEntry[]>>({});
   const [loadingClaimHistory, setLoadingClaimHistory] = useState<string | null>(null);
   const [pausingInviteCode, setPausingInviteCode] = useState<string | null>(null);
   const [qrModalInvite, setQrModalInvite] = useState<{ code: string; url: string } | null>(null);
@@ -168,15 +193,27 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
     fetchPermanentInvites();
   }, [walletAddress]);
 
-  // Load claim history for a specific invite
+  // Load claim history and partial activations for a specific invite
   const loadClaimHistory = useCallback(async (inviteCode: string) => {
     setLoadingClaimHistory(inviteCode);
     try {
-      const response = await fetch(`/api/referrals/permanent-invite/history?code=${inviteCode}`);
-      if (response.ok) {
-        const data = await response.json();
+      // Load both claim history and partial activations in parallel
+      const [historyResponse, partialsResponse] = await Promise.all([
+        fetch(`/api/referrals/permanent-invite/history?code=${inviteCode}`),
+        fetch(`/api/referrals/permanent-invite/partial-activation?code=${inviteCode}`),
+      ]);
+
+      if (historyResponse.ok) {
+        const data = await historyResponse.json();
         if (data.success && data.claims) {
           setClaimHistory(prev => ({ ...prev, [inviteCode]: data.claims }));
+        }
+      }
+
+      if (partialsResponse.ok) {
+        const data = await partialsResponse.json();
+        if (data.success && data.partialActivations) {
+          setPartialActivations(prev => ({ ...prev, [inviteCode]: data.partialActivations }));
         }
       }
     } catch (error) {
@@ -856,6 +893,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                     const inviteUrl = `${baseUrl}/permanent-invite/${invite.inviteCode}`;
                     const isExpanded = selectedInvite === invite.inviteCode;
                     const claims = claimHistory[invite.inviteCode] || [];
+                    const partials = partialActivations[invite.inviteCode] || [];
 
                     return (
                       <div
@@ -1042,6 +1080,50 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
                               <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-2">
                                 {t('history.noUsers')}
                               </p>
+                            )}
+
+                            {/* Partial Activations Section */}
+                            {partials.length > 0 && (
+                              <div className="mt-4 pt-3 border-t border-purple-200 dark:border-purple-700">
+                                <h5 className="text-xs font-medium text-amber-700 dark:text-amber-400 mb-2 flex items-center gap-2">
+                                  <Clock className="h-3 w-3" />
+                                  {t('history.partialActivations') || 'Partial Activations'} ({partials.length})
+                                </h5>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                  {t('history.partialDescription') || 'Users who started but haven\'t connected wallet yet'}
+                                </p>
+                                <div className="space-y-2 max-h-32 overflow-y-auto">
+                                  {partials.map((partial, idx) => (
+                                    <div key={idx} className="text-xs bg-amber-50 dark:bg-amber-900/20 p-2 rounded border border-amber-200 dark:border-amber-800">
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        {partial.email && (
+                                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded">
+                                            📧 {partial.email.slice(0, 15)}{partial.email.length > 15 ? '...' : ''}
+                                          </span>
+                                        )}
+                                        {partial.selectedRole && (
+                                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 rounded">
+                                            🎯 {partial.selectedRole}
+                                          </span>
+                                        )}
+                                        {partial.hasTwitter && partial.twitter?.username && (
+                                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 rounded">
+                                            𝕏 @{partial.twitter.username}
+                                          </span>
+                                        )}
+                                        {partial.hasDiscord && partial.discord?.username && (
+                                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded">
+                                            🎮 {partial.discord.username}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="text-gray-500 dark:text-gray-400 mt-1 text-[10px]">
+                                        {new Date(partial.updatedAt).toLocaleDateString()}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
                             )}
                           </div>
                         )}

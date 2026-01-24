@@ -43,6 +43,9 @@ export async function POST(request: NextRequest) {
       campaign,
       ipHash,
       userAgent,
+      // 🆕 User profile data collected during the invite flow
+      userProfile,
+      educationScore,
     } = body;
 
     if (!code || !claimedBy) {
@@ -86,21 +89,45 @@ export async function POST(request: NextRequest) {
       .eq('invite_code', normalizedCode)
       .single();
 
+    // 🆕 Build metadata with user profile data
+    const metadata: Record<string, unknown> = {};
+
+    if (userProfile) {
+      if (userProfile.email) {
+        metadata.email = userProfile.email;
+      }
+      if (userProfile.selectedRole) {
+        metadata.selectedRole = userProfile.selectedRole;
+      }
+      if (userProfile.twitter) {
+        metadata.twitter = userProfile.twitter;
+      }
+      if (userProfile.discord) {
+        metadata.discord = userProfile.discord;
+      }
+    }
+
+    if (educationScore) {
+      metadata.educationScore = educationScore;
+    }
+
     // Create claim record
     const claimData: PermanentSpecialInviteClaimInsert = {
       invite_code: normalizedCode,
       claimed_by_wallet: normalizedWallet,
       referrer_wallet: invite?.referrer_wallet || null,
       referrer_code: invite?.referrer_code || null,
-      education_completed: false,
+      education_completed: educationScore?.total > 0 || false,
       wallet_connected: true,
-      profile_created: false,
+      profile_created: !!(userProfile?.email || userProfile?.selectedRole),
       signup_bonus_claimed: false,
       ip_hash: ipHash || null,
       user_agent: userAgent || null,
       source: source || null,
       campaign: campaign || null,
       claimed_at: new Date().toISOString(),
+      // 🆕 Store user profile data in metadata
+      metadata: Object.keys(metadata).length > 0 ? metadata : null,
     };
 
     const { error: claimError } = await db

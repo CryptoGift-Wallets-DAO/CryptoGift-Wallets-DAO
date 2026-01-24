@@ -88,20 +88,33 @@ export async function GET(request: NextRequest) {
     }, {}) || {};
 
     // Format claims for response
-    const formattedClaims = claims?.map((claim: any) => ({
-      wallet: claim.claimed_by_wallet,
-      claimedAt: claim.claimed_at,
-      completedAt: claim.completed_at,
-      completed: !!claim.completed_at,
-      educationCompleted: claim.education_completed,
-      walletConnected: claim.wallet_connected,
-      profileCreated: claim.profile_created,
-      signupBonusClaimed: claim.signup_bonus_claimed,
-      bonusAmount: claim.bonus_amount,
-      bonusTxHash: claim.bonus_tx_hash,
-      source: claim.source,
-      campaign: claim.campaign,
-    })) || [];
+    const formattedClaims = claims?.map((claim: any) => {
+      // 🆕 Extract user profile data from metadata
+      const metadata = claim.metadata || {};
+
+      return {
+        wallet: claim.claimed_by_wallet,
+        claimedAt: claim.claimed_at,
+        completedAt: claim.completed_at,
+        completed: !!claim.completed_at,
+        educationCompleted: claim.education_completed,
+        walletConnected: claim.wallet_connected,
+        profileCreated: claim.profile_created,
+        signupBonusClaimed: claim.signup_bonus_claimed,
+        bonusAmount: claim.bonus_amount,
+        bonusTxHash: claim.bonus_tx_hash,
+        source: claim.source,
+        campaign: claim.campaign,
+        // 🆕 User profile data from metadata
+        userProfile: {
+          email: metadata.email || null,
+          selectedRole: metadata.selectedRole || null,
+          twitter: metadata.twitter || null,
+          discord: metadata.discord || null,
+          educationScore: metadata.educationScore || null,
+        },
+      };
+    }) || [];
 
     return NextResponse.json({
       success: true,
