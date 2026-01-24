@@ -1269,7 +1269,9 @@
       },
       "deleteConfirm": "Are you sure you want to delete this permanent link?\n\nThis action CANNOT be undone. All associated data will be deleted:\n- The link will stop working\n- User history will be lost\n- Statistics will be deleted\n\nIf you just want to pause the link temporarily, use the 'Pause' button instead.",
       "errorGenerating": "Error generating permanent link. Please try again.",
-      "errorDeleting": "Error deleting the link. Please try again."
+      "errorDeleting": "Error deleting the link. Please try again.",
+      "errorNoWallet": "Please connect your wallet first to create a permanent link.",
+      "connectWalletFirst": "Connect Wallet First"
     }
   },
   "inviteCard": {

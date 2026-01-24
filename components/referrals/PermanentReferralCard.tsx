@@ -344,6 +344,12 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
   };
 
   const generatePermanentLink = useCallback(async () => {
+    // Validate wallet is connected before proceeding
+    if (!walletAddress) {
+      alert(t('errorNoWallet'));
+      return;
+    }
+
     setIsGenerating(true);
 
     try {
@@ -431,7 +437,7 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
       setIsGenerating(false);
       setIsUploadingImage(false);
     }
-  }, [referralCode, password, customMessage, customTitle, defaultMessage, defaultTitle, walletAddress, imageFile, maxClaims]);
+  }, [referralCode, password, customMessage, customTitle, defaultMessage, defaultTitle, walletAddress, imageFile, maxClaims, masterclassType, t]);
 
   const handleCopy = useCallback(async () => {
     if (!generatedLink) return;
@@ -688,13 +694,18 @@ export function PermanentReferralCard({ referralCode, walletAddress }: Permanent
             {/* Generate Button */}
             <Button
               onClick={generatePermanentLink}
-              disabled={isGenerating || isUploadingImage}
-              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-lg"
+              disabled={isGenerating || isUploadingImage || !walletAddress}
+              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   {isUploadingImage ? t('uploadingImage') : t('generating')}
+                </>
+              ) : !walletAddress ? (
+                <>
+                  <Wallet className="h-4 w-4 mr-2" />
+                  {t('connectWalletFirst')}
                 </>
               ) : (
                 <>

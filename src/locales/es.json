@@ -1269,7 +1269,9 @@
       },
       "deleteConfirm": "¿Estás seguro de que quieres eliminar este enlace permanente?\n\nEsta acción NO se puede deshacer. Se eliminarán todos los datos asociados:\n- El enlace dejará de funcionar\n- Se perderá el historial de usuarios\n- Se eliminarán las estadísticas\n\nSi solo quieres pausar el enlace temporalmente, usa el botón 'Pausar' en su lugar.",
       "errorGenerating": "Error al generar enlace permanente. Intenta de nuevo.",
-      "errorDeleting": "Error al eliminar el enlace. Por favor intenta de nuevo."
+      "errorDeleting": "Error al eliminar el enlace. Por favor intenta de nuevo.",
+      "errorNoWallet": "Por favor conecta tu wallet primero para crear un enlace permanente.",
+      "connectWalletFirst": "Conecta tu Wallet"
     }
   },
   "inviteCard": {
