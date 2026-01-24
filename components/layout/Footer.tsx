@@ -125,6 +125,26 @@ export const Footer: React.FC = () => {
             <h3 className="font-semibold text-lg mb-4">{t('product.title')}</h3>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
+                <a
+                  href="https://gifts.mbxarts.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  {t('product.createGift')}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://gifts.mbxarts.com/models?category=competitions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  {t('product.competitions')}
+                </a>
+              </li>
+              <li>
                 <Link href="/" className="hover:text-white transition-colors">
                   {t('product.dashboard')}
                 </Link>

@@ -1341,6 +1341,8 @@
     },
     "product": {
       "title": "Producto",
+      "createGift": "Crear Regalo",
+      "competitions": "Competencias",
       "dashboard": "Panel",
       "tasks": "Tareas y Recompensas",
       "governance": "Gobernanza",
