@@ -45,7 +45,7 @@ import {
 } from 'lucide-react';
 
 // Permanent invite link for new users (OFFICIAL CAMPAIGN LINK)
-const INVITE_LINK = '/permanent-invite/PI-MK29MMCI-E6284EC943D54CA3';
+const INVITE_LINK = '/permanent-invite/PI-MKSVXYG8-74C63BD29FA49F18';
 
 // Interface for profile data when showing presentation card overlay
 interface PublicProfile {
