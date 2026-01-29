@@ -217,8 +217,8 @@ export function ProfileExpanded() {
         <VideoAvatar
           imageSrc={profile.avatar_url || undefined}
           alt={profile.display_name || 'Profile'}
-          size="xl"
-          className="!w-[168px] !h-[168px]"
+          width={168}
+          height={168}
           disableHoverEffects
         />
 

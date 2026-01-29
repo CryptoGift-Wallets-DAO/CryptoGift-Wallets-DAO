@@ -24,6 +24,10 @@ interface VideoAvatarProps {
   imageSrc?: string;
   alt?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  /** Override width (px) - takes precedence over size */
+  width?: number;
+  /** Override height (px) - takes precedence over size */
+  height?: number;
   className?: string;
   enableSound?: boolean;
   enableFloat?: boolean;
@@ -46,6 +50,8 @@ export function VideoAvatar({
   imageSrc,
   alt = 'Profile avatar',
   size = 'md',
+  width,
+  height,
   className = '',
   enableSound = false,
   enableFloat = false,
@@ -61,7 +67,14 @@ export function VideoAvatar({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const dimensions = sizeMap[size];
+  const baseDimensions = sizeMap[size];
+  // Allow width/height props to override sizeMap
+  const dimensions = {
+    container: width || height || baseDimensions.container,
+    icon: baseDimensions.icon,
+  };
+  const containerWidth = width || baseDimensions.container;
+  const containerHeight = height || baseDimensions.container;
 
   useEffect(() => {
     if (videoRef.current && videoSrc) {
@@ -105,8 +118,8 @@ export function VideoAvatar({
         ${className}
       `}
       style={{
-        width: dimensions.container,
-        height: dimensions.container,
+        width: containerWidth,
+        height: containerHeight,
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
