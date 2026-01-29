@@ -87,15 +87,21 @@ export function ProfileExpanded() {
   }, []);
 
   // Calculate position ONCE when opening - FIXED to screen, not page
-  // L2 top-left corner aligns with thumbnail's top-left corner
+  // L2 visual corner must cover L1 completely (accounting for border-radius)
+  //
+  // GEOMETRY: L2 has rounded-[34px] which creates a curved corner.
+  // The "corner gap" = borderRadius × (1 - 1/√2) ≈ 10px
+  // We offset L2 by -4px to ensure its curved edge covers L1's visible border.
+  const CORNER_OFFSET = 4;
+
   useEffect(() => {
     if (currentLevel !== 2 || !thumbnailRef.current) return;
 
-    // Align L2's top-left corner with thumbnail's top-left corner
+    // Position L2 with offset so its rounded corner covers L1 completely
     const rect = thumbnailRef.current.getBoundingClientRect();
     setPosition({
-      top: rect.top,
-      left: rect.left,
+      top: rect.top - CORNER_OFFSET,
+      left: rect.left - CORNER_OFFSET,
     });
 
     // Only update on resize (responsive), NOT on scroll
@@ -103,8 +109,8 @@ export function ProfileExpanded() {
       const newRect = thumbnailRef.current?.getBoundingClientRect();
       if (newRect) {
         setPosition({
-          top: newRect.top,
-          left: newRect.left,
+          top: newRect.top - CORNER_OFFSET,
+          left: newRect.left - CORNER_OFFSET,
         });
       }
     };
