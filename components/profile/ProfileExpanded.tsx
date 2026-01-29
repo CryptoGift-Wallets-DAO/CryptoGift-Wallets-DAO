@@ -87,14 +87,14 @@ export function ProfileExpanded() {
   }, []);
 
   // Calculate position ONCE when opening - FIXED to screen, not page
-  // L2 top-left corner aligns with thumbnail's bottom-left corner (esquina con esquina)
+  // L2 top-left corner aligns with thumbnail's top-left corner
   useEffect(() => {
     if (currentLevel !== 2 || !thumbnailRef.current) return;
 
-    // Align L2's top-left corner with thumbnail's bottom-left corner (esquina con esquina)
+    // Align L2's top-left corner with thumbnail's top-left corner
     const rect = thumbnailRef.current.getBoundingClientRect();
     setPosition({
-      top: rect.bottom,
+      top: rect.top,
       left: rect.left,
     });
 
@@ -103,7 +103,7 @@ export function ProfileExpanded() {
       const newRect = thumbnailRef.current?.getBoundingClientRect();
       if (newRect) {
         setPosition({
-          top: newRect.bottom,
+          top: newRect.top,
           left: newRect.left,
         });
       }
