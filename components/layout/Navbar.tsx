@@ -176,7 +176,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 dark:border-slate-700 py-4 bg-white dark:bg-slate-900 relative z-[10001]">
+          <div className="md:hidden border-t border-gray-200 dark:border-slate-700 py-4 bg-white dark:bg-slate-900 relative z-[10001] max-h-[calc(100vh-73px)] overflow-y-auto">
             <div className="space-y-4">
               <Link
                 href="/dashboard"
@@ -395,7 +395,7 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
           />
 
           {/* Dropdown Content */}
-          <div className={`absolute top-full ${fullWidth ? 'left-0 right-0' : 'right-0 min-w-[280px]'} mt-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-200 dark:border-slate-600 z-[10001]`}>
+          <div className={`absolute top-full ${fullWidth ? 'left-0 right-0' : 'right-0 min-w-[280px]'} mt-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-200 dark:border-slate-600 z-[10001] max-h-[calc(100vh-150px)] overflow-y-auto`}>
             <div className="p-4">
               {/* Wallet Header */}
               <div className="flex items-center justify-between mb-4">
