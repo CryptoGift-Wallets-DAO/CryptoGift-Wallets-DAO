@@ -205,7 +205,7 @@ export function GrantApplicationsTracker({ className = '' }: GrantApplicationsTr
         <p className="text-gray-600 dark:text-gray-400 mt-2">
           This tracker is only available to authorized team members.
         </p>
-        <p className="text-xs text-gray-500 mt-4 font-mono">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 font-mono">
           Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
         </p>
       </div>
@@ -320,7 +320,7 @@ export function GrantApplicationsTracker({ className = '' }: GrantApplicationsTr
       {loading ? (
         <div className="text-center py-12">
           <RefreshCw className="w-8 h-8 mx-auto animate-spin text-blue-500" />
-          <p className="text-gray-500 mt-4">Loading applications...</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-4">Loading applications...</p>
         </div>
       ) : applications.length === 0 ? (
         <div className="text-center py-12 glass-card">
@@ -491,7 +491,7 @@ function ApplicationCard({
           </button>
           <button
             onClick={onToggleExpand}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
           >
             {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
@@ -525,7 +525,7 @@ function ApplicationCard({
 
               {application.notes.actions_taken && application.notes.actions_taken.length > 0 && (
                 <div className="mb-3">
-                  <h5 className="text-xs font-medium text-gray-500 uppercase mb-1">Actions Taken</h5>
+                  <h5 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Actions Taken</h5>
                   <ul className="space-y-1">
                     {application.notes.actions_taken.map((action, i) => (
                       <li key={i} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
@@ -539,7 +539,7 @@ function ApplicationCard({
 
               {application.notes.next_steps && application.notes.next_steps.length > 0 && (
                 <div>
-                  <h5 className="text-xs font-medium text-gray-500 uppercase mb-1">Next Steps</h5>
+                  <h5 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">Next Steps</h5>
                   <ul className="space-y-1">
                     {application.notes.next_steps.map((step, i) => (
                       <li key={i} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
@@ -661,7 +661,7 @@ function ApplicationForm({ initial, onSubmit, onCancel, isEdit = false }: Applic
         <button
           type="button"
           onClick={onCancel}
-          className="p-2 text-gray-400 hover:text-gray-600"
+          className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
         >
           <X className="w-5 h-5" />
         </button>

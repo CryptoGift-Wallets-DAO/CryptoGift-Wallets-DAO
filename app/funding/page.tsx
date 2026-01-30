@@ -1477,7 +1477,7 @@ function FundingDashboard() {
             <button
               onClick={() => setFilterTier(null)}
               className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                filterTier === null ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                filterTier === null ? 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               All
@@ -1546,11 +1546,11 @@ function ProgressCard({
     <div className="glass-card p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="p-2 glass-bubble">{icon}</div>
-        <span className="text-2xl font-bold text-gray-800">{percentage}%</span>
+        <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">{percentage}%</span>
       </div>
-      <h3 className="font-medium text-gray-700">{title}</h3>
-      <p className="text-sm text-gray-500">{completed} of {total} completed</p>
-      <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
+      <h3 className="font-medium text-gray-700 dark:text-gray-300">{title}</h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400">{completed} of {total} completed</p>
+      <div className="mt-3 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
           style={{ width: `${percentage}%` }}
@@ -1592,14 +1592,14 @@ function GrantCard({
         {/* Main Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className={`font-semibold text-gray-800 ${isCompleted ? 'line-through' : ''}`}>
+            <h3 className={`font-semibold text-gray-800 dark:text-gray-100 ${isCompleted ? 'line-through' : ''}`}>
               {grant.name}
             </h3>
             <TierBadge tier={grant.tier} />
             <TypeBadge type={grant.type} />
             <DifficultyBadge difficulty={grant.difficulty} />
           </div>
-          <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
+          <div className="flex items-center gap-4 mt-1 text-sm text-gray-600 dark:text-gray-400">
             <span className="flex items-center gap-1">
               <Coins className="w-4 h-4" />
               {grant.amount}
@@ -1627,7 +1627,7 @@ function GrantCard({
           )}
           <button
             onClick={onToggleExpanded}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
           >
             {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
           </button>
@@ -1636,8 +1636,8 @@ function GrantCard({
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="px-4 pb-4 pt-2 border-t border-gray-100 bg-gray-50/50">
-          <p className="text-gray-600 mb-4">{grant.description}</p>
+        <div className="px-4 pb-4 pt-2 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{grant.description}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <DetailSection title="Requirements" items={grant.requirements} icon={<FileText className="w-4 h-4" />} />
@@ -1682,14 +1682,14 @@ function CrowdfundingCard({
         {/* Main Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className={`font-semibold text-gray-800 ${isCompleted ? 'line-through' : ''}`}>
+            <h3 className={`font-semibold text-gray-800 dark:text-gray-100 ${isCompleted ? 'line-through' : ''}`}>
               {platform.name}
             </h3>
-            <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-xs font-medium">
+            <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded text-xs font-medium">
               Fee: {platform.fee}
             </span>
           </div>
-          <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
+          <div className="flex items-center gap-4 mt-1 text-sm text-gray-600 dark:text-gray-400">
             {platform.minRaise && (
               <span>Min: {platform.minRaise}</span>
             )}
@@ -1711,7 +1711,7 @@ function CrowdfundingCard({
           </a>
           <button
             onClick={onToggleExpanded}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
           >
             {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
           </button>
@@ -1720,11 +1720,11 @@ function CrowdfundingCard({
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="px-4 pb-4 pt-2 border-t border-gray-100 bg-gray-50/50">
-          <p className="text-gray-600 mb-4">{platform.description}</p>
+        <div className="px-4 pb-4 pt-2 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{platform.description}</p>
 
-          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-sm font-medium text-blue-800">
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+            <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
               <Zap className="w-4 h-4 inline mr-1" />
               Best For: {platform.bestFor}
             </p>
@@ -1752,14 +1752,14 @@ function DetailSection({
 }) {
   return (
     <div>
-      <h4 className="font-medium text-gray-700 flex items-center gap-2 mb-2">
+      <h4 className="font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2">
         {icon}
         {title}
       </h4>
       <ul className="space-y-1">
         {items.map((item, i) => (
-          <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-            <span className="text-gray-400 mt-1">•</span>
+          <li key={i} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
+            <span className="text-gray-400 dark:text-gray-500 mt-1">•</span>
             {item}
           </li>
         ))}
@@ -1770,11 +1770,11 @@ function DetailSection({
 
 function TierBadge({ tier }: { tier: 1 | 2 | 3 | 4 | 5 }) {
   const colors: Record<number, string> = {
-    1: 'bg-red-100 text-red-700',
-    2: 'bg-orange-100 text-orange-700',
-    3: 'bg-yellow-100 text-yellow-700',
-    4: 'bg-green-100 text-green-700',
-    5: 'bg-blue-100 text-blue-700'
+    1: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
+    2: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300',
+    3: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300',
+    4: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300',
+    5: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
   };
 
   return (
@@ -1786,9 +1786,9 @@ function TierBadge({ tier }: { tier: 1 | 2 | 3 | 4 | 5 }) {
 
 function TypeBadge({ type }: { type: 'F' | 'C' | 'F+C' }) {
   const config = {
-    'F': { label: 'Grant', color: 'bg-blue-100 text-blue-700' },
-    'C': { label: 'Crowd', color: 'bg-green-100 text-green-700' },
-    'F+C': { label: 'Both', color: 'bg-purple-100 text-purple-700' }
+    'F': { label: 'Grant', color: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' },
+    'C': { label: 'Crowd', color: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' },
+    'F+C': { label: 'Both', color: 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300' }
   };
 
   return (
@@ -1800,9 +1800,9 @@ function TypeBadge({ type }: { type: 'F' | 'C' | 'F+C' }) {
 
 function DifficultyBadge({ difficulty }: { difficulty: 'Easy' | 'Medium' | 'Hard' }) {
   const colors = {
-    'Easy': 'bg-green-100 text-green-700',
-    'Medium': 'bg-yellow-100 text-yellow-700',
-    'Hard': 'bg-red-100 text-red-700'
+    'Easy': 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300',
+    'Medium': 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300',
+    'Hard': 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300'
   };
 
   return (
@@ -1814,11 +1814,11 @@ function DifficultyBadge({ difficulty }: { difficulty: 'Easy' | 'Medium' | 'Hard
 
 function getTierColor(tier: number, active: boolean): string {
   const colors: Record<number, { active: string; inactive: string }> = {
-    1: { active: 'bg-red-500 text-white', inactive: 'bg-red-100 text-red-700 hover:bg-red-200' },
-    2: { active: 'bg-orange-500 text-white', inactive: 'bg-orange-100 text-orange-700 hover:bg-orange-200' },
-    3: { active: 'bg-yellow-500 text-white', inactive: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' },
-    4: { active: 'bg-green-500 text-white', inactive: 'bg-green-100 text-green-700 hover:bg-green-200' },
-    5: { active: 'bg-blue-500 text-white', inactive: 'bg-blue-100 text-blue-700 hover:bg-blue-200' }
+    1: { active: 'bg-red-500 text-white', inactive: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/60' },
+    2: { active: 'bg-orange-500 text-white', inactive: 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 hover:bg-orange-200 dark:hover:bg-orange-900/60' },
+    3: { active: 'bg-yellow-500 text-white', inactive: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-900/60' },
+    4: { active: 'bg-green-500 text-white', inactive: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/60' },
+    5: { active: 'bg-blue-500 text-white', inactive: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/60' }
   };
 
   return active ? colors[tier].active : colors[tier].inactive;
