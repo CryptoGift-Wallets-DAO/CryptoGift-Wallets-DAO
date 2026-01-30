@@ -394,8 +394,8 @@ function WalletDropdown({ fullWidth = false }: { fullWidth?: boolean }) {
             onClick={() => setShowDropdown(false)}
           />
 
-          {/* Dropdown Content */}
-          <div className={`absolute top-full ${fullWidth ? 'left-0 right-0' : 'right-0 min-w-[280px]'} mt-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-200 dark:border-slate-600 z-[10001] max-h-[calc(100vh-150px)] overflow-y-auto`}>
+          {/* Dropdown Content - relative for mobile (fullWidth) to be part of scroll flow, absolute for desktop */}
+          <div className={`${fullWidth ? 'relative' : 'absolute top-full right-0 min-w-[280px]'} mt-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-200 dark:border-slate-600 z-[10001]`}>
             <div className="p-4">
               {/* Wallet Header */}
               <div className="flex items-center justify-between mb-4">
