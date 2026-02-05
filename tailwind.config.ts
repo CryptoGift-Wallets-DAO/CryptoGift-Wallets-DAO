@@ -66,12 +66,18 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'scale(0.5)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
         },
+        // Slide in from right - for wallet mini card
+        slideInRight: {
+          '0%': { opacity: '0', transform: 'translateX(20px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
       },
       animation: {
         apexFloat: 'apexFloat 4s ease-in-out infinite',
         fadeIn: 'fadeIn 0.2s ease-out',
         scaleIn: 'scaleIn 0.25s ease-out',
         expandIn: 'expandIn 0.2s ease-out',
+        slideInRight: 'slideInRight 0.25s ease-out',
       },
     },
   },

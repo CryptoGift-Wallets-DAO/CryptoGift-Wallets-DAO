@@ -24,6 +24,7 @@ import { ProfileThumbnail } from './ProfileThumbnail';
 import { ProfileExpanded } from './ProfileExpanded';
 import { ProfileMiniCard } from './ProfileMiniCard';
 import { ProfileFullCard } from './ProfileFullCard';
+import { WalletMiniCard } from './WalletMiniCard';
 
 interface ProfileCardProps {
   /** Wallet address to show. If not provided, uses connected wallet */
@@ -78,6 +79,9 @@ export function ProfileCard({
 
       {/* Level 2: Expanded Panel (portal) */}
       <ProfileExpanded />
+
+      {/* Wallet preview (shows alongside Level 2 when user has wallets) */}
+      <WalletMiniCard />
 
       {/* Level 3: Mini Card (portal) */}
       <ProfileMiniCard />

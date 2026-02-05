@@ -457,6 +457,7 @@ function OverviewTab({ profile, t, address, onProfileUpdate }: { profile: any; t
   // Dynamically import the EmailVerificationCard to avoid circular deps
   const { EmailVerificationCard } = require('@/components/profile/EmailVerificationCard');
   const { VotingPowerCard } = require('@/components/profile/VotingPowerCard');
+  const { MyWalletsPanel } = require('@/components/profile/MyWalletsPanel');
 
   return (
     <div className="p-6">
@@ -467,6 +468,9 @@ function OverviewTab({ profile, t, address, onProfileUpdate }: { profile: any; t
           onActivated={onProfileUpdate}
         />
       </div>
+
+      {/* My NFT Wallets - Cross-platform integration with CryptoGift */}
+      <MyWalletsPanel walletAddress={address} />
 
       {/* Email Verification Card - Prominent at top if not verified */}
       <div className="mb-6">

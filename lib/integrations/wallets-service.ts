@@ -106,6 +106,30 @@ export interface PushSubscription {
   };
 }
 
+// User NFT Wallet Types (from cryptogift-wallets)
+export interface UserNFTWallet {
+  id: string;
+  name: string;
+  address: string;
+  tbaAddress: string;
+  nftContract: string;
+  tokenId: string;
+  image: string;
+  balance: {
+    eth: string;
+    usdc: string;
+    total: string;
+  };
+  isActive: boolean;
+}
+
+export interface UserNFTWalletsResponse {
+  success: boolean;
+  userAddress: string;
+  walletsFound: number;
+  wallets: UserNFTWallet[];
+}
+
 // =============================================================================
 // INTERNAL API KEY
 // =============================================================================
@@ -361,6 +385,26 @@ class WalletsServiceClient {
       {
         headers: this.getAuthHeaders(),
         timeout: TIMEOUTS.default,
+      }
+    );
+  }
+
+  // ===========================================================================
+  // USER NFT WALLETS (CROSS-PLATFORM INTEGRATION)
+  // ===========================================================================
+
+  /**
+   * Get all NFT wallets owned by a user address
+   * This calls the cryptogift-wallets /api/user/nft-wallets endpoint
+   */
+  async getUserNFTWallets(
+    userAddress: string
+  ): Promise<ApiResponse<UserNFTWalletsResponse>> {
+    return apiGet<UserNFTWalletsResponse>(
+      this.buildUrl(`/user/nft-wallets?address=${userAddress}`),
+      {
+        headers: this.getAuthHeaders(userAddress),
+        timeout: TIMEOUTS.long,
       }
     );
   }

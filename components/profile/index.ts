@@ -23,3 +23,6 @@ export { ProfileThumbnail } from './ProfileThumbnail';
 export { ProfileExpanded } from './ProfileExpanded';
 export { ProfileMiniCard } from './ProfileMiniCard';
 export { ProfileFullCard } from './ProfileFullCard';
+
+// Cross-platform integration components
+export { WalletMiniCard } from './WalletMiniCard';
