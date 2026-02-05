@@ -33,7 +33,8 @@ export interface UseUserWalletsResult {
 // =====================================================
 
 async function fetchUserWallets(address: string): Promise<UserNFTWalletsResponse> {
-  const res = await fetch(`/api/v1/wallets/user/nft-wallets?address=${address}`);
+  // CRITICAL: The Wallets API expects 'userAddress' parameter, not 'address'
+  const res = await fetch(`/api/v1/wallets/user/nft-wallets?userAddress=${address}`);
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ error: 'Failed to fetch wallets' }));
