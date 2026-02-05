@@ -121,8 +121,8 @@ export const AUTH_CONFIG = {
 export const TIMEOUTS = {
   // Default request timeout
   default: 10000, // 10 seconds
-  // Longer timeout for complex operations
-  long: 30000, // 30 seconds
+  // Longer timeout for complex operations (proxy to Wallets)
+  long: 60000, // 60 seconds - increased for NFT wallet queries
   // Timeout for internal service calls
   internal: 5000, // 5 seconds
 } as const;
